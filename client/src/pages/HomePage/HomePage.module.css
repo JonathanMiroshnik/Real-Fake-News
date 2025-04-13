@@ -1,0 +1,23 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 20px 20px;
+}
+
+.featured-article {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 2rem;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+}
