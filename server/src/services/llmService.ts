@@ -3,19 +3,14 @@ import { OpenAI } from 'openai';
 
 import { GenerateContentRequest, GenerateContentResponse } from '../types/llm';
 
+// TODO: unused
 type LLMProvider = 'openai' | 'deepseek';
-
-// interface GenerationOptions {
-//   provider: LLMProvider;
-//   prompt: string;
-//   maxTokens: number;
-//   temperature?: number;
-// }
 
 export class LLMService {
   private openai: OpenAI;
 
   constructor() {
+    // TODO: magic strings
     this.openai = new OpenAI({
       baseURL: 'https://api.deepseek.com',
       apiKey: process.env.DEEPSEEK_API_KEY
@@ -45,6 +40,7 @@ export class LLMService {
 
       // return completion?.choices[0]?.message.content as string;
     } catch (error) {
+      // TODO: no point not returning this?
       contentRes = {
         success: false,
         generatedText: "",

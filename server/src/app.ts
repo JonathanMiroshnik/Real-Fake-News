@@ -1,28 +1,3 @@
-// import express from 'express';
-// import connectDatabase from './config/database';
-// // import articleRoutes from './routes/articleRoutes';
-// import llmRoutes from './routes/llmRoutes';
-
-// const app = express();
-// const port = process.env.PORT || 3000;
-
-// app.use(express.json());
-
-// // Initialize database connection
-// connectDatabase();
-
-// // Routes
-// // app.use('/api/articles', articleRoutes);
-// app.use('/api/llm', llmRoutes);
-
-// app.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
-// });
-
-// export default app;
-
-// ---------------------------------------------------------------------------------
-
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
