@@ -14,21 +14,21 @@ if (!MONGO_URI) {
   throw new Error('MONGO_URI environment variable is required');
 }
 
-// // Database connection
-// const connectDB = async () => {
-//   try {
-//     await mongoose.connect(MONGO_URI);
-//     console.log('📚 MongoDB connected successfully');
-//   } catch (error) {
-//     console.error('💥 Database connection failed:', error);
-//     process.exit(1);
-//   }
-// };
+// Database connection
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('📚 MongoDB connected successfully');
+  } catch (error) {
+    console.error('💥 Database connection failed:', error);
+    process.exit(1);
+  }
+};
 
 // Server startup sequence
 const startServer = async () => {
   try {
-    // await connectDB();
+    await connectDB();
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`);

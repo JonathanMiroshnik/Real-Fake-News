@@ -3,15 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMService = void 0;
 require("dotenv/config");
 const openai_1 = require("openai");
-// interface GenerationOptions {
-//   provider: LLMProvider;
-//   prompt: string;
-//   maxTokens: number;
-//   temperature?: number;
-// }
 class LLMService {
     openai;
     constructor() {
+        // TODO: magic strings
         this.openai = new openai_1.OpenAI({
             baseURL: 'https://api.deepseek.com',
             apiKey: process.env.DEEPSEEK_API_KEY
@@ -38,6 +33,7 @@ class LLMService {
             // return completion?.choices[0]?.message.content as string;
         }
         catch (error) {
+            // TODO: no point not returning this?
             contentRes = {
                 success: false,
                 generatedText: "",

@@ -12,7 +12,7 @@ const AdminLogin = () => {
     const formData = new FormData(e.currentTarget);
     
     try {
-      await login(formData.get('username'), formData.get('password'));
+      await login(formData.get('username') as string, formData.get('password') as string);
       navigate('/admin/dashboard');
     } catch (err) {
       setError('Invalid credentials');
