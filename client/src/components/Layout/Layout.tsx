@@ -1,12 +1,12 @@
 import { Outlet } from "react-router";
 
-import { Article } from "../Article/Article";
-import { Footer } from "../Footer/Footer";
-import { Header } from "../Header/Header";
+import Article from "../Article/Article";
+import Footer from "../Footer/Footer";
+import Header from "../Header/Header";
 
 import viteLogo from '/vite.svg'
 
-const Layout : React.FC = () => {
+function Layout() {
     return (
         <>            
             <div>

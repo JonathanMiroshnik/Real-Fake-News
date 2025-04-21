@@ -3,12 +3,12 @@ import { Link } from "react-router";
 
 import { ArticleProps } from "../Article/Article";
 
-const FeaturedArticle: React.FC<ArticleProps> = ({ 
+function FeaturedArticle({ 
     title,
     author,
     timestamp,
     headImage
-  }) => {
+  }: ArticleProps) {
     return (
         <Link to="">
             <div className="article-header">

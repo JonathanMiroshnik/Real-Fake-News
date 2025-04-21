@@ -7,8 +7,12 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const llmRoutes_1 = __importDefault(require("./routes/llmRoutes"));
+const mongoose_1 = __importDefault(require("mongoose"));
 // Initialize express application
 const app = (0, express_1.default)();
+mongoose_1.default.connection.on('connected', () => {
+    console.log(`Connected to ${mongoose_1.default.connection.host}:${mongoose_1.default.connection.port}/${mongoose_1.default.connection.name}`);
+});
 // Middleware pipeline
 app.use((0, cors_1.default)({
     origin: process.env.CLIENT_URL || 'http://localhost:3000',

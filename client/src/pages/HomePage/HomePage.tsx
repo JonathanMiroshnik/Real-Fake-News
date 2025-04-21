@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 
 import styles from './HomePage.module.css';
+import Article from '../../components/Article/Article';
 
-const HomePage: React.FC = () => {
+function HomePage() {
   return (
     <div className={styles.homeContainer}>
 
@@ -26,7 +27,7 @@ const HomePage: React.FC = () => {
       
       <div className="main-content">
         <section className={styles.articleGrid}>
-          {/* Article grid components */}
+          hello
         </section>
 
         <aside className={styles.sidebar}>

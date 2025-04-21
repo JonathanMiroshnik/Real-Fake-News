@@ -7,7 +7,7 @@ import HomePage from './pages/HomePage/HomePage';
 
 import './App.css'
 
-const App: React.FC = () => {
+function App() {
   return (
     <div>
       <Helmet>
@@ -31,4 +31,4 @@ const App: React.FC = () => {
   );
 }
 
-export default App
+export default App;

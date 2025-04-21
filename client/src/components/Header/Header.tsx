@@ -6,7 +6,7 @@ interface HeaderProps {
   sections: string[];
 }
 
-export const Header: React.FC<HeaderProps> = ({ sections }) => {
+function Header({ sections }: HeaderProps) {
   return (
     <header className="site-header">
       <div className="logo">REAL FAKE NEWS</div>
@@ -20,3 +20,5 @@ export const Header: React.FC<HeaderProps> = ({ sections }) => {
     </header>
   );
 };
+
+export default Header;

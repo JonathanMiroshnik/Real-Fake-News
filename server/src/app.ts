@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import llmRoutes from './routes/llmRoutes';
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 
 // Initialize express application
 const app = express();

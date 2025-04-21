@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
-import './Article.module.css'
+import styles from './Article.module.css'
 
 export interface ArticleProps {
   title?: string;
@@ -12,20 +12,20 @@ export interface ArticleProps {
   headImage?: string;
 }
 
-const getValidatedArticleProps = (props: ArticleProps) => {
-  return {
-    title: props.title?.trim() || "Top Story",
-    content: props.content || "This article is currently being generated...",
-    author: props.author || "Artificial Intelligence Reporter",
-    timestamp: props.timestamp instanceof Date ? props.timestamp : new Date(),
-    category: ['politics','tech','entertainment'].includes(props.category || '') 
-      ? props.category 
-      : 'general'
-  };
-}
-
-export const Article: React.FC<ArticleProps> = (props) => {
+function Article(props: ArticleProps) {
   const validated = getValidatedArticleProps(props);
+
+  function getValidatedArticleProps(props: ArticleProps) {
+    return {
+      title: props.title?.trim() || "Top Story",
+      content: props.content || "This article is currently being generated...",
+      author: props.author || "Artificial Intelligence Reporter",
+      timestamp: props.timestamp instanceof Date ? props.timestamp : new Date(),
+      category: ['politics','tech','entertainment'].includes(props.category || '') 
+        ? props.category 
+        : 'general'
+    };
+  }
 
   return (
     <article className="news-article">
@@ -43,3 +43,5 @@ export const Article: React.FC<ArticleProps> = (props) => {
     </article>
   );
 };
+
+export default Article;
