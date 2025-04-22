@@ -1,0 +1,2 @@
+{"title":"News 1","content":"Sample text HELLO MAN LOL MY FRIEND","category":"tech"}
+{"title":"News 2","content":"Another story","category":"politics"}

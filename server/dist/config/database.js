@@ -16,6 +16,9 @@ const connectDatabase = async () => {
         console.error('MongoDB connection error:', error);
         process.exit(1);
     }
+    mongoose_1.default.connection.on('connected', () => {
+        console.log(`Connected to ${mongoose_1.default.connection.host}:${mongoose_1.default.connection.port}/${mongoose_1.default.connection.name}`);
+    });
     mongoose_1.default.connection.on('error', (err) => {
         console.error('MongoDB connection error:', err);
     });

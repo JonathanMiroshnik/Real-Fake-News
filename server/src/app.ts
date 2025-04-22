@@ -3,7 +3,14 @@ import cors from 'cors';
 import morgan from 'morgan';
 import llmRoutes from './routes/llmRoutes';
 import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
+
+// import crudTest from './lowdb_complete/lowdb_lib/lowdb_crud'
+// crudTest();
+
+import { articleTest } from './schemes/article';
+articleTest();
+
 
 // Initialize express application
 const app = express();
