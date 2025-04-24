@@ -1,9 +1,21 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
+import { ArticleProps } from '../../components/Article/Article';
 
 import styles from './HomePage.module.css';
 import Article from '../../components/Article/Article';
 
 function HomePage() {
+  const [articles, setArticles] = useState<ArticleProps[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/blogs/daily')
+      .then(response => response.json())
+      .then(data => setArticles(data.articles))
+      .catch(error => console.error('Error:', error));
+  }, []);
+
   return (
     <div className={styles.homeContainer}>
 
@@ -27,7 +39,9 @@ function HomePage() {
       
       <div className="main-content">
         <section className={styles.articleGrid}>
-          hello
+          { articles.length > 0 && articles.map((article) => (
+            <Article {...article} />
+          )) }
         </section>
 
         <aside className={styles.sidebar}>

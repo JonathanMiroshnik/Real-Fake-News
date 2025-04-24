@@ -29,6 +29,9 @@ export class LLMService {
       const completion = await this.openai.chat.completions.create({
         messages: [{ role: "system", content: options.prompt }],
         model: "deepseek-chat",
+        response_format: {
+          'type': options.type
+        }
       });      
       
       // TODO: what do I do with the return statement here with the ? parts
@@ -47,7 +50,7 @@ export class LLMService {
         error: error as string
       };
 
-      console.error('LLM generation error:', error);
+      console.log('LLM generation error:', error);
       throw new Error('Content generation failed');
     }
 

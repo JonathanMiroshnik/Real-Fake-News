@@ -1,18 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.promptText = void 0;
+exports.generateTextFromString = generateTextFromString;
 const llmService_1 = require("../services/llmService");
 const promptText = async (req, res) => {
     try {
-        console.log("check");
         const request = {
             provider: 'deepseek',
             prompt: req.body.text,
+            type: 'text'
         };
-        console.log(req.body.text);
         const llmServiceInst = new llmService_1.LLMService();
         const result = await llmServiceInst.generateContent(request);
-        console.log(result);
         res.json(result);
     }
     catch (error) {
@@ -20,4 +19,20 @@ const promptText = async (req, res) => {
     }
 };
 exports.promptText = promptText;
+async function generateTextFromString(prompt, type = 'text') {
+    try {
+        const request = {
+            provider: 'deepseek',
+            prompt: prompt,
+            type: type
+        };
+        const llmServiceInst = new llmService_1.LLMService();
+        const result = await llmServiceInst.generateContent(request);
+        return result;
+    }
+    catch (error) {
+        console.log("Text Generation error: ", error);
+        throw new Error('Text generation from string failed');
+    }
+}
 //# sourceMappingURL=llmController.js.map

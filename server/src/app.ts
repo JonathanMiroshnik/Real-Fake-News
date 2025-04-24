@@ -1,23 +1,19 @@
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import llmRoutes from './routes/llmRoutes';
-import { Request, Response, NextFunction } from 'express';
 // import mongoose from 'mongoose';
 
-// import crudTest from './lowdb_complete/lowdb_lib/lowdb_crud'
-// crudTest();
-
-import { articleTest } from './schemes/article';
-articleTest();
-
+import llmRoutes from './routes/llmRoutes';
+import blogRoutes from './routes/blogRoutes'
+import { blogWritingManager } from './jobs/blogWriting';
 
 // Initialize express application
 const app = express();
 
 // Middleware pipeline
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
@@ -26,6 +22,9 @@ app.use(morgan('dev'));
 
 // API Routes
 app.use('/api/llm', llmRoutes);
+
+// Getting daily blogs
+app.use('/api/blogs', blogRoutes);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -50,5 +49,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
+
+// Recurring code jobs
+
+blogWritingManager();
 
 export default app;

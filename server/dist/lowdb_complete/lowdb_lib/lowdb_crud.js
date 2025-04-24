@@ -1,14 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUniqueKey = getUniqueKey;
 exports.createPost = createPost;
 exports.getAllPosts = getAllPosts;
-exports.getPostById = getPostById;
+exports.getPostByKey = getPostByKey;
 exports.updatePost = updatePost;
 exports.deletePost = deletePost;
 exports.default = crudTest;
 // Import LowDB's JSONFilePreset for file-based storage
 const node_1 = require("lowdb/node");
 const lowdb_databases_1 = require("./lowdb_databases");
+const uuid_1 = require("uuid");
+function getUniqueKey() {
+    return (0, uuid_1.v4)();
+}
 // CRUD OPERATIONS //
 // Create - Add new post
 async function createPost(post, dbFile) {
@@ -27,7 +32,7 @@ async function getAllPosts(dbFile) {
     return db.data.posts;
 }
 // Read - Get post by ID
-async function getPostById(key, dbFile) {
+async function getPostByKey(key, dbFile) {
     const db = await (0, node_1.JSONFilePreset)(dbFile, { posts: [] });
     return db.data.posts.find(p => p.key === key);
 }
@@ -67,7 +72,7 @@ async function crudTest() {
     const allPosts = await getAllPosts(lowdb_databases_1.DB_BLOG_POST_FILE);
     console.log('All posts:', allPosts);
     // Read - Get specific post
-    const foundPost = await getPostById("1", lowdb_databases_1.DB_BLOG_POST_FILE);
+    const foundPost = await getPostByKey("1", lowdb_databases_1.DB_BLOG_POST_FILE);
     console.log('Found post:', foundPost);
     // Update - Modify post
     if (foundPost) {

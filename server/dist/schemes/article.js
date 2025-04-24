@@ -54,7 +54,7 @@ async function articleTest() {
         const allPosts = await (0, lowdb_crud_1.getAllPosts)(lowdb_databases_1.DB_BLOG_POST_FILE);
         console.log('All posts:', allPosts);
         // Read - Get specific post
-        const foundPost = await (0, lowdb_crud_1.getPostById)(p.key, lowdb_databases_1.DB_BLOG_POST_FILE);
+        const foundPost = await (0, lowdb_crud_1.getPostByKey)(p.key, lowdb_databases_1.DB_BLOG_POST_FILE);
         console.log('Found post:', foundPost);
         // Update - Modify post
         if (foundPost) {
