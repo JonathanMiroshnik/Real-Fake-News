@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
+import Article from './components/Article/Article';
 
 import './App.css'
 
@@ -12,7 +13,7 @@ function App() {
     <div>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>Sensor? Censor!</title>
+        <title>Real Fake News</title>
         {/* <link rel="canonical" href="https://www.sensorcensor.xyz" /> */}
         {/* <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" /> */}
         <meta name="description" content="Real Fake News" />
@@ -22,8 +23,8 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            {/* <Route path="/" element={<HomePage />} /> */}
-            {/* <Route path="/about" element={<About />} /> */}
+            <Route path="/article/:key" element={<Article />} />
+            <Route path="*" element={<HomePage />} /> {/* Catch-all */}
           </Route>                      
         </Routes>
       </Router>

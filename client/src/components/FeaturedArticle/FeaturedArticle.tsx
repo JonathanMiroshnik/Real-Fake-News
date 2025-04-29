@@ -3,19 +3,22 @@ import { Link } from "react-router";
 
 import { ArticleProps } from "../Article/Article";
 
-function FeaturedArticle({ 
+function FeaturedArticle({
+    key, 
     title,
     author,
     timestamp,
     headImage
   }: ArticleProps) {
     return (
-        <Link to="">
+        <Link to={`/article/${key}`}>
             <div className="article-header">
                 <h2>{title}</h2>
                 <div className="article-meta">
                     <span className="author">By {author}</span>
-                    <span className="timestamp">{timestamp.toLocaleDateString()}</span>
+                    <span className="timestamp">
+                        { timestamp ? timestamp.toLocaleDateString() : null }
+                    </span>
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ The website is meant to look like a "real" news site, with articles in different
 To allow the site to be interesting on its own as parody site, the news items will be as fake as can be, and there will be an interactive elements
 for the reader as well as backend interactions between the different "writers" and the "editor".
 
-The tech stach will be MERN(MongoDB, Express, React, Node).
+The tech stack will be MERN(MongoDB, Express, React, Node).
 
 # Design
 ## Front-end
@@ -31,6 +31,9 @@ The website will have the following elements:
 - Automatically generated images in the middle of articles -> and also for banners for the articles
 - A tip jar for the humble creator of said website
 - Dark/Light mode button
+- Pages for writers for all their articles to be displayed in the page
+- Pagination where needed
+- Games section, **In development** - A tic-tac-toe game and a Trivia game
 
 ## Back-end
 The backend will need to have the following parts for the website to work:
@@ -40,6 +43,10 @@ The backend will need to have the following parts for the website to work:
 Writers will interact with other writers, discuss with the editors, and will form simple relationships and life histories of their own that will
 effect their reporting.
 3. MongoDB database that will save the articles, the writers and the state as described above. There is also a possibility of saving generated images too.
+4. A service that connects to an open News API to take relevant daily information as part of the consideration to write relevant articles.
+
+## Shared Parts:
+There are several shared aspects between both the front-end and back-end. The main ones refer to the news categories that we're interested in, and the information in the articles that we want to add to a final JSON representation of these in our article database along with on the front-end website.
 
 # Lessons learned:
 - DON'T install npm and node through apt-get, instead, install nvm and use _THAT_ to install those properly: https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/ + https://docs.npmjs.com/downloading-and-installing-node-js-and-npm

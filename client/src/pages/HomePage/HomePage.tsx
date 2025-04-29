@@ -1,47 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-
-import { ArticleProps } from '../../components/Article/Article';
 
 import styles from './HomePage.module.css';
 import Article from '../../components/Article/Article';
+import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
+import { ArticleContext } from '../../contexts/ArticlesContext';
+import CategoryArticleList from '../../components/CategoryArticleList/CategoryArticleList';
+import { CATEGORIES } from '../../contexts/NewsConst';
 
 function HomePage() {
-  const [articles, setArticles] = useState<ArticleProps[]>([]);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/blogs/daily')
-      .then(response => response.json())
-      .then(data => setArticles(data.articles))
-      .catch(error => console.error('Error:', error));
-  }, []);
-
   return (
-    <div className={styles.homeContainer}>
-
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/users">Users</Link>
-          </li>
-        </ul>
-      </nav>
-
+    <div className={styles.homeContainer}>      
       <section className="featured-article">
-        {/* Featured article component */}
+        {/* <FeaturedArticle key="ee1b546d-05a4-478a-bee7-36ecda2de858"/> */}
       </section>
       
       <div className="main-content">
         <section className={styles.articleGrid}>
-          { articles.length > 0 && articles.map((article) => (
-            <Article {...article} />
-          )) }
+          { CATEGORIES.map((category) => (
+            <div key={category.name}>
+              <CategoryArticleList category={category}/>
+            </div>
+          )) }          
         </section>
 
         <aside className={styles.sidebar}>

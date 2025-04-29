@@ -1,4 +1,7 @@
 "use strict";
+// TODO: move this entire(except the interval job-related function) to the services folder and blogservice
+// TODO: add content filter step that will check for violence/bigotry in the original articles 
+//  and will eliminate them as useful thus.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogWritingManager = blogWritingManager;
 // Responsible for the state machine of the blog writers
@@ -8,6 +11,7 @@ const blogController_1 = require("../controllers/blogController");
 const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const constants_1 = require("../config/constants");
 const newsService_1 = require("../services/newsService");
+const constants_2 = require("../config/constants");
 function getRandomWriter() {
     const writerReturn = constants_1.WRITERS[(0, crypto_1.randomInt)(constants_1.WRITERS.length)];
     if (writerReturn === undefined) {
@@ -16,12 +20,17 @@ function getRandomWriter() {
     return writerReturn;
 }
 async function writeBlogPost(writer, currentNewsItem = { title: "", description: "" }) {
+    // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the
     given topic and make it professional.
 
     Please parse this request to a json output. I will give examples after. 
     Make sure the content of the article is longer than that of the examples given.
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.
+
+    The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:
+    ${constants_2.VALID_CATEGORIES.join(', ')}
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}
@@ -59,7 +68,6 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
         content: "In what officials are calling 'a fortunate misfire,' a defense satellite test nudged the moon a few kilometers into a more symmetrical orbit. Scientists report improved tides and reduced global anxiety. Conspiracy theorists are now demanding to know if this was actually the plot of 'Moonfall 2.'"
     }
     `;
-    console.log(META_PROMPT);
     console.log("Generating new article");
     const result = await (0, llmController_1.generateTextFromString)(META_PROMPT, 'json_object');
     if (result === undefined || !result?.success) {
@@ -77,20 +85,17 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
     };
     (0, lowdbOperations_1.createPost)(newArticle, constants_1.DB_BLOG_POST_FILE);
 }
-async function newArticlesNeeded() {
-    const result = await (0, blogController_1.getPostsAfterDate)(new Date(Date.now() - blogController_1.TIME_BEFORE));
-    return constants_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
-}
 async function generateScheduledArticles() {
-    let newArticles = await newArticlesNeeded();
-    if (newArticles < 0) {
-        newArticles = 0;
+    const result = await (0, blogController_1.getPostsAfterDate)(new Date(Date.now() - blogController_1.TIME_BEFORE));
+    let newArticlesNeeded = constants_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
+    if (newArticlesNeeded < 0) {
+        newArticlesNeeded = 0;
     }
     const currentNews = await (0, newsService_1.fetchNews)();
     if (currentNews === undefined || !currentNews) {
         return;
     }
-    for (let i = 0; i < newArticles; i++) {
+    for (let i = 0; i < newArticlesNeeded; i++) {
         await writeBlogPost(getRandomWriter(), currentNews[(0, crypto_1.randomInt)(currentNews.length)]);
     }
 }

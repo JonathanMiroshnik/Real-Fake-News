@@ -1,4 +1,6 @@
 // TODO: move this entire(except the interval job-related function) to the services folder and blogservice
+// TODO: add content filter step that will check for violence/bigotry in the original articles 
+//  and will eliminate them as useful thus.
 
 // Responsible for the state machine of the blog writers
 import { randomInt } from "crypto";
@@ -10,6 +12,8 @@ import { TIME_BEFORE, getPostsAfterDate } from "../controllers/blogController";
 import { createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations";
 import { DB_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, WRITERS } from "../config/constants";
 import { fetchNews, NewsItem } from "../services/newsService";
+import { VALID_CATEGORIES } from "../config/constants";
+
 
 function getRandomWriter(): Writer {
     const writerReturn = WRITERS[randomInt(WRITERS.length)];
@@ -29,6 +33,10 @@ async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title
 
     Please parse this request to a json output. I will give examples after. 
     Make sure the content of the article is longer than that of the examples given.
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.
+
+    The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:
+    ${VALID_CATEGORIES.join(', ')}
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}
