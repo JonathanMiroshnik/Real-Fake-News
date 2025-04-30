@@ -8,11 +8,10 @@ import { randomInt } from "crypto";
 import { Writer } from "../types/writer";
 import { ArticleScheme, BlogResponse } from "../types/article";
 import { generateTextFromString } from "../controllers/llmController";
-import { TIME_BEFORE, getPostsAfterDate } from "../controllers/blogController";
+import { getPostsAfterDate } from "../controllers/blogController";
 import { createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations";
-import { DB_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, WRITERS } from "../config/constants";
-import { fetchNews, NewsItem } from "../services/newsService";
-import { VALID_CATEGORIES } from "../config/constants";
+import { DB_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, WRITERS, VALID_CATEGORIES } from "../config/constants";
+import { addNewsToTotal, getArticles, resetArticles, NewsItem } from "../services/newsService";
 
 
 function getRandomWriter(): Writer {
@@ -90,31 +89,31 @@ async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title
         author: writer.name,
         title: parsedData.title,
         timestamp: (new Date()).toUTCString(),
-        category: parsedData.category
+        category: parsedData.category,
+        originalNewsItem: currentNewsItem
     }; 
     createPost<ArticleScheme>(newArticle, DB_BLOG_POST_FILE)
 }
 
-async function generateScheduledArticles() {
-    const result: BlogResponse = await getPostsAfterDate(new Date(Date.now() - TIME_BEFORE));
+async function generateScheduledArticles(writingInterval: number) {
+    const result: BlogResponse = await getPostsAfterDate(new Date(Date.now() - writingInterval));
     let newArticlesNeeded: number = MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
     if (newArticlesNeeded < 0) {
         newArticlesNeeded = 0;
     }
 
-    const currentNews: NewsItem[] | undefined = await fetchNews();
-    if (currentNews === undefined || !currentNews) {
-        return;
-    }
+    // TODO: why reset articles always?
+    resetArticles();
+    await addNewsToTotal(newArticlesNeeded * 2); // TODO: getting extra articles than needed but maybe unneeded...
+    const currentNews: NewsItem[] = getArticles();
 
     for (let i = 0; i < newArticlesNeeded; i++) {
-        await writeBlogPost(getRandomWriter(), currentNews[randomInt(currentNews.length)]);
+        let currentNewsItem = currentNews.splice(randomInt(currentNews.length), 1)[0];
+        await writeBlogPost(getRandomWriter(), currentNewsItem);
     }    
-} 
+}
 
-export function blogWritingManager() {
-    const interval: number = 1000 * 60 * 10; // 10 minutes
-
-    generateScheduledArticles();
-    setInterval(generateScheduledArticles, interval);
+export function blogWritingManager(writingInterval: number, checkInterval: number) {
+    generateScheduledArticles(writingInterval);
+    setInterval(() => generateScheduledArticles(writingInterval), checkInterval);
 }

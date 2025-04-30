@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import llmRoutes from './routes/llmRoutes';
 import blogRoutes from './routes/blogRoutes'
 import { blogWritingManager } from './jobs/blogWriting';
+import { ONE_HOUR_MILLISECS } from './controllers/blogController';
 
 // Initialize express application
 const app = express();
@@ -51,7 +52,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-
-blogWritingManager();
+const TEN_MINUTES_MILLISECONDS = 10*60*1000;
+blogWritingManager(ONE_HOUR_MILLISECS, TEN_MINUTES_MILLISECONDS);
 
 export default app;

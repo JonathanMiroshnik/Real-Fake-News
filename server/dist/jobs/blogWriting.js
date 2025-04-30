@@ -11,7 +11,6 @@ const blogController_1 = require("../controllers/blogController");
 const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const constants_1 = require("../config/constants");
 const newsService_1 = require("../services/newsService");
-const constants_2 = require("../config/constants");
 function getRandomWriter() {
     const writerReturn = constants_1.WRITERS[(0, crypto_1.randomInt)(constants_1.WRITERS.length)];
     if (writerReturn === undefined) {
@@ -30,7 +29,7 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:
-    ${constants_2.VALID_CATEGORIES.join(', ')}
+    ${constants_1.VALID_CATEGORIES.join(', ')}
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}
@@ -81,27 +80,28 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
         author: writer.name,
         title: parsedData.title,
         timestamp: (new Date()).toUTCString(),
-        category: parsedData.category
+        category: parsedData.category,
+        originalNewsItem: currentNewsItem
     };
     (0, lowdbOperations_1.createPost)(newArticle, constants_1.DB_BLOG_POST_FILE);
 }
-async function generateScheduledArticles() {
-    const result = await (0, blogController_1.getPostsAfterDate)(new Date(Date.now() - blogController_1.TIME_BEFORE));
+async function generateScheduledArticles(writingInterval) {
+    const result = await (0, blogController_1.getPostsAfterDate)(new Date(Date.now() - writingInterval));
     let newArticlesNeeded = constants_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
     if (newArticlesNeeded < 0) {
         newArticlesNeeded = 0;
     }
-    const currentNews = await (0, newsService_1.fetchNews)();
-    if (currentNews === undefined || !currentNews) {
-        return;
-    }
+    // TODO: why reset articles always?
+    (0, newsService_1.resetArticles)();
+    await (0, newsService_1.addNewsToTotal)(newArticlesNeeded * 2); // TODO: getting extra articles than needed but maybe unneeded...
+    const currentNews = (0, newsService_1.getArticles)();
     for (let i = 0; i < newArticlesNeeded; i++) {
-        await writeBlogPost(getRandomWriter(), currentNews[(0, crypto_1.randomInt)(currentNews.length)]);
+        let currentNewsItem = currentNews.splice((0, crypto_1.randomInt)(currentNews.length), 1)[0];
+        await writeBlogPost(getRandomWriter(), currentNewsItem);
     }
 }
-function blogWritingManager() {
-    const interval = 1000 * 60 * 10; // 10 minutes
-    generateScheduledArticles();
-    setInterval(generateScheduledArticles, interval);
+function blogWritingManager(writingInterval, checkInterval) {
+    generateScheduledArticles(writingInterval);
+    setInterval(() => generateScheduledArticles(writingInterval), checkInterval);
 }
 //# sourceMappingURL=blogWriting.js.map

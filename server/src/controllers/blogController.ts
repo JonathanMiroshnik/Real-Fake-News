@@ -5,6 +5,7 @@ import { getAllPostsAfterDate } from '../services/blogService';
 
 // Calculated in milliseconds
 export const TIME_BEFORE = 24 * 60 * 60 * 1000;
+export const ONE_HOUR_MILLISECS = 60 * 60 * 1000;;
 
 // Currently set up to pull only the DAILY blog posts, the request does not matter
 export const pullBlogs = async (req: Request, res: Response) => {
@@ -27,4 +28,15 @@ export async function getPostsAfterDate(afterDate: Date): Promise<BlogResponse> 
     
     const result: BlogResponse = await getAllPostsAfterDate(request.afterDate);
     return result;
+}
+
+export async function pullHourlyBlogs(req: Request, res: Response) {
+    console.log('Pulling hourly blogs!');
+
+    try {
+        const result: BlogResponse = await getPostsAfterDate(new Date(Date.now() - ONE_HOUR_MILLISECS));
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Analysis failed' });
+    }
 }

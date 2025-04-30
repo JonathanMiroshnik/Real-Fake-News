@@ -9,7 +9,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin: 1rem 0;
-  padding: 2rem;
+  padding: 2rem;  
   /* position: relative; */
 }
 
@@ -40,7 +40,7 @@
 
 .article-content {
   line-height: 1.6;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   /* color: #444; */
   text-align: left;
 }

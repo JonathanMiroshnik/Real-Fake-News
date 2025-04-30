@@ -10,14 +10,20 @@
   padding-bottom: 2rem;
 }
 
-.main-content {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 2rem;
+.article-grid {
+  display: flex;
+  /* justify-content:right; */
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
+/* .main-content { */
+  /* display: grid; */
+  /* grid-template-columns: 3fr 1fr; */
+  /* gap: 2rem; */
+/* } */
+
+/* @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;
   }
-}
+} */

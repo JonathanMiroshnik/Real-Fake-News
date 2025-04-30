@@ -1,5 +1,6 @@
 import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/lowdb/lowdbOperations"
 import { DB_BLOG_POST_FILE } from "../lib/lowdb/lowdb_databases";
+import { NewsItem } from "../services/newsService";
 
 export interface ArticleScheme extends Post {
   title?: string;
@@ -8,6 +9,7 @@ export interface ArticleScheme extends Post {
   timestamp?: string;
   category?: string;
   headImage?: string;
+  originalNewsItem?: NewsItem;
 }
 
 export interface BlogRequest {

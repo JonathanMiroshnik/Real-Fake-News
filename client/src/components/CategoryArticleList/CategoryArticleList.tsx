@@ -13,11 +13,8 @@ interface CategoryArticleListProps {
 function CategoryArticleList(props: CategoryArticleListProps) {
     const articles = useContext(ArticleContext).articles;    
     const articlesbyCategory: ArticleProps[] = articles.filter((article) => {
-        console.log("category compare", article.category, props.category);
         return article.category === props.category.name
     });
-
-    console.log("ARTICLES BY CATEGORY", props.category.name, articlesbyCategory);
 
     return (
         <>

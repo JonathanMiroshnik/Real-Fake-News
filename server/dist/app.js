@@ -10,6 +10,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const llmRoutes_1 = __importDefault(require("./routes/llmRoutes"));
 const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
 const blogWriting_1 = require("./jobs/blogWriting");
+const blogController_1 = require("./controllers/blogController");
 // Initialize express application
 const app = (0, express_1.default)();
 // Middleware pipeline
@@ -46,6 +47,7 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_1.blogWritingManager)();
+const TEN_MINUTES_MILLISECONDS = 10 * 60 * 1000;
+(0, blogWriting_1.blogWritingManager)(blogController_1.ONE_HOUR_MILLISECS, TEN_MINUTES_MILLISECONDS);
 exports.default = app;
 //# sourceMappingURL=app.js.map

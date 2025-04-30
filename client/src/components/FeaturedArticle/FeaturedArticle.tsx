@@ -1,6 +1,4 @@
-import React from "react"
 import { Link } from "react-router";
-
 import { ArticleProps } from "../Article/Article";
 
 function FeaturedArticle({
@@ -17,7 +15,7 @@ function FeaturedArticle({
                 <div className="article-meta">
                     <span className="author">By {author}</span>
                     <span className="timestamp">
-                        { timestamp ? timestamp.toLocaleDateString() : null }
+                        { timestamp ? new Date(timestamp).toLocaleDateString() : null }
                     </span>
                 </div>
             </div>

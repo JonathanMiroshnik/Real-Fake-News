@@ -14,11 +14,9 @@ function ArticleProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         async function fetchDailies() {
-            const response = await fetch('http://localhost:5000/api/blogs/daily')
+            const response = await fetch('http://localhost:5000/api/blogs/hourly') // daily
             const articlesJSON = await response.json()
             const finalArticles = articlesJSON.articles;
-
-            console.log("gotten articles", finalArticles);
             
             setArticles([...finalArticles]);
         }
