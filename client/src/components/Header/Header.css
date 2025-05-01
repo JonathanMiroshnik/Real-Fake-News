@@ -4,6 +4,7 @@
   width: 100%;
   /* background: #ffffff; */
   border-bottom: 3px solid #cc0000;
+  border-width: 1px;
   /* padding: 1rem; */
   /* z-index: 1000; */
 }
@@ -18,14 +19,14 @@
 }
 
 .nav-button:hover {
-  background: #f5f5f5;
+  background: #666666;
 }
 
 .logo {
   font-family: 'Times New Roman', serif;
   /* height: auto; */
-  /* font-size: 2.5rem; */
-  color: #cc0000;
+  font-size: 80px;
+  /* color: #cc0000; */
   cursor: pointer;
   /* margin: 0 2rem; */
   will-change: filter;

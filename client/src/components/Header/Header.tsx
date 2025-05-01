@@ -13,9 +13,11 @@ function Header({ sections }: HeaderProps) {
       <h1 className="logo"><Link to="/">REAL FAKE NEWS</Link></h1>
       <nav>
         {sections.map((section) => (
+          <Link to={`/category/${section.toLowerCase()}`}>
            <button key={"header_button_" + section} className='nav-button' >
-              <Link to={`/${section.toLowerCase()}`}>{section}</Link>
+              {section}
             </button>
+            </Link>
         ))}
       </nav>
     </header>

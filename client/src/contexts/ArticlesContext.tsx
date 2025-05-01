@@ -12,9 +12,10 @@ export const ArticleContext = createContext<ArticleContextType>({articles: []});
 function ArticleProvider({ children }: { children: ReactNode }) {
     const [articles, setArticles] = useState<ArticleProps[]>([]);
 
+    // TODO: should this be here or in a different "jobs" folder and just be imported from there?
     useEffect(() => {
         async function fetchDailies() {
-            const response = await fetch('http://localhost:5000/api/blogs/hourly') // daily
+            const response = await fetch('http://localhost:5000/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
             const articlesJSON = await response.json()
             const finalArticles = articlesJSON.articles;
             

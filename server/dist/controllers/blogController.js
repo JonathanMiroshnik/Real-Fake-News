@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pullBlogs = exports.ONE_HOUR_MILLISECS = exports.TIME_BEFORE = void 0;
+exports.pullBlogs = exports.ONE_HOUR_MILLISECS = exports.DAY_MILLISECS = void 0;
 exports.getPostsAfterDate = getPostsAfterDate;
 exports.pullHourlyBlogs = pullHourlyBlogs;
 const blogService_1 = require("../services/blogService");
 // Calculated in milliseconds
-exports.TIME_BEFORE = 24 * 60 * 60 * 1000;
+exports.DAY_MILLISECS = 24 * 60 * 60 * 1000;
 exports.ONE_HOUR_MILLISECS = 60 * 60 * 1000;
 ;
 // Currently set up to pull only the DAILY blog posts, the request does not matter
 const pullBlogs = async (req, res) => {
     console.log('Pulling blogs!');
     try {
-        const result = await getPostsAfterDate(new Date(Date.now() - exports.TIME_BEFORE));
+        const result = await getPostsAfterDate(new Date(Date.now() - exports.DAY_MILLISECS));
         res.json(result);
     }
     catch (error) {

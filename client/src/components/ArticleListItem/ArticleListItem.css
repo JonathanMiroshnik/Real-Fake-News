@@ -1,0 +1,50 @@
+.article-list-item {
+    width: 300px;
+    padding: 10px;
+    margin: 20px;
+    border-bottom: 1px;      
+    border-color: gray;
+    border-bottom-style: solid;
+    text-align: left;
+}
+
+.article-list-item-head-image {
+    width: 200px;
+    /* text-align: center; not working? */
+}
+
+.article-list-item-undertext {
+    font-size: 12px;
+    text-align: center;
+}
+
+.article-list-item-title-header {
+    margin: 5px;
+    padding: 0px;
+}
+
+.article-list-item-title {
+    color: black;
+    text-decoration: none;
+}
+
+.article-list-item-title:link {
+  text-decoration: none;
+}
+
+.article-list-item-title:visited {
+  text-decoration: none;
+}
+
+.article-list-item-title:hover img {
+  filter: drop-shadow(0 0 1em #646cffaa);
+}
+
+.article-list-item-title:hover img {
+  color: black;
+  text-decoration: underline;
+}
+
+.article-list-item-title:active {
+  text-decoration: underline;
+}

@@ -15,6 +15,7 @@
     "@types/react-helmet": "^6.1.11",
     "@types/react-router": "^5.1.20",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

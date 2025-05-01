@@ -1,8 +1,8 @@
-import { Link } from "react-router";
-import { ArticleProps } from "../Article/Article";
 import { useContext } from "react";
+import { ArticleProps } from "../Article/Article";
 import { ArticleContext } from "../../contexts/ArticlesContext";
 import { NewsCategory } from "../../contexts/NewsConst";
+import ArticleListItem from "../ArticleListItem/ArticleListItem";
 
 import './CategoryArticleList.css'
 
@@ -20,19 +20,16 @@ function CategoryArticleList(props: CategoryArticleListProps) {
         <>
     { articlesbyCategory.length > 0 ? 
     <div className="category-article-list-main">
-        <h2>{ props.category.text }</h2>
-        <nav>
+        <h2 className="category-article-list-title">{ props.category.text }</h2>
+        {/* <nav> */}
             <ul className="list-articles" >
                 { articlesbyCategory.map((article) => (
                     <li key={article.key} className="list-article-text" >
-                        <Link to={`/article/${article.key}`}>{article.title}</Link>
-                        <div>
-                            {article.author}
-                        </div>
+                        <ArticleListItem article={article}/>
                     </li>
                 )) }
             </ul>
-        </nav>
+        {/* </nav> */}
     </div>
     : null }
     </>

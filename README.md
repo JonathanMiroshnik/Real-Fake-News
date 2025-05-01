@@ -9,7 +9,7 @@ The tech stack will be MERN(MongoDB, Express, React, Node).
 
 # Design
 ## Front-end
-An example website that I use as a model is: https://www.ynet.co.il
+An example website that I use as a model is: https://www.ynet.co.il, https://www.bbc.com/news 
 
 The website will have the following elements:
 - Logo -> A button to redirect to the home page

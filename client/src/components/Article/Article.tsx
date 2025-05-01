@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 
 import './Article.css'
 import { ArticleContext } from '../../contexts/ArticlesContext';
+import { DEFAULT_IMAGE, getImageURL } from '../../services/imageService';
 
 export interface ArticleProps {
   key: string;
@@ -23,6 +24,8 @@ function Article() {
     return <div>ARTICLE NOT FOUND</div>;
   }
 
+  let imageURL = getImageURL(foundArticle, DEFAULT_IMAGE);
+
   return (
     <article className="news-article">
       <div className="article-header">
@@ -33,6 +36,9 @@ function Article() {
           <span className="category">{ foundArticle?.category }</span>
         </div>
       </div>
+
+      {imageURL !== "" && (<img src={imageURL} alt={foundArticle.title} className="article-image" /> )}
+
       <div className="article-content">
         <ReactMarkdown>{foundArticle.content}</ReactMarkdown>
       </div>
