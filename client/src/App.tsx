@@ -3,8 +3,9 @@ import { Helmet } from 'react-helmet';
 
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
-import Article from './components/Article/Article';
-import Category from './components/Category/Category';
+import ArticlePage from './pages/ArticlePage/ArticlePage';
+import CategoryPage from './pages/CategoryPage/CategoryPage';
+import WriterPage from './pages/WriterPage/WriterPage';
 
 import './App.css'
 
@@ -23,8 +24,9 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/article/:key" element={<Article />} />
-            <Route path="/category/:key" element={<Category />} />
+            <Route path="/article/:key" element={<ArticlePage />} />
+            <Route path="/category/:key" element={<CategoryPage />} />
+            <Route path="/writer/:key" element={<WriterPage />} />
             <Route path="*" element={<HomePage />} /> {/* Catch-all */}
           </Route>                      
         </Routes>

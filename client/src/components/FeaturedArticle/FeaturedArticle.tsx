@@ -1,28 +1,22 @@
-import { Link } from "react-router";
-import { ArticleProps } from "../Article/Article";
+// import { Link } from "react-router";
+// import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 
-function FeaturedArticle({
-    key, 
-    title,
-    author,
-    timestamp,
-    headImage
-  }: ArticleProps) {
-    return (
-        <Link to={`/article/${key}`}>
-            <div className="article-header">
-                <h2>{title}</h2>
-                <div className="article-meta">
-                    <span className="author">By {author}</span>
-                    <span className="timestamp">
-                        { timestamp ? new Date(timestamp).toLocaleDateString() : null }
-                    </span>
-                </div>
-            </div>
+// function FeaturedArticle(props: ArticleProps) {
+//     return (
+//         <Link to={`/article/${props.key}`}>
+//             <div className="article-header">
+//                 <h2>{ props.title }</h2>
+//                 <div className="article-meta">
+//                     <span className="author">By { props.author?.name }</span>
+//                     <span className="timestamp">
+//                         { props.timestamp ? new Date(props.timestamp).toLocaleDateString() : null }
+//                     </span>
+//                 </div>
+//             </div>
 
-            <img src={headImage} />
-        </Link>
-    )
-};
+//             <img src={ props.headImage } />
+//         </Link>
+//     );
+// };
 
-export default FeaturedArticle;
+// export default FeaturedArticle;

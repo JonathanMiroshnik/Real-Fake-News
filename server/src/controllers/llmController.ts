@@ -18,12 +18,13 @@ export const promptText = async (req: Request, res: Response) => {
     }
 };
 
-export async function generateTextFromString(prompt: string, type: string = 'text'): Promise<GenerateContentResponse | undefined> {
+export async function generateTextFromString(prompt: string, type: string = 'text', temperature: number = 0.8): Promise<GenerateContentResponse | undefined> {
     try {
         const request: GenerateContentRequest = {
             provider: 'deepseek',
             prompt: prompt,
-            type: type
+            type: type,
+            temperature: temperature
         };
         
         const llmServiceInst = new LLMService();

@@ -19,12 +19,13 @@ const promptText = async (req, res) => {
     }
 };
 exports.promptText = promptText;
-async function generateTextFromString(prompt, type = 'text') {
+async function generateTextFromString(prompt, type = 'text', temperature = 0.8) {
     try {
         const request = {
             provider: 'deepseek',
             prompt: prompt,
-            type: type
+            type: type,
+            temperature: temperature
         };
         const llmServiceInst = new llmService_1.LLMService();
         const result = await llmServiceInst.generateContent(request);

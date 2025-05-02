@@ -1,5 +1,4 @@
-import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -7,10 +6,9 @@ import path from 'path';
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
 
-import llmRoutes from './routes/llmRoutes';
+// import llmRoutes from './routes/llmRoutes';
 import blogRoutes from './routes/blogRoutes'
 import { blogWritingManager } from './jobs/blogWriting';
-import { DAY_MILLISECS } from './controllers/blogController';
 
 // TODO: change express use to get set etc?
 
@@ -30,8 +28,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// API Routes
-app.use('/api/llm', llmRoutes);
+// API Routes TODO: this route does not need to be open beyond the back end
+// app.use('/api/llm', llmRoutes);
 
 // Getting daily news
 app.use('/api/blogs', blogRoutes);
@@ -120,7 +118,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-const TEN_MINUTES_MILLISECONDS = 10*60*1000;
-blogWritingManager(DAY_MILLISECS, TEN_MINUTES_MILLISECONDS);
+blogWritingManager();
 
 export default app;

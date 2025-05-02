@@ -1,11 +1,19 @@
-import { ArticleProps } from "../components/Article/Article";
+import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
 const VITE_API_BASE="http://localhost:5000"
 export const DEFAULT_IMAGE="planet.jpg" // TODO: should this still be?
 
-export function getImageURL(article: ArticleProps, defaultImage: string = "") {
+export function getImageURLFromArticle(article: ArticleProps, defaultImage: string = "") {
     return article?.headImage && article?.headImage !== ""
         ? `${VITE_API_BASE}/api/images/${encodeURIComponent(article.headImage)}`
+        : defaultImage !== "" ? 
+        `${VITE_API_BASE}/api/images/${encodeURIComponent(defaultImage)}`
+        : "";
+}
+
+export function getImageURLFromWriter(writer: WriterProps, defaultImage: string = "") {
+    return writer.profileImage && writer.profileImage !== ""
+        ? `${VITE_API_BASE}/api/images/${encodeURIComponent(writer.profileImage)}`
         : defaultImage !== "" ? 
         `${VITE_API_BASE}/api/images/${encodeURIComponent(defaultImage)}`
         : "";

@@ -5,6 +5,6 @@ export interface Writer extends Post {
   description: string;
   systemPrompt: string;
   profileImage?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

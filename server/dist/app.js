@@ -13,7 +13,6 @@ const path_1 = __importDefault(require("path"));
 const llmRoutes_1 = __importDefault(require("./routes/llmRoutes"));
 const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
 const blogWriting_1 = require("./jobs/blogWriting");
-const blogController_1 = require("./controllers/blogController");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
@@ -99,7 +98,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-const TEN_MINUTES_MILLISECONDS = 10 * 60 * 1000;
-(0, blogWriting_1.blogWritingManager)(blogController_1.DAY_MILLISECS, TEN_MINUTES_MILLISECONDS);
+(0, blogWriting_1.blogWritingManager)();
 exports.default = app;
 //# sourceMappingURL=app.js.map

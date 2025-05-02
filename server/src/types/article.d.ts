@@ -1,11 +1,12 @@
 import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/lowdb/lowdbOperations"
 import { DB_BLOG_POST_FILE } from "../lib/lowdb/lowdb_databases";
 import { NewsItem } from "../services/newsService";
+import { Writer } from "./writer";
 
 export interface ArticleScheme extends Post {
   title?: string;
   content?: string;
-  author?: string;
+  author?: Writer;
   timestamp?: string;
   category?: string;
   headImage?: string;

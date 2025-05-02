@@ -2,8 +2,7 @@ import app from './app';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { resolve } from 'path';
-
-import { JSONFilePreset } from 'lowdb/node';
+// import { JSONFilePreset } from 'lowdb/node';
 
 // Load environment variables
 config({ path: resolve(__dirname, '../.env') });

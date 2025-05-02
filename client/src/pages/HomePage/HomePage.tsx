@@ -12,7 +12,7 @@ function HomePage() {
         {/* this was section */}
         <div className="article-grid">
           { CATEGORIES.map((category) => (
-            <div key={category.name}>
+            <div key={"category_list_" + category.name}>
               <CategoryArticleList category={category}/>
             </div>
           )) }          
