@@ -10,9 +10,10 @@ const helmet_1 = __importDefault(require("helmet"));
 const path_1 = __importDefault(require("path"));
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
-const llmRoutes_1 = __importDefault(require("./routes/llmRoutes"));
+// import llmRoutes from './routes/llmRoutes';
 const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
 const blogWriting_1 = require("./jobs/blogWriting");
+const blogController_1 = require("./controllers/blogController");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
@@ -27,8 +28,8 @@ app.use((0, helmet_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, morgan_1.default)('dev'));
-// API Routes
-app.use('/api/llm', llmRoutes_1.default);
+// API Routes TODO: this route does not need to be open beyond the back end
+// app.use('/api/llm', llmRoutes);
 // Getting daily news
 app.use('/api/blogs', blogRoutes_1.default);
 // Health check endpoint
@@ -98,6 +99,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_1.blogWritingManager)();
+(0, blogWriting_1.blogWritingManager)(blogController_1.DAY_MILLISECS);
 exports.default = app;
 //# sourceMappingURL=app.js.map

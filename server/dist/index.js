@@ -7,6 +7,7 @@ const app_1 = __importDefault(require("./app"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = require("dotenv");
 const path_1 = require("path");
+// import { JSONFilePreset } from 'lowdb/node';
 // Load environment variables
 (0, dotenv_1.config)({ path: (0, path_1.resolve)(__dirname, '../.env') });
 // Configuration constants

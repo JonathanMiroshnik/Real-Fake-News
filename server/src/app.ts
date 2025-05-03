@@ -9,6 +9,7 @@ import path from 'path';
 // import llmRoutes from './routes/llmRoutes';
 import blogRoutes from './routes/blogRoutes'
 import { blogWritingManager } from './jobs/blogWriting';
+import { DAY_MILLISECS } from './controllers/blogController';
 
 // TODO: change express use to get set etc?
 
@@ -118,6 +119,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-blogWritingManager();
+blogWritingManager(DAY_MILLISECS);
 
 export default app;
