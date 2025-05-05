@@ -1,8 +1,9 @@
 .article-list-item {
-    width: 300px;
+    /* width: 300px; */
+    /* width: 80%; */
     padding: 10px;
     margin: 20px;
-    border-bottom: 1px;      
+    border-bottom: 1px;
     border-color: gray;
     border-bottom-style: solid;
     text-align: left;
@@ -10,6 +11,7 @@
 
 .article-list-item-head-image {
     width: 200px;
+    /* width: 100%; */
     /* text-align: center; not working? */
 }
 

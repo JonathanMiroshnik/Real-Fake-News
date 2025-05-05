@@ -1,7 +1,7 @@
 .home-container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 100px 20px 20px;
+  /* margin: 0 auto; */
+  /* padding: 100px 20px 20px; */
 }
 
 .featured-article {
@@ -10,12 +10,12 @@
   padding-bottom: 2rem;
 }
 
-.article-grid {
-  display: flex;
+/* .article-grid { */
+  /* display: flex; */
   /* justify-content:right; */
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   /* gap: 0; */
-}
+/* } */
 
 /* .main-content { */
   /* display: grid; */

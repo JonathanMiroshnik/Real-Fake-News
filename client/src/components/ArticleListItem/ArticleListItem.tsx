@@ -4,8 +4,16 @@ import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageServi
 import { getLatestTime } from '../../services/timeService';
 import './ArticleListItem.css'
 
+/**
+ * Individual article list item component
+ * @param article - Article data to display
+ * - Handles image loading and fallbacks
+ * - Formats timestamps with timeService
+ * - Implements article navigation
+ */
 interface ArticleListItemProps {
-  article: ArticleProps;
+    /** Complete article data object */
+    article: ArticleProps;
 }
 
 function ArticleListItem({article}: ArticleListItemProps) {
@@ -13,8 +21,9 @@ function ArticleListItem({article}: ArticleListItemProps) {
         <Link className="article-list-item-title" to={`/article/${article.key}`}>
             <div className="article-list-item">
                 <div style={{textAlign: "center"}}>
-                    <img src={getImageURLFromArticle(article, DEFAULT_IMAGE)} 
-                    alt={article.title} className="article-list-item-head-image"/>                 
+                    <img className="article-list-item-head-image" 
+                    src={getImageURLFromArticle(article, DEFAULT_IMAGE)} 
+                    alt={article.title}/>     
                 </div>
                 <h3 className='article-list-item-title-header'>
                     {article.title}

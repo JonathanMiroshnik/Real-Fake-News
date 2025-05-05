@@ -2,9 +2,16 @@ import { Link } from 'react-router';
 import './Header.css'
 
 interface HeaderProps {
+  /** Array of category names for navigation */
   sections: string[];
 }
 
+/**
+ * Site header with logo and category navigation
+ * - Uses responsive button layout
+ * - Generates category routes dynamically
+ * - Applies consistent styling across viewports
+ */
 function Header({ sections }: HeaderProps) {
   return (
     <header className="site-header">

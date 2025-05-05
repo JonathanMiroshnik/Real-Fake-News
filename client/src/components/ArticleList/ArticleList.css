@@ -1,0 +1,8 @@
+.article-list-ul {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    
+    width: 1200px;
+    height: 500px;
+}

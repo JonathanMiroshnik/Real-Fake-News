@@ -5,7 +5,7 @@ import { CATEGORIES } from "../../contexts/NewsConst";
 
 function Layout() {
     return (
-        <>
+        <div>
             <div style={{margin: "20px"}}>
                 <Header sections={ CATEGORIES.map((category) => category.name) }/>
             </div>
@@ -16,7 +16,7 @@ function Layout() {
             <div>
                 <Footer/>
             </div>                 
-        </>
+        </div>
     );
 }
 

@@ -6,14 +6,10 @@
 }
 
 .category-article-list-title {
-    font-size: 50px;
+    /* font-size: 50px; */
 }
 
-/* .list-article-text {
-    gap: 2rem;
-} */
-
-.list-articles {
+.category-list-articles {
     display: flex;
     /* width: 100px; */
     justify-content: center;

@@ -95,7 +95,7 @@ async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title
 
     const parsedData = JSON.parse(result.generatedText);
 
-    const imgName = await generateAndSaveImage(parsedData.prompt);
+    // const imgName = await generateAndSaveImage(parsedData.prompt);
 
     const newArticle: ArticleScheme =  {
         key: getUniqueKey(),
@@ -105,7 +105,7 @@ async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title
         timestamp: (new Date()).toUTCString(),
         category: parsedData.category,
         originalNewsItem: currentNewsItem,
-        headImage: imgName
+        // headImage: imgName
     }; 
     createPost<ArticleScheme>(newArticle, DB_BLOG_POST_FILE)
 }

@@ -11,7 +11,6 @@ const blogController_1 = require("../controllers/blogController");
 const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const constants_1 = require("../config/constants");
 const newsService_1 = require("../services/newsService");
-const imageService_1 = require("../services/imageService");
 const blogController_2 = require("../controllers/blogController");
 const TEN_MINUTES_MILLISECONDS = 10 * 60 * 1000;
 async function getRandomWriter() {
@@ -86,7 +85,7 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
         return;
     }
     const parsedData = JSON.parse(result.generatedText);
-    const imgName = await (0, imageService_1.generateAndSaveImage)(parsedData.prompt);
+    // const imgName = await generateAndSaveImage(parsedData.prompt);
     const newArticle = {
         key: (0, lowdbOperations_1.getUniqueKey)(),
         content: parsedData.content,
@@ -95,7 +94,7 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
         timestamp: (new Date()).toUTCString(),
         category: parsedData.category,
         originalNewsItem: currentNewsItem,
-        headImage: imgName
+        // headImage: imgName
     };
     (0, lowdbOperations_1.createPost)(newArticle, constants_1.DB_BLOG_POST_FILE);
 }

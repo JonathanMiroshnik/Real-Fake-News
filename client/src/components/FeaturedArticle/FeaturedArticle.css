@@ -1,0 +1,16 @@
+.featured-article-header {
+    text-align: left;
+}
+
+.featured-article-meta {
+
+}
+
+.featured-article {
+    display: flex;
+    gap: 100px;
+}
+
+.featured-article-image {
+    width: 400px;
+}
