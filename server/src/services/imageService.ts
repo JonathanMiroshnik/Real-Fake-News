@@ -5,6 +5,15 @@ import path from 'path';
 import sharp from 'sharp';
 import { Runware } from "@runware/sdk-js";
 
+// TODO: add other such service activated flags in the other services!
+const SERVICE_ACTIVATED: boolean = true;
+
+const DEFAULT_IMAGE_NAME: string = "planet.jpg"
+
+const ASPECT_RATIO: number = 1.75;
+const DEFAULT_IMAGE_HEIGHT: number = 512;
+const DEFAULT_IMAGE_WIDTH: number = DEFAULT_IMAGE_HEIGHT * ASPECT_RATIO;
+
 var runware: any = undefined;
 
 export async function initializeRunware(): Promise<boolean> {
@@ -18,6 +27,10 @@ export async function initializeRunware(): Promise<boolean> {
 }
 
 export async function generateImage(positivePrompt: string): Promise<string> {
+    if (!SERVICE_ACTIVATED) {
+        return DEFAULT_IMAGE_NAME;
+    }
+
     if (runware === undefined) {
         if (!await initializeRunware()) {
             return "";
@@ -26,12 +39,12 @@ export async function generateImage(positivePrompt: string): Promise<string> {
 
     const images = await runware.requestImages({
         positivePrompt: positivePrompt,
-        width: 512,
-        height: 512,
+        width: DEFAULT_IMAGE_WIDTH,
+        height: DEFAULT_IMAGE_HEIGHT,
         model: "runware:100@1", // FLUX Schnell => 16k images for 10$
         numberResults: 1,
         outputType: "dataURI", //"URL" | "base64Data";
-        outputFormat: "PNG", //"JPG" "WEBP";
+        outputFormat: "PNG", //"JPG" "WEBP"; // TODO: use webp?
         checkNSFW: true,
         // strength
         steps: 20,
@@ -68,6 +81,10 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
 }
 
 export async function generateAndSaveImage(positivePrompt: string) {
+    if (!SERVICE_ACTIVATED) {
+        return DEFAULT_IMAGE_NAME;
+    }
+
     const dataURI = await generateImage(positivePrompt);
     const retImgName = await saveDataURIToPNG(dataURI);
     return retImgName;

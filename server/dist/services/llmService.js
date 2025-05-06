@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMService = void 0;
 require("dotenv/config");
 const openai_1 = require("openai");
+// TODO: add other such service activated flags in the other services!
+const SERVICE_ACTIVATED = true;
 class LLMService {
     openai;
     constructor() {
@@ -18,6 +20,9 @@ class LLMService {
             generatedText: "",
             error: ""
         };
+        if (!SERVICE_ACTIVATED) {
+            return contentRes;
+        }
         try {
             // TODO: fix model and make it in .env as a dictionary?
             const completion = await this.openai.chat.completions.create({

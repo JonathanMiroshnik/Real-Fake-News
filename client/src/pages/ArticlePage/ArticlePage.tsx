@@ -20,6 +20,7 @@ export interface ArticleProps {
   author?: WriterProps;
   timestamp?: string;
   category?: string;
+  shortDescription?: string;
   headImage?: string;
 }
 
@@ -50,9 +51,10 @@ function ArticlePage() {
           <span className="category">{ foundArticle?.category }</span>
         </div>
       </div>
-
-      {imageURL !== "" && (<img src={imageURL} alt={foundArticle.title} className="article-image" /> )}
-
+      
+      <div className='article-page-head-image'>
+        {imageURL !== "" && (<img src={imageURL} alt={foundArticle.title} className="article-image" /> )}
+      </div>
       <div className="article-content">
         <ReactMarkdown>{foundArticle.content}</ReactMarkdown>
       </div>

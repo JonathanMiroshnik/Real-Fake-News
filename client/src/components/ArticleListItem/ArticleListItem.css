@@ -7,10 +7,15 @@
     border-color: gray;
     border-bottom-style: solid;
     text-align: left;
+
+    max-width: 20rem;
+
+    border: 1px solid red;
 }
 
 .article-list-item-head-image {
-    width: 200px;
+    /* width: 200px; */
+    width: 80%;
     /* width: 100%; */
     /* text-align: center; not working? */
 }

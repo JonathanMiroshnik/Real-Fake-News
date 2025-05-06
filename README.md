@@ -6,6 +6,7 @@ To allow the site to be interesting on its own as parody site, the news items wi
 for the reader as well as backend interactions between the different "writers" and the "editor".
 
 The tech stack will be MERN(MongoDB, Express, React, Node).
+As of 6.5.25, MongoDB is not used, instead, I am using LowDB as it is a simpler approach and MongoDB is not currently needed.
 
 # Design
 ## Front-end
@@ -34,6 +35,8 @@ The website will have the following elements:
 - [ ] Pages for writers for all their articles to be displayed in the page
 - [ ] Pagination where needed
 - [ ] Games section, **In development** - A tic-tac-toe game and a Trivia game
+- [ ] Share buttons on article: https://www.npmjs.com/package/react-share 
+- [ ] Descriptions for images below them in articles, attribution.
 
 ## Back-end
 The backend will need to have the following parts for the website to work:
@@ -55,3 +58,4 @@ There are several shared aspects between both the front-end and back-end. The ma
 - For the final Node backend typescript config file, I used the tutorial: https://www.totaltypescript.com/tsconfig-cheat-sheet
 - To allow for React/Node servers to start up by default on FireFox, you need to install the VSC extension "Debugger for FireFox" and configure the launch.json accordingly. **DOESNT WORK**
 - I probably want to pull real news data from the internet to have half-related topics to play with, along with easy input data for the prompts, I suggest two free-enough APIs to think about: https://gnews.io/#pricing , https://newsdata.io/pricing -> I chose the second one
+- We are using runware.ai for the image generation

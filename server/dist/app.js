@@ -99,6 +99,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_1.blogWritingManager)(blogController_1.DAY_MILLISECS);
+(0, blogWriting_1.blogWritingManager)(blogController_1.ONE_HOUR_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
 exports.default = app;
 //# sourceMappingURL=app.js.map

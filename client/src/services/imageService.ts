@@ -18,3 +18,7 @@ export function getImageURLFromWriter(writer: WriterProps, defaultImage: string 
         `${VITE_API_BASE}/api/images/${encodeURIComponent(defaultImage)}`
         : "";
 }
+
+export function getImageURL(imageName: string) {
+    return `${VITE_API_BASE}/api/images/${encodeURIComponent(imageName)}`;
+}

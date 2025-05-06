@@ -3,6 +3,7 @@ import CategoryArticleList from '../../components/CategoryArticleList/CategoryAr
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { CATEGORIES } from '../../contexts/NewsConst';
+import GamesList from '../../components/GamesList/GamesList';
 import './HomePage.css'
 
 
@@ -22,6 +23,8 @@ function HomePage() {
         {randomArticle && <FeaturedArticle article={randomArticle} />}
       </section>
       
+      <GamesList />
+
       <div className="main-content">
         {/* this was section */}
         <div className="article-grid">        

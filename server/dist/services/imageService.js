@@ -13,6 +13,12 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
 const sdk_js_1 = require("@runware/sdk-js");
+// TODO: add other such service activated flags in the other services!
+const SERVICE_ACTIVATED = true;
+const DEFAULT_IMAGE_NAME = "planet.jpg";
+const ASPECT_RATIO = 1.75;
+const DEFAULT_IMAGE_HEIGHT = 512;
+const DEFAULT_IMAGE_WIDTH = DEFAULT_IMAGE_HEIGHT * ASPECT_RATIO;
 var runware = undefined;
 async function initializeRunware() {
     if (process.env.RUNWARE_API_KEY === undefined) {
@@ -23,6 +29,9 @@ async function initializeRunware() {
     return true;
 }
 async function generateImage(positivePrompt) {
+    if (!SERVICE_ACTIVATED) {
+        return DEFAULT_IMAGE_NAME;
+    }
     if (runware === undefined) {
         if (!await initializeRunware()) {
             return "";
@@ -30,12 +39,12 @@ async function generateImage(positivePrompt) {
     }
     const images = await runware.requestImages({
         positivePrompt: positivePrompt,
-        width: 512,
-        height: 512,
+        width: DEFAULT_IMAGE_WIDTH,
+        height: DEFAULT_IMAGE_HEIGHT,
         model: "runware:100@1", // FLUX Schnell => 16k images for 10$
         numberResults: 1,
         outputType: "dataURI", //"URL" | "base64Data";
-        outputFormat: "PNG", //"JPG" "WEBP";
+        outputFormat: "PNG", //"JPG" "WEBP"; // TODO: use webp?
         checkNSFW: true,
         // strength
         steps: 20,
@@ -65,6 +74,9 @@ async function saveDataURIToPNG(dataURI) {
     return filename;
 }
 async function generateAndSaveImage(positivePrompt) {
+    if (!SERVICE_ACTIVATED) {
+        return DEFAULT_IMAGE_NAME;
+    }
     const dataURI = await generateImage(positivePrompt);
     const retImgName = await saveDataURIToPNG(dataURI);
     return retImgName;

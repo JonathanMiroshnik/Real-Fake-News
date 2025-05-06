@@ -8,6 +8,9 @@ import CategoryPage from './pages/CategoryPage/CategoryPage';
 import WriterPage from './pages/WriterPage/WriterPage';
 
 import './App.css'
+import ContactPage from './pages/ContactPage/ContactPage';
+import TermsPage from './pages/TermsPage/TermsPage';
+import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
 
 function App() {
   return (
@@ -23,11 +26,20 @@ function App() {
       <Router>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />            
             <Route path="/article/:key" element={<ArticlePage />} />
+            {/* Article lists */}
             <Route path="/category/:key" element={<CategoryPage />} />
             <Route path="/writer/:key" element={<WriterPage />} />
-            <Route path="*" element={<HomePage />} /> {/* Catch-all */}
+            {/* TODO: Games section - currently separate pages */}
+            <Route path="/games/tictactoe" element={<HomePage />} />
+            <Route path="/games/trivia" element={<HomePage />} />
+            {/* Footer pages */}
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/disclaimer" element={<DisclaimerPage />} />
+            {/* Catch-all */}
+            <Route path="*" element={<HomePage />} />
           </Route>                      
         </Routes>
       </Router>

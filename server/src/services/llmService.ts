@@ -3,6 +3,9 @@ import { OpenAI } from 'openai';
 
 import { GenerateContentRequest, GenerateContentResponse } from '../types/llm';
 
+// TODO: add other such service activated flags in the other services!
+const SERVICE_ACTIVATED: boolean = true;
+
 // TODO: unused
 type LLMProvider = 'openai' | 'deepseek';
 
@@ -24,6 +27,10 @@ export class LLMService {
       error: ""
     };
     
+    if (!SERVICE_ACTIVATED) {
+      return contentRes;
+    }
+
     try {
       // TODO: fix model and make it in .env as a dictionary?
       const completion = await this.openai.chat.completions.create({

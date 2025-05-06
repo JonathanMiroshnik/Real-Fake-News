@@ -1,0 +1,29 @@
+.game-item {
+    display: flex;
+    align-items: center;
+    width: 20rem;
+    min-height: 8rem;
+    
+    /* TODO: for testing */
+    border: 1px solid blue;
+}
+
+.game-item-image {
+    width: 64px;
+    height: 64px;
+    margin-left: auto;    
+}
+
+.game-item-text {
+    text-align: left;
+}
+
+.game-item-title {
+    color: black;
+    font-size: large;
+}
+
+.game-item-description {
+    color: gray;
+    font-size: medium;
+}

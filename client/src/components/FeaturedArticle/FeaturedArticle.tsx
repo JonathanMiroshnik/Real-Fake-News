@@ -15,6 +15,9 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
             <div className="featured-article">
                 <div className="featured-article-header">
                     <h2>{ article.title }</h2>
+                    {article.shortDescription && <p>
+                        {article.shortDescription}
+                    </p>}
                     <div className="featured-article-meta">
                         <span className="author">By { article.author?.name }</span>
                         {/* TODO: dont like this way of gapping things */}
