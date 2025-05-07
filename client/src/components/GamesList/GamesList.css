@@ -1,14 +1,15 @@
 .games-list-section {
     /* TODO: for testing */
-    border: 1px solid orangered;
+    /* border: 1px solid orangered; */
 }
 
 .games-list {
     display: flex;
     justify-content: center;
     align-items: center;
+
     /* TODO: for testing */
-    border: 1px solid orange;
+    /* border: 1px solid orange; */
 }
 
 .games-list > .game-item-separator + .game-item-separator {

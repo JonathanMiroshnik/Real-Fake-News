@@ -1,19 +1,16 @@
 .site-header {
-  /* position: fixed; */
-  /* top: 0; */
   width: 100%;
-  /* background: #ffffff; */
+  margin-bottom: 3rem;
+
   border-bottom: 3px solid #cc0000;
   border-width: 1px;
-  /* padding: 1rem; */
-  /* z-index: 1000; */
 }
 
 .nav-button {
-  background: none;
-  border: none;
+  background: none;  
   padding: 0.8rem 1.5rem;
   margin: 0 0.5rem;
+  border: none;
   font-size: 1.1rem;
   transition: all 0.3s ease;
 }
@@ -23,12 +20,10 @@
 }
 
 .logo {
+  margin: 1rem;
   font-family: 'Times New Roman', serif;
-  /* height: auto; */
   font-size: 80px;
-  /* color: #cc0000; */
   cursor: pointer;
-  /* margin: 0 2rem; */
   will-change: filter;
   transition: filter 300ms;
 }

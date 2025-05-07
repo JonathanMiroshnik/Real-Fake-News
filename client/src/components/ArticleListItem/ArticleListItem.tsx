@@ -28,9 +28,9 @@ function ArticleListItem({article}: ArticleListItemProps) {
                 <h3 className='article-list-item-title-header'>
                     {article.title}
                 </h3>
-                {article.shortDescription && <p>
+                { article.shortDescription && <p className='article-list-item-description'>
                     {article.shortDescription}
-                </p>}
+                </p> }
                 <div className="article-list-item-undertext">
                     { article.author?.name  +  " " + "|" + " " +
                         (article.timestamp ? 

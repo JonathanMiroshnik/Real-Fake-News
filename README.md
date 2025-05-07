@@ -59,3 +59,4 @@ There are several shared aspects between both the front-end and back-end. The ma
 - To allow for React/Node servers to start up by default on FireFox, you need to install the VSC extension "Debugger for FireFox" and configure the launch.json accordingly. **DOESNT WORK**
 - I probably want to pull real news data from the internet to have half-related topics to play with, along with easy input data for the prompts, I suggest two free-enough APIs to think about: https://gnews.io/#pricing , https://newsdata.io/pricing -> I chose the second one
 - We are using runware.ai for the image generation
+- The Images in the website are(as of 7.5.25) exclusively in a 1.75:1 size.

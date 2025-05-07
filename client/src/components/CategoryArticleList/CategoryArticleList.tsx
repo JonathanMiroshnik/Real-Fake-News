@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import { ArticleContext } from "../../contexts/ArticlesContext";
 import { NewsCategory } from "../../contexts/NewsConst";
-// import ArticleListItem from "../ArticleListItem/ArticleListItem";
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import ArticleList from "../ArticleList/ArticleList";
 import './CategoryArticleList.css'
+
+// TODO: maybe this component is irrelevant and should just be replaced entirely with ArticleList?
 
 /**
  * Category-specific article list component
@@ -25,23 +26,11 @@ function CategoryArticleList(props: CategoryArticleListProps) {
     });
 
     return (
-        <>
-            { articlesbyCategory.length > 0 ? 
-            <div className="category-article-list-main">
-                <h2 className="category-article-list-title">{ props.category.text }</h2>
-                {/* <nav> */}
-                    {/* <ul className="category-list-articles" >
-                        {articlesbyCategory.map((article) => (
-                            <li key={"article_category_list_item_" + article.key} className="list-article-text" >
-                                <ArticleListItem article={article}/>
-                            </li>
-                        ))}
-                    </ul> */}
-                {/* </nav> */}
-                <ArticleList articles={articlesbyCategory}/>
-            </div>
-            : null }
-        </>
+        articlesbyCategory.length > 0 &&
+        <div className="category-article-list-main">
+            <h2 className="category-article-list-title">{ props.category.text }</h2>
+            <ArticleList articles={articlesbyCategory}/>
+        </div>
     );
 }
 

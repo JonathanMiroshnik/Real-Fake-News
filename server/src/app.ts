@@ -119,6 +119,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-blogWritingManager(ONE_HOUR_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
+blogWritingManager(DAY_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
 
 export default app;

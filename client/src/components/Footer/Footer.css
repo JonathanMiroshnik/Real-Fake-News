@@ -1,7 +1,10 @@
 .site-footer {
-  border-top: 3px solid #cc0000;
+  width: 100%;
   margin-top: 3rem;
-  padding: 2rem 1rem;
+
+  border-top: 3px solid #cc0000;
+  border-width: 1px;
+  /* padding: 2rem 0rem; */
 }
 
 .footer-content {

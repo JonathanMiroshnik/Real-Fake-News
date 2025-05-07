@@ -37,6 +37,7 @@ function WriterPage() {
   const articlesbyWriter = articles.filter((a) => 
     a.author?.name === desenitizedKey
   );
+  const authorName = desenitizedKey;
   // const articlesbyWriter: ArticleProps[] = currentArticles.filter((article) => {
   //       if (article.author === undefined) {
   //           return false;
@@ -45,27 +46,20 @@ function WriterPage() {
   // });  
 
   return (
-    <div className="home-container">      
-      <section className="featured-article">
-        {/* <FeaturedArticle key="ee1b546d-05a4-478a-bee7-36ecda2de858"/> */}
-      </section>
-
+    <div className="home-container">
       <div style={{textAlign: "center"}}>
+            <h2>{ authorName }</h2>
             <img src={getImageURLFromWriter(foundWriter, DEFAULT_IMAGE)} 
             alt={foundWriter.name} className="writer-page-profile-img"/>
             <br/>
-            { foundWriter.description }
+            { foundWriter.description }            
       </div>
       
       <div className="main-content">
         {/* this was section */}
         <div className="article-grid">
-            <ArticleList articles={articlesbyWriter} title={desenitizedKey}/>
+            <ArticleList articles={articlesbyWriter} vertical={false}/>
         </div>
-
-        <aside className="sidebar">
-          {/* Trending/news ticker */}
-        </aside>
       </div>
     </div>
   );

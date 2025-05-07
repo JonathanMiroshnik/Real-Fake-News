@@ -12,13 +12,13 @@ interface FeaturedArticleProps {
 function FeaturedArticle({article}: FeaturedArticleProps) {
     return (
         <Link to={`/article/${article.key}`} >
-            <div className="featured-article">
+            <section className="featured-article">
                 <div className="featured-article-header">
-                    <h2>{ article.title }</h2>
-                    {article.shortDescription && <p>
+                    <h2 className="featured-article-title">{ article.title }</h2>
+                    {article.shortDescription && <p className="featured-article-description">
                         {article.shortDescription}
                     </p>}
-                    <div className="featured-article-meta">
+                    <div className="featured-article-undertext">
                         <span className="author">By { article.author?.name }</span>
                         {/* TODO: dont like this way of gapping things */}
                         {" "}
@@ -28,7 +28,7 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                     </div>
                 </div>
                 <img className="featured-article-image" src={getImageURLFromArticle(article, DEFAULT_IMAGE)} alt={article.title} />
-            </div>
+            </section>
         </Link>
     );
 };

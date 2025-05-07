@@ -28,6 +28,11 @@
   justify-content: center;
 }
 
+.article-image {
+  /* TODO: should this width 100% be here or keep original img size? */
+  width: 100%;
+}
+
 .article-header h2 {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;

@@ -1,6 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
+// TODO: should I use this? theoretically solves STRICT error in browser.
+// https://stackoverflow.com/questions/62202890/how-can-i-fix-using-unsafe-componentwillmount-in-strict-mode-is-not-recommended 
+// import { Helmet, HelmetProvider } from 'react-helmet-async';
+
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
 import ArticlePage from './pages/ArticlePage/ArticlePage';

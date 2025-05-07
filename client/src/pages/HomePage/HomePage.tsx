@@ -5,6 +5,7 @@ import { ArticleContext } from '../../contexts/ArticlesContext';
 import { CATEGORIES } from '../../contexts/NewsConst';
 import GamesList from '../../components/GamesList/GamesList';
 import './HomePage.css'
+import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 
 
 /**
@@ -18,13 +19,9 @@ function HomePage() {
   const randomArticle = articles[Math.floor(Math.random() * articles.length)];
 
   return (
-    <div className="home-container">      
-      <section className="featured-article">
-        {randomArticle && <FeaturedArticle article={randomArticle} />}
-      </section>
-      
-      <GamesList />
-
+    <div className="home-container">
+      <NewsCarousel/>
+      {randomArticle && <FeaturedArticle article={randomArticle} />}   
       <div className="main-content">
         {/* this was section */}
         <div className="article-grid">        
@@ -34,6 +31,8 @@ function HomePage() {
             </div>
           )) }          
         </div>
+
+        <GamesList />
 
         <aside className="sidebar">
           {/* Trending/news ticker */}

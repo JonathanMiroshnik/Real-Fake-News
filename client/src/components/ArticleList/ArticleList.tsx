@@ -15,28 +15,29 @@ interface ArticleListProps {
     title?: string;
     /** Array of articles to display */
     articles: ArticleProps[];
+    /** Vertical or Horizontal list */
+    vertical?: boolean;
+    /** Maximum number of articles to be displayed */
+    maxItems?: number;
 }
 
-const MAX_ITEMS: number = 4;
+// const MAX_ITEMS: number = 4;
 
-function ArticleList(props: ArticleListProps) {
+function ArticleList({title = "", articles, vertical = true, maxItems = 4}: ArticleListProps) {
     return (
-        <>
-            { props.articles.length > 0 ? 
-            <div className="article-list-main">
-                {props.title && <h2 className="article-list-title">{ props.title }</h2>}
-                {/* <nav> */}
-                    <ul className="article-list-ul" >
-                        { props.articles.slice(0, MAX_ITEMS).map((article) => (
-                            <li key={"article_list_item_" + article.key} >
-                                <ArticleListItem article={article}/>
-                            </li>
-                        )) }
-                    </ul>
-                {/* </nav> */}
-            </div>
-            : null }
-        </>
+        articles.length > 0 &&
+        <div className="article-list-main">
+            { title && <h2 className="article-list-title">{ title }</h2>}
+            {/* <nav> */}
+                <ul className="article-list-ul" style={{display: (vertical ? "flex": "blocks")}} >
+                    { articles.slice(0, maxItems).map((ar) => (
+                        <li key={"article_list_item_" + ar.key} >
+                            <ArticleListItem article={ar}/>
+                        </li>
+                    )) }
+                </ul>
+            {/* </nav> */}
+        </div>
     );
 }
 

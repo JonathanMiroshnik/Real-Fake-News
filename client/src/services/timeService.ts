@@ -1,8 +1,8 @@
-export function getLatestTime(milliseconds: number): string {
-    const MINUTE_MILLISECS: number = 60 * 1000;
-    const HOUR_MILLISECS: number = 60 * MINUTE_MILLISECS;
-    const DAY_MILLISECS: number = 24 * HOUR_MILLISECS;    
+export const MINUTE_MILLISECS: number = 60 * 1000;
+export const HOUR_MILLISECS: number = 60 * MINUTE_MILLISECS;
+export const DAY_MILLISECS: number = 24 * HOUR_MILLISECS;    
 
+export function getLatestTime(milliseconds: number): string {
     if (milliseconds > 2 * DAY_MILLISECS) {
         return Math.ceil(milliseconds/DAY_MILLISECS) + " days ago";
     }

@@ -27,7 +27,7 @@ function GamesList() {
         <div className='games-list-section'>
             <h2>GAMES:</h2>
             <div className='games-list'>            
-                { GAMES.map((game) => <GameItem {...game} />) }       
+                { GAMES.map((game, ind) => <GameItem key={"game_" + ind.toString()} {...game} />) }       
             </div>
         </div>
     );
