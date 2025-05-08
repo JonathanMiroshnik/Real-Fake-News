@@ -21,8 +21,10 @@
 
 .logo {
   margin: 1rem;
+
   font-family: 'Times New Roman', serif;
   font-size: 80px;
+  
   cursor: pointer;
   will-change: filter;
   transition: filter 300ms;
