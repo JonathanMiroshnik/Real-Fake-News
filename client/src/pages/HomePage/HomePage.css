@@ -4,6 +4,39 @@
   /* padding: 100px 20px 20px; */
 }
 
+.home-section {
+  display: flex;
+  justify-content: center;
+}
+
+.home-section-title {
+  display: block;
+  justify-content: left;
+  align-content: left;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.home-section-content {
+  display: flex;
+  gap: 1rem;
+  
+  /* padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 4px black solid; */
+}
+
+.home-container > .home-section + .home-section {
+  padding-top: 5rem;
+  margin-top: 2rem;
+  
+  border-top-width: 4px;
+  border-top-style: solid;
+  border-top-color: var(--border-big-separator-color);
+}
+
 /* .article-grid { */
   /* display: flex; */
   /* justify-content:right; */

@@ -6,23 +6,35 @@
     padding-bottom: 2rem;
 }
 
+.featured-article:hover .featured-article-title {
+    text-decoration: underline;
+}
+
 .featured-article-header {
     text-align: left;
 }
 
 .featured-article-title {
+    color: var(--title-color);
     font-size: 28px;    
 }
 
 .featured-article-description {
+  color: var(--description-color);
   font-size: 16px;
 }
 
 .featured-article-undertext {
-    font-size: 13px;
+    color: var(--undertext-color);
     text-align: center;
+    font-size: 13px;    
+}
+
+.featured-article:hover img {
+  filter: brightness(1.1);
 }
 
 .featured-article-image {
-    width: 800px;
+    /* width: 40rem; */
+    width: 200%;
 }

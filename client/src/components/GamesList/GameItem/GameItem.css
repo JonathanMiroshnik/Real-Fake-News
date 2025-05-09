@@ -5,7 +5,7 @@
     min-height: 8rem;
     
     /* TODO: for testing */
-    /* border: 1px solid blue; */
+    border: 1px solid blue;
 }
 
 .game-item-image {
@@ -18,12 +18,13 @@
     text-align: left;
 }
 
+/* TODO: I need more universal color categories for the website */
 .game-item-title {
-    color: black;
+    /* color: black; */
     font-size: large;
 }
 
 .game-item-description {
-    color: gray;
+    /* color: gray; */
     font-size: medium;
 }

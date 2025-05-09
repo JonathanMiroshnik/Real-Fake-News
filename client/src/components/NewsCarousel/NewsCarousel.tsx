@@ -28,7 +28,12 @@ function NewsCarousel() {
         return recentArticle;
     });
 
-    const items = [...articlesbyCategory.map((ar) => <div style={{width:"300px"}}><ArticleListItem article={ar}/></div>)]        
+    const items = [...articlesbyCategory.map((ar) => 
+        // style={{width:"300px"}}
+        <div key={"carousel_" + ar.key}> 
+            <ArticleListItem article={ar} showUnderText={false} showImage={false}/>
+        </div>
+    )]        
     
     return items.length > 0 && <AliceCarousel 
         autoPlay={true} 
@@ -37,6 +42,7 @@ function NewsCarousel() {
         items={items} 
         infinite={true}
         autoPlayInterval={3000}
+        disableDotsControls={true}
         responsive=      {{
             0: {
                 items: 1,

@@ -60,3 +60,6 @@ There are several shared aspects between both the front-end and back-end. The ma
 - I probably want to pull real news data from the internet to have half-related topics to play with, along with easy input data for the prompts, I suggest two free-enough APIs to think about: https://gnews.io/#pricing , https://newsdata.io/pricing -> I chose the second one
 - We are using runware.ai for the image generation
 - The Images in the website are(as of 7.5.25) exclusively in a 1.75:1 size.
+- For each React component two rules must be kept with in regards to CSS organization:
+    1. You must ask yourself whether the component should be an inline or block level element.
+    2. An element should not have its own margin or padding unless: it is a basic html tag OR there is no component higher that is responsible for the final look.

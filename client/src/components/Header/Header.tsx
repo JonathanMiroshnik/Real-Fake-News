@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+import { useContext } from 'react';
+import { DarkModeContext } from '../../contexts/DarkModeContext';
 import './Header.css'
 
 interface HeaderProps {
@@ -13,9 +15,11 @@ interface HeaderProps {
  * - Applies consistent styling across viewports
  */
 function Header({ sections }: HeaderProps) {
+  const darkMode: boolean = useContext(DarkModeContext).dark
+
   return (
     <header className="site-header">
-      <h1 className="logo"><Link to="/">REAL FAKE NEWS</Link></h1>
+      <h1 className="logo"><Link to="/"><img src={darkMode ? "alternativeLogoBlack.png" : "alternativeSiteLogo.png"} className="logo-img" /></Link></h1>
       <nav>
         {sections.map((section) => (
           <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>

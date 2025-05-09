@@ -2,12 +2,12 @@
   width: 100%;
   margin-bottom: 3rem;
 
+  padding-bottom: 1rem;
   border-bottom: 3px solid #cc0000;
   border-width: 1px;
 }
 
 .nav-button {
-  background: none;  
   padding: 0.8rem 1.5rem;
   margin: 0 0.5rem;
   border: none;
@@ -28,6 +28,10 @@
   cursor: pointer;
   will-change: filter;
   transition: filter 300ms;
+}
+
+.logo-img {
+  width: 300px;
 }
 
 .logo:hover {

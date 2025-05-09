@@ -47,7 +47,7 @@ function WriterPage() {
 
   return (
     <div className="home-container">
-      <div style={{textAlign: "center"}}>
+      <div style={{textAlign: "center", marginBottom: "10rem"}}>
             <h2>{ authorName }</h2>
             <img src={getImageURLFromWriter(foundWriter, DEFAULT_IMAGE)} 
             alt={foundWriter.name} className="writer-page-profile-img"/>

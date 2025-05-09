@@ -1,14 +1,12 @@
 .article-list-item {
     max-height: 30rem;
     max-width: 40rem;
-    /* width: 15rem; */
 
-    padding: 10px;
-    margin: 20px;
-
-    border-bottom: 1px;
+    /* TODO: like in BBC website, horizontal ArticleListItems should have bottom border indicating finish */
+    /* border-bottom: 1px;
     border-color: gray;
-    border-bottom-style: solid;
+    border-bottom-style: solid; */
+
     text-align: left;  
 
     /* TODO: for testing */
@@ -25,22 +23,24 @@ Description - 14px
 Undertext - 12px */
 
 .article-list-item-title-header {
+  color: var(--title-color);
   font-size: 18px;
-    margin: 5px;
-    padding: 0px;
+  margin: 5px;
+  padding: 0px;
 }
 
 .article-list-item-description {
+  color: var(--description-color);
   font-size: 14px;
 }
 
 .article-list-item-undertext {
+    color: var(--undertext-color);
     font-size: 12px;
     text-align: center;
 }
 
 .article-list-item-title {
-    color: black;
     text-decoration: none;
 }
 
@@ -52,13 +52,18 @@ Undertext - 12px */
   text-decoration: none;
 }
 
-.article-list-item-title:hover img {
-  filter: drop-shadow(0 0 1em #646cffaa);
+/* Only the title of the article should be underlined when the list item is hovered over */
+.article-list-item-title:hover .article-list-item-title-header {
+  text-decoration: underline;
 }
 
+/* TODO: the image shadow is a bit overbearing */
+/* .article-list-item-title:hover img {
+  filter: drop-shadow(0 0 1em #646cffaa);
+} */
+
 .article-list-item-title:hover img {
-  color: black;
-  text-decoration: underline;
+  filter: brightness(1.1);
 }
 
 .article-list-item-title:active {

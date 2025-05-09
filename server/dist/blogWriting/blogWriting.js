@@ -108,15 +108,14 @@ async function writeBlogPost(writer) {
         content: "In what officials are calling 'a fortunate misfire,' a defense satellite test nudged the moon a few kilometers into a more symmetrical orbit. Scientists report improved tides and reduced global anxiety. Conspiracy theorists are now demanding to know if this was actually the plot of 'Moonfall 2.'"
     }
     `;
-    console.log("here0");
+
     const result = await (0, llmController_1.generateTextFromString)(META_PROMPT, 'json_object');
     if (result === undefined || !result?.success) {
         console.log("Meta prompt output invalid!");
         return;
     }
-    console.log("here1");
+
     const parsedData = JSON.parse(result.generatedText);
-    console.log("here2");
     const newArticle = {
         key: (0, lowdb_crud_1.getUniqueKey)(),
         content: parsedData.content,
@@ -125,9 +124,8 @@ async function writeBlogPost(writer) {
         timestamp: (new Date()).toUTCString(),
         category: parsedData.category
     };
-    console.log("here3");
+
     (0, lowdb_crud_1.createPost)(newArticle, lowdb_databases_1.DB_BLOG_POST_FILE);
-    console.log("here4");
 }
 function writeRandomBlogPost() {
     const randomWriter = getRandomWriter();

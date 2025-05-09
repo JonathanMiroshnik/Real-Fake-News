@@ -19,11 +19,13 @@ interface ArticleListProps {
     vertical?: boolean;
     /** Maximum number of articles to be displayed */
     maxItems?: number;
+    /** Controls whether images of articles are shown */
+    showImages?: boolean;
 }
 
 // const MAX_ITEMS: number = 4;
 
-function ArticleList({title = "", articles, vertical = true, maxItems = 4}: ArticleListProps) {
+function ArticleList({title = "", articles, vertical = true, maxItems = 4, showImages=true}: ArticleListProps) {
     return (
         articles.length > 0 &&
         <div className="article-list-main">
@@ -32,7 +34,7 @@ function ArticleList({title = "", articles, vertical = true, maxItems = 4}: Arti
                 <ul className="article-list-ul" style={{display: (vertical ? "flex": "blocks")}} >
                     { articles.slice(0, maxItems).map((ar) => (
                         <li key={"article_list_item_" + ar.key} >
-                            <ArticleListItem article={ar}/>
+                            <ArticleListItem showImage={showImages} article={ar}/>
                         </li>
                     )) }
                 </ul>

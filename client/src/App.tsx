@@ -18,7 +18,7 @@ import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
 
 function App() {
   return (
-    <div>
+    <div className="app-div">
       <Helmet>
         <meta charSet="utf-8" />
         <title>Real Fake News</title>

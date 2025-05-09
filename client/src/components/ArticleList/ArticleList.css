@@ -1,15 +1,31 @@
 .article-list-main {
     display: flex;
-    justify-content: center;
+    /* justify-content: center; */
+
+    /* max-width: 60rem; */
 }
 
 .article-list-ul {
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+    /* justify-content: center; */
+    /* width: 100%; */
+    /* height: 100%; */
+
+    gap: 2rem;
+
+    padding: 0;
+    margin: 0;
 
     list-style-type: none;
 
     /* TODO: for testing */
     /* border: 1px solid green; */
+}
+
+.article-list-ul > li {
+    margin: 0;
+}
+
+.article-list-ul > li + li {
+    /* TODO: fix this for horizontal situation, should only be vertical */
+    border-top: 1px gray solid;
 }

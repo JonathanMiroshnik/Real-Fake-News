@@ -1,6 +1,7 @@
 // TODO: create another state for the Featured Article that will be kept separate and chosen from the other articles.
 
 import { useEffect, createContext, useState, ReactNode } from "react";
+import { pullDailies } from "../services/articleService";
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
 /**
@@ -33,10 +34,7 @@ function ArticleProvider({ children }: { children: ReactNode }) {
   // Data fetching effect - runs once on mount
   useEffect(() => {
       async function fetchDailies() {
-          const response = await fetch('http://localhost:5000/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
-          const articlesJSON = await response.json()
-          const finalArticles = articlesJSON.articles;
-
+          const finalArticles = await pullDailies();
           setArticles([...finalArticles]);
       }
       
