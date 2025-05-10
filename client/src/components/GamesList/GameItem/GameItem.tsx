@@ -18,7 +18,8 @@ function GameItem({title, headImageName, shortDescription, linkName}: GameItemPr
                     <br/>
                     <p className='game-item-description'>{ shortDescription }</p>
                 </div>
-                <img className="game-item-image" src={getImageURL(headImageName)} />
+                {/* src={getImageURL(headImageName)} /> */}
+                <img className="game-item-image" src={headImageName}/>
             </div>            
         </Link>
     );

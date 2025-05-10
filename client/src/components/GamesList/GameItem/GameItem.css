@@ -9,8 +9,9 @@
 }
 
 .game-item-image {
-    width: 64px;
-    height: 64px;
+    width: 100px;
+    /* height: 64px; */
+    margin: 10px;
     margin-left: auto;    
 }
 

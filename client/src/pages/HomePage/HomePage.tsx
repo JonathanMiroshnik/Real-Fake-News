@@ -4,7 +4,7 @@ import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { CATEGORIES, groupArticlesByCategories } from '../../services/articleService';
-// import GamesList from '../../components/GamesList/GamesList';
+import GamesList from '../../components/GamesList/GamesList';
 import './HomePage.css'
 import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 
@@ -86,7 +86,7 @@ function HomePage() {
         )) }
       
 
-          {/* <GamesList /> */}
+          <GamesList />
 
         {/* <aside className="sidebar">
           <NewsCarousel/>

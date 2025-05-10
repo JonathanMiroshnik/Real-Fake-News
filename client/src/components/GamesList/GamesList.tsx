@@ -11,7 +11,7 @@ function GamesList() {
     const GAMES = [ 
         {
             title: "tic-tac-toe", 
-            headImageName: DEFAULT_IMAGE,
+            headImageName: "logoTicTacToe.png",
             shortDescription: "good tic tac toe backgammon game",
             linkName: "tictactoe"
         },
