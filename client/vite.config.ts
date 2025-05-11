@@ -8,6 +8,6 @@ export default defineConfig({
   //   // host: '0.0.0.0',
   //   // https: true,
   //   // port: 51730,
-    allowedHosts: ["yonatan-h110m-s2v.local", 'www.sensorcensor.xyz', 'https://real.sensorcensor.xyz']
+    allowedHosts: ["yonatan-h110m-s2v.local", 'www.sensorcensor.xyz', 'real.sensorcensor.xyz']
   },
 })
