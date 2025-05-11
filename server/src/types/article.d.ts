@@ -1,6 +1,6 @@
-import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/lowdb/lowdbOperations"
-import { DB_BLOG_POST_FILE } from "../lib/lowdb/lowdb_databases";
-import { NewsItem } from "../services/newsService";
+import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/lowdb/lowdbOperations.js"
+import { DB_BLOG_POST_FILE } from "../lib/lowdb/lowdb_databases.js";
+import { NewsItem } from "../services/newsService.js";
 import { Writer } from "./writer";
 
 export interface ArticleScheme extends Post {

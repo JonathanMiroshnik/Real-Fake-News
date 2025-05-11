@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { BlogRequest, BlogResponse } from '../types/article';
-import { getAllPostsAfterDate } from '../services/blogService';
+import { BlogRequest, BlogResponse } from '../types/article.js';
+import { getAllPostsAfterDate } from '../services/blogService.js';
 
 
 // Calculated in milliseconds

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.promptText = void 0;
 exports.generateTextFromString = generateTextFromString;
-const llmService_1 = require("../services/llmService");
+const llmService_js_1 = require("../services/llmService.js");
 const promptText = async (req, res) => {
     try {
         const request = {
@@ -10,7 +10,7 @@ const promptText = async (req, res) => {
             prompt: req.body.text,
             type: 'text'
         };
-        const llmServiceInst = new llmService_1.LLMService();
+        const llmServiceInst = new llmService_js_1.LLMService();
         const result = await llmServiceInst.generateContent(request);
         res.json(result);
     }
@@ -27,7 +27,7 @@ async function generateTextFromString(prompt, type = 'text', temperature = 0.8) 
             type: type,
             temperature: temperature
         };
-        const llmServiceInst = new llmService_1.LLMService();
+        const llmServiceInst = new llmService_js_1.LLMService();
         const result = await llmServiceInst.generateContent(request);
         return result;
     }

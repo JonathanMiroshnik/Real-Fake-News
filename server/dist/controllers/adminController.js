@@ -3,6 +3,7 @@
 // import bcrypt from 'bcrypt';
 // import { Admin } from '../models/Admin';
 // import { Request, Response } from 'express';
+Object.defineProperty(exports, "__esModule", { value: true });
 // export const loginAdmin = async (req: Request, res: Response) => {
 //   try {
 //     const { username, password } = req.body;

@@ -11,9 +11,9 @@ const path_1 = __importDefault(require("path"));
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
 // import llmRoutes from './routes/llmRoutes';
-const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
-const blogWriting_1 = require("./jobs/blogWriting");
-const blogController_1 = require("./controllers/blogController");
+const blogRoutes_js_1 = __importDefault(require("./routes/blogRoutes.js"));
+const blogWriting_js_1 = require("./jobs/blogWriting.js");
+const blogController_js_1 = require("./controllers/blogController.js");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
@@ -31,7 +31,7 @@ app.use((0, morgan_1.default)('dev'));
 // API Routes TODO: this route does not need to be open beyond the back end
 // app.use('/api/llm', llmRoutes);
 // Getting daily news
-app.use('/api/blogs', blogRoutes_1.default);
+app.use('/api/blogs', blogRoutes_js_1.default);
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -99,6 +99,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_1.blogWritingManager)(blogController_1.DAY_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
+(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.DAY_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
 exports.default = app;
 //# sourceMappingURL=app.js.map

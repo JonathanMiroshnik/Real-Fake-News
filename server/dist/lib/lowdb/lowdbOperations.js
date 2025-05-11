@@ -9,7 +9,7 @@ exports.deletePost = deletePost;
 exports.default = crudTest;
 const uuid_1 = require("uuid");
 const node_1 = require("lowdb/node");
-const constants_1 = require("../../config/constants");
+const constants_js_1 = require("../../config/constants.js");
 // TODO: should not have this function and just import uuidv4 where needed?
 function getUniqueKey() {
     return (0, uuid_1.v4)();
@@ -66,22 +66,22 @@ async function crudTest() {
     // Initialize with test data
     const testPost = { key: "1" };
     // Create - Add new post
-    await createPost(testPost, constants_1.DB_BLOG_POST_FILE);
+    await createPost(testPost, constants_js_1.DB_BLOG_POST_FILE);
     console.log('Created post:', testPost);
     // Read - Get all posts
-    const allPosts = await getAllPosts(constants_1.DB_BLOG_POST_FILE);
+    const allPosts = await getAllPosts(constants_js_1.DB_BLOG_POST_FILE);
     console.log('All posts:', allPosts);
     // Read - Get specific post
-    const foundPost = await getPostByKey("1", constants_1.DB_BLOG_POST_FILE);
+    const foundPost = await getPostByKey("1", constants_js_1.DB_BLOG_POST_FILE);
     console.log('Found post:', foundPost);
     // Update - Modify post
     if (foundPost) {
         const k = { key: "1" };
-        await updatePost(k, constants_1.DB_BLOG_POST_FILE);
+        await updatePost(k, constants_js_1.DB_BLOG_POST_FILE);
         console.log('Post updated');
     }
     // Delete - Remove post
-    const deleted = await deletePost("1", constants_1.DB_BLOG_POST_FILE);
+    const deleted = await deletePost("1", constants_js_1.DB_BLOG_POST_FILE);
     console.log('Post deleted:', deleted);
 }
 // Execute main example

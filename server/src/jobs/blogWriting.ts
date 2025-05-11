@@ -5,15 +5,15 @@
 // Responsible for the state machine of the blog writers
 import { randomInt } from "crypto";
 
-import { Writer } from "../types/writer";
-import { FeaturedArticleScheme, ArticleScheme, BlogResponse } from "../types/article";
-import { generateTextFromString } from "../controllers/llmController";
-import { getPostsAfterDate } from "../controllers/blogController";
-import { createPost, getUniqueKey, getAllPosts } from "../lib/lowdb/lowdbOperations";
-import { DB_FEATURED_BLOG_POST_FILE, DB_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from "../config/constants";
-import { addNewsToTotal, getArticles, resetArticles, NewsItem } from "../services/newsService";
-import { generateAndSaveImage } from "../services/imageService";
-import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from "../controllers/blogController";
+import { Writer } from "../types/writer.js";
+import { FeaturedArticleScheme, ArticleScheme, BlogResponse } from "../types/article.js";
+import { generateTextFromString } from "../controllers/llmController.js";
+import { getPostsAfterDate } from "../controllers/blogController.js";
+import { createPost, getUniqueKey, getAllPosts } from "../lib/lowdb/lowdbOperations.js";
+import { DB_FEATURED_BLOG_POST_FILE, DB_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from "../config/constants.js";
+import { addNewsToTotal, getArticles, resetArticles, NewsItem } from "../services/newsService.js";
+import { generateAndSaveImage } from "../services/imageService.js";
+import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from "../controllers/blogController.js";
 
 const EDITOR: Writer = {
     key: "EDITOR",

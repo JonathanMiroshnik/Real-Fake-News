@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { LLMService } from '../services/llmService';
-import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.d';
+import { LLMService } from '../services/llmService.js';
+import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.d.js';
 
 export const promptText = async (req: Request, res: Response) => {
     try {

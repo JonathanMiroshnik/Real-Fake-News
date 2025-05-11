@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { promptText } from '../controllers/llmController';
+import { promptText } from '../controllers/llmController.js';
 
 const router = Router();
 

@@ -7,9 +7,9 @@ import path from 'path';
 // import mongoose from 'mongoose';
 
 // import llmRoutes from './routes/llmRoutes';
-import blogRoutes from './routes/blogRoutes'
-import { blogWritingManager } from './jobs/blogWriting';
-import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController';
+import blogRoutes from './routes/blogRoutes.js'
+import { blogWritingManager } from './jobs/blogWriting.js';
+import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
 
 // TODO: change express use to get set etc?
 

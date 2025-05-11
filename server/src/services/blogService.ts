@@ -1,8 +1,8 @@
 import 'dotenv/config'
 
-import { getAllPosts } from '../lib/lowdb/lowdbOperations';
-import { DB_BLOG_POST_FILE } from '../config/constants';
-import { ArticleScheme, BlogResponse } from '../types/article';
+import { getAllPosts } from '../lib/lowdb/lowdbOperations.js';
+import { DB_BLOG_POST_FILE } from '../config/constants.js';
+import { ArticleScheme, BlogResponse } from '../types/article.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
     const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(DB_BLOG_POST_FILE);

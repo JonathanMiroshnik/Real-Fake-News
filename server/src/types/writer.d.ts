@@ -1,4 +1,4 @@
-import { Post } from "../lib/lowdb/lowdbOperations";
+import { Post } from "../lib/lowdb/lowdbOperations.js";
 
 export interface Writer extends Post {
   name: string;

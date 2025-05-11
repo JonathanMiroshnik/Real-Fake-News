@@ -8,4 +8,3 @@ export declare function getPostByKey<T extends Post>(key: string, dbFile: string
 export declare function updatePost<T extends Post>(newPost: T, dbFile: string): Promise<boolean>;
 export declare function deletePost<T extends Post>(key: string, dbFile: string): Promise<boolean>;
 export default function crudTest(): Promise<void>;
-//# sourceMappingURL=lowdbOperations.d.ts.map

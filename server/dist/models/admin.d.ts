@@ -32,4 +32,3 @@ export declare const Admin: mongoose.Model<{
 } & {
     __v: number;
 }>>;
-//# sourceMappingURL=admin.d.ts.map

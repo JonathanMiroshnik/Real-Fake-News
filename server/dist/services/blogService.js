@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPostsAfterDate = getAllPostsAfterDate;
 require("dotenv/config");
-const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
-const constants_1 = require("../config/constants");
+const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
+const constants_js_1 = require("../config/constants.js");
 async function getAllPostsAfterDate(startDate) {
-    const allArticles = await (0, lowdbOperations_1.getAllPosts)(constants_1.DB_BLOG_POST_FILE);
+    const allArticles = await (0, lowdbOperations_js_1.getAllPosts)(constants_js_1.DB_BLOG_POST_FILE);
     const retArticles = allArticles.filter(article => {
         if (!article.timestamp)
             return false;

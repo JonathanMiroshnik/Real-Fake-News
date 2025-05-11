@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { pullBlogs, pullHourlyBlogs } from '../controllers/blogController';
+import { pullBlogs, pullHourlyBlogs } from '../controllers/blogController.js';
 
 const router = Router();
 

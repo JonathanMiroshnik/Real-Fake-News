@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogWritingManager = blogWritingManager;
 // Responsible for the state machine of the blog writers
 const crypto_1 = require("crypto");
-const llmController_1 = require("../controllers/llmController");
-const blogController_1 = require("../controllers/blogController");
-const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
-const constants_1 = require("../config/constants");
-const newsService_1 = require("../services/newsService");
-const imageService_1 = require("../services/imageService");
-const blogController_2 = require("../controllers/blogController");
+const llmController_js_1 = require("../controllers/llmController.js");
+const blogController_js_1 = require("../controllers/blogController.js");
+const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
+const constants_js_1 = require("../config/constants.js");
+const newsService_js_1 = require("../services/newsService.js");
+const imageService_js_1 = require("../services/imageService.js");
+const blogController_js_2 = require("../controllers/blogController.js");
 const EDITOR = {
     key: "EDITOR",
     name: "The Editor",
@@ -24,7 +24,7 @@ const EDITOR = {
 };
 const TEN_MINUTES_MILLISECONDS = 10 * 60 * 1000;
 async function getRandomWriter() {
-    const writersList = await (0, lowdbOperations_1.getAllPosts)(constants_1.DB_WRITERS_FILE);
+    const writersList = await (0, lowdbOperations_js_1.getAllPosts)(constants_js_1.DB_WRITERS_FILE);
     const writerReturn = writersList[(0, crypto_1.randomInt)(writersList.length)];
     if (writerReturn === undefined) {
         throw console.error("Random Writer not found");
@@ -39,7 +39,7 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
     if (newArticle === undefined) {
         return;
     }
-    await (0, lowdbOperations_1.createPost)(newArticle, constants_1.DB_BLOG_POST_FILE);
+    await (0, lowdbOperations_js_1.createPost)(newArticle, constants_js_1.DB_BLOG_POST_FILE);
     return newArticle;
 }
 // async function writeFeaturedBlogPost(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }, saveArticle: boolean = true) {
@@ -65,7 +65,7 @@ function writeBlogPostPrompt(writer, currentNewsItem = { title: "", description:
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_1.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
@@ -159,7 +159,7 @@ function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { title: "", d
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_1.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(editor.name !== "" ? "Your name is " + editor.name + "." : "")}\n
     ${(editor.description !== "" ? "Your description is " + editor.description + "." : "")}\n
@@ -249,7 +249,7 @@ function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { title: "", d
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_1.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
@@ -320,15 +320,15 @@ function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { title: "", d
 }
 async function createArticle(writer, currentNewsItem = { title: "", description: "" }, prompt) {
     console.log("Generating new article");
-    const result = await (0, llmController_1.generateTextFromString)(prompt, 'json_object');
+    const result = await (0, llmController_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");
         return;
     }
     const parsedData = JSON.parse(result.generatedText);
-    const imgName = await (0, imageService_1.generateAndSaveImage)(parsedData.prompt);
+    const imgName = await (0, imageService_js_1.generateAndSaveImage)(parsedData.prompt);
     const newArticle = {
-        key: (0, lowdbOperations_1.getUniqueKey)(),
+        key: (0, lowdbOperations_js_1.getUniqueKey)(),
         content: parsedData.content,
         author: writer,
         title: parsedData.title,
@@ -350,15 +350,15 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
         currentArticles.push(currentArticle);
     }
     console.log("Generating new article");
-    const result = await (0, llmController_1.generateTextFromString)(prompt, 'json_object');
+    const result = await (0, llmController_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");
         return;
     }
     const parsedData = JSON.parse(result.generatedText);
-    const imgName = await (0, imageService_1.generateAndSaveImage)(parsedData.prompt);
+    const imgName = await (0, imageService_js_1.generateAndSaveImage)(parsedData.prompt);
     const newFeaturedArticle = {
-        key: (0, lowdbOperations_1.getUniqueKey)(),
+        key: (0, lowdbOperations_js_1.getUniqueKey)(),
         content: currentArticles,
         author: writers,
         title: parsedData.title,
@@ -368,24 +368,24 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
         shortDescription: parsedData.shortDescription,
         headImage: imgName
     };
-    return await (0, lowdbOperations_1.createPost)(newFeaturedArticle, constants_1.DB_FEATURED_BLOG_POST_FILE);
+    return await (0, lowdbOperations_js_1.createPost)(newFeaturedArticle, constants_js_1.DB_FEATURED_BLOG_POST_FILE);
 }
 async function generateScheduledArticles(writingInterval) {
-    const result = await (0, blogController_1.getPostsAfterDate)(new Date(Date.now() - writingInterval));
-    let newArticlesNeeded = constants_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
+    const result = await (0, blogController_js_1.getPostsAfterDate)(new Date(Date.now() - writingInterval));
+    let newArticlesNeeded = constants_js_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
     if (newArticlesNeeded < 0) {
         newArticlesNeeded = 0;
     }
     // TODO: why reset articles always?
-    (0, newsService_1.resetArticles)();
-    await (0, newsService_1.addNewsToTotal)(newArticlesNeeded * 2); // TODO: getting extra articles than needed but maybe unneeded...
-    const currentNews = (0, newsService_1.getArticles)();
+    (0, newsService_js_1.resetArticles)();
+    await (0, newsService_js_1.addNewsToTotal)(newArticlesNeeded * 2); // TODO: getting extra articles than needed but maybe unneeded...
+    const currentNews = (0, newsService_js_1.getArticles)();
     for (let i = 0; i < newArticlesNeeded; i++) {
         let currentNewsItem = currentNews.splice((0, crypto_1.randomInt)(currentNews.length), 1)[0];
         await writeBlogPost(await getRandomWriter(), currentNewsItem);
     }
 }
-function blogWritingManager(writingInterval = blogController_2.ONE_HOUR_MILLISECS, checkInterval = TEN_MINUTES_MILLISECONDS) {
+function blogWritingManager(writingInterval = blogController_js_2.ONE_HOUR_MILLISECS, checkInterval = TEN_MINUTES_MILLISECONDS) {
     generateScheduledArticles(writingInterval);
     setInterval(() => generateScheduledArticles(writingInterval), checkInterval);
 }

@@ -6,4 +6,3 @@ export type NewsItem = {
 export declare function getArticles(): NewsItem[];
 export declare function resetArticles(): void;
 export declare function addNewsToTotal(numArticles?: number): Promise<boolean>;
-//# sourceMappingURL=newsService.d.ts.map

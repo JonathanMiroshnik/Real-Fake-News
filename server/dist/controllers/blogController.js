@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pullBlogs = exports.ONE_HOUR_MILLISECS = exports.DAY_MILLISECS = void 0;
 exports.getPostsAfterDate = getPostsAfterDate;
 exports.pullHourlyBlogs = pullHourlyBlogs;
-const blogService_1 = require("../services/blogService");
+const blogService_js_1 = require("../services/blogService.js");
 // Calculated in milliseconds
 exports.DAY_MILLISECS = 24 * 60 * 60 * 1000;
 exports.ONE_HOUR_MILLISECS = 60 * 60 * 1000;
@@ -26,7 +26,7 @@ async function getPostsAfterDate(afterDate) {
         writer: "",
         afterDate: afterDate
     };
-    const result = await (0, blogService_1.getAllPostsAfterDate)(request.afterDate);
+    const result = await (0, blogService_js_1.getAllPostsAfterDate)(request.afterDate);
     return result;
 }
 async function pullHourlyBlogs(req, res) {

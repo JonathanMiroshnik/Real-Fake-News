@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { OpenAI } from 'openai';
 
-import { GenerateContentRequest, GenerateContentResponse } from '../types/llm';
+import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.js';
 
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
