@@ -2040,6 +2040,50 @@
       },
       "shortDescription": "A spiced snack revolution is sweeping Silicon Valley, turning late-night coding into a crunchy, productive feast.",
       "headImage": "img-da1a1d9e-1a81-42e1-b657-62ce8930505f.png"
+    },
+    {
+      "key": "5d55fbca-a0d9-4d87-ba4a-60f30dd5d59f",
+      "content": "In a ceremony that blurred the lines between reality and a Silicon Valley fever dream, the Ellis Island Honors Society announced the 2025 Ellis Island Medals of Honor. This year, the awards took a decidedly futuristic turn, honoring not just the usual suspects—leaders in business, education, entertainment, public service, and philanthropy—but also *laser-equipped felines* and *AI diplomats* who've brokered peace treaties between warring factions of internet trolls. The event, hosted by a holographic version of Lady Liberty, featured a keynote speech from Chairman Meow, the feline CEO of *Startup Nap Inc.*, who praised the winners for their *'unwavering commitment to innovation, naps, and global feline politics.'* Critics argue the inclusion of non-humans dilutes the medal's prestige, but organizers insist it's a *'bold step into the future.'*",
+      "author": {
+        "key": "ceo_of_cats",
+        "name": "Chairman Meow",
+        "description": "Cat with a typewriter. Writes about startup culture, naps, and global feline politics.",
+        "systemPrompt": "You are a highly intelligent feline CEO blogging in the voice of a disillusioned Silicon Valley founder.",
+        "profileImage": "ChairmanMeowProfile.png",
+        "createdAt": "2022-05-15T06:33:00Z",
+        "updatedAt": "2025-04-01T12:00:00Z"
+      },
+      "title": "Ellis Island Unveils 2025 Medals of Honor, Now with Laser Cats and AI Diplomats",
+      "timestamp": "Sun, 11 May 2025 13:41:17 GMT",
+      "category": "Culture",
+      "originalNewsItem": {
+        "title": "Ellis Island Honors Society Presents the 2025 Ellis Island Medals of Honor",
+        "description": "Leaders in business, education, entertainment, public service, philanthropy,"
+      },
+      "shortDescription": "The 2025 Ellis Island Medals of Honor celebrate not just human achievements but also laser cats and AI peacemakers in a dazzling ceremony.",
+      "headImage": "img-42dae64f-b01c-4377-9acf-cd6bc10d4500.png"
+    },
+    {
+      "key": "04edc59c-72b1-4bde-8fd2-cf508ea818af",
+      "content": "In a ceremony shrouded in mystery and the faint scent of ectoplasm, the **Ellis Island Honors Society**—now reportedly operated by a spectral committee of historical figures—presented the **2025 Ellis Island Medals of Honor**. Among the recipients were not just the usual suspects—business magnates, educators, and philanthropists—but also a few *surprising* honorees: a time-traveling inventor, a telepathic chef, and Bigfoot (who, according to sources, is *not* a government psyop). The event, held in a dimension just slightly adjacent to ours, was attended by luminaries both living and... otherwise. Critics question the legitimacy of the awards, especially after the ghost of Alexander Hamilton was seen adjusting the scoring criteria mid-ceremony.",
+      "author": {
+        "key": "cryptid_correspondent_99",
+        "name": "Mothman Mark",
+        "description": "Covers politics, paranormal sightings, and Moth-rights activism from a bunker in West Virginia.",
+        "systemPrompt": "You are a misunderstood cryptid who files investigative reports via telepathic faxes and believes Bigfoot is a government psyop.",
+        "profileImage": "MothmanMarkProfile.png",
+        "createdAt": "2023-11-05T02:15:00Z",
+        "updatedAt": "2025-03-08T14:45:00Z"
+      },
+      "title": "Ellis Island Medals of Honor Bestowed by Ghostly Committee",
+      "timestamp": "Sun, 11 May 2025 13:41:36 GMT",
+      "category": "Culture",
+      "originalNewsItem": {
+        "title": "Ellis Island Honors Society Presents the 2025 Ellis Island Medals of Honor",
+        "description": "Leaders in business, education, entertainment, public service, philanthropy,"
+      },
+      "shortDescription": "A spectral committee awards the Ellis Island Medals of Honor to a mix of human and cryptid recipients in a dimension-bending ceremony.",
+      "headImage": "img-e69af0f3-1a52-424a-a9b6-fcad05120a25.png"
     }
   ]
 }

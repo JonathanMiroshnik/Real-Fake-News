@@ -11,7 +11,9 @@ require("dotenv/config");
 const uuid_1 = require("uuid");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const sharp_1 = __importDefault(require("sharp"));
+// import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
+const jimp_1 = require("jimp");
+const jimp_2 = require("jimp");
 const sdk_js_1 = require("@runware/sdk-js");
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED = true;
@@ -63,7 +65,9 @@ async function saveDataURIToPNG(dataURI) {
         throw new Error('Invalid data URI format');
     // Convert to PNG buffer
     const buffer = Buffer.from(matchGroups.data, 'base64');
-    const pngBuffer = await (0, sharp_1.default)(buffer).png().toBuffer();
+    // const pngBuffer = await sharp(buffer).png().toBuffer(); // Replaced with JIMP
+    const image = await jimp_1.Jimp.read(buffer);
+    const pngBuffer = await image.getBuffer(jimp_2.JimpMime.png);
     // Ensure directory exists
     const imagesDir = path_1.default.join(__dirname, '../../data/images');
     fs_1.default.mkdirSync(imagesDir, { recursive: true });
@@ -71,6 +75,7 @@ async function saveDataURIToPNG(dataURI) {
     const filename = `img-${(0, uuid_1.v4)()}.png`;
     const filePath = path_1.default.join(imagesDir, filename);
     await fs_1.default.promises.writeFile(filePath, pngBuffer);
+    console.log("FILE", filename);
     return filename;
 }
 async function generateAndSaveImage(positivePrompt) {

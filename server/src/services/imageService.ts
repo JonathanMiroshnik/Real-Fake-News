@@ -2,7 +2,11 @@ import "dotenv/config"
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-import sharp from 'sharp';
+
+// import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
+import { Jimp } from "jimp";
+import { JimpMime } from "jimp";
+
 import { Runware } from "@runware/sdk-js";
 
 // TODO: add other such service activated flags in the other services!
@@ -66,7 +70,10 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     
     // Convert to PNG buffer
     const buffer = Buffer.from(matchGroups.data, 'base64');
-    const pngBuffer = await sharp(buffer).png().toBuffer();
+
+    // const pngBuffer = await sharp(buffer).png().toBuffer(); // Replaced with JIMP
+    const image = await Jimp.read(buffer);
+    const pngBuffer = await image.getBuffer(JimpMime.png);
 
     // Ensure directory exists
     const imagesDir = path.join(__dirname, '../../data/images');
@@ -76,6 +83,8 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     const filename = `img-${uuidv4()}.png`;
     const filePath = path.join(imagesDir, filename);
     await fs.promises.writeFile(filePath, pngBuffer);
+
+    console.log("FILE",filename);
 
     return filename;
 }

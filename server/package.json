@@ -18,6 +18,7 @@
   "dependencies": {
     "@runware/sdk-js": "^1.1.38",
     "@types/bcrypt": "^5.0.2",
+    "@types/jimp": "^0.2.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
     "axios": "^1.8.4",
@@ -28,6 +29,7 @@
     "express-rate-limit": "^7.5.0",
     "fs-extra": "^11.3.0",
     "helmet": "^8.1.0",
+    "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "lowdb": "^7.0.1",
     "mongoose": "^8.13.2",
@@ -35,7 +37,6 @@
     "node-cron": "^3.0.3",
     "nodemon": "^3.1.9",
     "openai": "^4.93.0",
-    "sharp": "^0.34.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
