@@ -33,7 +33,7 @@ export const CATEGORIES: NewsCategory[] = [
 ]; 
 
 export async function pullDailies() {
-    const response = await fetch('http://162.0.237.138:5001/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
+    const response = await fetch('/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
     const articlesJSON = await response.json()
     const finalArticles = articlesJSON.articles;
 
