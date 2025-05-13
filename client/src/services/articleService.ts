@@ -34,7 +34,7 @@ export const CATEGORIES: NewsCategory[] = [
 
 export async function pullDailies() {
     // const route = "http://localhost:5001";
-    const response = await fetch('/api/blogs/daily', {
+    const response = await fetch("https://real.sensorcensor.xyz"+'/api/blogs/daily', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

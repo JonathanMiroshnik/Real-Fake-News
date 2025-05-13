@@ -29,7 +29,7 @@ app.use((0, morgan_1.default)('dev'));
 // API Routes TODO: this route does not need to be open beyond the back end
 // app.use('/api/llm', llmRoutes);
 // Getting daily news
-app.use('/api/blogs', blogRoutes_js_1.default);
+app.use('/blogs', blogRoutes_js_1.default);
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -43,7 +43,7 @@ app.get('/health', (req, res) => {
 //   const sanitized = path.basename(req.params.filename);
 //   res.sendFile(path.join(__dirname, '../data/images', sanitized));
 // });
-app.get('/api/images/:filename', (req, res) => {
+app.get('/images/:filename', (req, res) => {
     const sanitized = path_1.default.basename(req.params.filename);
     // Set CORP headers
     res.set({
@@ -54,8 +54,8 @@ app.get('/api/images/:filename', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../data/images', sanitized));
 });
 // Apply CORS specifically to image routes
-app.use('/api/images', (0, cors_1.default)({
-    origin: "http://localhost:5173",
+app.use('/images', (0, cors_1.default)({
+    origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
     exposedHeaders: ['Content-Type', 'Content-Length']
 }));
 // ---------------------------------------------------------------------------------

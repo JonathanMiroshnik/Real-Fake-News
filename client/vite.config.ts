@@ -31,7 +31,8 @@ export default defineConfig({
       clientPort: 443, // Connect through Nginx's HTTPS
       protocol: 'wss'
     },
-    allowedHosts: ["yonatan-h110m-s2v.local", 'www.sensorcensor.xyz', 'real.sensorcensor.x']
+    allowedHosts: ["yonatan-h110m-s2v.local", 'www.sensorcensor.xyz', 
+'real.sensorcensor.x', "real.sensorcensor.xyz"]
   }
 })
 
