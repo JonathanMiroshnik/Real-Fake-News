@@ -11,7 +11,7 @@ const path_1 = require("path");
 // Load environment variables
 (0, dotenv_1.config)({ path: (0, path_1.resolve)(__dirname, '../.env') });
 // Configuration constants
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 // const MONGO_URI = process.env.MONGO_URI;
 // if (!MONGO_URI) {
 //   throw new Error('MONGO_URI environment variable is required');

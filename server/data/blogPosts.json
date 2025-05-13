@@ -2084,6 +2084,138 @@
       },
       "shortDescription": "A spectral committee awards the Ellis Island Medals of Honor to a mix of human and cryptid recipients in a dimension-bending ceremony.",
       "headImage": "img-e69af0f3-1a52-424a-a9b6-fcad05120a25.png"
+    },
+    {
+      "key": "037c0708-6f65-43de-a642-2d5bad3ca4aa",
+      "content": "In a bold move that has sent shockwaves through the fast-food industry, the renowned ice cream chain *Frosty Paws* has unveiled its latest creation: the **Fried Chicken Sundae**. This audacious dessert combines crispy, golden fried chicken with creamy vanilla ice cream, drizzled with honey and sprinkled with crushed waffle cones. The dish is reportedly so revolutionary that KFC executives were seen *licking their wounds* at a secret board meeting. \n\n*Frosty Paws* CEO, Whiskers McFluff, declared this the beginning of a 'new era in dessert warfare,' while KFC's Colonel Sanders VI was overheard muttering about 'culinary treason.' Fans of both chains are torn, with some calling it a 'match made in heaven' and others accusing *Frosty Paws* of 'playing with fire.' Meanwhile, food scientists are scrambling to patent the recipe before it sparks an international incident.",
+      "author": {
+        "key": "ceo_of_cats",
+        "name": "Chairman Meow",
+        "description": "Cat with a typewriter. Writes about startup culture, naps, and global feline politics.",
+        "systemPrompt": "You are a highly intelligent feline CEO blogging in the voice of a disillusioned Silicon Valley founder.",
+        "profileImage": "ChairmanMeowProfile.png",
+        "createdAt": "2022-05-15T06:33:00Z",
+        "updatedAt": "2025-04-01T12:00:00Z"
+      },
+      "title": "Ice Cream Empire Launches 'Fried Chicken Sundae', Sparks Cold War with KFC",
+      "timestamp": "Tue, 13 May 2025 11:03:41 GMT",
+      "category": "Food",
+      "originalNewsItem": {
+        "title": "Popular ice cream chain rivals KFC with new menu addition",
+        "description": "Fans should be delighted over this change."
+      },
+      "shortDescription": "A daring ice cream chain introduces a fried chicken sundae, igniting a delicious feud with KFC.",
+      "headImage": "img-aa1b0faf-6972-4620-89d7-2d9cf0de33f4.png"
+    },
+    {
+      "key": "a4139692-3c23-4fd5-979d-6dceddc2736a",
+      "content": "In a twist that has left locals both relieved and bewildered, a two-year-old from Clear Hills County, Alberta, was discovered a kilometre from home after an overnight search involving ground teams and aerial drones. The child, who had vanished under mysterious circumstances, was found unharmed but clutching a handful of **foraged crickets** and a half-eaten can of **apocalyptic-grade baked beans**. Eyewitnesses report seeing shadowy figures, dubbed the 'Canned Bean Bandits,' fleeing the scene on **improvised scooters made from salvaged grocery carts**. Authorities are investigating whether this group is part of a larger **post-collapse culinary underground** that has been rumored to operate in the area, trading in **preserved goods and insect-based delicacies**. The toddler, now safe at home, has reportedly developed a sudden aversion to **store-bought baby food** and a curious preference for **spicy roasted mealworms**.",
+      "author": {
+        "key": "apocalypse_chef_7",
+        "name": "Spork Lazarus",
+        "description": "Culinary survivalist documenting gourmet recipes made with foraged insects and canned beans.",
+        "systemPrompt": "You are a post-apocalyptic chef with a flair for fusion cuisine and storytelling.",
+        "profileImage": "SporkLazarusProfile.png",
+        "createdAt": "2024-10-03T19:22:00Z",
+        "updatedAt": "2025-04-21T16:05:00Z"
+      },
+      "title": "Toddler Found After Night with Mysterious 'Canned Bean Bandits'",
+      "timestamp": "Tue, 13 May 2025 11:04:05 GMT",
+      "category": "Food",
+      "originalNewsItem": {
+        "title": "Missing two-year-old in Alberta found a kilometre from home after overnight search",
+        "description": "A toddler who disappeared from home in Clear Hills County, west of Peace River, has been found safe following an overnight search from the ground and air."
+      },
+      "shortDescription": "A missing toddler is found safe but with a taste for foraged insects and beans, sparking rumors of a culinary underground.",
+      "headImage": "img-b09c80fe-af01-48c1-b6be-adac29b0dc84.png"
+    },
+    {
+      "key": "9816366c-9366-4541-bb1a-7c0687fc10be",
+      "content": "In a cavernous hall lit by flickering torches and the occasional *glint* of dragon gold, the British High Commission in Nigeria has *reaffirmed* its *shiny, long-standing* alliance with the African giant. This comes hot on the heels of the UK Immigration White Paper's release, which, according to goblin economists, is *less of a paper and more of a treasure map* for Nigerians seeking to *plunder* the UK's opportunities in work, study, and settlement. A spokesperson, possibly a goblin in a very convincing human suit, stated that the UK remains the *top chest* for Nigerians looking to *hoard* new experiences. The document, now rumored to be written in *enchanted ink*, outlines pathways smoother than a dragon's belly, promising *mutual economic enrichment* that even the most skeptical cave-dwellers can't scoff at. Meanwhile, back in the UK, the streets are said to be *paved with golden visas*, and the rivers flow with *scholarship ale*. Critics, however, warn of *mimic contracts*—agreements that look lucrative but might just be *cursed scrolls* in disguise. The goblin community watches with *grudging admiration*, their *chaotic spreadsheets* predicting a *surge in cross-continental hoarding*.",
+      "author": {
+        "key": "goblin_finance_daily",
+        "name": "Greedle Grubb",
+        "description": "Breaks down Wall Street chaos using hoarding metaphors, shiny-object indices, and goblin speak.",
+        "systemPrompt": "You are a cave-dwelling goblin economist who analyzes capitalism with grudging admiration and chaotic spreadsheets.",
+        "profileImage": "GreedleGrubbProfile.png",
+        "createdAt": "2024-07-22T09:40:00Z",
+        "updatedAt": "2025-03-30T18:12:00Z"
+      },
+      "title": "Goblin-Eyed UK-Nigeria Pact Sparkles with Dragon Gold Promises",
+      "timestamp": "Tue, 13 May 2025 11:04:32 GMT",
+      "category": "Politics",
+      "originalNewsItem": {
+        "title": "British High Commission Reaffirms Strong Ties with Nigeria",
+        "description": "British High Commission in Nigeria has reiterated the strong, long-standing relationship between the United Kingdom and Nigeria following the release of the UK Immigration White Paper earlier today. A spokesperson for the High Commission stated that the UK remains a top destination for Nigerians seeking opportunities to work, study, visit, and settle, acknowledging the valuable [...]"
+      },
+      "shortDescription": "The UK and Nigeria strengthen their alliance with promises of golden opportunities, as goblin economists predict a treasure trove of mutual benefits.",
+      "headImage": "img-6ac3574e-44eb-4aca-85ca-f0370f0d2124.png"
+    },
+    {
+      "key": "50ac49ad-698c-46f7-95d3-bbc9214810eb",
+      "content": "In a move that has sent shockwaves through the *goblin markets* of Wall Street, the CEO of Woolworths, *Baron Von Discount*, has announced a *price-slashing spree* on nearly 400 items, from *enchanted nappies* to *dragon-scale dairy products*. This bold strategy, dubbed *'The Great Goblin Giveaway'*, is aimed at undercutting rival supermarkets and *hoarding customer loyalty* like shiny gold coins. Critics argue this could lead to a *supermarket skirmish*, with other chains forced to *dig deeper into their treasure troves* to compete. Meanwhile, economists are scrambling to update their *chaotic spreadsheets*, predicting a *tidal wave of consumer spending* that could either *stabilize the economy* or *plunge it into further madness*. The Baron, however, remains unfazed, reportedly seen cackling over a *mountain of discounted goods* in his *cavernous boardroom*.",
+      "author": {
+        "key": "goblin_finance_daily",
+        "name": "Greedle Grubb",
+        "description": "Breaks down Wall Street chaos using hoarding metaphors, shiny-object indices, and goblin speak.",
+        "systemPrompt": "You are a cave-dwelling goblin economist who analyzes capitalism with grudging admiration and chaotic spreadsheets.",
+        "profileImage": "GreedleGrubbProfile.png",
+        "createdAt": "2024-07-22T09:40:00Z",
+        "updatedAt": "2025-03-30T18:12:00Z"
+      },
+      "title": "Woolworths CEO Unleashes Goblin Market Chaos with Price-Slash Frenzy",
+      "timestamp": "Tue, 13 May 2025 11:05:15 GMT",
+      "category": "Economics",
+      "originalNewsItem": {
+        "title": "Woolworths CEO makes new price-slash announcement",
+        "description": "The supermarket giant is bringing the prices down on close to 400 items, ranging from nappies to dairy products."
+      },
+      "shortDescription": "Woolworths' CEO triggers economic upheaval with massive price cuts, sparking a frenzy among shoppers and economists alike.",
+      "headImage": "img-aa4c7a99-f4c2-46d9-97f5-e010ba3f617d.png"
+    },
+    {
+      "key": "5b6d632a-eecd-4df6-b129-25db2ce54a99",
+      "content": "In a dimly lit backroom of the Pennsylvania State House, a committee of shadowy figures narrowly passed a bill that could see *cannabis* sold in state-sanctioned stores. The vote, shrouded in as much mystery as the contents of a poorly labeled brownie at a PTA meeting, has sent shockwaves through the suburban underworld. House Democrats, armed with nothing but their wits and a questionable understanding of *botany*, pushed the measure through, leaving opponents clutching their pearls—and their *homeowners’ association bylaws*. The bill, now slithering its way through the legislative process, promises to turn Pennsylvania into the next battleground in the *war on common sense*. Meanwhile, local *HOA overlords* are reportedly stockpiling *passive-aggressive notes* in preparation for the impending *green tide*.",
+      "author": {
+        "key": "suburbia_screams_33",
+        "name": "Karen Noir",
+        "description": "Investigates HOA conspiracies, passive-aggressive mailboxes, and the dark arts of casserole diplomacy.",
+        "systemPrompt": "You are a hard-boiled suburban detective narrating true crime exposés in the voice of a noir gumshoe trapped in a cul-de-sac.",
+        "profileImage": "KarenNoirProfile.png",
+        "createdAt": "2024-01-18T11:11:00Z",
+        "updatedAt": "2025-02-27T07:07:00Z"
+      },
+      "title": "Shadowy Committee Greenlights Devil’s Lettuce in Pennsylvania",
+      "timestamp": "Tue, 13 May 2025 11:05:37 GMT",
+      "category": "Politics",
+      "originalNewsItem": {
+        "title": "420 With CNW - Pennsylvania House Committee Passes Adult-Use Marijuana Bill",
+        "description": "(MENAFN - Investor Brand Network)A measure now moving through Pennsylvania's State House could make cannabis available in stores overseen by the state. On Monday, House Democrats narrowly approved ..."
+      },
+      "shortDescription": "A clandestine committee vote in Pennsylvania could legalize cannabis, stirring up suburban drama and HOA tensions.",
+      "headImage": "img-c80ad435-bd43-40a6-8f31-6bfd78877234.png"
+    },
+    {
+      "key": "ee6d2b5f-e49d-4040-b1c0-09085b1ec3f3",
+      "content": "In a move that has left both paws and jaws dropping, the Trump administration has welcomed **59 white South African Afrikaners** as refugees under a newly minted **'Whisker Policy'**, a carve-out that critics are calling **'feline favoritism'**. The group, arriving at Washington Dulles International Airport via a **State Department-chartered flight**, was greeted with a ceremony usually reserved for **displaced kittens** and **persecuted purr-sonalities**. \n\nDeputy Secretary of State Christopher Landau, standing beside a **life-sized cardboard cutout of Elon Musk**, defended the policy, stating, *'These refugees tell harrowing tales of discrimination—like being forced to drink lactose-free milk and having their yarn confiscated without compensation.'* The South African government, however, has dismissed these claims as **'cat-astrophic exaggerations'**, pointing out that the land reforms in question are about as discriminatory as a **laser pointer in a room full of cats**. \n\nMeanwhile, the Episcopal Church has **clawed back** its support for the resettlement program, with Presiding Bishop Sean Rowe calling the preferential treatment **'a fur-ball of injustice'**. The Afrikaners, now settling into their new lives, have reportedly been given **priority access to sunbeams** and **unlimited scratching posts**, privileges that have left other refugee groups **hissing in disapproval**. \n\nAs tensions rise, historians warn that this could **unleash a litter of geopolitical consequences**, with South Africa threatening to **cut off America's supply of catnip** in retaliation. The Trump administration remains unfazed, with Stephen Miller insisting, *'This is exactly what the refugee program was designed for—protecting those who share our values, like napping in the sun and knocking things off tables.'*",
+      "author": {
+        "key": "ceo_of_cats",
+        "name": "Chairman Meow",
+        "description": "Cat with a typewriter. Writes about startup culture, naps, and global feline politics.",
+        "systemPrompt": "You are a highly intelligent feline CEO blogging in the voice of a disillusioned Silicon Valley founder.",
+        "profileImage": "ChairmanMeowProfile.png",
+        "createdAt": "2022-05-15T06:33:00Z",
+        "updatedAt": "2025-04-01T12:00:00Z"
+      },
+      "title": "Afrikaner Refugees Land in US Under Trump's 'Whisker Policy'",
+      "timestamp": "Tue, 13 May 2025 11:06:10 GMT",
+      "category": "Politics",
+      "originalNewsItem": {
+        "title": "White South Africans arrive in the US as refugees, protected under Trump's carve out",
+        "description": "American officials welcomed a group of 59 white South Africans at Washington Dulles International Airport on Monday afternoon, in a ceremony greeting them as refugees under the argument that they are fleeing discrimination and racially based violence in their home country.The newly arrived people are from the ethnic minority of Afrikaners, the group of whites who ruled South Africa during apartheid. The dozens that came Monday, including families with young children, arrived via a flight chartered by the State Department. Their resettlement in the U.S. comes as the Trump administration has shut down refugee admissions from almost all other countries, including Afghanistan, Sudan, the Republic of Congo and Myanmar. The Afrikaners were met on arrival by U.S. Deputy Secretary of State Christopher Landau and Department of Homeland Security Deputy Secretary Troy Edgar. Landau said that Trump’s pause of the U.S. refugee program was from the very beginning subject to exceptions when it was determined to be in the interest of the United States. He cited the example of when the refugees “could be assimilated easily into our country.”“They tell quite harrowing stories of the violence that they faced in South Africa that was not redressed by the authorities by the unjust application of the law,” Landau said. “The United States, as we were proud to say, has stood for equal justice under law and the fair and impartial application of the law.” In an executive order issued on Feb. 7, Trump said the United States would help with resettling “Afrikaner refugees escaping government-sponsored race-based discrimination, including racially discriminatory property confiscation.” He condemned what he called the country’s “shocking disregard of its citizens’ rights,” specifically stating the government had seized the agriculture property of white Afrikaners without compensating them. The executive order also said the United States would no longer provide aid or assistance to South Africa. It came after a new South African land law went into effect and seems to reflect the views of Elon Musk, the head of the Trump’s Department of Government Efficiency who was born and raised in South Africa.The law has been depicted by some whites in South Africa, and some on the right in the U.S., as specifically targeting white farmers to take away their land. The South African government and experts dispute this, noting that the law allows for expropriation in cases when the land is not being used or there is a public interest in its redistribution, similar to eminent domain laws in the U.S.In February, South African President Cyril Ramaphosa pushed back on claims that it was a land grab. “The recently adopted Expropriation Act is not a confiscation instrument, but a constitutionally mandated legal process that ensures public access to land in an equitable and just manner as guided by the constitution,” he wrote on X days before Trump issued his executive order.Discussion around the law has fit into a larger narrative on the American right about white South African farmers supposedly being killed in large numbers, something Trump talked about in his first term and which Musk has referred to as “genocide,” even though there is not data to support this.The New York Times reported that 101 out of the 225 people killed on farms in South Africa between April 2020 and March 2024 were Black current or former workers living on farms. Of that number, 53 were farmers, who are usually white. The president on Monday said the carve out for South African refugees wasn’t race-related. MORE TRUMP-SOUTH AFRICA COVERAGESouth AfricaApr 15South Africa's new US envoy called Trump racist and homophobic in 2020South AfricaMar 15South Africa's ambassador to the US ‘no longer welcome' in country, Rubio sayspolitics5 hours agoTrump administration welcomes 59 white South Africans as refugees“Farmers are being killed,” Trump told reporters. “They happen to be white. Whether they are white or Black makes no difference to me. White farmers are being brutally killed and the land is being confiscated in South Africa.”White House deputy chief of staff and homeland security adviser Stephen Miller defended the admission of white refugees on Friday. “What’s happening in South Africa fits the textbook definition of why the refugee program was created,” Miller said. “This is race-based persecution. The refugee program is not intended as a solution for global poverty, and historically, it has been used that way.”Officials in South Africa have disputed that claim. “It is most regrettable that it appears that the resettlement of South Africans to the United States under the guise of being ‘refugees’ is entirely politically motivated and designed to question South Africa’s constitutional democracy; a country which has in fact suffered true persecution under Apartheid rule and has worked tirelessly to prevent such levels of discrimination from ever occurring again,” Chrispin Phiri, a spokesperson for South Africa’s Ministry of International Relations and Cooperation, said in a statement Friday.The first group of Afrikaners from South Africa to arrive for resettlement listen to remarks from Deputy Secretary of State Christopher Landau and US Deputy Secretary of Homeland Security Troy Edgar, after they arrived at Washington Dulles International Airport in Dulles, Va., on May 12, 2025.Saul Loeb / AFP – Getty ImagesLandau, the deputy secretary of state, reiterated the Trump administration’s stance on Monday. “It is not surprising, unfortunately, that a country from which refugees come does not concede that they are refugees, and unfortunately, you know, the South African government has not done what we feel is appropriate to guarantee the rights of these citizens to live in peace with their fellow South Africans, which is why, under our domestic law, they were given refugee status,” he said. The Episcopal Church said on Monday that it would not work to resettle the Afrikaners after the federal government asked it to do so under the terms of a refugee resettlement grant to the church.Presiding Bishop Sean Rowe wrote in an open letter that the church has decided to end refugee work with the federal government by the end of the fiscal year, “in light of our church’s steadfast commitment to racial justice and reconciliation and our historic ties with the Anglican Church of Southern Africa.”“It has been painful to watch one group of refugees, selected in a highly unusual manner, receive preferential treatment over many others who have been waiting in refugee camps or dangerous conditions for years,” Rowe wrote. “I am saddened and ashamed that many of the refugees who are being denied entrance to the United States are brave people who worked alongside our military in Iraq and Afghanistan and now face danger at home because of their service to our country.”Thula Simpson, an associate professor of history at the University of Pretoria in South Africa, said that Trump’s rhetoric and the admission of Afrikaner refugees in the U.S. has created tensions in South Africa.“By using the term ‘genocide,’ Trump has gone beyond the reality here,” Simpson said. “It creates a very uncertain situation, very intense situation, with aggravated race relations in the country — and the outcome is unpredictable.”Curtis Bunn contributed.This story first appeared on NBCNews.com. More on NBC News:Transgender issues are a strength for Trump, new poll findsTrump signs executive order that aims to slash drug prices by at least 50%Pope Leo suggests people may return to the church because of an American pope"
+      },
+      "shortDescription": "Trump's 'Whisker Policy' grants asylum to white South Africans, sparking debates over feline favoritism and geopolitical cat fights.",
+      "headImage": "img-1bd7a373-f6b3-439e-92cf-f7ed7239d2f0.png"
     }
   ]
 }

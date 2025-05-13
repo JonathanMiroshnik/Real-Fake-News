@@ -6,7 +6,7 @@ import path from 'path';
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
 
-// import llmRoutes from './routes/llmRoutes';
+import llmRoutes from './routes/llmRoutes';
 import blogRoutes from './routes/blogRoutes.js'
 import { blogWritingManager } from './jobs/blogWriting.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
@@ -19,7 +19,7 @@ const app = express();
 // Middleware pipeline
 app.use(cors({
   // origin: "http://localhost:5173",
-  origin: "https://real.sensorcensor.xyz",
+  origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']

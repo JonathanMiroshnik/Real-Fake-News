@@ -8,9 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
 const path_1 = __importDefault(require("path"));
-// import rateLimit from 'express-rate-limit';
-// import mongoose from 'mongoose';
-// import llmRoutes from './routes/llmRoutes';
 const blogRoutes_js_1 = __importDefault(require("./routes/blogRoutes.js"));
 const blogWriting_js_1 = require("./jobs/blogWriting.js");
 const blogController_js_1 = require("./controllers/blogController.js");
@@ -19,7 +16,8 @@ const blogController_js_1 = require("./controllers/blogController.js");
 const app = (0, express_1.default)();
 // Middleware pipeline
 app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
+    origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']

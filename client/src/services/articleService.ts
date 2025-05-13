@@ -33,7 +33,14 @@ export const CATEGORIES: NewsCategory[] = [
 ]; 
 
 export async function pullDailies() {
-    const response = await fetch('/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
+    const route = "http://localhost:5001";
+    const response = await fetch(route + '/api/blogs/daily', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    // const response = await fetch('/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
     const articlesJSON = await response.json()
     const finalArticles = articlesJSON.articles;
 
