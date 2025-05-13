@@ -48,7 +48,7 @@ export async function pullDailies() {
 }
 
 export function articlesByCategory(articles: ArticleProps[], category: NewsCategory | string): ArticleProps[] {
-    let currentCategory = "";
+    let currentCategory;
     if (typeof category !== "string") {
         currentCategory = category.name;
     }
@@ -59,7 +59,7 @@ export function articlesByCategory(articles: ArticleProps[], category: NewsCateg
   const retArticles = articles.filter((article: ArticleProps) => {
     const mapCategory = article.category;
     if (mapCategory === undefined) return false;
-    if (mapCategory !== category) return false;
+    if (mapCategory.toString().toLowerCase() !== currentCategory.toLowerCase()) return false;
     return true;
   });
 

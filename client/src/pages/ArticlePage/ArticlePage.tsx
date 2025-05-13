@@ -37,18 +37,18 @@ function ArticlePage() {
   return (
     <article className="news-article">
       <div className="article-header">
-        <h2>{ foundArticle?.title }</h2>
+        <h2 className="news-article-title-header">{ foundArticle?.title }</h2>
         <div className="article-meta">
           <div>
-            {"By "}
+            {"By \t"}
             {foundArticle.author?.name ? 
               <Link className="article-list-item-writer" to={`/writer/${sanitizeWriterName(foundArticle.author?.name)}`}> 
                   <span className="author">{ foundArticle?.author?.name }</span>
               </Link>: null
             }
           </div>
-          <span className="timestamp">{ foundArticle.timestamp ? new Date(foundArticle.timestamp).toLocaleDateString() : null }</span>
-          <span className="category">{ foundArticle?.category }</span>
+            <span className="timestamp">{ foundArticle.timestamp ? new Date(foundArticle.timestamp).toLocaleDateString() : null }</span>
+            <span className="category">{ foundArticle?.category }</span>
         </div>
       </div>
       

@@ -11,6 +11,9 @@ import blogRoutes from './routes/blogRoutes.js'
 import { blogWritingManager } from './jobs/blogWriting.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
 
+const CURRENTLY_LOCAL_DEV: boolean = true;
+const LOCAL_DEV_PREFIX = "/api";
+
 // TODO: change express use to get set etc?
 
 // Initialize express application
@@ -31,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // API Routes TODO: this route does not need to be open beyond the back end
-// app.use('/api/llm', llmRoutes);
+// app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/llm', llmRoutes);
 
 // Getting daily news
 app.use('/blogs', blogRoutes);
@@ -51,7 +54,7 @@ app.get('/health', (req: Request, res: Response) => {
 //   res.sendFile(path.join(__dirname, '../data/images', sanitized));
 // });
 
-app.get('/images/:filename', (req, res) => {
+app.get((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") +'/images/:filename', (req, res) => {
   const sanitized = path.basename(req.params.filename);
   
   // Set CORP headers
@@ -66,7 +69,7 @@ app.get('/images/:filename', (req, res) => {
 
 
 // Apply CORS specifically to image routes
-app.use('/images', cors({
+app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/images', cors({
   origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
   exposedHeaders: ['Content-Type', 'Content-Length']
 }));

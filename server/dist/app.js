@@ -43,7 +43,7 @@ app.get('/health', (req, res) => {
 //   const sanitized = path.basename(req.params.filename);
 //   res.sendFile(path.join(__dirname, '../data/images', sanitized));
 // });
-app.get('/images/:filename', (req, res) => {
+app.get('/api/images/:filename', (req, res) => {
     const sanitized = path_1.default.basename(req.params.filename);
     // Set CORP headers
     res.set({
@@ -54,7 +54,7 @@ app.get('/images/:filename', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../data/images', sanitized));
 });
 // Apply CORS specifically to image routes
-app.use('/images', (0, cors_1.default)({
+app.use('/api/images', (0, cors_1.default)({
     origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
     exposedHeaders: ['Content-Type', 'Content-Length']
 }));

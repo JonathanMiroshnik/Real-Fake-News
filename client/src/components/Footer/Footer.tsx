@@ -9,7 +9,7 @@ function Footer() {
           <a href="/terms">Terms of Use</a>
           <a href="/contact">Contact</a>
         </div>
-        <p>© 2025 Real Fake News - Satirical AI-generated content</p>        
+        <p className="footer-undertext">© 2025 Real Fake News - Satirical AI-generated content</p>        
       </div>
     </footer>
   );

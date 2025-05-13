@@ -16,13 +16,15 @@ function CategoryPage() {
 
   const currentCategory: string = key.toString();
   const foundCategory = CATEGORIES.find((cc) => {    
+    console.log("CAT", cc.name.toString().toLowerCase(), currentCategory.toString().toLowerCase());
     return cc.name.toString().toLowerCase() === currentCategory.toString().toLowerCase();
-    })
+  })
   if (foundCategory === null || foundCategory === undefined) {
     return <div>CATEGORY NOT FOUND</div>;
   }
 
   const currentArticles = articlesByCategory(articles, foundCategory);
+  console.log(currentArticles);
 
   return (
     <div className="home-container">      

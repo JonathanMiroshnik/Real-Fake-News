@@ -7,6 +7,10 @@
   /* padding: 2rem 0rem; */
 }
 
+.footer-undertext {
+  color: var(--title-color);
+}
+
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;

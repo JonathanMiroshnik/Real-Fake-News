@@ -5,6 +5,12 @@
     /* max-width: 60rem; */
 }
 
+.article-list-title {
+    color: var(--title-color);
+    /* margin: 5px;
+    padding: 0px; */
+}
+
 .article-list-ul {
     /* justify-content: center; */
     /* width: 100%; */

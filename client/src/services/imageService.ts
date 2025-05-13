@@ -1,6 +1,6 @@
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
-const VITE_API_BASE="https://real.sensorcensor.xyz"  //"http://localhost:5001" 162.0.237.138
+const VITE_API_BASE="http://localhost:5001" //"https://real.sensorcensor.xyz" 162.0.237.138
 export const DEFAULT_IMAGE="planet.jpg" // TODO: should this still be?
 
 export function getImageURLFromArticle(article: ArticleProps, defaultImage: string = "") {

@@ -26,6 +26,10 @@ interface ArticleListProps {
 // const MAX_ITEMS: number = 4;
 
 function ArticleList({title = "", articles, vertical = true, maxItems = 4, showImages=true}: ArticleListProps) {
+    if (articles.length <= 0) {
+        return <div className="article-list-title">No Articles Found!</div>;
+    }
+    
     return (
         articles.length > 0 &&
         <div className="article-list-main">
