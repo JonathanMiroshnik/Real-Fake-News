@@ -33,8 +33,8 @@ export const CATEGORIES: NewsCategory[] = [
 ]; 
 
 export async function pullDailies() {
-    const route = "http://localhost:5001";
-    const response = await fetch(route + '/api/blogs/daily', {
+    // const route = "http://localhost:5001";
+    const response = await fetch('/api/blogs/daily', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

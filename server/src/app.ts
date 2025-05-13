@@ -34,7 +34,7 @@ app.use(morgan('dev'));
 // app.use('/api/llm', llmRoutes);
 
 // Getting daily news
-app.use('/api/blogs', blogRoutes);
+app.use('/blogs', blogRoutes);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -51,7 +51,7 @@ app.get('/health', (req: Request, res: Response) => {
 //   res.sendFile(path.join(__dirname, '../data/images', sanitized));
 // });
 
-app.get('/api/images/:filename', (req, res) => {
+app.get('/images/:filename', (req, res) => {
   const sanitized = path.basename(req.params.filename);
   
   // Set CORP headers
@@ -66,8 +66,8 @@ app.get('/api/images/:filename', (req, res) => {
 
 
 // Apply CORS specifically to image routes
-app.use('/api/images', cors({
-  origin: "http://localhost:5173",
+app.use('/images', cors({
+  origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
   exposedHeaders: ['Content-Type', 'Content-Length']
 }));
 
