@@ -1,6 +1,12 @@
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
-const VITE_API_BASE="http://localhost:5001" //"https://real.sensorcensor.xyz" 162.0.237.138
+// The IP of the server is 162.0.237.138
+
+// TODO: make a constant file that contains this one
+const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE ? 
+                    "http://localhost:5001" : 
+                    "https://real.sensorcensor.xyz";
+                    
 export const DEFAULT_IMAGE="planet.jpg" // TODO: should this still be?
 
 export function getImageURLFromArticle(article: ArticleProps, defaultImage: string = "") {

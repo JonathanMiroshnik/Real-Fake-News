@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { getImageURL } from '../../../services/imageService';
+// import { getImageURL } from '../../../services/imageService';
 import './GameItem.css'
 
 interface GameItemProps {

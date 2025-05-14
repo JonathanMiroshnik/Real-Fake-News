@@ -34,7 +34,11 @@ function ArticleProvider({ children }: { children: ReactNode }) {
   // Data fetching effect - runs once on mount
   useEffect(() => {
       async function fetchDailies() {
-          const finalArticles = await pullDailies();
+          let finalArticles = await pullDailies();
+          if (finalArticles === undefined) {
+            finalArticles = [];
+          }
+
           setArticles([...finalArticles]);
       }
       

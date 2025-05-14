@@ -1,4 +1,3 @@
-import { DEFAULT_IMAGE } from '../../services/imageService';
 import GameItem from './GameItem/GameItem';
 import './GamesList.css'
 
@@ -17,16 +16,16 @@ function GamesList() {
         },
         {
             title: "Trivia", 
-            headImageName: DEFAULT_IMAGE,
+            headImageName: "triviaGameLogo.png",
             shortDescription: "good trivia game lol",
             linkName: "trivia"
         }
     ]; // TODO: games service?
 
     return (
-        <div className='games-list-section'>
-            <h2>GAMES:</h2>
-            <div className='games-list'>            
+        <div className="games-list-section">
+            <h2 className="games-list-title">GAMES:</h2>
+            <div className="games-list-items">            
                 { GAMES.map((game, ind) => <GameItem key={"game_" + ind.toString()} {...game} />) }       
             </div>
         </div>

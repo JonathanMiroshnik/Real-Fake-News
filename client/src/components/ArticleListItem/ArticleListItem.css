@@ -1,5 +1,5 @@
 .article-list-item {
-    max-height: 30rem;
+    max-height: 40rem;
     max-width: 40rem;
 
     /* TODO: like in BBC website, horizontal ArticleListItems should have bottom border indicating finish */

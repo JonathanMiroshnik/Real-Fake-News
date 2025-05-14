@@ -1,0 +1,11 @@
+.trivia-player-configuration-title {
+    color: var(--title-color);
+}
+
+.trivia-player-configuration-title-player-number {
+    color: var(--title-color);
+}
+
+.trivia-player-configuration-button {
+    border: 1px white solid;
+}

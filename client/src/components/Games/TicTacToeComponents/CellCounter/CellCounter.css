@@ -1,0 +1,10 @@
+.neon-clob-holder {
+    display: inline-block;
+    align-items: end;
+}
+
+.neon-blob {
+  width: 30px;
+  background-color: cyan;
+  box-shadow: 0 0 20px cyan, 0 0 40px cyan, 0 0 60px cyan;
+}

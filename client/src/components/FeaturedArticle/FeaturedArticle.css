@@ -38,3 +38,18 @@
     /* width: 40rem; */
     width: 200%;
 }
+
+@media (max-width: 600px) {
+    .featured-article {
+        display: block;
+        gap: 5rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 2rem;
+    }
+
+    .featured-article-image {
+        /* width: 40rem; */
+        width: 100%;
+    }
+}

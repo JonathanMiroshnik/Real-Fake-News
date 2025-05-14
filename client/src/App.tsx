@@ -15,6 +15,8 @@ import './App.css'
 import ContactPage from './pages/ContactPage/ContactPage';
 import TermsPage from './pages/TermsPage/TermsPage';
 import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
+import TicTacToeGame from './components/Games/TicTacToeComponents/Game/TicTacToeGame';
+import TriviaGame from './components/Games/TriviaComponents/TriviaGame/TriviaGame';
 
 function App() {
   return (
@@ -36,8 +38,8 @@ function App() {
             <Route path="/category/:key" element={<CategoryPage />} />
             <Route path="/writer/:key" element={<WriterPage />} />
             {/* TODO: Games section - currently separate pages */}
-            <Route path="/games/tictactoe" element={<HomePage />} />
-            <Route path="/games/trivia" element={<HomePage />} />
+            <Route path="/games/tictactoe" element={<TicTacToeGame />} />
+            <Route path="/games/trivia" element={<TriviaGame />} />
             {/* Footer pages */}
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/terms" element={<TermsPage />} />

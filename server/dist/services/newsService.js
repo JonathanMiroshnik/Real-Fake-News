@@ -71,6 +71,8 @@ async function fetchNews(page = "") {
             // console.log('Title:', article.title);
             // console.log('Description:', article.description);
             // console.log('---');
+            // TODO: save API news article data to your own private data store for further uses
+            // await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE);
             dailyArticles.push({ title: article.title, description: article.description });
         }
         remainingTokens--;

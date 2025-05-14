@@ -26,7 +26,7 @@ export interface ArticleProps {
 
 function ArticlePage() {
   const { key } = useParams();
-  const articles = useContext(ArticleContext).articles;
+  const articles = useContext(ArticleContext).articles;  
   const foundArticle = articles.find((article) => article.key === key);
   if (foundArticle === null || foundArticle === undefined) {
     return <div>ARTICLE NOT FOUND</div>;

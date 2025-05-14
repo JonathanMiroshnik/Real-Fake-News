@@ -3,6 +3,9 @@ import 'dotenv/config'
 import axios from 'axios';
 import cron from 'node-cron';
 
+import { DB_NEWS_DATA_FILE } from '../config/constants';
+import { createPost } from '../lib/lowdb/lowdbOperations';
+
 const BASE_URL = 'https://newsdata.io/api/1/news';
 const DAILY_TOKENS = 200;
 const NUM_OF_ARTICLES_PER_TOKEN = 10;
@@ -81,8 +84,11 @@ async function fetchNews(page: string = ""): Promise<string> {
         // console.log('Description:', article.description);
         // console.log('---');
 
+        // TODO: save API news article data to your own private data store for further uses
+        // await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE);
+
         dailyArticles.push({ title: article.title, description: article.description })
-    }
+    }    
 
     remainingTokens--;
     return response.data.nextPage;

@@ -6,6 +6,7 @@ import { ArticleContext } from '../../contexts/ArticlesContext';
 import { CATEGORIES, groupArticlesByCategories } from '../../services/articleService';
 import GamesList from '../../components/GamesList/GamesList';
 import './HomePage.css'
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 
 
@@ -47,6 +48,7 @@ import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 
 function HomePage() {
   const articles = useContext(ArticleContext).articles;
+  const articlesPerSection: number = useResponsiveArticlesCount();
   const randomArticle = articles[Math.floor(Math.random() * articles.length)];
 
   const categoryArticles = groupArticlesByCategories(articles);
@@ -54,7 +56,8 @@ function HomePage() {
   return (
     <div className="home-container">
       <div style={{paddingBottom: "2rem", marginBottom: "4rem", borderBottom: "1px white solid"}}>
-        <NewsCarousel/>
+        {/* TODO: magic number 4 */}
+        <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />
       </div>        
       <div className="home-section">
         <div className='home-section-content'>
@@ -62,7 +65,7 @@ function HomePage() {
             {randomArticle && <FeaturedArticle article={randomArticle} />}
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
             <div style={{display:"flex", justifyContent: "center"}}>
-              <ArticleList articles={categoryArticles[0]}/>
+              <ArticleList articles={categoryArticles[0]} maxItems={articlesPerSection}/>
             </div>
           </div>          
           <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={false}/>
@@ -79,14 +82,13 @@ function HomePage() {
               </div> */}
               <div className='home-section-content'>
                 <div key={"category_list_" + category.name}>
-                  <ArticleList articles={categoryArticles[ind]} vertical={true}/>
+                  <ArticleList articles={categoryArticles[ind]} vertical={true} maxItems={articlesPerSection} />
                 </div>
               </div>
             </div>
         )) }
       
-
-          <GamesList />
+      <GamesList />        
 
         {/* <aside className="sidebar">
           <NewsCarousel/>

@@ -31,7 +31,7 @@
 }
 
 .logo-img {
-  width: 300px;
+  width: 15rem;
 }
 
 .logo:hover {
@@ -50,8 +50,29 @@
   }
 }
 
+.header-navbar-list {
+  /* display: grid; */
+  /* grid-template-columns: repeat(4, 1fr); */
+  /* gap: 1rem; */
+
+  /* grid-template-columns: 100; */
+  /* grid-template-rows: 100; */
+
+  align-items: center;
+  justify-content: center;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-navbar-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
+    justify-items: center;
   }
 }

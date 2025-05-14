@@ -1,19 +1,19 @@
-import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
-import FeaturedArticle from "../FeaturedArticle/FeaturedArticle";
-import './FeaturedSection.css'
+// import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
+// import FeaturedArticle from "../FeaturedArticle/FeaturedArticle";
+// import './FeaturedSection.css'
 
-interface FeaturedSectionProps {
-    featuredArticle: ArticleProps; 
-    additionalArticles?: ArticleProps[];
-}
+// interface FeaturedSectionProps {
+//     featuredArticle: ArticleProps; 
+//     additionalArticles?: ArticleProps[];
+// }
 
-function FeaturedSection({featuredArticle, additionalArticles}: FeaturedSectionProps) {
-    return (
-        <div>
-            <FeaturedArticle article={featuredArticle}/>
+// function FeaturedSection({featuredArticle, additionalArticles}: FeaturedSectionProps) {
+//     return (
+//         <div>
+//             <FeaturedArticle article={featuredArticle}/>
             
-        </div>
-    );
-};
+//         </div>
+//     );
+// };
 
-export default FeaturedSection;
+// export default FeaturedSection;

@@ -1,17 +1,16 @@
-.category-article-list-main {
-    /* width: 100px; */
-    /* border: 3px;
+/* .category-article-list-main {
+    width: 100px;
+    border: 3px;
     border-color: antiquewhite;
-    border-style: outset; */
-}
+    border-style: outset;
+} */
 
-.category-article-list-title {
-    /* font-size: 50px; */
-}
+/* .category-article-list-title {
+    font-size: 50px;
+} */
 
 .category-list-articles {
     display: flex;
-    /* width: 100px; */
     justify-content: center;
     list-style-type: none;
 }

@@ -6,10 +6,14 @@ import path from 'path';
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
 
+import gameIntelligenceRoutes from './lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js';
 import llmRoutes from './routes/llmRoutes';
+import triviaRoutes from './lib/TriviaGameBackend/routes/triviaRoutes.js'
 import blogRoutes from './routes/blogRoutes.js'
 import { blogWritingManager } from './jobs/blogWriting.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
+
+// TODO: maybe /api nginx endpoint can be dealt with a middleware?
 
 const CURRENTLY_LOCAL_DEV: boolean = true;
 const LOCAL_DEV_PREFIX = "/api";
@@ -35,12 +39,14 @@ app.use(morgan('dev'));
 
 // API Routes TODO: this route does not need to be open beyond the back end
 // app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/llm', llmRoutes);
+// app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/intelligence', gameIntelligenceRoutes);
+app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/trivia', triviaRoutes);
 
 // Getting daily news
-app.use('/blogs', blogRoutes);
+app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/blogs', blogRoutes);
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString()

@@ -1,0 +1,43 @@
+
+.tictac-game-screen {
+    border: 5px;
+    padding: 3rem;
+    border-style: dashed;
+    border-color: aquamarine;
+    
+    align-items: center;
+    justify-content: center;
+}
+
+.tictac-game-title {
+  color: var(--title-color);
+}
+
+.current_move {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.current_player {
+    font-size: 50px;
+    color: var(--title-color);
+    /* display: inline-block; */
+}
+
+.current_player_symbol {
+    font-size: 100px;
+}
+
+.information-display-div {
+    /* margin: 20px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+
+.information-display-div button {
+    height: 70px;
+    width: 70px;
+    border: 1px var(--title-color) solid;
+}

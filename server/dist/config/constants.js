@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MINIMAL_NUM_DAILY_ARTICLES = exports.DB_WRITERS_FILE = exports.DB_USERS_FILE = exports.DB_FEATURED_BLOG_POST_FILE = exports.DB_BLOG_POST_FILE = exports.VALID_CATEGORIES = void 0;
+exports.MINIMAL_NUM_DAILY_ARTICLES = exports.DB_WRITERS_FILE = exports.DB_USERS_FILE = exports.DB_FEATURED_BLOG_POST_FILE = exports.DB_NEWS_DATA_FILE = exports.DB_BLOG_POST_FILE = exports.VALID_CATEGORIES = void 0;
 // LowDB database locations
 const DB_BLOG_POST_FILE = "data/blogPosts.json";
 exports.DB_BLOG_POST_FILE = DB_BLOG_POST_FILE;
+const DB_NEWS_DATA_FILE = "data/newsData.json";
+exports.DB_NEWS_DATA_FILE = DB_NEWS_DATA_FILE;
 const DB_FEATURED_BLOG_POST_FILE = "data/featuredBlogPosts.json";
 exports.DB_FEATURED_BLOG_POST_FILE = DB_FEATURED_BLOG_POST_FILE;
 const DB_USERS_FILE = "data/users.json";

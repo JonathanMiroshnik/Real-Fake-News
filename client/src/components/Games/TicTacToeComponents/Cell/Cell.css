@@ -1,0 +1,23 @@
+.cell {
+   /* padding: 20px; */
+
+   max-width: 100px;
+   /* height: 100px; */
+   aspect-ratio: 1 / 1;
+   /* text-overflow: ellipsis;
+   white-space: nowrap;
+   overflow: hidden; */
+
+   /* don't shrink */
+   /* flex-shrink: 0; */
+   /* don't grow */
+   /* flex-grow: 0; */
+
+   font-size: 20px;
+
+   vertical-align: middle;
+
+   border: 2px;
+   border-color: aqua;
+   border-style: solid;
+}

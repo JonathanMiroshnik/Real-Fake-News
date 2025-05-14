@@ -385,8 +385,33 @@ async function generateScheduledArticles(writingInterval) {
         await writeBlogPost(await getRandomWriter(), currentNewsItem);
     }
 }
+function startRandomInterval(fn, minDelaySec, maxDelaySec) {
+    let lastExecution = Date.now();
+    let intervals = [];
+    function scheduleNext() {
+        const delayMs = Math.floor(Math.random() * (maxDelaySec - minDelaySec + 1) + minDelaySec) * 1000;
+        setTimeout(() => {
+            const now = Date.now();
+            const elapsed = (now - lastExecution) / 1000; // in seconds
+            intervals.push(elapsed);
+            lastExecution = now;
+            // Call your function
+            fn();
+            // Log average interval
+            const average = intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+            console.log(`Average interval: ${average.toFixed(2)}s`);
+            // Schedule next call
+            scheduleNext();
+        }, delayMs);
+    }
+    // Start the first call
+    scheduleNext();
+}
+// TODO: not sure hwat checkInterval is here for
 function blogWritingManager(writingInterval = blogController_js_2.ONE_HOUR_MILLISECS, checkInterval = TEN_MINUTES_MILLISECONDS) {
     generateScheduledArticles(writingInterval);
-    setInterval(() => generateScheduledArticles(writingInterval), checkInterval);
+    const MILLISECS_IN_SEC = 1000;
+    // The average time between article generations will be 1 hour
+    startRandomInterval(() => generateScheduledArticles(writingInterval), 1, 2 * blogController_js_2.ONE_HOUR_MILLISECS / MILLISECS_IN_SEC);
 }
 //# sourceMappingURL=blogWriting.js.map

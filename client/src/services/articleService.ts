@@ -34,7 +34,12 @@ export const CATEGORIES: NewsCategory[] = [
 
 export async function pullDailies() {
     // const route = "http://localhost:5001";
-    const response = await fetch("https://real.sensorcensor.xyz"+'/api/blogs/daily', {
+    // TODO: make this into global constant
+    const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE ? 
+                    "http://localhost:5001" : 
+                    "https://real.sensorcensor.xyz";
+                    
+    const response = await fetch(VITE_API_BASE + '/api/blogs/daily', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

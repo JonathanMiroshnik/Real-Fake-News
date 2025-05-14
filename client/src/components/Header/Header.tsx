@@ -3,6 +3,14 @@ import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import './Header.css'
 
+// TODO: fix how I import public images like logo into website
+/**  🛠️ Alternative: Importing Images (Recommended for non-public assets)
+If the image is in src/assets/logo.png:
+import logo from '../assets/logo.png';
+<img src={logo} alt="Logo" />
+This has the advantage of being processed by Vite's bundler — it handles caching, hashing, and optimizing for you. */
+
+
 interface HeaderProps {
   /** Array of category names for navigation */
   sections: string[];
@@ -19,8 +27,12 @@ function Header({ sections }: HeaderProps) {
 
   return (
     <header className="site-header">
-      <h1 className="logo"><Link to="/"><img src={darkMode ? "alternativeLogoBlack.png" : "alternativeSiteLogo.png"} className="logo-img" /></Link></h1>
-      <nav>
+      <h1 className="logo">
+        <Link to="/">
+          <img src={darkMode ? "/alternativeLogoBlack.png" : "/alternativeSiteLogo.png"} className="logo-img" alt="Logo" />
+        </Link>
+      </h1>
+      <nav className="header-navbar-list">
         {sections.map((section) => (
           <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>
            <button className='nav-button' >

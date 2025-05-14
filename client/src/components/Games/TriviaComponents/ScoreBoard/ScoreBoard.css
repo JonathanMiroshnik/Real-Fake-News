@@ -1,0 +1,31 @@
+.player-highlights {
+    display: flex;
+    justify-content: center;
+
+    gap: 5rem;
+}
+
+.player-card-wrapper {
+    padding: 2rem;
+
+    color: var(--title-color);
+
+    /* 
+       The reason we keep an empty border here is to 
+       reduce jumpiness in design when the highlight changes to another player 
+        */
+    border-radius: 10px;
+    border-style: none;
+}
+
+.current-player-highlight {
+    border-color: red;    
+    border-radius: 10px;
+    border-style: solid;
+}
+
+/* --title-color: black;
+  --description-color: gray;
+  --undertext-color: black;
+  --border-separator-color: gray;
+  --border-big-separator-color: black; */
