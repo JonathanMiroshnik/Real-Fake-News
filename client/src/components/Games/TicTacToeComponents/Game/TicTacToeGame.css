@@ -13,30 +13,6 @@
   color: var(--title-color);
 }
 
-.current-move {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.current-player {
-    height: 6rem;
-    aspect-ratio: 1/1;
-
-    color: var(--title-color);
-    /* display: inline-block; */
-}
-
-.current-player-symbol {
-    font-size: 100px;
-    line-height: 1;
-}
-
-.current-move-dice {
-    height: 6rem;
-    aspect-ratio: 1/1;
-}
-
 .information-display-div {
     /* margin: 20px; */
     display: flex;

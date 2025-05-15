@@ -1,5 +1,6 @@
 import Dice from "../Dice/Dice";
 import { CellState, Symbols } from "../Game/TicTacToeGame";
+import './MovePresentation.css'
 
 interface MovePresentationProps {
     currentPlayer: CellState;

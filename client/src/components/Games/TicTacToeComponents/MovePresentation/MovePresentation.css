@@ -1,0 +1,24 @@
+.current-move {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: var(--title-color);
+}
+
+.current-player {
+    height: 6rem;
+    aspect-ratio: 1/1;
+}
+
+.current-player-symbol {
+    font-size: 100px;
+    line-height: 1;
+}
+
+.current-move-dice {
+    color: var(--title-color);
+
+    height: 6rem;
+    aspect-ratio: 1/1;
+}
