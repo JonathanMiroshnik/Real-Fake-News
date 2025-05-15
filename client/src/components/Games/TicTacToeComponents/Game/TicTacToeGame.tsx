@@ -7,11 +7,16 @@ import InformationOverlay from "../InformationOverlay/InformationOverlay";
 
 import './TicTacToeGame.css'
 import MovePresentation from "../MovePresentation/MovePresentation";
+import { MAX_NUMBER_PLAYERS } from "../../TriviaComponents/PlayerConfiguration/PlayerConfiguration";
 
 export enum Symbols {
+    // The two game symbols
     X,
     O,
-    _
+    // A symbol indicating an empty cell
+    _,
+    // A symbol indicating a draw
+    $
 }
 
 export type TicTacToeGameMove = {
@@ -86,7 +91,12 @@ function TicTacToeGame() {
         // If the move is not possible, goes to the next move
         // TODO: indicate this visually for the players
         if (!possibleMoveExists(currentPlayer, boardCells)) {
-            setTimeout(() => setCurrentPlayer(prev => nextPlayer(prev)), 1000);
+            if (checkDraw(boardCells)) {
+                setVictor(Symbols.$);
+            }
+            else {
+                setTimeout(() => setCurrentPlayer(prev => nextPlayer(prev)), 1000);
+            }            
         }
     }, [currentPlayer]);
 
@@ -411,6 +421,18 @@ function TicTacToeGame() {
         return true;
     }
 
+    function checkDraw(currentBoard: CellState[][]) {
+        for (let i: number = 0; i < currentBoard.length; i++) {
+            for (let j: number = 0; j < currentBoard[0].length; j++) {
+                if (currentBoard[i][j].totalDice !== 6) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     return (
         <div className="tictac-game-screen">
             <h1 className="tictac-game-title"><b>TIC-TAC-שש-בש</b></h1>
@@ -423,7 +445,7 @@ function TicTacToeGame() {
             </div>
 
             {/* Winner overlay */}
-            { victor !== Symbols._ && <WinnerOverlay winner={ Symbols[victor].toString() } onClose={ resetGame } /> }
+            { victor !== Symbols._ && <WinnerOverlay winner={ victor } onClose={ resetGame } /> }
 
             {/* AI mode controller */}
             {/* { <button onClick={() => setAIActivated(prevState => !prevState)} style={{color: (aiActivated ? "green": "red")}} > AI Mode </button> } */}            

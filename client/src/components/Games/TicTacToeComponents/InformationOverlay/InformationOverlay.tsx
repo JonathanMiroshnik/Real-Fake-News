@@ -312,7 +312,7 @@ function InformationOverlay({onClose}: InformationOverlayProps) {
                     totalDice: 0,
                 }
             ]],
-            explanation: `X has rolled a 3, instead of eating the O with the value of 1,\nhe adds 3 to his center 2, achieving a total value of 5.`,
+            explanation: `X has rolled a 3, instead of eating the O with the value of 1,\nHe adds 3 to his center 2, achieving a total value of 5.`,
             currentMove: { symbol: Symbols.X, totalDice: 3 }
         },
         // ---------------------------------------------------------- SEVENTH BOARD ----------------------------------------------------------
@@ -358,7 +358,7 @@ function InformationOverlay({onClose}: InformationOverlayProps) {
                     totalDice: 0,
                 }
             ]],
-            explanation: `O has rolled a 4, instead of eating the X with the value of 3,\nhe adds 4 to his bottom left 1, achieving a total value of 5.`,
+            explanation: `O has rolled a 4, instead of eating the X with the value of 3,\nHe adds 4 to his bottom left 1, achieving a total value of 5.`,
             currentMove: { symbol: Symbols.O, totalDice: 4 }
         },
         // ---------------------------------------------------------- EIGHTH BOARD ----------------------------------------------------------
@@ -450,7 +450,7 @@ function InformationOverlay({onClose}: InformationOverlayProps) {
                     totalDice: 0,
                 }
             ]],
-            explanation: `Notice that the game did not end, as X did not get a FULL diagonal of entirely 6s\nO can still turn this around with luck.`,
+            explanation: `Notice that the game did not end, as X did not get a FULL diagonal of entirely 6s,\nO can still turn this around with luck.`,
             currentMove: { symbol: Symbols.O, totalDice: 2 }
         },
         // ---------------------------------------------------------- TENTH BOARD ----------------------------------------------------------
@@ -549,7 +549,7 @@ function InformationOverlay({onClose}: InformationOverlayProps) {
                     marked: true
                 }
             ]],
-            explanation: `From here two possible scenario are played out, if O gets a 5 or below,\nhe will lose, as X will surely win in the next round.`,
+            explanation: `From here two possible scenarios are played out, if O gets a 5 or below,\nHe will lose, as X will surely win in the next round.`,
             currentMove: { symbol: Symbols.O, totalDice: 5 }
         },
         // ---------------------------------------------------------- TWELTH BOARD ----------------------------------------------------------
