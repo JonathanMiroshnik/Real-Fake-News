@@ -23,6 +23,12 @@
    overflow: hidden;
 }
 
+.tictac-cell:disabled {
+   cursor: not-allowed; /* or use default */
+   pointer-events: none;
+   opacity: 0.6; /* Optional for visual feedback */
+}
+
 .tictac-cell-marked::before {
   content: "";
   position: absolute;

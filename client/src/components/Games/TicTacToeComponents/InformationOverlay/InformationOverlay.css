@@ -2,19 +2,37 @@
     position: fixed;
     inset: 0;
     z-index: 50;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--global-background-color);  
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .information-content {
-    background-color: white;
+    background-color: var(--global-background-color);  
     padding: 2rem;
     border-radius: 0.5rem;
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
     max-width: 28rem;
     width: 100%;
+}
+
+.information-overlay-explanation {
+  height: 7rem; /* Set a fixed height */
+  overflow: auto; /* Optional: add scroll if content is long */
+  padding: 8px;
+  margin-top: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.information-overlay-explanation-text {
+    color: var(--title-color);
+}
+
+.information-page-move-button {
+    border: 1px var(--title-color) solid;
 }
 
 .rules-title {

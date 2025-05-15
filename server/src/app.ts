@@ -58,6 +58,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-blogWritingManager(ONE_HOUR_MILLISECS * 2); // DAY_MILLISECS ONE_HOUR_MILLISECS
+blogWritingManager(ONE_HOUR_MILLISECS * 8); // DAY_MILLISECS ONE_HOUR_MILLISECS
 
 export default app;

@@ -6,6 +6,7 @@ import WinnerOverlay from "../WinnerOverlay/WinnerOverlay";
 import InformationOverlay from "../InformationOverlay/InformationOverlay";
 
 import './TicTacToeGame.css'
+import MovePresentation from "../MovePresentation/MovePresentation";
 
 export enum Symbols {
     X,
@@ -23,6 +24,7 @@ export type TicTacToeGameMove = {
 export interface CellState {
     symbol: Symbols;
     totalDice: number;
+    marked?: boolean;
 }
 
 // Indicates whether a victory was gotten, and if yes, also holds an indicator for the winner's symbol
@@ -428,17 +430,7 @@ function TicTacToeGame() {
 
             {/* Current Player move display */}
             {/* TODO: find a way to make the dice appear on the same row as current player status  */}
-            <div className="current-move">                                
-                <div className="current-player">
-                    <b className="current-player-symbol">
-                        { Symbols[currentPlayer.symbol].toString() }
-                    </b>
-                    {/* 's Turn */}
-                </div>
-                <div className="current-move-dice">
-                  <Dice result={ currentPlayer.totalDice } rollId={moveNumber} />
-                </div>
-            </div>
+            <MovePresentation currentPlayer={currentPlayer} moveNumber={moveNumber} />
 
             {/* AI Mode information display */}
             {/* { aiActivated && <div style={{maxWidth: "400px", textAlign:"center"}}> 

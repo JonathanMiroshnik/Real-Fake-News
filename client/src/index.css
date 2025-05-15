@@ -5,6 +5,7 @@
   --undertext-color: black;
   --border-separator-color: gray;
   --border-big-separator-color: black;
+  --global-background-color: white;
   
   /* TODO: figure out how to do mobile cutoff global, see: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/ */
   /* --mobile-size-cutoff: 600px; */
@@ -62,6 +63,7 @@ button:focus-visible {
     --undertext-color: white;
     --border-separator-color: gray;
     --border-big-separator-color: white;
+    --global-background-color: black;
   }
 
   a:hover {
@@ -69,7 +71,7 @@ button:focus-visible {
   }
 
   button {
-    background-color: black;  
+    background-color: var(--global-background-color);
     color: white;  
   }
 }
@@ -83,6 +85,7 @@ button:focus-visible {
     --undertext-color: black;
     --border-separator-color: gray;
     --border-big-separator-color: black;
+    --global-background-color: white;
   }
 
   a:hover {
@@ -90,7 +93,7 @@ button:focus-visible {
   }
 
   button {
-    background-color: white;
+    background-color: var(--global-background-color);
     color: color;
   }
 }
