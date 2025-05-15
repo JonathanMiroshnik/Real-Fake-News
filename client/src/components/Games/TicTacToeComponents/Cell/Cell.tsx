@@ -8,11 +8,12 @@ interface CellProps {
     column: number;
     setCell: (r: number, c: number) => void;
     disabled: boolean;
+    marked?: boolean;
 }
 
-function Cell({ cellState, row, column, setCell, disabled } : CellProps) {
+function Cell({ cellState, row, column, setCell, disabled, marked=false } : CellProps) {
     return (
-        <button className="tictac-cell" onClick={() => setCell(row, column)} disabled={disabled}> 
+        <button className={`tictac-cell ${marked ? "tictac-cell-marked": ""}`} onClick={() => setCell(row, column)} disabled={disabled}> 
             {/* TODO: figure out aligning vertically symbol and number/counter */}
             { cellState.symbol !== Symbols._ ?
             <div>

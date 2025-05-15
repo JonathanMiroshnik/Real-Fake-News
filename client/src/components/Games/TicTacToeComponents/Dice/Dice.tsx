@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DiceOne, DiceTwo, DiceThree, DiceFour, DiceFive, DiceSix } from "phosphor-react";
 import "./Dice.css"
 
@@ -7,45 +7,35 @@ const DICE_SIZE = 96;
 
 interface DiceProps {
     result: number;
+    rollId: number;
 }
 
-// TODO: add 6 dice images and rotator of images and it lands on a number after a few seconds for suspense.
-function Dice ({ result }: DiceProps) {
-    // TODO: add after-roll dice function to tell the Game that the dice "finished" rolling
+function Dice({ result, rollId }: DiceProps) {
+    const [animationKey, setAnimationKey] = useState<number>(0);
+
     // Each time the Dice result changes, a new UI "roll" occurs
     useEffect(() => {
-        startGraphicalRoll();
-    }, [result]);
-
-    function startGraphicalRoll() {
-        return;
-    }
+        // Bump key to force re-render of animated ghost
+        setAnimationKey(prev => prev + 1);
+    }, [rollId]);
 
     function numberToDiceImage(num: number, diceSize: number) {
-        if (num < 1 || num > SIDES_TO_DICE) {
-            return;
-        }
+        if (num < 1 || num > SIDES_TO_DICE) return null;
 
-        switch (num) {
-            case 1:
-                return <DiceOne size={diceSize}/>;
-            case 2:
-                return <DiceTwo size={diceSize}/>;
-            case 3:
-                return <DiceThree size={diceSize}/>;
-            case 4:
-                return <DiceFour size={diceSize}/>;
-            case 5:
-                return <DiceFive size={diceSize}/>;
-            case 6:
-                return <DiceSix size={diceSize}/>;
-        }        
+        const icons = [null, DiceOne, DiceTwo, DiceThree, DiceFour, DiceFive, DiceSix];
+        const DiceIcon = icons[num];
+        return DiceIcon ? <DiceIcon size={diceSize} /> : null;
     }
 
     return (
         <div className="dice">
-            { numberToDiceImage(result, DICE_SIZE) }
-        </div>        
+            <div key={"dice-roll-id-" + animationKey} className="dice-ghost grow">
+                {numberToDiceImage(result, DICE_SIZE)}
+            </div>
+            <div className="dice-main">
+                { numberToDiceImage(result, DICE_SIZE) }
+            </div>
+        </div>            
     );
 }
 

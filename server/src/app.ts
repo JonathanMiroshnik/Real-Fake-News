@@ -28,7 +28,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Main backend routes
-const PREFIX: string = process.env.LOCAL_DEV_BACKEND ? '/api': "/";
+let PREFIX: string = "";
+if (process.env.LOCAL_DEV_BACKEND === undefined) {
+  PREFIX = '/api';
+}
+else {
+  PREFIX = process.env.LOCAL_DEV_BACKEND === "true" ? '/api': "/";
+}
+
 app.use(PREFIX, apiRoutes);
 
 // 404 Handler

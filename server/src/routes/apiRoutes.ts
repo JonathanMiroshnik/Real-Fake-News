@@ -37,7 +37,7 @@ router.get('/images/:filename', (req, res) => {
     'Access-Control-Allow-Origin': process.env.CLIENT_URL
   });
   
-  res.sendFile(path.join(__dirname, '../data/images', sanitized));
+  res.sendFile(path.join(__dirname, '../../data/images', sanitized));
 });
 
 export default router;

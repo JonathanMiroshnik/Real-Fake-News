@@ -27,7 +27,13 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, morgan_1.default)('dev'));
 // Main backend routes
-const PREFIX = process.env.LOCAL_DEV_BACKEND ? '/api' : "/";
+let PREFIX = "";
+if (process.env.LOCAL_DEV_BACKEND === undefined) {
+    PREFIX = '/api';
+}
+else {
+    PREFIX = process.env.LOCAL_DEV_BACKEND === "true" ? '/api' : "/";
+}
 app.use(PREFIX, apiRoutes_1.default);
 // 404 Handler
 // Do NOT use '*', instead:
@@ -46,6 +52,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.DAY_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
+(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.ONE_HOUR_MILLISECS * 2); // DAY_MILLISECS ONE_HOUR_MILLISECS
 exports.default = app;
 //# sourceMappingURL=app.js.map

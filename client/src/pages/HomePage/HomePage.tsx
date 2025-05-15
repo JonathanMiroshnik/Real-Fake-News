@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import { ArticleContext } from '../../contexts/ArticlesContext';
-import { CATEGORIES, groupArticlesByCategories } from '../../services/articleService';
+import { groupArticlesByCategories } from '../../services/articleService';
 import GamesList from '../../components/GamesList/GamesList';
 import './HomePage.css'
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
@@ -67,26 +67,30 @@ function HomePage() {
             <div style={{display:"flex", justifyContent: "center"}}>
               <ArticleList articles={categoryArticles[0]} maxItems={articlesPerSection}/>
             </div>
-          </div>          
-          <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={false}/>
+          </div>
+          {/* TODO: 4 magic number */}
+          { articlesPerSection >= 4 && <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={true}/> }
         </div>
       </div>
       
-      { CATEGORIES.map((category, ind) => (            
-          // TODO: make CategoryArticleList pure, get articles from this level for it instead of inside the component
+      {/* TODO: want to add titles to different sections of the home page */}
+      {/* TODO: make CategoryArticleList pure, get articles from this level for it instead of inside the component */}
+
+      {/* { CATEGORIES.map((category, ind) => (            
           categoryArticles[ind].length > 1 && 
             <div key={"category_list_" + category.name} className="home-section">
-              {/* TODO: want to add titles to different sections of the home page */}
-              {/* <div className='home-section-title'> 
-                Hello
-              </div> */}
               <div className='home-section-content'>
-                <div key={"category_list_" + category.name}>
-                  <ArticleList articles={categoryArticles[ind]} vertical={true} maxItems={articlesPerSection} />
-                </div>
+                <ArticleList articles={categoryArticles[ind]} vertical={true} maxItems={articlesPerSection} />
               </div>
             </div>
-        )) }
+      )) } */}
+
+      <div className='home-section-content'>
+          <ArticleList articles={categoryArticles[1]} vertical={false} maxItems={articlesPerSection} />
+      </div>
+      <div className='home-section-content'>
+          <ArticleList articles={categoryArticles[2]} vertical={false} maxItems={articlesPerSection} />
+      </div>
       
       <GamesList />        
 

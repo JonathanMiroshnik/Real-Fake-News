@@ -5,6 +5,7 @@ import './CategoryPage.css'
 import ArticleList from '../../components/ArticleList/ArticleList';
 import { useContext } from 'react';
 import { ArticleContext } from '../../contexts/ArticlesContext';
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 
 function CategoryPage() {
   const { key } = useParams();
@@ -13,10 +14,10 @@ function CategoryPage() {
   }
 
   const articles = useContext(ArticleContext).articles;
+  const articlesPerSection: number = useResponsiveArticlesCount();
 
   const currentCategory: string = key.toString();
   const foundCategory = CATEGORIES.find((cc) => {    
-    console.log("CAT", cc.name.toString().toLowerCase(), currentCategory.toString().toLowerCase());
     return cc.name.toString().toLowerCase() === currentCategory.toString().toLowerCase();
   })
   if (foundCategory === null || foundCategory === undefined) {
@@ -24,7 +25,14 @@ function CategoryPage() {
   }
 
   const currentArticles = articlesByCategory(articles, foundCategory);
-  console.log(currentArticles);
+
+  // Mobile support, turning a horizontal list to a vertical one on smaller screens.
+  let vertical = false;
+  console.log(articlesPerSection);
+  // TODO: terrible, magic number
+  if (articlesPerSection < 4) {
+    vertical = true;
+  }
 
   return (
     <div className="home-container">      
@@ -35,7 +43,7 @@ function CategoryPage() {
       <div className="main-content">
         {/* this was section */}
         <div className="article-grid">
-          <ArticleList articles={currentArticles}/>
+          <ArticleList articles={currentArticles} vertical={vertical}/>
             {/* <CategoryArticleList category={foundCategory}/>           */}
         </div>
 

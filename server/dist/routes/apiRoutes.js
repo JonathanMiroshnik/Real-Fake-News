@@ -33,7 +33,7 @@ router.get('/images/:filename', (req, res) => {
         'Cross-Origin-Embedder-Policy': 'unsafe-none',
         'Access-Control-Allow-Origin': process.env.CLIENT_URL
     });
-    res.sendFile(path_1.default.join(__dirname, '../data/images', sanitized));
+    res.sendFile(path_1.default.join(__dirname, '../../data/images', sanitized));
 });
 exports.default = router;
 // TODO: this is UNSAFE, exchange to rate limited and auth needed to get images?

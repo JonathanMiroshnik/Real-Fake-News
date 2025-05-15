@@ -25,7 +25,7 @@ interface ArticleListProps {
 
 // const MAX_ITEMS: number = 4;
 
-function ArticleList({title = "", articles, vertical = true, maxItems = 4, showImages=true}: ArticleListProps) {
+function ArticleList({title = "", articles, vertical = false, maxItems = 4, showImages=true}: ArticleListProps) {
     // if (articles.length <= 0) {
     //     return <div className="article-list-title">No Articles Found!</div>;
     // }
@@ -35,7 +35,7 @@ function ArticleList({title = "", articles, vertical = true, maxItems = 4, showI
         <div className="article-list-main">
             { title && <h2 className="article-list-title">{ title }</h2>}
             {/* <nav> */}
-                <ul className="article-list-ul" style={{display: (vertical ? "flex": "blocks")}} >
+                <ul className="article-list-ul" style={{display: (vertical ? "blocks": "flex")}} >
                     { articles.slice(0, maxItems).map((ar) => (
                         <li key={"article_list_item_" + ar.key} >
                             <ArticleListItem showImage={showImages} article={ar}/>
