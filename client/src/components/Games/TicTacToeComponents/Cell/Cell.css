@@ -1,9 +1,7 @@
-.cell {
-   /* padding: 20px; */
-
-   max-width: 100px;
-   /* height: 100px; */
+.tictac-cell {
+   width: 7rem;
    aspect-ratio: 1 / 1;
+
    /* text-overflow: ellipsis;
    white-space: nowrap;
    overflow: hidden; */
@@ -13,11 +11,35 @@
    /* don't grow */
    /* flex-grow: 0; */
 
-   font-size: 20px;
-
    vertical-align: middle;
 
    border: 2px;
    border-color: aqua;
    border-style: solid;
 }
+
+.tictac-cell-symbol {
+   /* display: inline-block; */
+   display: inline;
+   font-size: 30px;
+}
+
+.tictac-cell-text {
+   align-content: center;
+   align-items: center;
+   font-size: 20px;
+}
+
+@media (max-width: 600px) {
+   .tictac-cell {
+      width: 5rem;
+   }
+
+   .tictac-cell-symbol {
+      font-size: 23px;
+   }
+   .tictac-cell-text {
+      font-size: 15px;
+   }
+}
+ 

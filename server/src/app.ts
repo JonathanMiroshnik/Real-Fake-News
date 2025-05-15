@@ -2,21 +2,13 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import path from 'path';
+
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
 
-import gameIntelligenceRoutes from './lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js';
-import llmRoutes from './routes/llmRoutes';
-import triviaRoutes from './lib/TriviaGameBackend/routes/triviaRoutes.js'
-import blogRoutes from './routes/blogRoutes.js'
+import apiRoutes from './routes/apiRoutes';
 import { blogWritingManager } from './jobs/blogWriting.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
-
-// TODO: maybe /api nginx endpoint can be dealt with a middleware?
-
-const CURRENTLY_LOCAL_DEV: boolean = true;
-const LOCAL_DEV_PREFIX = "/api";
 
 // TODO: change express use to get set etc?
 
@@ -25,95 +17,25 @@ const app = express();
 
 // Middleware pipeline
 app.use(cors({
-  // origin: "http://localhost:5173",
   origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// API Routes TODO: this route does not need to be open beyond the back end
-// app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/llm', llmRoutes);
-// app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/intelligence', gameIntelligenceRoutes);
-app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/trivia', triviaRoutes);
-
-// Getting daily news
-app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/blogs', blogRoutes);
-
-// Health check endpoint
-app.get((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// TODO: this is UNSAFE, exchange to rate limited and auth needed to get images?
-// // Dedicated image API endpoint
-// app.get('/api/images/:filename', (req, res) => {
-//   const sanitized = path.basename(req.params.filename);
-//   res.sendFile(path.join(__dirname, '../data/images', sanitized));
-// });
-
-app.get((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") +'/images/:filename', (req, res) => {
-  const sanitized = path.basename(req.params.filename);
-  
-  // Set CORP headers
-  res.set({
-    'Cross-Origin-Resource-Policy': 'cross-origin',
-    'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    'Access-Control-Allow-Origin': process.env.CLIENT_URL
-  });
-  
-  res.sendFile(path.join(__dirname, '../data/images', sanitized));
-});
-
-
-// Apply CORS specifically to image routes
-app.use((CURRENTLY_LOCAL_DEV ? LOCAL_DEV_PREFIX: "") + '/images', cors({
-  origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
-  exposedHeaders: ['Content-Type', 'Content-Length']
-}));
-
-// ---------------------------------------------------------------------------------
-
-// server/src/middleware/auth.ts:
-// export const validateImageRequest = (req, res, next) => {
-//   const validExtensions = ['.png', '.jpg', '.jpeg'];
-//   const filename = path.parse(req.params[0]);
-  
-//   if (!validExtensions.includes(filename.ext.toLowerCase())) {
-//     return res.status(403).send('Invalid file type');
-//   }
-  
-//   if (filename.dir.includes('..')) {
-//     return res.status(403).send('Path traversal detected');
-//   }
-  
-//   next();
-// };
-
-
-// app.use('/images', 
-//   rateLimit({ windowMs: 15*60*1000, max: 100 }), // 100 requests/15min
-//   validateImageRequest,
-//   express.static(imagePath, {
-//     dotfiles: 'ignore',
-//     setHeaders: (res) => {
-//       res.set('X-Content-Type-Options', 'nosniff');
-//     }
-//   })
-// );
-
-// ---------------------------------------------------------------------------------
+// Main backend routes
+const PREFIX: string = process.env.LOCAL_DEV_BACKEND ? '/api': "/";
+app.use(PREFIX, apiRoutes);
 
 // 404 Handler
-app.use('/', (req: Request, res: Response) => {
+
+// Do NOT use '*', instead:
+//  https://stackoverflow.com/questions/78973586/typeerror-invalid-token-at-1-https-git-new-pathtoregexperror
+app.use(/(.*)/, (req: Request, res: Response) => {
   res.status(404).json({
     error: 'Endpoint not found'
   });
@@ -129,6 +51,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Recurring code jobs
-blogWritingManager(DAY_MILLISECS); // DAY_MILLISECS ONE_HOUR_MILLISECS
+blogWritingManager(ONE_HOUR_MILLISECS * 2); // DAY_MILLISECS ONE_HOUR_MILLISECS
 
 export default app;

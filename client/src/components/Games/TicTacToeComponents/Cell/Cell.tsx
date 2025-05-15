@@ -12,11 +12,19 @@ interface CellProps {
 
 function Cell({ cellState, row, column, setCell, disabled } : CellProps) {
     return (
-        <button className="cell" onClick={() => setCell(row, column)} disabled={disabled}> 
+        <button className="tictac-cell" onClick={() => setCell(row, column)} disabled={disabled}> 
             {/* TODO: figure out aligning vertically symbol and number/counter */}
-            { cellState.symbol !== Symbols._ ? <b style={{fontSize:"30px", display: "inline-block"}} > { Symbols[cellState.symbol].toString() } </b>: null }
-            { cellState.symbol !== Symbols._ ? " " + cellState.totalDice : null }
-            {/* { cellState.symbol !== Symbols._ ? <CellCounter score={cellState.totalDice} total={6} /> : null } */}
+            { cellState.symbol !== Symbols._ ?
+            <div>
+                <p className="tictac-cell-text">
+                    <b className="tictac-cell-symbol"> 
+                        { Symbols[cellState.symbol].toString() } 
+                    </b>
+                    &nbsp;
+                    {cellState.totalDice}
+                </p>
+            </div>: 
+            null }
         </button>
     );
 }

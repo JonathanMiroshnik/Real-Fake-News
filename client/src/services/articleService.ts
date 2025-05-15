@@ -35,7 +35,7 @@ export const CATEGORIES: NewsCategory[] = [
 export async function pullDailies() {
     // const route = "http://localhost:5001";
     // TODO: make this into global constant
-    const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE ? 
+    const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE === true ? 
                     "http://localhost:5001" : 
                     "https://real.sensorcensor.xyz";
                     

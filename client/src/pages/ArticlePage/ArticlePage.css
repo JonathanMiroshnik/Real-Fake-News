@@ -77,9 +77,13 @@
 } */
 
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .news-article {
-    margin: 1rem;
-    padding: 1.5rem;
+    max-width: 90%;
+    padding: 1rem;
+  }
+
+  .article-content {
+    font-size: 1rem;
   }
 }

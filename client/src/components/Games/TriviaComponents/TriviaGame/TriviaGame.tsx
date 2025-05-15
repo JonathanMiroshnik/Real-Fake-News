@@ -51,7 +51,7 @@ function TriviaGame() {
   // }, []);
   
   async function fetchQuestions(amount: number): Promise<Question[]> {
-    const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE ? 
+    const VITE_API_BASE: string = import.meta.env.VITE_LOCAL_DEV_MODE === true ? 
                     "http://localhost:5001" : 
                     "https://real.sensorcensor.xyz";
 
