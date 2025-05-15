@@ -23,9 +23,9 @@
   display: flex;
   gap: 1rem;
   
-  /* padding-bottom: 1rem;
+  padding-bottom: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 4px black solid; */
+  border-bottom: 4px var(--border-big-separator-color) solid;
 }
 
 .home-container > .home-section + .home-section {

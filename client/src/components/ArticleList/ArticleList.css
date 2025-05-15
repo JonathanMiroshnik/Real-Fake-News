@@ -11,13 +11,10 @@
     padding: 0px; */
 }
 
-.article-list-ul {
-    /* justify-content: center; */
-    /* width: 100%; */
-    /* height: 100%; */
+.article-list-ul-vertical {
+    display: inline-block;
 
     gap: 2rem;
-
     padding: 0;
     margin: 0;
 
@@ -27,11 +24,29 @@
     /* border: 1px solid green; */
 }
 
-.article-list-ul > li {
+.article-list-ul-horizontal {
+    display: flex;
+
+    gap: 2rem;
+    padding: 0;
+    margin: 0;
+
+    list-style-type: none;
+
+    /* TODO: for testing */
+    /* border: 1px solid green; */
+}
+
+.article-list-ul-vertical > li {
     margin: 0;
 }
 
-.article-list-ul > li + li {
-    /* TODO: fix this for horizontal situation, should only be vertical */
+.article-list-ul-horizontal > li {
+    margin: 0;
+}
+
+/* Should work only when in vertical mode, 
+adding separating border between any two listed items */
+.article-list-ul-vertical > li + li {
     border-top: 1px gray solid;
 }

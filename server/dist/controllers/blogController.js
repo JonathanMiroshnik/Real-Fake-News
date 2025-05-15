@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pullBlogs = exports.ONE_HOUR_MILLISECS = exports.DAY_MILLISECS = void 0;
 exports.getPostsAfterDate = getPostsAfterDate;
 exports.pullHourlyBlogs = pullHourlyBlogs;
+exports.pullBlogsByMinute = pullBlogsByMinute;
 const blogService_js_1 = require("../services/blogService.js");
 // Calculated in milliseconds
 exports.DAY_MILLISECS = 24 * 60 * 60 * 1000;
@@ -33,6 +34,20 @@ async function pullHourlyBlogs(req, res) {
     console.log('Pulling hourly blogs!');
     try {
         const result = await getPostsAfterDate(new Date(Date.now() - exports.ONE_HOUR_MILLISECS));
+        res.json(result);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Analysis failed' });
+    }
+}
+async function pullBlogsByMinute(req, res) {
+    try {
+        const minutes = parseInt(req.query.minute, 10);
+        if (isNaN(minutes)) {
+            res.status(400).json({ error: 'Invalid minute value' });
+            return;
+        }
+        const result = await getPostsAfterDate(new Date(Date.now() - minutes * 60 * 1000));
         res.json(result);
     }
     catch (error) {

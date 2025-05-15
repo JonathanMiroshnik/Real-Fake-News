@@ -35,7 +35,7 @@ function ArticleList({title = "", articles, vertical = false, maxItems = 4, show
         <div className="article-list-main">
             { title && <h2 className="article-list-title">{ title }</h2>}
             {/* <nav> */}
-                <ul className="article-list-ul" style={{display: (vertical ? "blocks": "flex")}} >
+                <ul className={`article-list-ul-${vertical ? "vertical": "horizontal"}`} >
                     { articles.slice(0, maxItems).map((ar) => (
                         <li key={"article_list_item_" + ar.key} >
                             <ArticleListItem showImage={showImages} article={ar}/>

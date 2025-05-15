@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.saveDataUriAsWebp = void 0;
 exports.initializeRunware = initializeRunware;
 exports.generateImage = generateImage;
 exports.saveDataURIToPNG = saveDataURIToPNG;
@@ -14,6 +15,8 @@ const path_1 = __importDefault(require("path"));
 // import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
 const jimp_1 = require("jimp");
 const jimp_2 = require("jimp");
+// For WEBP support: https://github.com/jhuckaby/webp-wasm
+// import webp from 'wasm-webp';
 const sdk_js_1 = require("@runware/sdk-js");
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED = true;
@@ -46,7 +49,7 @@ async function generateImage(positivePrompt) {
         model: "runware:100@1", // FLUX Schnell => 16k images for 10$
         numberResults: 1,
         outputType: "dataURI", //"URL" | "base64Data";
-        outputFormat: "PNG", //"JPG" "WEBP"; // TODO: use webp?
+        outputFormat: "WEBP", //"JPG" "WEBP"; // TODO: use webp?
         checkNSFW: true,
         // strength
         steps: 20,
@@ -78,12 +81,33 @@ async function saveDataURIToPNG(dataURI) {
     console.log("FILE", filename);
     return filename;
 }
+const saveDataUriAsWebp = async (dataUri) => {
+    // Verify data URI format
+    const matches = dataUri.match(/^data:(image\/\w+);base64,(.+)$/);
+    if (!matches || matches[1] !== 'image/webp') {
+        throw new Error('Invalid WebP data URI format');
+    }
+    // Generate unique filename
+    const filename = `img-${(0, uuid_1.v4)()}.webp`;
+    const imagePath = path_1.default.resolve(__dirname, '../../data/images', filename);
+    try {
+        // Convert base64 to buffer and write to file
+        const buffer = Buffer.from(matches[2], 'base64');
+        await fs_1.default.promises.writeFile(imagePath, buffer);
+        return filename;
+    }
+    catch (error) {
+        throw new Error(`Failed to save WebP image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+};
+exports.saveDataUriAsWebp = saveDataUriAsWebp;
 async function generateAndSaveImage(positivePrompt) {
     if (!SERVICE_ACTIVATED) {
         return DEFAULT_IMAGE_NAME;
     }
     const dataURI = await generateImage(positivePrompt);
-    const retImgName = await saveDataURIToPNG(dataURI);
+    // const retImgName = await saveDataURIToPNG(dataURI);
+    const retImgName = await (0, exports.saveDataUriAsWebp)(dataURI);
     return retImgName;
 }
 //# sourceMappingURL=imageService.js.map

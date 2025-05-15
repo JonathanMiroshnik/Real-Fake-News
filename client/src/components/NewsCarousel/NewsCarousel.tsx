@@ -39,6 +39,11 @@ function NewsCarousel({maxItems = -1}: NewsCarouselProps) {
         </div>
     )];
 
+    // Not enough items to show // TODO: magic number 3
+    if (items.length < 3) {
+        return null;
+    }
+
     if (maxItems === 0) {
         return null;
     }
@@ -54,14 +59,14 @@ function NewsCarousel({maxItems = -1}: NewsCarouselProps) {
         infinite={true}
         autoPlayInterval={3000}
         disableDotsControls={true}
-        // responsive=      {{
-        //     600: {
-        //         items: 0,
-        //     },
-        //     1024: {
-        //         items: 4,
-        //     }
-        //   }} 
+        responsive=      {{
+            600: {
+                items: 0,
+            },
+            1024: {
+                items: 4,
+            }
+          }} 
         />;
 }
 

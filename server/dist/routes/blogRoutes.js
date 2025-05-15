@@ -5,5 +5,6 @@ const blogController_js_1 = require("../controllers/blogController.js");
 const router = (0, express_1.Router)();
 router.get('/daily', blogController_js_1.pullBlogs);
 router.get('/hourly', blogController_js_1.pullHourlyBlogs);
+router.get('/by-minute', blogController_js_1.pullBlogsByMinute);
 exports.default = router;
 //# sourceMappingURL=blogRoutes.js.map

@@ -40,3 +40,18 @@ export async function pullHourlyBlogs(req: Request, res: Response) {
         res.status(500).json({ error: 'Analysis failed' });
     }
 }
+
+export async function pullBlogsByMinute(req: Request, res: Response) {
+    try {
+        const minutes: number = parseInt(req.query.minute as string, 10);
+        if (isNaN(minutes)) {
+            res.status(400).json({ error: 'Invalid minute value' });
+            return;
+        }
+
+        const result: BlogResponse = await getPostsAfterDate(new Date(Date.now() - minutes * 60 * 1000));
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Analysis failed' });
+    }
+}

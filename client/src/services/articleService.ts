@@ -32,7 +32,13 @@ export const CATEGORIES: NewsCategory[] = [
     },
 ]; 
 
-export async function pullDailies() {
+// One day
+const MIN_MINUTES_BEFORE_TO_CHECK = 24 * 60;
+// 4 days
+const MAX_MINUTES_BEFORE_TO_CHECK = 24 * 60 * 4;
+const MIN_ACCEPTABLE_ARTICLES = 15;
+
+export async function pullRecentArticles() {
     // const route = "http://localhost:5001";
     // TODO: make this into global constant
     let VITE_API_BASE: string = "";
@@ -45,7 +51,7 @@ export async function pullDailies() {
                     "https://real.sensorcensor.xyz";
     }
                     
-    const response = await fetch(VITE_API_BASE + '/api/blogs/daily', {
+    const response = await fetch(`${VITE_API_BASE}/api/blogs/by-minute?minute=${MIN_MINUTES_BEFORE_TO_CHECK}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -53,7 +59,19 @@ export async function pullDailies() {
     });
     // const response = await fetch('/api/blogs/daily') // TODO: choose: OPTIONS: daily, hourly
     const articlesJSON = await response.json()
-    const finalArticles = articlesJSON.articles;
+    let finalArticles = articlesJSON.articles;
+
+    if (finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
+        const response = await fetch(`${VITE_API_BASE}/api/blogs/by-minute?minute=${MAX_MINUTES_BEFORE_TO_CHECK}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const articlesJSON = await response.json()
+        finalArticles = articlesJSON.articles;
+    }
 
     return finalArticles;
 }

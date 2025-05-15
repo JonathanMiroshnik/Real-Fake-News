@@ -1,7 +1,7 @@
 // TODO: create another state for the Featured Article that will be kept separate and chosen from the other articles.
 
 import { useEffect, createContext, useState, ReactNode } from "react";
-import { pullDailies } from "../services/articleService";
+import { pullRecentArticles } from "../services/articleService";
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
 /**
@@ -32,9 +32,9 @@ function ArticleProvider({ children }: { children: ReactNode }) {
 
   // TODO: should this be here or in a different "jobs" folder and just be imported from there?
   // Data fetching effect - runs once on mount
-  useEffect(() => {
-      async function fetchDailies() {
-          let finalArticles = await pullDailies();
+  useEffect(() => {    
+      async function fetchArticles() {
+          let finalArticles = await pullRecentArticles();
           if (finalArticles === undefined) {
             finalArticles = [];
           }
@@ -42,7 +42,7 @@ function ArticleProvider({ children }: { children: ReactNode }) {
           setArticles([...finalArticles]);
       }
       
-      fetchDailies();
+      fetchArticles();
   }, []);
 
   // Writer derivation effect - runs when articles change

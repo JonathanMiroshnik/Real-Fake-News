@@ -55,7 +55,8 @@ function HomePage() {
 
   return (
     <div className="home-container">
-      <div style={{paddingBottom: "2rem", marginBottom: "4rem", borderBottom: "1px white solid"}}>
+      <div>
+      {/* style={{paddingBottom: "2rem", marginBottom: "4rem", borderBottom: "1px white solid"}} */}
         {/* TODO: magic number 4 */}
         <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />
       </div>        

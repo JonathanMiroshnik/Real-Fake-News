@@ -52,6 +52,6 @@ app.use((err, req, res, next) => {
     });
 });
 // Recurring code jobs
-(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.ONE_HOUR_MILLISECS * 2); // DAY_MILLISECS ONE_HOUR_MILLISECS
+(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.ONE_HOUR_MILLISECS * 8); // DAY_MILLISECS ONE_HOUR_MILLISECS
 exports.default = app;
 //# sourceMappingURL=app.js.map
