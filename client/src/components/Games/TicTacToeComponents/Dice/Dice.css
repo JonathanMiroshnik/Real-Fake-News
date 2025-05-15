@@ -1,6 +1,6 @@
 .dice {
   position: relative;
-  color: whitesmoke;
+  color: var(--title-color);
   /* or block, depending on your layout */
   /* display: inline-block; */
 }
