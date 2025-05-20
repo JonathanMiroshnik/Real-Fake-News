@@ -1,3 +1,6 @@
+// TODO: get all writer articles from history + pagination? need fetch beyond daily
+// TODO: Fetch historical articles for a writer with pagination
+
 /**
  * Sanitizes writer names for URL-safe usage by replacing spaces with underscores
  * @param name - Original writer name (e.g., "John Doe")
@@ -15,18 +18,3 @@ export const sanitizeWriterName = (name: string) => name.replace(/ /g, '_');
  * desanitizeWriterName("Mothman_Mark") // Returns "Mothman Mark"
  */
 export const desanitizeWriterName = (name: string) => name.replace(/_/g, ' ');
-
-// TODO: get all writer articles from history + pagination? need fetch beyond daily
-/**
- * TODO: Fetch historical articles for a writer with pagination
- * @param writerId - Unique writer identifier
- * @param options - Pagination and date range parameters
- * @returns Promise containing articles array
- * Proposed implementation:
- * async function fetchWriterArticles(
- *   writerId: string,
- *   options?: {page?: number, limit?: number, startDate?: Date}
- * ) {
- *   // Implementation
- * }
- */

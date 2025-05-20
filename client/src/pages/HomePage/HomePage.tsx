@@ -1,14 +1,13 @@
 import { useContext } from 'react';
-// import CategoryArticleList from '../../components/CategoryArticleList/CategoryArticleList';
 import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
+import GamesList from '../../components/GamesList/GamesList';
+import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories } from '../../services/articleService';
-import GamesList from '../../components/GamesList/GamesList';
-import './HomePage.css'
-import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
-import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 
+import './HomePage.css'
 
 // /**
 //  * Application homepage showing all news categories
@@ -16,50 +15,16 @@ import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 //  * - Placeholder for featured article (TODO)
 //  * - Responsive layout with main content and sidebar
 //  */
-// function HomePage() {
-//   const articles = useContext(ArticleContext).articles;
-//   const randomArticle = articles[Math.floor(Math.random() * articles.length)];
-
-//   return (
-//     <div className="home-container">
-//       {/* <NewsCarousel/> */}
-//       {randomArticle && <FeaturedArticle article={randomArticle} />}   
-//       <div className="main-content">
-//         {/* this was section */}
-//         <div className="article-grid">        
-//           { CATEGORIES.map((category) => (
-//             // TODO: make CategoryArticleList pure, get articles from this level for it instead of inside the component
-//             <div key={"category_list_" + category.name}>
-//               <CategoryArticleList category={category}/>
-//             </div>
-//           )) }          
-//         </div>
-
-//         {/* <GamesList /> */}
-
-//         {/* <aside className="sidebar">
-//           <NewsCarousel/>
-//         </aside> */}
-//       </div>
-//     </div>
-//   );
-// };
-
-
 function HomePage() {
   const articles = useContext(ArticleContext).articles;
   const articlesPerSection: number = useResponsiveArticlesCount();
   const randomArticle = articles[Math.floor(Math.random() * articles.length)];
-
   const categoryArticles = groupArticlesByCategories(articles);
 
   return (
     <div className="home-container">
-      <div>
-      {/* style={{paddingBottom: "2rem", marginBottom: "4rem", borderBottom: "1px white solid"}} */}
-        {/* TODO: magic number 4 */}
-        <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />
-      </div>        
+      {/* TODO: magic number 4 */}
+      <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />    
       <div className="home-section">
         <div className='home-section-content'>
           <div>

@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 
+import MovePresentation from "../MovePresentation/MovePresentation";
 import Board from "../Board/Board";
-import Dice, { SIDES_TO_DICE } from "../Dice/Dice";
+import { SIDES_TO_DICE } from "../Dice/Dice";
 import WinnerOverlay from "../WinnerOverlay/WinnerOverlay";
 import InformationOverlay from "../InformationOverlay/InformationOverlay";
 
 import './TicTacToeGame.css'
-import MovePresentation from "../MovePresentation/MovePresentation";
-import { MAX_NUMBER_PLAYERS } from "../../TriviaComponents/PlayerConfiguration/PlayerConfiguration";
 
 export enum Symbols {
     // The two game symbols
@@ -19,6 +18,7 @@ export enum Symbols {
     $
 }
 
+// TODO: add CellState to this?
 export type TicTacToeGameMove = {
     positionX: number;
     positionY: number;
@@ -127,7 +127,7 @@ function TicTacToeGame() {
      * @param a ?
      * @returns A VictoryStatus with a true on "victory" and the proper winner symbol, otherwise false.
      */
-    function checkVictory(): VictoryStatus {
+    function checkVictory(currentBoard: CellState[][]): VictoryStatus {
         if (BOARD_SIDE_LENGTH < 2) {
             throw new Error("The board must at least have 2 cells on each side");
         }
@@ -135,10 +135,10 @@ function TicTacToeGame() {
         let initialSymbol: Symbols = Symbols._;
         // Row victory
         for (let i = 0; i < BOARD_SIDE_LENGTH; i++) {
-            initialSymbol = boardCells[i][0].symbol;
+            initialSymbol = currentBoard[i][0].symbol;
             for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-                if (initialSymbol !== boardCells[i][j].symbol ||
-                    boardCells[i][j].totalDice < SIDES_TO_DICE) {
+                if (initialSymbol !== currentBoard[i][j].symbol ||
+                    currentBoard[i][j].totalDice < SIDES_TO_DICE) {
                     break;
                 }
 
@@ -153,10 +153,10 @@ function TicTacToeGame() {
 
         // Column Victory
         for (let i = 0; i < BOARD_SIDE_LENGTH; i++) {
-            initialSymbol = boardCells[0][i].symbol;
+            initialSymbol = currentBoard[0][i].symbol;
             for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-                if (initialSymbol !== boardCells[j][i].symbol ||
-                    boardCells[j][i].totalDice < 6) {
+                if (initialSymbol !== currentBoard[j][i].symbol ||
+                    currentBoard[j][i].totalDice < 6) {
                     break;
                 }
 
@@ -171,10 +171,10 @@ function TicTacToeGame() {
         
         // Diagonal Victory
         // Top-left to Bottom-right
-        initialSymbol = boardCells[0][0].symbol;
+        initialSymbol = currentBoard[0][0].symbol;
         for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-            if (initialSymbol !== boardCells[j][j].symbol ||
-                boardCells[j][j].totalDice < 6) {
+            if (initialSymbol !== currentBoard[j][j].symbol ||
+                currentBoard[j][j].totalDice < 6) {
                 break;
             }
 
@@ -187,10 +187,10 @@ function TicTacToeGame() {
         }
 
         // Top-right to Bottom-left
-        initialSymbol = boardCells[BOARD_SIDE_LENGTH-1][0].symbol;
+        initialSymbol = currentBoard[BOARD_SIDE_LENGTH-1][0].symbol;
         for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-            if (initialSymbol !== boardCells[BOARD_SIDE_LENGTH-1-j][j].symbol ||
-                boardCells[BOARD_SIDE_LENGTH-1-j][j].totalDice < 6) {
+            if (initialSymbol !== currentBoard[BOARD_SIDE_LENGTH-1-j][j].symbol ||
+                currentBoard[BOARD_SIDE_LENGTH-1-j][j].totalDice < 6) {
                 break;
             }
 
@@ -366,7 +366,7 @@ function TicTacToeGame() {
      */
     function runGameRound() {                        
         // If there is a victory, we end the competition
-        const victoryStatus: VictoryStatus = checkVictory();
+        const victoryStatus: VictoryStatus = checkVictory(boardCells);
         if (victoryStatus.victory) {
             setVictor(victoryStatus.symbol);
             return;
@@ -439,7 +439,7 @@ function TicTacToeGame() {
 
             {/* Information overlay */}
             {/* TODO: When BOARD_SIDE_LENGTH is 2, the tictac-game-screen div changes size when I click a cell, but it works fine for BOARD_SIDE_LENGTH > 2 */}
-            { showInformation &&  <InformationOverlay onClose={ () => setShowInformation(false) } />}
+            { showInformation && <InformationOverlay onClose={ () => setShowInformation(false) } />}
             <div className="information-display-div">
                 <button onClick={() => setShowInformation(true)} > ? </button>
             </div>

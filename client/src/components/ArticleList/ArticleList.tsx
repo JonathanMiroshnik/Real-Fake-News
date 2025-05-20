@@ -23,26 +23,20 @@ interface ArticleListProps {
     showImages?: boolean;
 }
 
-// const MAX_ITEMS: number = 4;
-
 function ArticleList({title = "", articles, vertical = false, maxItems = 4, showImages=true}: ArticleListProps) {
-    // if (articles.length <= 0) {
-    //     return <div className="article-list-title">No Articles Found!</div>;
-    // }
-    
     return (
         articles.length > 0 &&
         <div className="article-list-main">
             { title && <h2 className="article-list-title">{ title }</h2>}
-            {/* <nav> */}
-                <ul className={`article-list-ul-${vertical ? "vertical": "horizontal"}`} >
-                    { articles.slice(0, maxItems).map((ar) => (
-                        <li key={"article_list_item_" + ar.key} >
-                            <ArticleListItem showImage={showImages} article={ar}/>
-                        </li>
-                    )) }
-                </ul>
-            {/* </nav> */}
+            
+            {/* TODO: should we have a <nav> tag here, the <ul> inside it? */}
+            <ul className={`article-list-ul article-list-ul-${vertical ? "vertical": "horizontal"}`} >
+                { articles.slice(0, maxItems).map((ar) => (
+                    <li key={"article_list_item_" + ar.key} >
+                        <ArticleListItem showImage={showImages} article={ar}/>
+                    </li>
+                )) }
+            </ul>
         </div>
     );
 }

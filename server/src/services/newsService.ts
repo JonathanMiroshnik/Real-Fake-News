@@ -3,20 +3,16 @@ import 'dotenv/config'
 import axios from 'axios';
 import cron from 'node-cron';
 
-import { DB_NEWS_DATA_FILE } from '../config/constants';
-import { createPost } from '../lib/lowdb/lowdbOperations';
-
-const BASE_URL = 'https://newsdata.io/api/1/news';
-const DAILY_TOKENS = 200;
-const NUM_OF_ARTICLES_PER_TOKEN = 10;
+import { DB_BLOG_POST_FILE, 
+          NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants';
+import { createPost } from '../lib/lowdb/lowdbOperations.js';
+import { ArticleScheme } from '../types/article.js';
 
 // TODO: like this, it will be restarted every time we start up the project again
-var remainingTokens: number = DAILY_TOKENS;
-var dailyArticles: NewsItem[] = [];
+var remainingTokens: number = NEWS_API_DAILY_TOKENS;
 
 cron.schedule('0 0 * * *', () => {  // Every day at midnight
-  remainingTokens = DAILY_TOKENS;
-  resetArticles();
+  remainingTokens = NEWS_API_DAILY_TOKENS;
   console.log('Daily tokens reset.');
 });
 
@@ -25,36 +21,32 @@ export type NewsItem = {
     description: string;
 }
 
-export function getArticles(): NewsItem[] {
-  return dailyArticles;
-}
-
-export function resetArticles() {
-  dailyArticles = [];
-}
-
 
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.
-export async function addNewsToTotal(numArticles: number = 10): Promise<boolean> {
+export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem[]> {
   // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
   // If there are no more tokens remaining, this function cannot be used.
   if (remainingTokens <= 0) {
     throw new Error("No more tokens remaining.");
   }
-  if (remainingTokens * NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
+  if (remainingTokens * NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
     throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
   }
 
-  let neededApiRequests = Math.ceil(numArticles / NUM_OF_ARTICLES_PER_TOKEN);
+  let neededApiRequests = Math.ceil(numArticles / NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
   let nextPage: string = "";
+
+  let retArticles: NewsItem[] = [];
+  let gatherPage: string;
   for (let i = 0; i < neededApiRequests; i++) {
-    nextPage = await fetchNews(nextPage);
+    [retArticles, gatherPage] = await fetchNews(nextPage);
+    nextPage = gatherPage;
     if (nextPage === "") {
-      return false;
+      return [];
     }
   }
-
-  return true;
+  
+  return retArticles;
 }
 
 /**
@@ -63,9 +55,13 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<boolean>
  * @param {string} page - The page of the current news to pull from.
  * @returns {string} The next page in the current news page that we could pull from.
  */
-async function fetchNews(page: string = ""): Promise<string> {
+async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], nextPage: string]> {
+  if (remainingTokens <= 0) {
+    throw new Error("No more tokens remaining to do another API call.");
+  }
+  
   try {
-    const response = await axios.get(BASE_URL, {
+    const response = await axios.get(NEWS_API_BASE_URL, {
       params: {
         apikey: process.env.NEWSDATA_API_KEY,
         // country: 'us',       // Optional filter: only US news
@@ -77,24 +73,21 @@ async function fetchNews(page: string = ""): Promise<string> {
       response.config.params.page = page;
     }    
 
+    let retArticles = [];
     const articles = response.data.results;
     for (const article of articles) {
-        // console.log('ID:', article.article_id);
-        // console.log('Title:', article.title);
-        // console.log('Description:', article.description);
-        // console.log('---');
-
         // TODO: save API news article data to your own private data store for further uses
-        // await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE);
-
-        dailyArticles.push({ title: article.title, description: article.description })
+        if (await createPost<ArticleScheme>(article, DB_BLOG_POST_FILE)) {
+          // dailyArticles.push({ title: article.title, description: article.description })
+          retArticles.push({ title: article.title, description: article.description })
+        }        
     }    
 
     remainingTokens--;
-    return response.data.nextPage;
+    return [retArticles, response.data.nextPage.toString()];
   } catch (error) {
     console.error('Failed to fetch news:', error);
-    return "";
+    return [[], ""];
   }
 }
 

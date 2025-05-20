@@ -2,8 +2,13 @@ import { Link } from "react-router";
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import { getImageURLFromArticle } from "../../services/imageService";
 import { DEFAULT_IMAGE } from "../../services/imageService";
+
 import './FeaturedArticle.css'
 
+/**
+ * Component to show Home page Featured articles
+ * @param article - Article to be displayed as the featured article
+ */
 interface FeaturedArticleProps {
     /** Complete article data object */
     article: ArticleProps;
@@ -21,8 +26,6 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                         </p>}
                         <div className="featured-article-undertext">
                             <span className="author">By { article.author?.name }</span>
-                            {/* TODO: dont like this way of gapping things */}
-                            {" "}
                             <span className="timestamp">
                                 { article.timestamp ? new Date(article.timestamp).toLocaleDateString() : null }
                             </span>

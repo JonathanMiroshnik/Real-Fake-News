@@ -1,5 +1,8 @@
 import './Footer.css'
 
+/**
+ * Cross-site global footer component
+ */
 function Footer() {
   return (
     <footer className="site-footer">

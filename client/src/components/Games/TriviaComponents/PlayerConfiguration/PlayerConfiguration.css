@@ -1,5 +1,13 @@
 .trivia-player-configuration-title {
     color: var(--title-color);
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(244, 114, 182, 0.1) 100%);
+    border-radius: 0.5rem;
+    display: inline-block;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trivia-player-configuration-title-player-number {

@@ -1,31 +1,60 @@
 .player-highlights {
-    display: flex;
-    justify-content: center;
-
-    gap: 5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .player-card-wrapper {
-    padding: 2rem;
-
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     color: var(--title-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
 
-    /* 
-       The reason we keep an empty border here is to 
-       reduce jumpiness in design when the highlight changes to another player 
-        */
-    border-radius: 10px;
-    border-style: none;
+.player-card-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(120deg, rgba(99, 102, 241, 0.05) 0%, rgba(244, 114, 182, 0.05) 100%);
+    z-index: 0;
 }
 
 .current-player-highlight {
-    border-color: red;    
-    border-radius: 10px;
-    border-style: solid;
+    animation: player-pulse 2s infinite;
+    border: 2px solid;
+    border-image: linear-gradient(45deg, var(--trivia-primary), var(--trivia-secondary)) 1;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
 }
 
-/* --title-color: black;
-  --description-color: gray;
-  --undertext-color: black;
-  --border-separator-color: gray;
-  --border-big-separator-color: black; */
+@keyframes player-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.player-card-wrapper:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .player-highlights {
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .player-card-wrapper {
+        padding: 1rem;
+    }
+}

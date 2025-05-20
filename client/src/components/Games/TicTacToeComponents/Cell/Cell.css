@@ -36,8 +36,8 @@
   left: 50%;
 
   /* size of the circle */
-  width: 6rem;
-  height: 6rem;
+  width: 6em;
+  height: 6em;
 
   transform: translate(-50%, -50%);
   border: 2px solid red;
@@ -60,7 +60,7 @@
    font-size: 20px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5em) {
    .tictac-cell {
       width: 5rem;
    }

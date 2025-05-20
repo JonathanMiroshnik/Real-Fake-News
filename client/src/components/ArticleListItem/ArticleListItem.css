@@ -1,20 +1,20 @@
 .article-list-item {
-    max-height: 40rem;
-    max-width: 40rem;
+  max-height: 40rem;
+  max-width: 40rem;
 
-    /* TODO: like in BBC website, horizontal ArticleListItems should have bottom border indicating finish */
-    /* border-bottom: 1px;
-    border-color: gray;
-    border-bottom-style: solid; */
+  text-align: left;
 
-    text-align: left;  
+  /* TODO: like in BBC website, horizontal ArticleListItems should have bottom border indicating finish */
+  /* border-bottom: 1px;
+  border-color: gray;
+  border-bottom-style: solid; */    
 
-    /* TODO: for testing */
-    /* border: 1px solid red; */
+  /* TODO: for testing */
+  /* border: 1px solid red; */
 }
 
 .article-list-item-head-image {
-    width: 100%;
+  width: 100%;
 }
 
 /* From the BBC website, in an Article List Item, the font sizes are:
@@ -35,19 +35,13 @@ Undertext - 12px */
 }
 
 .article-list-item-undertext {
-    color: var(--undertext-color);
-    font-size: 12px;
-    text-align: center;
+  color: var(--undertext-color);
+  font-size: 12px;
+  text-align: center;
 }
 
-.article-list-item-title {
-    text-decoration: none;
-}
-
-.article-list-item-title:link {
-  text-decoration: none;
-}
-
+.article-list-item-title,
+.article-list-item-title:link,
 .article-list-item-title:visited {
   text-decoration: none;
 }
@@ -57,12 +51,8 @@ Undertext - 12px */
   text-decoration: underline;
 }
 
-/* TODO: the image shadow is a bit overbearing */
-/* .article-list-item-title:hover img {
-  filter: drop-shadow(0 0 1em #646cffaa);
-} */
-
 .article-list-item-title:hover img {
+  /* The image of the hovered article is slightly brightened */
   filter: brightness(1.1);
 }
 

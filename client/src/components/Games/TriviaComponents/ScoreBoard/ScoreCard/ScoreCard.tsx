@@ -1,5 +1,5 @@
 import { Player } from "../../TriviaGame/TriviaGame";
-// import './ScoreCard.css'
+import './ScoreCard.css'
 
 interface ScoreCardProps {
     player: Player;
@@ -8,12 +8,12 @@ interface ScoreCardProps {
 
 function ScoreCard({ player } : ScoreCardProps) {
     return (
-        <div>
+        <div className="score-card-container">
             { player ? 
             <>
-                <h1> {player.name} </h1>
-                <h2>Score:</h2>
-                <h2> {player.score} </h2>
+                <h1 className="player-name-text"> {player.name} </h1>
+                <h2 className="score-label">Score:</h2>
+                <h2 className="points-value"> {player.score} </h2>
             </>
             : null }            
         </div>

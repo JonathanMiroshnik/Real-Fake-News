@@ -1,6 +1,6 @@
 .cell_row {
   display: flex;
-  justify-content:center;
+  justify-content: center;
   flex-shrink: 0; /* don't shrink */
   flex-grow: 0;   /* don't grow */
   overflow: hidden;

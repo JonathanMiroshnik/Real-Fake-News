@@ -3,17 +3,19 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
+import apiRoutes from './routes/apiRoutes';
+import { initializeScheduledJobs } from './jobs/scheduler';
+
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
-
-import apiRoutes from './routes/apiRoutes';
-import { blogWritingManager } from './jobs/blogWriting.js';
-import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from './controllers/blogController.js';
 
 // TODO: change express use to get set etc?
 
 // Initialize express application
 const app = express();
+
+// Activating the recurring jobs
+initializeScheduledJobs();
 
 // Middleware pipeline
 app.use(cors({
@@ -56,8 +58,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
-
-// Recurring code jobs
-blogWritingManager(ONE_HOUR_MILLISECS * 8); // DAY_MILLISECS ONE_HOUR_MILLISECS
 
 export default app;

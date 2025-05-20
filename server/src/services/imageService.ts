@@ -88,8 +88,6 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     const filePath = path.join(imagesDir, filename);
     await fs.promises.writeFile(filePath, pngBuffer);
 
-    console.log("FILE",filename);
-
     return filename;
 }
 

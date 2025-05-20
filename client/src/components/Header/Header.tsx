@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import './Header.css'
@@ -23,7 +23,7 @@ interface HeaderProps {
  * - Applies consistent styling across viewports
  */
 function Header({ sections }: HeaderProps) {
-  const darkMode: boolean = useContext(DarkModeContext).dark
+  const darkMode: boolean = useContext(DarkModeContext).dark;
 
   return (
     <header className="site-header">
@@ -34,11 +34,28 @@ function Header({ sections }: HeaderProps) {
       </h1>
       <nav className="header-navbar-list">
         {sections.map((section) => (
-          <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>
-           <button className='nav-button' >
-              {section}
-           </button>
-          </Link>
+          // <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>
+          //  {/* <button className='nav-button' >
+          //     {section}
+          //  </button> */}
+          //  <div className="nav-a-link-wrapper">
+          //   <a className="nav-a-link">{section}</a>
+          //  </div>           
+          // </Link>
+          <NavLink 
+              key={"header_link_" + section}
+              to={`/category/${section.toLowerCase()}`}
+              className={({ isActive }) => 
+                `nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              {/* <button className='nav-button' >
+                {section}
+              </button> */}
+              <div className="nav-a-link-wrapper nav-a-link">
+                {section}
+              </div>  
+          </NavLink>
         ))}
       </nav>
     </header>

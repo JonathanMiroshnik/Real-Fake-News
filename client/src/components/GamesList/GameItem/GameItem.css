@@ -14,7 +14,6 @@
 
 .game-item-image {
     width: 100px;
-    /* height: 64px; */
     margin: 10px;
     margin-left: auto;    
 }
@@ -23,11 +22,9 @@
     text-align: left;
 }
 
-/* TODO: I need more universal color categories for the website */
 .game-item-title {
     color: var(--title-color);
     font-size: large;
-    
 }
 
 .game-item-description {

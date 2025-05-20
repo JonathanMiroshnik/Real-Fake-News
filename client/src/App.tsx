@@ -7,16 +7,19 @@ import { Helmet } from 'react-helmet';
 
 import Layout from './components/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
+
 import ArticlePage from './pages/ArticlePage/ArticlePage';
 import CategoryPage from './pages/CategoryPage/CategoryPage';
 import WriterPage from './pages/WriterPage/WriterPage';
 
-import './App.css'
 import ContactPage from './pages/ContactPage/ContactPage';
 import TermsPage from './pages/TermsPage/TermsPage';
 import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
+
 import TicTacToeGame from './components/Games/TicTacToeComponents/Game/TicTacToeGame';
 import TriviaGame from './components/Games/TriviaComponents/TriviaGame/TriviaGame';
+
+import './App.css'
 
 function App() {
   return (

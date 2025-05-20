@@ -22,16 +22,18 @@ type Schema<T extends Post> = {
 // CRUD OPERATIONS //
 
 // Create - Add new post
-export async function createPost<T extends Post>(post: T, dbFile: string) {
+export async function createPost<T extends Post>(post: T, dbFile: string): Promise<boolean> {
   const db = await JSONFilePreset<Schema<T>>(dbFile, { posts: [] });
   // Check for existing ID
   const exists = db.data.posts.some(p => p.key === post.key);
   if (exists) {
     // TODO: figure out way to print the problematic key?
-    throw new Error(`Post with provided key already exists`);
+    // throw new Error(`Post with provided key already exists`);
+    return false;
   }
 
   await db.update(({ posts }) => posts.push(post));
+  return true;
 }
 
 // Read - Get all posts

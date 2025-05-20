@@ -1,9 +1,9 @@
 .featured-article {
     display: flex;
-    gap: 5rem;
     margin-bottom: 2rem;
     border-bottom: 2px solid #eee;
     padding-bottom: 2rem;
+    gap: 5rem;    
 }
 
 .featured-article:hover .featured-article-title {
@@ -16,7 +16,7 @@
 
 .featured-article-title {
     color: var(--title-color);
-    font-size: 28px;    
+    font-size: 28px;
 }
 
 .featured-article-description {
@@ -25,6 +25,9 @@
 }
 
 .featured-article-undertext {
+    display: inline-flex;
+    gap: 0.5rem;
+
     color: var(--undertext-color);
     text-align: center;
     font-size: 13px;    
@@ -35,21 +38,16 @@
 }
 
 .featured-article-image {
-    /* width: 40rem; */
     width: 200%;
 }
 
-@media (max-width: 600px) {
+/* Chose to use em for media queries, reasoning: https://zellwk.com/blog/media-query-units/ */
+@media (max-width: 37.5em) {
     .featured-article {
-        display: block;
-        gap: 5rem;
-        margin-bottom: 2rem;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 2rem;
+        display: block; 
     }
 
     .featured-article-image {
-        /* width: 40rem; */
         width: 100%;
     }
 }

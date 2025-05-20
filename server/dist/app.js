@@ -7,14 +7,15 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
+const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
+const scheduler_1 = require("./jobs/scheduler");
 // import rateLimit from 'express-rate-limit';
 // import mongoose from 'mongoose';
-const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
-const blogWriting_js_1 = require("./jobs/blogWriting.js");
-const blogController_js_1 = require("./controllers/blogController.js");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
+// Activating the recurring jobs
+(0, scheduler_1.initializeScheduledJobs)();
 // Middleware pipeline
 app.use((0, cors_1.default)({
     origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
@@ -51,7 +52,5 @@ app.use((err, req, res, next) => {
         message: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
 });
-// Recurring code jobs
-(0, blogWriting_js_1.blogWritingManager)(blogController_js_1.ONE_HOUR_MILLISECS * 8); // DAY_MILLISECS ONE_HOUR_MILLISECS
 exports.default = app;
 //# sourceMappingURL=app.js.map

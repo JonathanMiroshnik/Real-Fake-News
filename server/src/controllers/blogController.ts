@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
-import { BlogRequest, BlogResponse } from '../types/article.js';
-import { getAllPostsAfterDate } from '../services/blogService.js';
+import { BlogResponse } from '../types/article.js';
+import { getPostsAfterDate } from '../services/blogService.js';
+import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
 
-
-// Calculated in milliseconds
-export const DAY_MILLISECS = 24 * 60 * 60 * 1000;
-export const ONE_HOUR_MILLISECS = 60 * 60 * 1000;;
-
+// TODO: some functions need to be combined here
 // Currently set up to pull only the DAILY blog posts, the request does not matter
 export const pullBlogs = async (req: Request, res: Response) => {
     console.log('Pulling blogs!');
@@ -18,17 +15,6 @@ export const pullBlogs = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Analysis failed' });
     }
 };
-
-// TODO: too small a function but useful in other places.
-export async function getPostsAfterDate(afterDate: Date): Promise<BlogResponse> {
-    const request: BlogRequest = {
-        writer: "",
-        afterDate: afterDate
-    };
-    
-    const result: BlogResponse = await getAllPostsAfterDate(request.afterDate);
-    return result;
-}
 
 export async function pullHourlyBlogs(req: Request, res: Response) {
     console.log('Pulling hourly blogs!');

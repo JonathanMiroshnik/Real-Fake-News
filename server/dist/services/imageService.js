@@ -33,7 +33,7 @@ async function initializeRunware() {
     await runware.ensureConnection();
     return true;
 }
-async function generateImage(positivePrompt) {
+async function generateImage(positivePrompt, format = "WEBP") {
     if (!SERVICE_ACTIVATED) {
         return DEFAULT_IMAGE_NAME;
     }
@@ -49,7 +49,7 @@ async function generateImage(positivePrompt) {
         model: "runware:100@1", // FLUX Schnell => 16k images for 10$
         numberResults: 1,
         outputType: "dataURI", //"URL" | "base64Data";
-        outputFormat: "WEBP", //"JPG" "WEBP"; // TODO: use webp?
+        outputFormat: format, //"JPG" "WEBP"; // TODO: use webp?
         checkNSFW: true,
         // strength
         steps: 20,
@@ -78,7 +78,6 @@ async function saveDataURIToPNG(dataURI) {
     const filename = `img-${(0, uuid_1.v4)()}.png`;
     const filePath = path_1.default.join(imagesDir, filename);
     await fs_1.default.promises.writeFile(filePath, pngBuffer);
-    console.log("FILE", filename);
     return filename;
 }
 const saveDataUriAsWebp = async (dataUri) => {
@@ -105,9 +104,13 @@ async function generateAndSaveImage(positivePrompt) {
     if (!SERVICE_ACTIVATED) {
         return DEFAULT_IMAGE_NAME;
     }
-    const dataURI = await generateImage(positivePrompt);
-    // const retImgName = await saveDataURIToPNG(dataURI);
-    const retImgName = await (0, exports.saveDataUriAsWebp)(dataURI);
-    return retImgName;
+    const format = "WEBP";
+    const dataURI = await generateImage(positivePrompt, format);
+    if (format === "WEBP") {
+        return await (0, exports.saveDataUriAsWebp)(dataURI);
+    }
+    else {
+        return await saveDataURIToPNG(dataURI);
+    }
 }
 //# sourceMappingURL=imageService.js.map

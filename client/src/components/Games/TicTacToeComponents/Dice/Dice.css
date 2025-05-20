@@ -1,21 +1,22 @@
 .dice {
   position: relative;
   color: var(--title-color);
-  /* or block, depending on your layout */
-  /* display: inline-block; */
 }
 
-.dice-ghost,
-.dice-main {
-  position: absolute;
+.dice-main,
+.dice-ghost {
   top: 0;
   left: 0;
 }
 
+.dice-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* The ghost die is exactly behind the main die */
 .dice-ghost {
   position: absolute;
-  top: 0;
-  left: 0;
   z-index: 0;
   opacity: 0.5;
   pointer-events: none;
@@ -25,12 +26,11 @@
   animation: growThenDisappear 0.5s ease forwards;
 }
 
-.dice-main {
-  position: relative;
-  z-index: 1;
+.dice-ghost.animate {
+  animation: growThenDisappear 0.5s ease forwards;
 }
 
-
+/* An animation that makes the ghost die grow slightly behind the regular die */
 @keyframes growThenDisappear {
   0% {
     transform: scale(1);
@@ -40,17 +40,4 @@
     transform: scale(1.3);
     opacity: 0;
   }
-}
-
-.dice-ghost {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.dice-ghost.animate {
-  animation: growThenDisappear 0.5s ease forwards;
 }

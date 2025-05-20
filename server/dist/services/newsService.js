@@ -3,29 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getArticles = getArticles;
-exports.resetArticles = resetArticles;
 exports.addNewsToTotal = addNewsToTotal;
 require("dotenv/config");
 const axios_1 = __importDefault(require("axios"));
 const node_cron_1 = __importDefault(require("node-cron"));
-const BASE_URL = 'https://newsdata.io/api/1/news';
-const DAILY_TOKENS = 200;
-const NUM_OF_ARTICLES_PER_TOKEN = 10;
+const constants_1 = require("../config/constants");
+const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
 // TODO: like this, it will be restarted every time we start up the project again
-var remainingTokens = DAILY_TOKENS;
-var dailyArticles = [];
+var remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
 node_cron_1.default.schedule('0 0 * * *', () => {
-    remainingTokens = DAILY_TOKENS;
-    resetArticles();
+    remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
     console.log('Daily tokens reset.');
 });
-function getArticles() {
-    return dailyArticles;
-}
-function resetArticles() {
-    dailyArticles = [];
-}
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.
 async function addNewsToTotal(numArticles = 10) {
     // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
@@ -33,18 +22,23 @@ async function addNewsToTotal(numArticles = 10) {
     if (remainingTokens <= 0) {
         throw new Error("No more tokens remaining.");
     }
-    if (remainingTokens * NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
+    if (remainingTokens * constants_1.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
         throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
     }
-    let neededApiRequests = Math.ceil(numArticles / NUM_OF_ARTICLES_PER_TOKEN);
+    let neededApiRequests = Math.ceil(numArticles / constants_1.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
     let nextPage = "";
+    let retArticles = [];
+    let gatherPage;
     for (let i = 0; i < neededApiRequests; i++) {
-        nextPage = await fetchNews(nextPage);
+        [retArticles, gatherPage] = await fetchNews(nextPage);
+        nextPage = gatherPage;
         if (nextPage === "") {
-            return false;
+            console.log("EMPTY");
+            return [];
         }
     }
-    return true;
+    console.log("FULL", retArticles);
+    return retArticles;
 }
 /**
  * Performs one news API call and adds the articles to the total.
@@ -53,8 +47,11 @@ async function addNewsToTotal(numArticles = 10) {
  * @returns {string} The next page in the current news page that we could pull from.
  */
 async function fetchNews(page = "") {
+    if (remainingTokens <= 0) {
+        throw new Error("No more tokens remaining to do another API call.");
+    }
     try {
-        const response = await axios_1.default.get(BASE_URL, {
+        const response = await axios_1.default.get(constants_1.NEWS_API_BASE_URL, {
             params: {
                 apikey: process.env.NEWSDATA_API_KEY,
                 // country: 'us',       // Optional filter: only US news
@@ -65,22 +62,21 @@ async function fetchNews(page = "") {
         if (page !== "") {
             response.config.params.page = page;
         }
+        let retArticles = [];
         const articles = response.data.results;
         for (const article of articles) {
-            // console.log('ID:', article.article_id);
-            // console.log('Title:', article.title);
-            // console.log('Description:', article.description);
-            // console.log('---');
             // TODO: save API news article data to your own private data store for further uses
-            // await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE);
-            dailyArticles.push({ title: article.title, description: article.description });
+            if (await (0, lowdbOperations_js_1.createPost)(article, constants_1.DB_BLOG_POST_FILE)) {
+                // dailyArticles.push({ title: article.title, description: article.description })
+                retArticles.push({ title: article.title, description: article.description });
+            }
         }
         remainingTokens--;
-        return response.data.nextPage;
+        return [retArticles, response.data.nextPage.toString()];
     }
     catch (error) {
         console.error('Failed to fetch news:', error);
-        return "";
+        return [[], ""];
     }
 }
 //# sourceMappingURL=newsService.js.map

@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { getLatestTime } from '../../services/timeService';
+
 import './ArticleListItem.css'
 
 /**
@@ -38,7 +39,7 @@ function ArticleListItem({article, showImage=true, showDescription=true, showUnd
                     {article.shortDescription}
                 </p> }
                 {showUnderText && <div className="article-list-item-undertext">
-                    { article.author?.name  +  " " + "|" + " " +
+                    { article.author?.name + " | " +
                         (article.timestamp ? 
                             getLatestTime(new Date().getTime() - new Date(article.timestamp).getTime()) 
                         : "")
