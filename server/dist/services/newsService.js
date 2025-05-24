@@ -31,13 +31,12 @@ async function addNewsToTotal(numArticles = 10) {
     let gatherPage;
     for (let i = 0; i < neededApiRequests; i++) {
         [retArticles, gatherPage] = await fetchNews(nextPage);
+        console.log("ret articles", retArticles.length, "page", gatherPage);
         nextPage = gatherPage;
         if (nextPage === "") {
-            console.log("EMPTY");
             return [];
         }
     }
-    console.log("FULL", retArticles);
     return retArticles;
 }
 /**
@@ -62,17 +61,19 @@ async function fetchNews(page = "") {
         if (page !== "") {
             response.config.params.page = page;
         }
-        let retArticles = [];
+        var retArticles = [];
         const articles = response.data.results;
+        console.log("cur articles:", articles.length);
         for (const article of articles) {
             // TODO: save API news article data to your own private data store for further uses
             if (await (0, lowdbOperations_js_1.createPost)(article, constants_1.DB_BLOG_POST_FILE)) {
+                console.log("hello");
                 // dailyArticles.push({ title: article.title, description: article.description })
                 retArticles.push({ title: article.title, description: article.description });
             }
         }
         remainingTokens--;
-        return [retArticles, response.data.nextPage.toString()];
+        return [[...retArticles], response.data.nextPage.toString()];
     }
     catch (error) {
         console.error('Failed to fetch news:', error);

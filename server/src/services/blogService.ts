@@ -1,8 +1,12 @@
 import 'dotenv/config'
 
-import { getAllPosts } from '../lib/lowdb/lowdbOperations.js';
-import { DB_BLOG_POST_FILE } from '../config/constants.js';
-import { ArticleScheme, BlogResponse } from '../types/article.js';
+import { DB_BLOG_POST_FILE, DB_FEATURED_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from '../config/constants.js';
+import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
+import { Writer } from "../types/writer.js";
+import { generateTextFromString } from "../controllers/llmController.js";
+import { getAllPosts, createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations.js";
+import { addNewsToTotal, NewsItem } from "../services/newsService.js";
+import { generateAndSaveImage } from "../services/imageService.js";
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
     const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(DB_BLOG_POST_FILE);
@@ -27,31 +31,8 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
     };
 }
 
-
-/// ----------------------------------------------------------------------------------------------------
-
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
-
-import { Writer } from "../types/writer.js";
-import { FeaturedArticleScheme } from "../types/article.js";
-import { generateTextFromString } from "../controllers/llmController.js";
-import { createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations.js";
-import { DB_FEATURED_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from "../config/constants.js";
-import { addNewsToTotal, NewsItem } from "../services/newsService.js";
-import { generateAndSaveImage } from "../services/imageService.js";
-import { BlogRequest } from '../types/article.js';
-
-// TODO: too small a function but useful in other places.
-export async function getPostsAfterDate(afterDate: Date): Promise<BlogResponse> {
-    const request: BlogRequest = {
-        writer: "",
-        afterDate: afterDate
-    };
-    
-    const result: BlogResponse = await getAllPostsAfterDate(request.afterDate);
-    return result;
-}
 
 export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }, saveArticle: boolean = true) {
     const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
@@ -60,6 +41,7 @@ export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = 
         return;
     }
 
+    // Add new AI news article to AI news article database
     await createPost<ArticleScheme>(newArticle, DB_BLOG_POST_FILE);
     return newArticle;
 }
@@ -89,6 +71,8 @@ async function createArticle(writer: Writer, currentNewsItem: NewsItem = { title
 
     return newArticle;
 }
+
+// ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
 // TODO: choose random assortment of writers?
 // TODO: make special featured article prompt
@@ -129,8 +113,6 @@ async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsIte
     
     return newFeaturedArticle;
 }
-
-// ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
 // import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 // // import { ChatDeepSeek } from "@langchain/deepseek";

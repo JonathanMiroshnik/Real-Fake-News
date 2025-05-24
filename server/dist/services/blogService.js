@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPostsAfterDate = getAllPostsAfterDate;
-exports.getPostsAfterDate = getPostsAfterDate;
 exports.writeBlogPost = writeBlogPost;
 require("dotenv/config");
-const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
 const constants_js_1 = require("../config/constants.js");
+const llmController_js_1 = require("../controllers/llmController.js");
+const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
+const imageService_js_1 = require("../services/imageService.js");
 async function getAllPostsAfterDate(startDate) {
     const allArticles = await (0, lowdbOperations_js_1.getAllPosts)(constants_js_1.DB_BLOG_POST_FILE);
     const retArticles = allArticles.filter(article => {
@@ -27,26 +28,16 @@ async function getAllPostsAfterDate(startDate) {
         error: ""
     };
 }
-const llmController_js_1 = require("../controllers/llmController.js");
-const lowdbOperations_js_2 = require("../lib/lowdb/lowdbOperations.js");
-const constants_js_2 = require("../config/constants.js");
-const imageService_js_1 = require("../services/imageService.js");
-// TODO: too small a function but useful in other places.
-async function getPostsAfterDate(afterDate) {
-    const request = {
-        writer: "",
-        afterDate: afterDate
-    };
-    const result = await getAllPostsAfterDate(request.afterDate);
-    return result;
-}
+// TODO: add content filter step that will check for violence/bigotry in the original articles 
+//  and will eliminate them as useful thus.
 async function writeBlogPost(writer, currentNewsItem = { title: "", description: "" }, saveArticle = true) {
     const prompt = writeBlogPostPrompt(writer, currentNewsItem);
     const newArticle = await createArticle(writer, currentNewsItem, prompt);
     if (newArticle === undefined) {
         return;
     }
-    await (0, lowdbOperations_js_2.createPost)(newArticle, constants_js_1.DB_BLOG_POST_FILE);
+    // Add new AI news article to AI news article database
+    await (0, lowdbOperations_js_1.createPost)(newArticle, constants_js_1.DB_BLOG_POST_FILE);
     return newArticle;
 }
 async function createArticle(writer, currentNewsItem = { title: "", description: "" }, prompt) {
@@ -59,7 +50,7 @@ async function createArticle(writer, currentNewsItem = { title: "", description:
     const parsedData = JSON.parse(result.generatedText);
     const imgName = await (0, imageService_js_1.generateAndSaveImage)(parsedData.prompt);
     const newArticle = {
-        key: (0, lowdbOperations_js_2.getUniqueKey)(),
+        key: (0, lowdbOperations_js_1.getUniqueKey)(),
         content: parsedData.content,
         author: writer,
         title: parsedData.title,
@@ -71,6 +62,7 @@ async function createArticle(writer, currentNewsItem = { title: "", description:
     };
     return newArticle;
 }
+// ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 // TODO: choose random assortment of writers?
 // TODO: make special featured article prompt
 async function createFeaturedArticle(writers, currentNewsItem = { title: "", description: "" }, prompt) {
@@ -91,7 +83,7 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
     const parsedData = JSON.parse(result.generatedText);
     const imgName = await (0, imageService_js_1.generateAndSaveImage)(parsedData.prompt);
     const newFeaturedArticle = {
-        key: (0, lowdbOperations_js_2.getUniqueKey)(),
+        key: (0, lowdbOperations_js_1.getUniqueKey)(),
         content: currentArticles,
         author: writers,
         title: parsedData.title,
@@ -101,10 +93,9 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
         shortDescription: parsedData.shortDescription,
         headImage: imgName
     };
-    await (0, lowdbOperations_js_2.createPost)(newFeaturedArticle, constants_js_2.DB_FEATURED_BLOG_POST_FILE);
+    await (0, lowdbOperations_js_1.createPost)(newFeaturedArticle, constants_js_1.DB_FEATURED_BLOG_POST_FILE);
     return newFeaturedArticle;
 }
-// ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 // import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 // // import { ChatDeepSeek } from "@langchain/deepseek";
 // // LangChain chat models for each writer
@@ -147,7 +138,7 @@ function writeBlogPostPrompt(writer, currentNewsItem = { title: "", description:
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_js_2.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
@@ -240,7 +231,7 @@ function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { title: "", d
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_js_2.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(editor.name !== "" ? "Your name is " + editor.name + "." : "")}\n
     ${(editor.description !== "" ? "Your description is " + editor.description + "." : "")}\n
@@ -330,7 +321,7 @@ function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { title: "", d
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${constants_js_2.VALID_CATEGORIES.join(', ')}\n\n
+    ${constants_js_1.VALID_CATEGORIES.join(', ')}\n\n
     
     ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
     ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n

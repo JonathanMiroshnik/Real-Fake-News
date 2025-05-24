@@ -10,7 +10,7 @@ const constants_js_1 = require("../config/constants.js");
 const pullBlogs = async (req, res) => {
     console.log('Pulling blogs!');
     try {
-        const result = await (0, blogService_js_1.getPostsAfterDate)(new Date(Date.now() - constants_js_1.DAY_MILLISECS));
+        const result = await (0, blogService_js_1.getAllPostsAfterDate)(new Date(Date.now() - constants_js_1.DAY_MILLISECS));
         res.json(result);
     }
     catch (error) {
@@ -21,7 +21,7 @@ exports.pullBlogs = pullBlogs;
 async function pullHourlyBlogs(req, res) {
     console.log('Pulling hourly blogs!');
     try {
-        const result = await (0, blogService_js_1.getPostsAfterDate)(new Date(Date.now() - constants_js_1.ONE_HOUR_MILLISECS));
+        const result = await (0, blogService_js_1.getAllPostsAfterDate)(new Date(Date.now() - constants_js_1.ONE_HOUR_MILLISECS));
         res.json(result);
     }
     catch (error) {
@@ -35,7 +35,7 @@ async function pullBlogsByMinute(req, res) {
             res.status(400).json({ error: 'Invalid minute value' });
             return;
         }
-        const result = await (0, blogService_js_1.getPostsAfterDate)(new Date(Date.now() - minutes * 60 * 1000));
+        const result = await (0, blogService_js_1.getAllPostsAfterDate)(new Date(Date.now() - minutes * 60 * 1000));
         res.json(result);
     }
     catch (error) {

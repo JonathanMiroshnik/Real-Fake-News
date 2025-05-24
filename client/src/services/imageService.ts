@@ -5,11 +5,11 @@ import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 // TODO: make a constant file that contains this one
 let VITE_API_BASE: string = "";
 if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
-    VITE_API_BASE = "http://localhost:5001";
+    VITE_API_BASE = "http://localhost:5000";
 }
 else {
     VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
-                "http://localhost:5001" : 
+                "http://localhost:5000" : 
                 "https://real.sensorcensor.xyz";
 }
                     

@@ -6,6 +6,7 @@ import { Router, Request, Response } from 'express';
 // import llmRoutes from './llmRoutes.js';
 import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js'
 import blogRoutes from './blogRoutes.js'
+import authRoutes from "./auth.js";
 
 const router = Router();
 
@@ -18,6 +19,9 @@ router.use('/trivia', triviaRoutes);
 
 // Getting daily news
 router.use('/blogs', blogRoutes);
+
+// TODO: auth test
+router.use('/auth', authRoutes);
 
 // Health check endpoint
 router.get('/health', (req: Request, res: Response) => {

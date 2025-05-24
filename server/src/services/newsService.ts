@@ -4,6 +4,7 @@ import axios from 'axios';
 import cron from 'node-cron';
 
 import { DB_BLOG_POST_FILE, 
+          DB_NEWS_DATA_FILE, 
           NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants';
 import { createPost } from '../lib/lowdb/lowdbOperations.js';
 import { ArticleScheme } from '../types/article.js';
@@ -40,6 +41,7 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem
   let gatherPage: string;
   for (let i = 0; i < neededApiRequests; i++) {
     [retArticles, gatherPage] = await fetchNews(nextPage);
+    console.log("ret articles", retArticles.length, "page", gatherPage);
     nextPage = gatherPage;
     if (nextPage === "") {
       return [];
@@ -73,18 +75,19 @@ async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], n
       response.config.params.page = page;
     }    
 
-    let retArticles = [];
+    var retArticles = [];
     const articles = response.data.results;
+    console.log("cur articles:",articles.length);
     for (const article of articles) {
         // TODO: save API news article data to your own private data store for further uses
-        if (await createPost<ArticleScheme>(article, DB_BLOG_POST_FILE)) {
+        if (await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE)) {
           // dailyArticles.push({ title: article.title, description: article.description })
           retArticles.push({ title: article.title, description: article.description })
         }        
     }    
 
     remainingTokens--;
-    return [retArticles, response.data.nextPage.toString()];
+    return [[...retArticles], response.data.nextPage.toString()];
   } catch (error) {
     console.error('Failed to fetch news:', error);
     return [[], ""];
