@@ -1,8 +1,8 @@
-import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE } from "../../config/constants";
-import { NewsItem } from "../../services/newsService";
-import { ArticleScheme } from "../../types/article";
-import { Schema } from "./lowdbOperations";
 import { JSONFilePreset } from 'lowdb/node'
+import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE } from "../../config/constants";
+import { NewsItem } from "../../services/newsService.js";
+import { ArticleScheme } from "../../types/article.js";
+import { Schema } from "./lowdbOperations.js";
 
 // Configuration for a database that holds data of type P
 export interface DatabaseConfig<P> {

@@ -8,7 +8,7 @@ require("dotenv/config");
 const axios_1 = __importDefault(require("axios"));
 const node_cron_1 = __importDefault(require("node-cron"));
 const constants_1 = require("../config/constants");
-const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
+const llmService_js_1 = require("./llmService.js");
 // TODO: like this, it will be restarted every time we start up the project again
 var remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
 node_cron_1.default.schedule('0 0 * * *', () => {
@@ -31,7 +31,7 @@ async function addNewsToTotal(numArticles = 10) {
     let gatherPage;
     for (let i = 0; i < neededApiRequests; i++) {
         [retArticles, gatherPage] = await fetchNews(nextPage);
-        console.log("ret articles", retArticles.length, "page", gatherPage);
+        // console.log("ret articles", retArticles.length, "page", gatherPage);
         nextPage = gatherPage;
         if (nextPage === "") {
             return [];
@@ -63,14 +63,24 @@ async function fetchNews(page = "") {
         }
         var retArticles = [];
         const articles = response.data.results;
-        console.log("cur articles:", articles.length);
+        // console.log("cur articles:",articles.length);
         for (const article of articles) {
             // TODO: save API news article data to your own private data store for further uses
-            if (await (0, lowdbOperations_js_1.createPost)(article, constants_1.DB_BLOG_POST_FILE)) {
-                console.log("hello");
-                // dailyArticles.push({ title: article.title, description: article.description })
+            // if (await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE)) {
+            // dailyArticles.push({ title: article.title, description: article.description })
+            // TODO: add topics filter list in .env or outside in general
+            const questionPrompt = `
+        Is the following article title and/or description related to the following topics?\n
+        Topics: Israel, Gaza, IDF\n
+        Article Title: ${article.title}\n
+        Article Description: ${article.description}\n
+      `;
+            const boolResponse = await (0, llmService_js_1.getBooleanResponse)(questionPrompt);
+            console.log("Is this related?", boolResponse);
+            if (!boolResponse) {
                 retArticles.push({ title: article.title, description: article.description });
             }
+            // }        
         }
         remainingTokens--;
         return [[...retArticles], response.data.nextPage.toString()];

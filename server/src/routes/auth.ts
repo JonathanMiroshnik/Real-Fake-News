@@ -1,11 +1,11 @@
-import { Router } from 'express';
-import { breakupAuth } from '../controllers/authController';
-import dotenv from 'dotenv';
+// import { Router } from 'express';
+// import { breakupAuth } from '../controllers/authController';
+// import dotenv from 'dotenv';
 
-dotenv.config();
+// dotenv.config();
 
-const router = Router();
+// const router = Router();
 
-router.post('/google', breakupAuth);
+// router.post('/google', breakupAuth);
 
-export default router;
+// export default router;

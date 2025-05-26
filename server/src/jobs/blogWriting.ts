@@ -11,14 +11,14 @@ import { getRandomWriter } from "../services/writerService.js";
 async function generateScheduledArticles(writingInterval: number) {
     const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - writingInterval));
     let newArticlesNeeded: number = MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
-    console.log("new articles needed:", newArticlesNeeded);
+    // console.log("new articles needed:", newArticlesNeeded);
     if (newArticlesNeeded <= 0) {
         return;
     }    
 
     // TODO: getting extra articles than needed but maybe unneeded...
     const currentNews: NewsItem[] = await addNewsToTotal(newArticlesNeeded * 2);
-    console.log("current News:", currentNews.length);
+    // console.log("current News:", currentNews.length);
     if (currentNews.length == 0) {
         return;
     }

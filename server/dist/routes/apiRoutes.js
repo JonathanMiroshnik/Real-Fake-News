@@ -10,7 +10,7 @@ const express_1 = require("express");
 // import llmRoutes from './llmRoutes.js';
 const triviaRoutes_js_1 = __importDefault(require("../lib/TriviaGameBackend/routes/triviaRoutes.js"));
 const blogRoutes_js_1 = __importDefault(require("./blogRoutes.js"));
-const auth_js_1 = __importDefault(require("./auth.js"));
+// import authRoutes from "./auth.js";
 const router = (0, express_1.Router)();
 // Mount each sub-route under its respective path
 // app.use('/intelligence', gameIntelligenceRoutes);
@@ -20,7 +20,7 @@ router.use('/trivia', triviaRoutes_js_1.default);
 // Getting daily news
 router.use('/blogs', blogRoutes_js_1.default);
 // TODO: auth test
-router.use('/auth', auth_js_1.default);
+// router.use('/auth', authRoutes);
 // Health check endpoint
 router.get('/health', (req, res) => {
     res.status(200).json({

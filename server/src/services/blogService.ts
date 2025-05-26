@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { DB_BLOG_POST_FILE, DB_FEATURED_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from '../config/constants.js';
 import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
 import { Writer } from "../types/writer.js";
-import { generateTextFromString } from "../controllers/llmController.js";
+import { generateTextFromString } from './llmService.js';
 import { getAllPosts, createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations.js";
 import { addNewsToTotal, NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";

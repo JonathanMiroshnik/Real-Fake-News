@@ -8,6 +8,7 @@ import { DB_BLOG_POST_FILE,
           NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants';
 import { createPost } from '../lib/lowdb/lowdbOperations.js';
 import { ArticleScheme } from '../types/article.js';
+import { getBooleanResponse } from './llmService.js';
 
 // TODO: like this, it will be restarted every time we start up the project again
 var remainingTokens: number = NEWS_API_DAILY_TOKENS;
@@ -41,7 +42,7 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem
   let gatherPage: string;
   for (let i = 0; i < neededApiRequests; i++) {
     [retArticles, gatherPage] = await fetchNews(nextPage);
-    console.log("ret articles", retArticles.length, "page", gatherPage);
+    // console.log("ret articles", retArticles.length, "page", gatherPage);
     nextPage = gatherPage;
     if (nextPage === "") {
       return [];
@@ -77,13 +78,27 @@ async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], n
 
     var retArticles = [];
     const articles = response.data.results;
-    console.log("cur articles:",articles.length);
+    // console.log("cur articles:",articles.length);
     for (const article of articles) {
         // TODO: save API news article data to your own private data store for further uses
-        if (await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE)) {
+        // if (await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE)) {
           // dailyArticles.push({ title: article.title, description: article.description })
-          retArticles.push({ title: article.title, description: article.description })
-        }        
+      
+      // TODO: add topics filter list in .env or outside in general
+      const questionPrompt = `
+        Is the following article title and/or description related to the following topics?\n
+        Topics: Israel, Gaza, IDF\n
+        Article Title: ${article.title}\n
+        Article Description: ${article.description}\n
+      `;
+
+      // TODO: perhaps 10 articles at once and remove the ones that dont work out and basically return a 10 long json boolean check? 
+      const boolResponse: boolean = await getBooleanResponse(questionPrompt);
+      console.log("Is this related?", boolResponse);
+      if (!boolResponse) {
+        retArticles.push({ title: article.title, description: article.description })
+      }      
+        // }        
     }    
 
     remainingTokens--;
@@ -93,4 +108,3 @@ async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], n
     return [[], ""];
   }
 }
-

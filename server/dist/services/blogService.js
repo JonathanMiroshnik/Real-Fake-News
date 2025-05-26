@@ -4,7 +4,7 @@ exports.getAllPostsAfterDate = getAllPostsAfterDate;
 exports.writeBlogPost = writeBlogPost;
 require("dotenv/config");
 const constants_js_1 = require("../config/constants.js");
-const llmController_js_1 = require("../controllers/llmController.js");
+const llmService_js_1 = require("./llmService.js");
 const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
 const imageService_js_1 = require("../services/imageService.js");
 async function getAllPostsAfterDate(startDate) {
@@ -42,7 +42,7 @@ async function writeBlogPost(writer, currentNewsItem = { title: "", description:
 }
 async function createArticle(writer, currentNewsItem = { title: "", description: "" }, prompt) {
     console.log("Generating new article");
-    const result = await (0, llmController_js_1.generateTextFromString)(prompt, 'json_object');
+    const result = await (0, llmService_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");
         return;
@@ -75,7 +75,7 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
         currentArticles.push(currentArticle);
     }
     console.log("Generating new article");
-    const result = await (0, llmController_js_1.generateTextFromString)(prompt, 'json_object');
+    const result = await (0, llmService_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");
         return;

@@ -10,13 +10,13 @@ const writerService_js_1 = require("../services/writerService.js");
 async function generateScheduledArticles(writingInterval) {
     const result = await (0, blogService_js_1.getAllPostsAfterDate)(new Date(Date.now() - writingInterval));
     let newArticlesNeeded = constants_js_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
-    console.log("new articles needed:", newArticlesNeeded);
+    // console.log("new articles needed:", newArticlesNeeded);
     if (newArticlesNeeded <= 0) {
         return;
     }
     // TODO: getting extra articles than needed but maybe unneeded...
     const currentNews = await (0, newsService_js_1.addNewsToTotal)(newArticlesNeeded * 2);
-    console.log("current News:", currentNews.length);
+    // console.log("current News:", currentNews.length);
     if (currentNews.length == 0) {
         return;
     }
