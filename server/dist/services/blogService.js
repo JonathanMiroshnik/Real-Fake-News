@@ -4,11 +4,12 @@ exports.getAllPostsAfterDate = getAllPostsAfterDate;
 exports.writeBlogPost = writeBlogPost;
 require("dotenv/config");
 const constants_js_1 = require("../config/constants.js");
+const databaseConfigurations_js_1 = require("../lib/lowdb/databaseConfigurations.js");
 const llmService_js_1 = require("./llmService.js");
 const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
 const imageService_js_1 = require("../services/imageService.js");
 async function getAllPostsAfterDate(startDate) {
-    const allArticles = await (0, lowdbOperations_js_1.getAllPosts)(constants_js_1.DB_BLOG_POST_FILE);
+    const allArticles = await (0, lowdbOperations_js_1.getAllPosts)(databaseConfigurations_js_1.blogDatabaseConfig);
     const retArticles = allArticles.filter(article => {
         if (!article.timestamp)
             return false;
@@ -30,17 +31,17 @@ async function getAllPostsAfterDate(startDate) {
 }
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
-async function writeBlogPost(writer, currentNewsItem = { title: "", description: "" }, saveArticle = true) {
+async function writeBlogPost(writer, currentNewsItem = { article_id: "", title: "", description: "" }, saveArticle = true) {
     const prompt = writeBlogPostPrompt(writer, currentNewsItem);
     const newArticle = await createArticle(writer, currentNewsItem, prompt);
     if (newArticle === undefined) {
         return;
     }
     // Add new AI news article to AI news article database
-    await (0, lowdbOperations_js_1.createPost)(newArticle, constants_js_1.DB_BLOG_POST_FILE);
+    await (0, lowdbOperations_js_1.createPost)(newArticle, databaseConfigurations_js_1.blogDatabaseConfig);
     return newArticle;
 }
-async function createArticle(writer, currentNewsItem = { title: "", description: "" }, prompt) {
+async function createArticle(writer, currentNewsItem = { article_id: "", title: "", description: "" }, prompt) {
     console.log("Generating new article");
     const result = await (0, llmService_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
@@ -63,39 +64,39 @@ async function createArticle(writer, currentNewsItem = { title: "", description:
     return newArticle;
 }
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
-// TODO: choose random assortment of writers?
-// TODO: make special featured article prompt
-async function createFeaturedArticle(writers, currentNewsItem = { title: "", description: "" }, prompt) {
-    const currentArticles = [];
-    for (let w of writers) {
-        const currentArticle = await writeBlogPost(w, currentNewsItem, false);
-        if (currentArticle === undefined) {
-            return;
-        }
-        currentArticles.push(currentArticle);
-    }
-    console.log("Generating new article");
-    const result = await (0, llmService_js_1.generateTextFromString)(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("Meta prompt output invalid!");
-        return;
-    }
-    const parsedData = JSON.parse(result.generatedText);
-    const imgName = await (0, imageService_js_1.generateAndSaveImage)(parsedData.prompt);
-    const newFeaturedArticle = {
-        key: (0, lowdbOperations_js_1.getUniqueKey)(),
-        content: currentArticles,
-        author: writers,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    };
-    await (0, lowdbOperations_js_1.createPost)(newFeaturedArticle, constants_js_1.DB_FEATURED_BLOG_POST_FILE);
-    return newFeaturedArticle;
-}
+// // TODO: choose random assortment of writers?
+// // TODO: make special featured article prompt
+// async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsItem = { title: "", description: "" }, prompt: string) {
+//     const currentArticles : ArticleScheme[] = [];
+//     for (let w of writers) {
+//         const currentArticle = await writeBlogPost(w, currentNewsItem, false);
+//         if (currentArticle === undefined) {
+//             return;
+//         }
+//         currentArticles.push(currentArticle);
+//     }
+//     console.log("Generating new article");
+//     const result = await generateTextFromString(prompt, 'json_object');
+//     if (result === undefined || !result?.success) {
+//         console.error("Meta prompt output invalid!");    
+//         return;
+//     } 
+//     const parsedData = JSON.parse(result.generatedText);
+//     const imgName = await generateAndSaveImage(parsedData.prompt);
+//     const newFeaturedArticle: FeaturedArticleScheme =  {
+//         key: getUniqueKey(),
+//         content: currentArticles,
+//         author: writers,
+//         title: parsedData.title,
+//         timestamp: (new Date()).toUTCString(),
+//         category: parsedData.category,
+//         originalNewsItem: currentNewsItem,
+//         shortDescription: parsedData.shortDescription,
+//         headImage: imgName
+//     }; 
+//     await createPost<FeaturedArticleScheme>(newFeaturedArticle, DB_FEATURED_BLOG_POST_FILE);
+//     return newFeaturedArticle;
+// }
 // import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 // // import { ChatDeepSeek } from "@langchain/deepseek";
 // // LangChain chat models for each writer
@@ -127,7 +128,7 @@ async function createFeaturedArticle(writers, currentNewsItem = { title: "", des
 //   return [shuffled[0], shuffled[1]];
 // }
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
-function writeBlogPostPrompt(writer, currentNewsItem = { title: "", description: "" }) {
+function writeBlogPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the
@@ -220,7 +221,7 @@ function writeBlogPostPrompt(writer, currentNewsItem = { title: "", description:
  *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { title: "", description: "" }) {
+function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a newspaper editor. When writing the portion, do not comment on it, instead just write the portion about the
@@ -310,7 +311,7 @@ function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { title: "", d
  *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { title: "", description: "" }) {
+function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the

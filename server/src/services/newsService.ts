@@ -3,11 +3,9 @@ import 'dotenv/config'
 import axios from 'axios';
 import cron from 'node-cron';
 
-import { DB_BLOG_POST_FILE, 
-          DB_NEWS_DATA_FILE, 
-          NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants';
+import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants';
+import { newsDatabaseConfig } from '../lib/lowdb/databaseConfigurations';
 import { createPost } from '../lib/lowdb/lowdbOperations.js';
-import { ArticleScheme } from '../types/article.js';
 import { getBooleanResponse } from './llmService.js';
 
 // TODO: like this, it will be restarted every time we start up the project again
@@ -19,10 +17,10 @@ cron.schedule('0 0 * * *', () => {  // Every day at midnight
 });
 
 export type NewsItem = {
-    title: string;
-    description: string;
+  article_id: string;
+  title: string;
+  description: string;
 }
-
 
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.
 export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem[]> {
@@ -78,12 +76,7 @@ async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], n
 
     var retArticles = [];
     const articles = response.data.results;
-    // console.log("cur articles:",articles.length);
     for (const article of articles) {
-        // TODO: save API news article data to your own private data store for further uses
-        // if (await createPost<ArticleScheme>(article, DB_NEWS_DATA_FILE)) {
-          // dailyArticles.push({ title: article.title, description: article.description })
-      
       // TODO: add topics filter list in .env or outside in general
       const questionPrompt = `
         Is the following article title and/or description related to the following topics?\n
@@ -93,12 +86,13 @@ async function fetchNews(page: string = ""): Promise<[retArticles: NewsItem[], n
       `;
 
       // TODO: perhaps 10 articles at once and remove the ones that dont work out and basically return a 10 long json boolean check? 
-      const boolResponse: boolean = await getBooleanResponse(questionPrompt);
-      console.log("Is this related?", boolResponse);
-      if (!boolResponse) {
-        retArticles.push({ title: article.title, description: article.description })
-      }      
-        // }        
+      // const boolResponse: boolean = await getBooleanResponse(questionPrompt);
+      // console.log("Is this related?", boolResponse);
+      // if (!boolResponse) {
+        if (await createPost<NewsItem>(article, newsDatabaseConfig)) {
+          retArticles.push({ article_id: article.article_id, title: article.title, description: article.description });
+        }
+      // }      
     }    
 
     remainingTokens--;

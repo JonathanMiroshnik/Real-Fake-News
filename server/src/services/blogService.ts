@@ -2,6 +2,7 @@ import 'dotenv/config'
 
 import { DB_BLOG_POST_FILE, DB_FEATURED_BLOG_POST_FILE, MINIMAL_NUM_DAILY_ARTICLES, VALID_CATEGORIES, DB_WRITERS_FILE } from '../config/constants.js';
 import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
+import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
 import { getAllPosts, createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations.js";
@@ -9,7 +10,7 @@ import { addNewsToTotal, NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
-    const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(DB_BLOG_POST_FILE);
+    const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
 
     const retArticles = allArticles.filter(article => {
         if (!article.timestamp) return false;
@@ -34,7 +35,7 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
 
-export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }, saveArticle: boolean = true) {
+export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }, saveArticle: boolean = true) {
     const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
     const newArticle = await createArticle(writer, currentNewsItem, prompt);
     if (newArticle === undefined) {
@@ -42,11 +43,11 @@ export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = 
     }
 
     // Add new AI news article to AI news article database
-    await createPost<ArticleScheme>(newArticle, DB_BLOG_POST_FILE);
+    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
     return newArticle;
 }
 
-async function createArticle(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }, prompt: string) {
+async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }, prompt: string) {
     console.log("Generating new article");
     const result = await generateTextFromString(prompt, 'json_object');
     if (result === undefined || !result?.success) {
@@ -74,45 +75,45 @@ async function createArticle(writer: Writer, currentNewsItem: NewsItem = { title
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
-// TODO: choose random assortment of writers?
-// TODO: make special featured article prompt
-async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsItem = { title: "", description: "" }, prompt: string) {
-    const currentArticles : ArticleScheme[] = [];
+// // TODO: choose random assortment of writers?
+// // TODO: make special featured article prompt
+// async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsItem = { title: "", description: "" }, prompt: string) {
+//     const currentArticles : ArticleScheme[] = [];
 
-    for (let w of writers) {
-        const currentArticle = await writeBlogPost(w, currentNewsItem, false);
-        if (currentArticle === undefined) {
-            return;
-        }
+//     for (let w of writers) {
+//         const currentArticle = await writeBlogPost(w, currentNewsItem, false);
+//         if (currentArticle === undefined) {
+//             return;
+//         }
 
-        currentArticles.push(currentArticle);
-    }
-    console.log("Generating new article");
-    const result = await generateTextFromString(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("Meta prompt output invalid!");    
-        return;
-    } 
+//         currentArticles.push(currentArticle);
+//     }
+//     console.log("Generating new article");
+//     const result = await generateTextFromString(prompt, 'json_object');
+//     if (result === undefined || !result?.success) {
+//         console.error("Meta prompt output invalid!");    
+//         return;
+//     } 
 
-    const parsedData = JSON.parse(result.generatedText);
-    const imgName = await generateAndSaveImage(parsedData.prompt);
+//     const parsedData = JSON.parse(result.generatedText);
+//     const imgName = await generateAndSaveImage(parsedData.prompt);
 
-    const newFeaturedArticle: FeaturedArticleScheme =  {
-        key: getUniqueKey(),
-        content: currentArticles,
-        author: writers,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    }; 
+//     const newFeaturedArticle: FeaturedArticleScheme =  {
+//         key: getUniqueKey(),
+//         content: currentArticles,
+//         author: writers,
+//         title: parsedData.title,
+//         timestamp: (new Date()).toUTCString(),
+//         category: parsedData.category,
+//         originalNewsItem: currentNewsItem,
+//         shortDescription: parsedData.shortDescription,
+//         headImage: imgName
+//     }; 
 
-    await createPost<FeaturedArticleScheme>(newFeaturedArticle, DB_FEATURED_BLOG_POST_FILE);
+//     await createPost<FeaturedArticleScheme>(newFeaturedArticle, DB_FEATURED_BLOG_POST_FILE);
     
-    return newFeaturedArticle;
-}
+//     return newFeaturedArticle;
+// }
 
 // import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 // // import { ChatDeepSeek } from "@langchain/deepseek";
@@ -154,7 +155,7 @@ async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsIte
 
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
 
-function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }) {
+function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `
@@ -250,7 +251,7 @@ function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { title
  * 
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsItem = { title: "", description: "" }) {
+function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `
@@ -344,7 +345,7 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
  * 
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsItem = { title: "", description: "" }) {
+function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `
