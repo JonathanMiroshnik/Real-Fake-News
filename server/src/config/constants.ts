@@ -15,7 +15,7 @@ const TEN_MINUTES_MILLISECONDS = 10*60*1000;
 
 const MINIMAL_NUM_DAILY_ARTICLES = 10;
 
-const NEWS_API_BASE_URL = 'https://newsdata.io/api/1/news';
+const NEWS_API_BASE_URL = 'https://newsdata.io/api/1/latest'; // /news';
 const NEWS_API_DAILY_TOKENS = 200;
 const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 

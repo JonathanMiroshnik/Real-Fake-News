@@ -21,7 +21,10 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem
   let gatherPage: string;
   for (let i = 0; i < neededApiRequests; i++) {
     [retArticles, gatherPage] = await fetchNews(nextPage);
-    insertArticleToDatabase(retArticles);
+    
+    // console.log(`Fetched ${retArticles.length} recent real news articles`);
+
+    insertArticlesToDatabase(retArticles);
     nextPage = gatherPage;
     if (nextPage === "") {
       return [];
@@ -31,7 +34,7 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem
   return retArticles;
 }
 
-async function insertArticleToDatabase(articles: any[]): Promise<NewsItem[]> {
+async function insertArticlesToDatabase(articles: any[]): Promise<NewsItem[]> {
     var retArticles: NewsItem[] = [];
 
     for (const article of articles) {
@@ -47,8 +50,15 @@ async function insertArticleToDatabase(articles: any[]): Promise<NewsItem[]> {
         // const boolResponse: boolean = await getBooleanResponse(questionPrompt);
         // console.log("Is this related?", boolResponse);
         // if (!boolResponse) {
+        
         if (await createPost<NewsItem>(article, newsDatabaseConfig)) {
-            retArticles.push({ article_id: article.article_id, title: article.title, description: article.description });
+          retArticles.push({ 
+              article_id: article.article_id, 
+              title: article.title, 
+              description: article.description, 
+              pubDate: article.pubDate, 
+              pubDateTZ: article.pubDateTZ
+          });
         }
     }    
     

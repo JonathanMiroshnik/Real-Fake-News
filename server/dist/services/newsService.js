@@ -3,43 +3,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addNewsToTotal = addNewsToTotal;
+exports.remainingTokens = void 0;
+exports.fetchNews = fetchNews;
+exports.getAllNewsArticlesAfterDate = getAllNewsArticlesAfterDate;
 require("dotenv/config");
 const axios_1 = __importDefault(require("axios"));
 const node_cron_1 = __importDefault(require("node-cron"));
 const constants_1 = require("../config/constants");
+const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const databaseConfigurations_1 = require("../lib/lowdb/databaseConfigurations");
-const lowdbOperations_js_1 = require("../lib/lowdb/lowdbOperations.js");
+const timeService_1 = require("./timeService");
 // TODO: like this, it will be restarted every time we start up the project again
-var remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
+exports.remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
 node_cron_1.default.schedule('0 0 * * *', () => {
-    remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
+    exports.remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
     console.log('Daily tokens reset.');
 });
-// TODO: I want to get an arbitrary number of daily articles to use in any given moment.
-async function addNewsToTotal(numArticles = 10) {
-    // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
-    // If there are no more tokens remaining, this function cannot be used.
-    if (remainingTokens <= 0) {
-        throw new Error("No more tokens remaining.");
-    }
-    if (remainingTokens * constants_1.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
-        throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
-    }
-    let neededApiRequests = Math.ceil(numArticles / constants_1.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
-    let nextPage = "";
-    let retArticles = [];
-    let gatherPage;
-    for (let i = 0; i < neededApiRequests; i++) {
-        [retArticles, gatherPage] = await fetchNews(nextPage);
-        // console.log("ret articles", retArticles.length, "page", gatherPage);
-        nextPage = gatherPage;
-        if (nextPage === "") {
-            return [];
-        }
-    }
-    return retArticles;
-}
 /**
  * Performs one news API call and adds the articles to the total.
  *
@@ -47,7 +26,7 @@ async function addNewsToTotal(numArticles = 10) {
  * @returns {string} The next page in the current news page that we could pull from.
  */
 async function fetchNews(page = "") {
-    if (remainingTokens <= 0) {
+    if (exports.remainingTokens <= 0) {
         throw new Error("No more tokens remaining to do another API call.");
     }
     try {
@@ -62,31 +41,28 @@ async function fetchNews(page = "") {
         if (page !== "") {
             response.config.params.page = page;
         }
-        var retArticles = [];
-        const articles = response.data.results;
-        for (const article of articles) {
-            // TODO: add topics filter list in .env or outside in general
-            const questionPrompt = `
-        Is the following article title and/or description related to the following topics?\n
-        Topics: Israel, Gaza, IDF\n
-        Article Title: ${article.title}\n
-        Article Description: ${article.description}\n
-      `;
-            // TODO: perhaps 10 articles at once and remove the ones that dont work out and basically return a 10 long json boolean check? 
-            // const boolResponse: boolean = await getBooleanResponse(questionPrompt);
-            // console.log("Is this related?", boolResponse);
-            // if (!boolResponse) {
-            if (await (0, lowdbOperations_js_1.createPost)(article, databaseConfigurations_1.newsDatabaseConfig)) {
-                retArticles.push({ article_id: article.article_id, title: article.title, description: article.description });
-            }
-            // }      
-        }
-        remainingTokens--;
-        return [[...retArticles], response.data.nextPage.toString()];
+        exports.remainingTokens--;
+        return [[...response.data.results], response.data.nextPage.toString()];
     }
     catch (error) {
         console.error('Failed to fetch news:', error);
         return [[], ""];
     }
+}
+async function getAllNewsArticlesAfterDate(startDate) {
+    const allArticles = await (0, lowdbOperations_1.getAllPosts)(databaseConfigurations_1.newsDatabaseConfig);
+    const retArticles = allArticles.filter(article => {
+        const timestamp = (0, timeService_1.standardizeDate)(article.pubDate, article.pubDateTZ);
+        try {
+            const articleDate = new Date(timestamp);
+            const startTime = startDate.getTime();
+            return articleDate.getTime() > startTime;
+        }
+        catch (e) {
+            console.error('Invalid date format:', timestamp);
+            return false;
+        }
+    });
+    return retArticles;
 }
 //# sourceMappingURL=newsService.js.map

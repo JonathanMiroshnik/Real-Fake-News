@@ -9,7 +9,7 @@ declare const DAY_MILLISECS: number;
 declare const ONE_HOUR_MILLISECS: number;
 declare const TEN_MINUTES_MILLISECONDS: number;
 declare const MINIMAL_NUM_DAILY_ARTICLES = 10;
-declare const NEWS_API_BASE_URL = "https://newsdata.io/api/1/news";
+declare const NEWS_API_BASE_URL = "https://newsdata.io/api/1/latest";
 declare const NEWS_API_DAILY_TOKENS = 200;
 declare const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 declare const VALID_CATEGORIES: string[];

@@ -31,7 +31,7 @@ async function getAllPostsAfterDate(startDate) {
 }
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
-async function writeBlogPost(writer, currentNewsItem = { article_id: "", title: "", description: "" }, saveArticle = true) {
+async function writeBlogPost(writer, currentNewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle = true) {
     const prompt = writeBlogPostPrompt(writer, currentNewsItem);
     const newArticle = await createArticle(writer, currentNewsItem, prompt);
     if (newArticle === undefined) {
@@ -41,7 +41,7 @@ async function writeBlogPost(writer, currentNewsItem = { article_id: "", title: 
     await (0, lowdbOperations_js_1.createPost)(newArticle, databaseConfigurations_js_1.blogDatabaseConfig);
     return newArticle;
 }
-async function createArticle(writer, currentNewsItem = { article_id: "", title: "", description: "" }, prompt) {
+async function createArticle(writer, currentNewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, prompt) {
     console.log("Generating new article");
     const result = await (0, llmService_js_1.generateTextFromString)(prompt, 'json_object');
     if (result === undefined || !result?.success) {
@@ -128,7 +128,7 @@ async function createArticle(writer, currentNewsItem = { article_id: "", title: 
 //   return [shuffled[0], shuffled[1]];
 // }
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
-function writeBlogPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "" }) {
+function writeBlogPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the
@@ -221,7 +221,7 @@ function writeBlogPostPrompt(writer, currentNewsItem = { article_id: "", title: 
  *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { article_id: "", title: "", description: "" }) {
+function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a newspaper editor. When writing the portion, do not comment on it, instead just write the portion about the
@@ -311,7 +311,7 @@ function writeFeaturedBlogTopPostPrompt(editor, currentNewsItem = { article_id: 
  *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "" }) {
+function writeFeaturedBlogSubPostPrompt(writer, currentNewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the

@@ -1,8 +1,4 @@
-export function startRandomInterval(
-    fn: () => void,
-    minDelaySec: number,
-    maxDelaySec: number
-    ) {
+export function startRandomInterval(fn: () => void, minDelaySec: number, maxDelaySec: number, logAvgInterval: boolean=false) {
     let lastExecution = Date.now();
     let intervals: number[] = [];
 
@@ -18,11 +14,13 @@ export function startRandomInterval(
 
             // Call your function
             fn();
-
-            // // Log average interval
-            // const average =
-            // intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
-            // console.log(`Average interval: ${average.toFixed(2)}s`);
+            
+            // Log average interval
+            if (logAvgInterval) {                
+                const average =
+                intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+                console.log(`Average interval: ${average.toFixed(2)}s`);
+            }            
 
             // Schedule next call
             scheduleNext();

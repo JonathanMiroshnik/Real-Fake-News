@@ -1,1 +1,1 @@
-export declare function blogWritingManager(averageWritingInterval?: number): void;
+export declare function generateScheduledArticles(writingInterval: number): Promise<void>;

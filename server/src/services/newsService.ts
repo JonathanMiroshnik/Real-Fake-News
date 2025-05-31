@@ -2,6 +2,9 @@ import 'dotenv/config'
 import axios from 'axios';
 import cron from 'node-cron';
 import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS } from '../config/constants';
+import { getAllPosts } from '../lib/lowdb/lowdbOperations';
+import { newsDatabaseConfig } from '../lib/lowdb/databaseConfigurations';
+import { standardizeDate } from './timeService';
 
 // TODO: like this, it will be restarted every time we start up the project again
 export var remainingTokens: number = NEWS_API_DAILY_TOKENS;
@@ -15,6 +18,8 @@ export type NewsItem = {
   article_id: string;
   title: string;
   description: string;
+  pubDate: string;
+  pubDateTZ: string;
 }
 
 /**
@@ -47,4 +52,23 @@ export async function fetchNews(page: string = ""): Promise<[any[], nextPage: st
     console.error('Failed to fetch news:', error);
     return [[], ""];
   }
+}
+
+export async function getAllNewsArticlesAfterDate(startDate: Date): Promise<NewsItem[]> {
+    const allArticles: NewsItem[] = await getAllPosts<NewsItem>(newsDatabaseConfig);
+
+    const retArticles = allArticles.filter(article => {
+        const timestamp = standardizeDate(article.pubDate, article.pubDateTZ);
+
+        try {
+            const articleDate = new Date(timestamp);
+            const startTime = startDate.getTime();
+            return articleDate.getTime() > startTime;
+        } catch (e) {
+            console.error('Invalid date format:', timestamp);
+            return false;
+        }
+    });
+
+    return retArticles;
 }

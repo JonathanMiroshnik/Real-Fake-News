@@ -35,7 +35,7 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
 
-export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }, saveArticle: boolean = true) {
+export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true) {
     const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
     const newArticle = await createArticle(writer, currentNewsItem, prompt);
     if (newArticle === undefined) {
@@ -47,7 +47,7 @@ export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = 
     return newArticle;
 }
 
-async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }, prompt: string) {
+async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, prompt: string) {
     console.log("Generating new article");
     const result = await generateTextFromString(prompt, 'json_object');
     if (result === undefined || !result?.success) {
@@ -155,7 +155,7 @@ async function createArticle(writer: Writer, currentNewsItem: NewsItem = { artic
 
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
 
-function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
+function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `
@@ -251,7 +251,7 @@ function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { artic
  * 
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
+function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `
@@ -345,7 +345,7 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
  * 
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "" }) {
+function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     // TODO: fix description might be null in currentNewsItem!
     const META_PROMPT: string =
     `

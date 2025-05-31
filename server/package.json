@@ -33,6 +33,7 @@
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "lowdb": "^7.0.1",
+    "luxon": "^3.6.1",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
     "node-cron": "^3.0.3",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.2",
+    "@types/luxon": "^3.6.2",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.15.17",
     "@types/node-cron": "^3.0.11",
