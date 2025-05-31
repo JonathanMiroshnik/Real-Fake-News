@@ -6,7 +6,7 @@ import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
 import { getAllPosts, createPost, getUniqueKey } from "../lib/lowdb/lowdbOperations.js";
-import { addNewsToTotal, NewsItem } from "../services/newsService.js";
+import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
