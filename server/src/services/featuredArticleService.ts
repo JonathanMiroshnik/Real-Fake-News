@@ -7,7 +7,7 @@ import { Writer } from '../types/writer';
 import { NewsItem } from './newsService';
 import { generateAndSaveImage } from './imageService.js';
 import { generateTextFromString } from './llmService.js';
-import { getUniqueKey } from '../utils/general.js';
+import { getNRandom, getUniqueKey } from '../utils/general.js';
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatDeepSeek } from "@langchain/deepseek";
 import { createPost } from '../lib/lowdb/lowdbOperations.js';
@@ -61,14 +61,13 @@ const writerModel = new ChatDeepSeek({
   temperature: 0.9, // higher temperature more creative
   apiKey: process.env.DEEPSEEK_API_KEY,
   maxTokens: 200
-  // other params...
 });
 
 // // Debate loop
 // export async function runDebate(rounds: number = 2): Promise<string[]> {
 //   const dialog: SystemMessage[] = [];
 
-//   const [writerA, writerB] = getTwoRandom(writers);
+//   const [writerA, writerB] = getNRandom(writers, 2);
 //   const messagesA = getSystemPrompt(writerA);
 //   const messagesB = getSystemPrompt(writerA);
 
@@ -82,12 +81,6 @@ const writerModel = new ChatDeepSeek({
 
 //   return [...dialog.map(m=>m.content.toString())];
 // }
-
-// Utility: get two random writers
-function getTwoRandom(arr: Writer[]): [Writer, Writer] {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
-  return [shuffled[0], shuffled[1]];
-}
 
 /**
  * @param editor The editor of the newspaper, 

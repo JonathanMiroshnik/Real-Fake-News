@@ -7,9 +7,13 @@ import { newsDatabaseConfig } from '../lib/lowdb/databaseConfigurations';
 import { standardizeDate } from './timeService';
 
 // TODO: like this, it will be restarted every time we start up the project again
+/**
+ * Number of remaining daily News API tokens
+ */
 export var remainingTokens: number = NEWS_API_DAILY_TOKENS;
 
-cron.schedule('0 0 * * *', () => {  // Every day at midnight
+// Every day at midnight
+cron.schedule('0 0 * * *', () => {
   remainingTokens = NEWS_API_DAILY_TOKENS;
   console.log('Daily tokens reset.');
 });
@@ -54,6 +58,11 @@ export async function fetchNews(page: string = ""): Promise<[any[], nextPage: st
   }
 }
 
+/**
+ * Used to get news articles after a given date
+ * @param startDate Given date after which articles are returned
+ * @returns News Items that were published after the given date
+ */
 export async function getAllNewsArticlesAfterDate(startDate: Date): Promise<NewsItem[]> {
     const allArticles: NewsItem[] = await getAllPosts<NewsItem>(newsDatabaseConfig);
 

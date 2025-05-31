@@ -19,6 +19,9 @@ const NEWS_API_BASE_URL = 'https://newsdata.io/api/1/latest'; // /news';
 const NEWS_API_DAILY_TOKENS = 200;
 const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 
+// "Recent News" is any article between now and this much time ago:
+const RECENT_NEWS_ARTICLES_TIME_THRESHOLD: number = ONE_HOUR_MILLISECS * 24;
+
 const VALID_CATEGORIES = ["Politics", "Sports", "Culture", "Economics", "Technology", "Food"];
 
 const EDITOR: Writer = {
@@ -37,7 +40,7 @@ export { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_FEATURED_BLOG_POST_FILE, DB_US
 
          MILLISECS_IN_SEC, DAY_MILLISECS, ONE_HOUR_MILLISECS, TEN_MINUTES_MILLISECONDS, 
 
-         NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN,
+         NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS, NEWS_API_NUM_OF_ARTICLES_PER_TOKEN, RECENT_NEWS_ARTICLES_TIME_THRESHOLD,
          
          VALID_CATEGORIES,
          

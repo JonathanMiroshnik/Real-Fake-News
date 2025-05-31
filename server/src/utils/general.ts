@@ -1,5 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 
+export function getUniqueKey(): string {
+  return uuidv4();
+}
+
+/**
+ * Creates an interval that reruns a function in a random given inteval
+ * @param fn Function to run
+ * @param minDelaySec Minimum amount of time until next run
+ * @param maxDelaySec Maximum amount of time until next run
+ * @param logAvgInterval Print the log average interval in each run
+ */
 export function startRandomInterval(fn: () => void, minDelaySec: number, maxDelaySec: number, logAvgInterval: boolean=false) {
     let lastExecution = Date.now();
     let intervals: number[] = [];
@@ -33,6 +44,19 @@ export function startRandomInterval(fn: () => void, minDelaySec: number, maxDela
     scheduleNext();
 }
 
-export function getUniqueKey(): string {
-  return uuidv4();
+/**
+ * Gets a random given number of items from an array
+ * @param arr Array to get number of objects from
+ * @param n Number of objects to get from the Array
+ * @returns n random objects from array, as an another array
+ */
+export function getNRandom(arr: any[], n: number): any[] {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+
+  var retArr: any[] = [];
+  for (var i: number = 0; i < n ; i++) {
+    retArr.push(shuffled[i]);
+  }
+  
+  return retArr;
 }

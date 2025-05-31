@@ -1,5 +1,12 @@
 import { DateTime } from 'luxon';
 
+/**
+ * Standardizes dates to a single output date format
+ * @param pubDate Date and time
+ * @param pubDateTZ Timezone of the pubDate
+ * @param outputFormat 
+ * @returns String of the standardized output date
+ */
 export function standardizeDate(
     pubDate: string,
     pubDateTZ: string,

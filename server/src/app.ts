@@ -1,13 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
+// import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
-import apiRoutes from './routes/apiRoutes';
-import { initializeScheduledJobs } from './jobs/scheduler';
-
-// import rateLimit from 'express-rate-limit';
-// import mongoose from 'mongoose';
+import apiRoutes from './routes/apiRoutes.js';
+import { initializeScheduledJobs } from './jobs/scheduler.js';
 
 // TODO: change express use to get set etc?
 

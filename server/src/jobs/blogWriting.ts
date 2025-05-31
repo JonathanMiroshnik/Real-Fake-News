@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { MINIMAL_NUM_DAILY_ARTICLES } from "../config/constants.js";
+import { MINIMAL_NUM_DAILY_ARTICLES, RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from "../config/constants.js";
 import { BlogResponse } from "../types/article.js";
 import { getAllPostsAfterDate, writeBlogPost } from "../services/blogService.js";
 import { getAllNewsArticlesAfterDate } from "../services/newsService.js";
@@ -8,9 +8,6 @@ import { getRandomWriter } from "../services/writerService.js";
 import { ONE_HOUR_MILLISECS } from "../config/constants.js";
 
 // Responsible for the state machine of the blog writers
-
-// "Recent News" is any article between now and this much time ago:
-const RECENT_NEWS_ARTICLES_TIME_THRESHOLD: number = ONE_HOUR_MILLISECS * 24;
 
 export async function generateScheduledArticles(writingInterval: number) {
     const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - writingInterval));
