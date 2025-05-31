@@ -1,13 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import { JSONFilePreset } from 'lowdb/node'
 import { DatabaseConfig } from './databaseConfigurations';
 
 // import { DB_BLOG_POST_FILE } from '../../config/constants.js';
-
-// TODO: should not have this function and just import uuidv4 where needed?
-export function getUniqueKey(): string {
-  return uuidv4();
-}
 
 // Every type of post has a unique key property
 export interface Post {

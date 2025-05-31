@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export function startRandomInterval(fn: () => void, minDelaySec: number, maxDelaySec: number, logAvgInterval: boolean=false) {
     let lastExecution = Date.now();
     let intervals: number[] = [];
@@ -29,4 +31,8 @@ export function startRandomInterval(fn: () => void, minDelaySec: number, maxDela
 
     // Start the first call
     scheduleNext();
+}
+
+export function getUniqueKey(): string {
+  return uuidv4();
 }

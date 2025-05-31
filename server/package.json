@@ -16,6 +16,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@langchain/deepseek": "^0.0.1",
     "@runware/sdk-js": "^1.1.38",
     "@types/bcrypt": "^5.0.2",
     "@types/jimp": "^0.2.1",
@@ -32,6 +33,7 @@
     "helmet": "^8.1.0",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.27",
     "lowdb": "^7.0.1",
     "luxon": "^3.6.1",
     "mongoose": "^8.13.2",

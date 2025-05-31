@@ -1,7 +1,7 @@
 import { JSONFilePreset } from 'lowdb/node'
-import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_WRITERS_FILE } from "../../config/constants";
+import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_WRITERS_FILE, DB_FEATURED_BLOG_POST_FILE } from "../../config/constants";
 import { NewsItem } from "../../services/newsService.js";
-import { ArticleScheme } from "../../types/article.js";
+import { ArticleScheme, FeaturedArticleScheme } from "../../types/article.js";
 import { Schema } from "./lowdbOperations.js";
 import { Writer } from '../../types/writer';
 
@@ -43,6 +43,51 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
         toInput.author = fromInput.author;
         toInput.category = fromInput.category;
         toInput.content = fromInput.content;
+        toInput.headImage = fromInput.headImage;
+        toInput.originalNewsItem = fromInput.originalNewsItem;
+        toInput.shortDescription = fromInput.shortDescription;
+        toInput.timestamp = fromInput.timestamp;
+        toInput.title = fromInput.title;
+
+        return true;
+    }
+};
+
+export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> = {
+    source: DB_FEATURED_BLOG_POST_FILE,
+    exists: async (article: FeaturedArticleScheme) => {
+        const db = await JSONFilePreset<Schema<FeaturedArticleScheme>>(DB_FEATURED_BLOG_POST_FILE, { posts: [] });
+        return db.data.posts.some(p => p.key === article.key)
+    },
+    find: async (key: string) => {
+        const db = await JSONFilePreset<Schema<FeaturedArticleScheme>>(DB_FEATURED_BLOG_POST_FILE, { posts: [] });
+        return db.data.posts.find(p => p.key === key);
+    },
+    getKey: async (pInput: FeaturedArticleScheme) => {
+        if (pInput.key === undefined) {
+            return "";
+        }
+
+        return pInput.key;
+    },
+    copyValues: (fromInput: FeaturedArticleScheme, toInput: FeaturedArticleScheme) => {
+        toInput.key = fromInput.key;        
+        toInput.category = fromInput.category;
+
+        toInput.author = [];
+        if (fromInput.author !== undefined) {
+            for (const w of fromInput.author) {
+                toInput.author.push({...w});
+            }
+        }
+        
+        toInput.content = [];
+        if (fromInput.content !== undefined) {
+            for (const w of fromInput.content) {
+                toInput.content.push({...w});
+            }
+        }
+
         toInput.headImage = fromInput.headImage;
         toInput.originalNewsItem = fromInput.originalNewsItem;
         toInput.shortDescription = fromInput.shortDescription;

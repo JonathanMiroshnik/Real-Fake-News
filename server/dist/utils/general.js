@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startRandomInterval = startRandomInterval;
+exports.getUniqueKey = getUniqueKey;
+const uuid_1 = require("uuid");
 function startRandomInterval(fn, minDelaySec, maxDelaySec, logAvgInterval = false) {
     let lastExecution = Date.now();
     let intervals = [];
@@ -24,5 +26,8 @@ function startRandomInterval(fn, minDelaySec, maxDelaySec, logAvgInterval = fals
     }
     // Start the first call
     scheduleNext();
+}
+function getUniqueKey() {
+    return (0, uuid_1.v4)();
 }
 //# sourceMappingURL=general.js.map

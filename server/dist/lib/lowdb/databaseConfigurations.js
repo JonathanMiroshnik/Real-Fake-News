@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writerDatabaseConfig = exports.newsDatabaseConfig = exports.blogDatabaseConfig = void 0;
+exports.writerDatabaseConfig = exports.newsDatabaseConfig = exports.featuredBlogDatabaseConfig = exports.blogDatabaseConfig = void 0;
 const node_1 = require("lowdb/node");
 const constants_1 = require("../../config/constants");
 ;
@@ -26,6 +26,45 @@ exports.blogDatabaseConfig = {
         toInput.author = fromInput.author;
         toInput.category = fromInput.category;
         toInput.content = fromInput.content;
+        toInput.headImage = fromInput.headImage;
+        toInput.originalNewsItem = fromInput.originalNewsItem;
+        toInput.shortDescription = fromInput.shortDescription;
+        toInput.timestamp = fromInput.timestamp;
+        toInput.title = fromInput.title;
+        return true;
+    }
+};
+exports.featuredBlogDatabaseConfig = {
+    source: constants_1.DB_FEATURED_BLOG_POST_FILE,
+    exists: async (article) => {
+        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_FEATURED_BLOG_POST_FILE, { posts: [] });
+        return db.data.posts.some(p => p.key === article.key);
+    },
+    find: async (key) => {
+        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_FEATURED_BLOG_POST_FILE, { posts: [] });
+        return db.data.posts.find(p => p.key === key);
+    },
+    getKey: async (pInput) => {
+        if (pInput.key === undefined) {
+            return "";
+        }
+        return pInput.key;
+    },
+    copyValues: (fromInput, toInput) => {
+        toInput.key = fromInput.key;
+        toInput.category = fromInput.category;
+        toInput.author = [];
+        if (fromInput.author !== undefined) {
+            for (const w of fromInput.author) {
+                toInput.author.push({ ...w });
+            }
+        }
+        toInput.content = [];
+        if (fromInput.content !== undefined) {
+            for (const w of fromInput.content) {
+                toInput.content.push({ ...w });
+            }
+        }
         toInput.headImage = fromInput.headImage;
         toInput.originalNewsItem = fromInput.originalNewsItem;
         toInput.shortDescription = fromInput.shortDescription;

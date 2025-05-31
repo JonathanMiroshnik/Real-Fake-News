@@ -18,6 +18,7 @@ async function generateScheduledArticles(writingInterval) {
         return;
     }
     // TODO: getting extra articles than needed but maybe unneeded...
+    // TODO: make sure to not rewrite an article that was already selected => database of already rewrittern articles
     const currentNews = await (0, newsService_js_1.getAllNewsArticlesAfterDate)(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
     if (currentNews.length == 0) {
         console.error("No recent real news articles found!");

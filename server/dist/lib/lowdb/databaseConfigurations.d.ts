@@ -1,5 +1,5 @@
 import { NewsItem } from "../../services/newsService.js";
-import { ArticleScheme } from "../../types/article.js";
+import { ArticleScheme, FeaturedArticleScheme } from "../../types/article.js";
 import { Writer } from '../../types/writer';
 export interface DatabaseConfig<P> {
     source: string;
@@ -9,5 +9,6 @@ export interface DatabaseConfig<P> {
     copyValues: (fromInput: P, toInput: P) => boolean;
 }
 export declare const blogDatabaseConfig: DatabaseConfig<ArticleScheme>;
+export declare const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme>;
 export declare const newsDatabaseConfig: DatabaseConfig<NewsItem>;
 export declare const writerDatabaseConfig: DatabaseConfig<Writer>;

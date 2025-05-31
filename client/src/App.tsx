@@ -27,7 +27,7 @@ function App() {
       <Helmet>
         <meta charSet="utf-8" />
         <title>Real Fake News</title>
-        {/* <link rel="canonical" href="https://www.sensorcensor.xyz" /> */}
+        <link rel="canonical" href="https://www.sensorcensor.xyz" />
         {/* <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" /> */}
         <meta name="description" content="Real Fake News" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

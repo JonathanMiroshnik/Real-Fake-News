@@ -1,18 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUniqueKey = getUniqueKey;
 exports.createPost = createPost;
 exports.getAllPosts = getAllPosts;
 exports.getPostByKey = getPostByKey;
 exports.updatePost = updatePost;
 exports.deletePost = deletePost;
-const uuid_1 = require("uuid");
 const node_1 = require("lowdb/node");
-// import { DB_BLOG_POST_FILE } from '../../config/constants.js';
-// TODO: should not have this function and just import uuidv4 where needed?
-function getUniqueKey() {
-    return (0, uuid_1.v4)();
-}
 // // CRUD OPERATIONS //
 // // Create - Add new post
 // export async function createPost<T extends Post>(post: T, dbFile: string): Promise<boolean> {

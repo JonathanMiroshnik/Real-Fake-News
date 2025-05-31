@@ -1,5 +1,4 @@
 import { DatabaseConfig } from './databaseConfigurations';
-export declare function getUniqueKey(): string;
 export interface Post {
     key: string | undefined;
 }
