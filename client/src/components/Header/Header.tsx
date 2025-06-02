@@ -86,7 +86,7 @@ function Header({ sections }: HeaderProps) {
       </GoogleOAuthProvider> */}
       <h1 className="logo">
         <Link to="/">
-          <img src={darkMode ? "/alternativeLogoBlack.png" : "/alternativeSiteLogo.png"} className="logo-img" alt="Logo" />
+          <img src={darkMode ? "/mainWhiteLogo.png" : "/mainBlackLogo.png"} className="logo-img" alt="Logo" />
         </Link>
       </h1>
       <nav className="header-navbar-list">
