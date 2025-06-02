@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EDITOR = exports.VALID_CATEGORIES = exports.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = exports.NEWS_API_DAILY_TOKENS = exports.NEWS_API_BASE_URL = exports.TEN_MINUTES_MILLISECONDS = exports.ONE_HOUR_MILLISECS = exports.DAY_MILLISECS = exports.MILLISECS_IN_SEC = exports.MINIMAL_NUM_DAILY_ARTICLES = exports.DB_WRITERS_FILE = exports.DB_USERS_FILE = exports.DB_FEATURED_BLOG_POST_FILE = exports.DB_NEWS_DATA_FILE = exports.DB_BLOG_POST_FILE = void 0;
+exports.EDITOR = exports.VALID_CATEGORIES = exports.RECENT_NEWS_ARTICLES_TIME_THRESHOLD = exports.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = exports.NEWS_API_DAILY_TOKENS = exports.NEWS_API_BASE_URL = exports.TEN_MINUTES_MILLISECONDS = exports.ONE_HOUR_MILLISECS = exports.DAY_MILLISECS = exports.MILLISECS_IN_SEC = exports.MINIMAL_NUM_DAILY_ARTICLES = exports.DB_WRITERS_FILE = exports.DB_USERS_FILE = exports.DB_FEATURED_BLOG_POST_FILE = exports.DB_NEWS_DATA_FILE = exports.DB_BLOG_POST_FILE = void 0;
 // LowDB database locations
 const DB_BLOG_POST_FILE = "data/blogPosts.json";
 exports.DB_BLOG_POST_FILE = DB_BLOG_POST_FILE;
@@ -29,6 +29,9 @@ const NEWS_API_DAILY_TOKENS = 200;
 exports.NEWS_API_DAILY_TOKENS = NEWS_API_DAILY_TOKENS;
 const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 exports.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = NEWS_API_NUM_OF_ARTICLES_PER_TOKEN;
+// "Recent News" is any article between now and this much time ago:
+const RECENT_NEWS_ARTICLES_TIME_THRESHOLD = ONE_HOUR_MILLISECS * 24;
+exports.RECENT_NEWS_ARTICLES_TIME_THRESHOLD = RECENT_NEWS_ARTICLES_TIME_THRESHOLD;
 const VALID_CATEGORIES = ["Politics", "Sports", "Culture", "Economics", "Technology", "Food"];
 exports.VALID_CATEGORIES = VALID_CATEGORIES;
 const EDITOR = {

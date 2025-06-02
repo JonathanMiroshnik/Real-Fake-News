@@ -4,18 +4,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+// import rateLimit from 'express-rate-limit';
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
-const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
-const scheduler_1 = require("./jobs/scheduler");
-// import rateLimit from 'express-rate-limit';
-// import mongoose from 'mongoose';
+const apiRoutes_js_1 = __importDefault(require("./routes/apiRoutes.js"));
+const scheduler_js_1 = require("./jobs/scheduler.js");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
 // Activating the recurring jobs
-(0, scheduler_1.initializeScheduledJobs)();
+(0, scheduler_js_1.initializeScheduledJobs)();
 // Middleware pipeline
 app.use((0, cors_1.default)({
     origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
@@ -35,7 +34,7 @@ if (process.env.LOCAL_DEV_BACKEND === undefined) {
 else {
     PREFIX = process.env.LOCAL_DEV_BACKEND === "true" ? '/api' : "/";
 }
-app.use(PREFIX, apiRoutes_1.default);
+app.use(PREFIX, apiRoutes_js_1.default);
 // 404 Handler
 // Do NOT use '*', instead:
 //  https://stackoverflow.com/questions/78973586/typeerror-invalid-token-at-1-https-git-new-pathtoregexperror

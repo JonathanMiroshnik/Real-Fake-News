@@ -4,6 +4,9 @@ exports.getRandomWriter = getRandomWriter;
 const crypto_1 = require("crypto");
 const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const databaseConfigurations_1 = require("../lib/lowdb/databaseConfigurations");
+/**
+ * @returns Single random Writer from the Writers in the database
+ */
 async function getRandomWriter() {
     const writersList = await (0, lowdbOperations_1.getAllPosts)(databaseConfigurations_1.writerDatabaseConfig);
     const writerReturn = writersList[(0, crypto_1.randomInt)(writersList.length)];

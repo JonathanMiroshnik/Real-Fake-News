@@ -2,6 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.standardizeDate = standardizeDate;
 const luxon_1 = require("luxon");
+/**
+ * Standardizes dates to a single output date format
+ * @param pubDate Date and time
+ * @param pubDateTZ Timezone of the pubDate
+ * @param outputFormat
+ * @returns String of the standardized output date
+ */
 function standardizeDate(pubDate, pubDateTZ, outputFormat = 'iso') {
     try {
         // Create a Luxon DateTime object with the original timezone

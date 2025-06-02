@@ -14,7 +14,11 @@ const lowdbOperations_1 = require("../lib/lowdb/lowdbOperations");
 const databaseConfigurations_1 = require("../lib/lowdb/databaseConfigurations");
 const timeService_1 = require("./timeService");
 // TODO: like this, it will be restarted every time we start up the project again
+/**
+ * Number of remaining daily News API tokens
+ */
 exports.remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
+// Every day at midnight
 node_cron_1.default.schedule('0 0 * * *', () => {
     exports.remainingTokens = constants_1.NEWS_API_DAILY_TOKENS;
     console.log('Daily tokens reset.');
@@ -49,6 +53,11 @@ async function fetchNews(page = "") {
         return [[], ""];
     }
 }
+/**
+ * Used to get news articles after a given date
+ * @param startDate Given date after which articles are returned
+ * @returns News Items that were published after the given date
+ */
 async function getAllNewsArticlesAfterDate(startDate) {
     const allArticles = await (0, lowdbOperations_1.getAllPosts)(databaseConfigurations_1.newsDatabaseConfig);
     const retArticles = allArticles.filter(article => {

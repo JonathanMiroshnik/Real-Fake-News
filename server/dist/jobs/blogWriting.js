@@ -6,10 +6,7 @@ const constants_js_1 = require("../config/constants.js");
 const blogService_js_1 = require("../services/blogService.js");
 const newsService_js_1 = require("../services/newsService.js");
 const writerService_js_1 = require("../services/writerService.js");
-const constants_js_2 = require("../config/constants.js");
 // Responsible for the state machine of the blog writers
-// "Recent News" is any article between now and this much time ago:
-const RECENT_NEWS_ARTICLES_TIME_THRESHOLD = constants_js_2.ONE_HOUR_MILLISECS * 24;
 async function generateScheduledArticles(writingInterval) {
     const result = await (0, blogService_js_1.getAllPostsAfterDate)(new Date(Date.now() - writingInterval));
     let newArticlesNeeded = constants_js_1.MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
@@ -19,7 +16,7 @@ async function generateScheduledArticles(writingInterval) {
     }
     // TODO: getting extra articles than needed but maybe unneeded...
     // TODO: make sure to not rewrite an article that was already selected => database of already rewrittern articles
-    const currentNews = await (0, newsService_js_1.getAllNewsArticlesAfterDate)(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
+    const currentNews = await (0, newsService_js_1.getAllNewsArticlesAfterDate)(new Date(Date.now() - constants_js_1.RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
     if (currentNews.length == 0) {
         console.error("No recent real news articles found!");
         return;
