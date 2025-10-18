@@ -35,7 +35,7 @@ export class LLMService {
       // TODO: fix model and make it in .env as a dictionary?
       const completion = await this.openai.chat.completions.create({
         messages: [{ role: "system", content: options.prompt }],
-        model: "deepseek-chat",
+        model: "deepseek-reasoner",
         response_format: {
           'type': options.type
         }
