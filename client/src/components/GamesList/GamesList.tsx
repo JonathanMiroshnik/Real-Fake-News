@@ -14,22 +14,21 @@ function GamesList() {
     // TODO: should add vertical support
     const GAMES = [ 
         {
-            title: "tic-tac-toe", 
+            title: "Tic Tac Toe", 
             headImageName: "logoTicTacToe.png",
-            shortDescription: "good tic tac toe backgammon game",
+            shortDescription: "Classic strategy game for two players",
             linkName: "tictactoe"
         },
         {
-            title: "Trivia", 
+            title: "Trivia Challenge", 
             headImageName: "triviaGameLogo.png",
-            shortDescription: "good trivia game lol",
+            shortDescription: "Test your knowledge with fun questions",
             linkName: "trivia"
         }
     ];
 
     return (
         <div className="games-list-section">
-            <h2 className="games-list-title">GAMES:</h2>
             <div className="games-list-items">            
                 { GAMES.map((game, ind) => <GameItem key={"game_" + ind.toString()} {...game} />) }       
             </div>

@@ -180,7 +180,7 @@ function TriviaGame() {
         onPlayerChange={onPlayerChange} />
       }
       {!gameStarted &&
-        <button className="tictac-start-button" onClick={startGame} disabled={gameStarted || players.length < MIN_NUMBER_PLAYERS}> Start </button>
+        <button className="trivia-start-button" onClick={startGame} disabled={gameStarted || players.length < MIN_NUMBER_PLAYERS}> Start Game </button>
       }
       {gameStarted && 
         <ScoreBoard players={players} currentPlayerInd={currentPlayerInd} />

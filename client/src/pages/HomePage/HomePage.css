@@ -6,6 +6,7 @@
 
 .home-section {
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 
@@ -25,17 +26,16 @@
   
   padding-bottom: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 4px var(--border-big-separator-color) solid;
 }
 
-.home-container > .home-section + .home-section {
+/* .home-container > .home-section + .home-section {
   padding-top: 5rem;
   margin-top: 2rem;
   
   border-top-width: 4px;
   border-top-style: solid;
   border-top-color: var(--border-big-separator-color);
-}
+} */
 
 /* .article-grid { */
   /* display: flex; */

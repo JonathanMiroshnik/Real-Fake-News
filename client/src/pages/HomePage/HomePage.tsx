@@ -3,6 +3,7 @@ import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import GamesList from '../../components/GamesList/GamesList';
 import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
+import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories } from '../../services/articleService';
@@ -26,6 +27,7 @@ function HomePage() {
       {/* TODO: magic number 4 */}
       <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />    
       <div className="home-section">
+        <SectionHeader topLine="Featured Article" bottomLine="Interest" />
         <div className='home-section-content'>
           <div>
             {randomArticle && <FeaturedArticle article={randomArticle} />}
@@ -51,14 +53,29 @@ function HomePage() {
             </div>
       )) } */}
 
-      <div className='home-section-content'>
-          <ArticleList articles={categoryArticles[1]} vertical={false} maxItems={articlesPerSection} />
-      </div>
-      <div className='home-section-content'>
-          <ArticleList articles={categoryArticles[2]} vertical={false} maxItems={articlesPerSection} />
-      </div>
+      {categoryArticles[1] && categoryArticles[1].length > 0 && 
+        <div className="home-section">
+          <SectionHeader topLine="Latest News" bottomLine="Technology" />
+          <div className='home-section-content'>
+            <ArticleList articles={categoryArticles[1]} vertical={false} maxItems={articlesPerSection} />
+          </div>
+        </div>
+      }
+      {categoryArticles[2] && categoryArticles[2].length > 0 && 
+        <div className="home-section">
+          <SectionHeader topLine="Breaking News" bottomLine="Politics" />
+          <div className='home-section-content'>
+            <ArticleList articles={categoryArticles[2]} vertical={false} maxItems={articlesPerSection} />
+          </div>
+        </div>
+      }
       
-      <GamesList />        
+      <div className="home-section">
+        <SectionHeader topLine="Interactive" bottomLine="Games" />
+        {/* <div className='home-section-content'> */}
+        <GamesList />
+        {/* </div> */}
+      </div>        
 
         {/* <aside className="sidebar">
           <NewsCarousel/>

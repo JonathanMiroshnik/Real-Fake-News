@@ -47,12 +47,12 @@ function WriterPage() {
 
   return (
     <div className="home-container">
-      <div style={{textAlign: "center", marginBottom: "10rem"}}>
-            <h2>{ authorName }</h2>
+      <div className="writer-profile-section">
+            <h2 className="writer-name">{ authorName }</h2>
             <img src={getImageURLFromWriter(foundWriter, DEFAULT_IMAGE)} 
             alt={foundWriter.name} className="writer-page-profile-img"/>
             <br/>
-            { foundWriter.description }            
+            <p className="writer-description">{ foundWriter.description }</p>            
       </div>
       
       <div className="main-content">

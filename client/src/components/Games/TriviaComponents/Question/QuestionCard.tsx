@@ -68,9 +68,19 @@ function QuestionCard(questionProps: QuestionProps) {
     return (
         <div className="trivia-question-card-main">            
             <ReactMarkdown>{questionProps.questionAPIStructure.question}</ReactMarkdown>
-            {answers.length > 0 && answers.map((answer, i) => (
-                <button key={"trivia-answer-button-" + i.toString()} onClick={() => checkCorrect(answer)}>{answer}</button>
-            ))}
+            {answers.length > 0 && (
+                <div className="trivia-answer-buttons">
+                    {answers.map((answer, i) => (
+                        <button 
+                            key={"trivia-answer-button-" + i.toString()} 
+                            className="trivia-answer-button"
+                            onClick={() => checkCorrect(answer)}
+                        >
+                            {answer}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
