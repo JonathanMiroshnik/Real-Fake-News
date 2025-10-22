@@ -20,7 +20,7 @@ The website will have the following elements:
 - Home page -> At the top it will present the front-side article, then the other main articles, and then the other lesser sections and articles.
 
 ### Possible additions:
-- [-] Carousel/News Ticker/Slideshow -> This will show the most recent events/articles in a shortened format and will act as buttons towards the related content.
+- [x] Carousel/News Ticker/Slideshow -> This will show the most recent events/articles in a shortened format and will act as buttons towards the related content.
 - [ ] Simple weather description -> This will be a real weather element that will pull from real data sources to show the current weather in various places
 - [ ] Local time clock
 - [ ] Fake sponsors -> To be added to the footer
@@ -30,8 +30,8 @@ The website will have the following elements:
 - [ ] Search button -> This will allow a user to search through the articles in the website according to key words 
 - [ ] Automatically generated images in the middle of articles -> and also for banners for the articles
 - [ ] A tip jar for the humble creator of said website
-- [-] Dark/Light mode button
-- [-] Pages for writers for all their articles to be displayed in the page
+- [x] Dark/Light mode button
+- [x] Pages for writers for all their articles to be displayed in the page
 - [ ] Pagination where needed
 - [ ] Games section, **In development** - A tic-tac-toe game and a Trivia game
 - [ ] Share buttons on article: https://www.npmjs.com/package/react-share 
