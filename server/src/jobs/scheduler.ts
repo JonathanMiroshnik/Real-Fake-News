@@ -8,6 +8,14 @@ import { addNewsToTotal } from "./newsFetching.js";
 
 // Used to start the recurring back-end jobs
 export function initializeScheduledJobs() {
+    // Check if scheduled jobs are enabled via environment variable
+    const ENABLE_SCHEDULED_JOBS = process.env.ENABLE_SCHEDULED_JOBS === 'true';
+    
+    if (!ENABLE_SCHEDULED_JOBS) {
+        console.log('⏸️  Scheduled jobs are disabled (ENABLE_SCHEDULED_JOBS=false)');
+        return;
+    }
+
     const GENERATE_AI_ARTICLE_AVERAGE_TIME: number = ONE_HOUR_MILLISECS * 8;
     const FETCH_RECENT_NEWS_ARTICLES_AVERAGE_TIME: number = ONE_HOUR_MILLISECS * 2;
     const NEWS_ARTICLES_TO_ADD: number = 10;
