@@ -9,6 +9,12 @@ const newsFetching_js_1 = require("./newsFetching.js");
 // Will contain all the activation functions of the recurring jobs, along with the timing(time to recur)
 // Used to start the recurring back-end jobs
 function initializeScheduledJobs() {
+    // Check if scheduled jobs are enabled via environment variable
+    const ENABLE_SCHEDULED_JOBS = process.env.ENABLE_SCHEDULED_JOBS === 'true';
+    if (!ENABLE_SCHEDULED_JOBS) {
+        console.log('⏸️  Scheduled jobs are disabled (ENABLE_SCHEDULED_JOBS=false)');
+        return;
+    }
     const GENERATE_AI_ARTICLE_AVERAGE_TIME = constants_js_1.ONE_HOUR_MILLISECS * 8;
     const FETCH_RECENT_NEWS_ARTICLES_AVERAGE_TIME = constants_js_1.ONE_HOUR_MILLISECS * 2;
     const NEWS_ARTICLES_TO_ADD = 10;
