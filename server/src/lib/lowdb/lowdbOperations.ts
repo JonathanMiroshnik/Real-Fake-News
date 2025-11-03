@@ -113,17 +113,21 @@ export async function updatePost<P>(newPost: P, dbConfig: DatabaseConfig<P>): Pr
 }
 
 
-// TODO: FIX THIS CRITICAL
 // Delete - Remove post by ID
 export async function deletePost<P>(key: string, dbConfig: DatabaseConfig<P>): Promise<boolean> {
   const db = await JSONFilePreset<Schema<P>>(dbConfig.source, { posts: [] });
   const initialLength = db.data.posts.length;
 
-  // db.data.posts = db.data.posts.filter(p => p.key !== key);
-  // if (db.data.posts.length === initialLength) return false;
-  // db.data.posts = d
+  // Get all keys asynchronously and filter
+  const keysToCheck = await Promise.all(
+    db.data.posts.map(p => dbConfig.getKey(p))
+  );
+  
+  db.data.posts = db.data.posts.filter((p, index) => keysToCheck[index] !== key);
+  
+  if (db.data.posts.length === initialLength) return false;
 
-  // await db.write();
+  await db.write();
   return true;
 }
 

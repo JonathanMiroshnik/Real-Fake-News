@@ -86,15 +86,16 @@ async function updatePost(newPost, dbConfig) {
     await db.write();
     return true;
 }
-// TODO: FIX THIS CRITICAL
 // Delete - Remove post by ID
 async function deletePost(key, dbConfig) {
     const db = await (0, node_1.JSONFilePreset)(dbConfig.source, { posts: [] });
     const initialLength = db.data.posts.length;
-    // db.data.posts = db.data.posts.filter(p => p.key !== key);
-    // if (db.data.posts.length === initialLength) return false;
-    // db.data.posts = d
-    // await db.write();
+    // Get all keys asynchronously and filter
+    const keysToCheck = await Promise.all(db.data.posts.map(p => dbConfig.getKey(p)));
+    db.data.posts = db.data.posts.filter((p, index) => keysToCheck[index] !== key);
+    if (db.data.posts.length === initialLength)
+        return false;
+    await db.write();
     return true;
 }
 // // EXAMPLE USAGE

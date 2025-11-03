@@ -17,7 +17,7 @@ const app = (0, express_1.default)();
 (0, scheduler_js_1.initializeScheduledJobs)();
 // Middleware pipeline
 app.use((0, cors_1.default)({
-    origin: ["https://real.sensorcensor.xyz", "http://localhost:5173", "http://localhost:3000"],
+    origin: ["https://real.sensorcensor.xyz", "http://localhost:5173", "http://localhost:3000", "http://localhost:5174", "http://localhost:5175"],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
