@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { getAllPosts, deletePost } from '../lib/lowdb/lowdbOperations.js';
 import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
+import { getAllPostsAfterDate } from '../services/blogService.js';
+import { DAY_MILLISECS } from '../config/constants.js';
 import { JSONFilePreset } from 'lowdb/node';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -117,11 +119,26 @@ export const validateAdminPassword = (req: Request, res: Response, next: NextFun
   next();
 };
 
-// DEBUG: Get all articles
+// DEBUG: Get recent articles (same logic as React frontend)
+// Gets articles from last 24 hours, or last 4 days if not enough articles
 export const getAllArticles = async (req: Request, res: Response) => {
   try {
-    const articles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
-    console.log(`📰 DEBUG: Returning ${articles.length} articles`);
+    // First try to get articles from last 24 hours (1 day)
+    const oneDayAgo = new Date(Date.now() - DAY_MILLISECS);
+    let result = await getAllPostsAfterDate(oneDayAgo);
+    let articles = result.articles;
+    
+    // If we don't have enough articles (less than 15), expand to last 4 days
+    const MIN_ACCEPTABLE_ARTICLES = 15;
+    if (articles.length < MIN_ACCEPTABLE_ARTICLES) {
+      const fourDaysAgo = new Date(Date.now() - (DAY_MILLISECS * 4));
+      result = await getAllPostsAfterDate(fourDaysAgo);
+      articles = result.articles;
+      console.log(`📰 DEBUG: Returning ${articles.length} articles (from last 4 days)`);
+    } else {
+      console.log(`📰 DEBUG: Returning ${articles.length} articles (from last 24 hours)`);
+    }
+    
     res.json({ success: true, articles });
   } catch (error) {
     console.error('Error fetching articles:', error);

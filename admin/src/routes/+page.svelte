@@ -21,9 +21,11 @@
 	let password = '';
 	let isAuthorized = false;
 
-	// API base URL - adjust if your server runs on a different port
-	// Default server port is 5001, but can be overridden with PORT env var
-	const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5001/api';
+	// API base URL - determined by dev/prod mode
+	const isDevMode = import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
+	const API_BASE = isDevMode
+		? (import.meta.env.VITE_API_BASE_DEV || 'http://localhost:5001/api')
+		: (import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz/api');
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
 	// Password and authorization will be set in onMount (client-side only)
@@ -157,9 +159,10 @@
 	// Get article URL (assuming articles are displayed on the main site)
 	function getArticleUrl(key: string | undefined): string {
 		if (!key) return '#';
-		// Adjust this URL based on your actual article page structure
-		// Using the client URL - adjust if your client runs on a different domain
-		const clientUrl = 'http://localhost:5173'; // Change to your production URL when deploying
+		// Use environment variable to determine client URL based on dev/prod mode
+		const clientUrl = isDevMode 
+			? (import.meta.env.VITE_CLIENT_URL_DEV || 'http://localhost:5173')
+			: (import.meta.env.VITE_CLIENT_URL_PROD || 'https://real.sensorcensor.xyz');
 		return `${clientUrl}/article/${key}`;
 	}
 
@@ -221,7 +224,7 @@
 										<td colspan="3" class="empty">No articles found</td>
 									</tr>
 								{:else}
-									{#each articles as article (article.key)}
+									{#each articles.map((article, index) => ({ ...article, _index: index })) as article (article.key ? article.key : `article-${article._index}`)}
 										<tr>
 											<td>
 												<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer">
