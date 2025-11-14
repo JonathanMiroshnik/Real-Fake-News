@@ -1,5 +1,6 @@
 import Database, { type Database as DatabaseType } from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
 class DatabaseManager {
     private static instance: DatabaseManager | null = null;
@@ -8,6 +9,13 @@ class DatabaseManager {
     private constructor() {
         // Private constructor - can only be called from getInstance()
         const dbPath = path.join(__dirname, '../../data/database.db');
+        const dbDir = path.dirname(dbPath);
+        
+        // Ensure the directory exists
+        if (!fs.existsSync(dbDir)) {
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
+        
         this.db = new Database(dbPath);
         this.db.pragma('journal_mode = WAL');
         this.db.pragma('busy_timeout = 5000');

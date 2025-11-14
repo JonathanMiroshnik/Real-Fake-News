@@ -10,9 +10,14 @@ const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
 const apiRoutes_js_1 = __importDefault(require("./routes/apiRoutes.js"));
 const scheduler_js_1 = require("./jobs/scheduler.js");
+const schema_js_1 = require("./lib/database/schema.js");
+const database_js_1 = require("./lib/database/database.js");
 // TODO: change express use to get set etc?
 // Initialize express application
 const app = (0, express_1.default)();
+// Initialize SQLite database schema
+(0, schema_js_1.initializeSchema)();
+(0, database_js_1.getDatabase)(); // Establish connection
 // Activating the recurring jobs
 (0, scheduler_js_1.initializeScheduledJobs)();
 // Middleware pipeline

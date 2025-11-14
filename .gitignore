@@ -12,6 +12,8 @@ server/data/database.db-*
 
 # Build outputs
 dist/
+server/dist/
+client/dist/
 build/
 *.log
 

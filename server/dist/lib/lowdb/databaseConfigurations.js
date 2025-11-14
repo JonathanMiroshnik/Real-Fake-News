@@ -1,19 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.writerDatabaseConfig = exports.newsDatabaseConfig = exports.featuredBlogDatabaseConfig = exports.blogDatabaseConfig = void 0;
-const node_1 = require("lowdb/node");
+const database_js_1 = require("../database/database.js");
 const constants_1 = require("../../config/constants");
 ;
 // TODO: copyValues never returns false under these circumstances!
 exports.blogDatabaseConfig = {
     source: constants_1.DB_BLOG_POST_FILE,
     exists: async (article) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_BLOG_POST_FILE, { posts: [] });
-        return db.data.posts.some(p => p.key === article.key);
+        const db = (0, database_js_1.getDatabase)();
+        const key = article.key;
+        if (!key)
+            return false;
+        const stmt = db.prepare('SELECT 1 FROM blog_posts WHERE key = ?');
+        const result = stmt.get(key);
+        return result !== undefined;
     },
     find: async (key) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_BLOG_POST_FILE, { posts: [] });
-        return db.data.posts.find(p => p.key === key);
+        const db = (0, database_js_1.getDatabase)();
+        const stmt = db.prepare('SELECT * FROM blog_posts WHERE key = ?');
+        const row = stmt.get(key);
+        if (!row)
+            return undefined;
+        return {
+            key: row.key,
+            title: row.title,
+            content: row.content,
+            author: row.author ? JSON.parse(row.author) : undefined,
+            timestamp: row.timestamp,
+            category: row.category,
+            headImage: row.headImage,
+            shortDescription: row.shortDescription,
+            originalNewsItem: row.originalNewsItem ? JSON.parse(row.originalNewsItem) : undefined
+        };
     },
     getKey: async (pInput) => {
         if (pInput.key === undefined) {
@@ -37,12 +56,31 @@ exports.blogDatabaseConfig = {
 exports.featuredBlogDatabaseConfig = {
     source: constants_1.DB_FEATURED_BLOG_POST_FILE,
     exists: async (article) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_FEATURED_BLOG_POST_FILE, { posts: [] });
-        return db.data.posts.some(p => p.key === article.key);
+        const db = (0, database_js_1.getDatabase)();
+        const key = article.key;
+        if (!key)
+            return false;
+        const stmt = db.prepare('SELECT 1 FROM featured_blog_posts WHERE key = ?');
+        const result = stmt.get(key);
+        return result !== undefined;
     },
     find: async (key) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_FEATURED_BLOG_POST_FILE, { posts: [] });
-        return db.data.posts.find(p => p.key === key);
+        const db = (0, database_js_1.getDatabase)();
+        const stmt = db.prepare('SELECT * FROM featured_blog_posts WHERE key = ?');
+        const row = stmt.get(key);
+        if (!row)
+            return undefined;
+        return {
+            key: row.key,
+            title: row.title,
+            content: row.content ? JSON.parse(row.content) : undefined,
+            author: row.author ? JSON.parse(row.author) : undefined,
+            timestamp: row.timestamp,
+            category: row.category,
+            headImage: row.headImage,
+            shortDescription: row.shortDescription,
+            originalNewsItem: row.originalNewsItem ? JSON.parse(row.originalNewsItem) : undefined
+        };
     },
     getKey: async (pInput) => {
         if (pInput.key === undefined) {
@@ -76,12 +114,24 @@ exports.featuredBlogDatabaseConfig = {
 exports.newsDatabaseConfig = {
     source: constants_1.DB_NEWS_DATA_FILE,
     exists: async (article) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_NEWS_DATA_FILE, { posts: [] });
-        return db.data.posts.some(p => p.article_id === article.article_id);
+        const db = (0, database_js_1.getDatabase)();
+        const stmt = db.prepare('SELECT 1 FROM news_items WHERE article_id = ?');
+        const result = stmt.get(article.article_id);
+        return result !== undefined;
     },
     find: async (key) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_NEWS_DATA_FILE, { posts: [] });
-        return db.data.posts.find(p => p.article_id === key);
+        const db = (0, database_js_1.getDatabase)();
+        const stmt = db.prepare('SELECT * FROM news_items WHERE article_id = ?');
+        const row = stmt.get(key);
+        if (!row)
+            return undefined;
+        return {
+            article_id: row.article_id,
+            title: row.title,
+            description: row.description,
+            pubDate: row.pubDate,
+            pubDateTZ: row.pubDateTZ
+        };
     },
     getKey: async (pInput) => {
         return pInput.article_id;
@@ -96,12 +146,29 @@ exports.newsDatabaseConfig = {
 exports.writerDatabaseConfig = {
     source: constants_1.DB_WRITERS_FILE,
     exists: async (article) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_WRITERS_FILE, { posts: [] });
-        return db.data.posts.some(p => p.key === article.key);
+        const db = (0, database_js_1.getDatabase)();
+        const key = article.key;
+        if (!key)
+            return false;
+        const stmt = db.prepare('SELECT 1 FROM writers WHERE key = ?');
+        const result = stmt.get(key);
+        return result !== undefined;
     },
     find: async (key) => {
-        const db = await (0, node_1.JSONFilePreset)(constants_1.DB_WRITERS_FILE, { posts: [] });
-        return db.data.posts.find(p => p.key === key);
+        const db = (0, database_js_1.getDatabase)();
+        const stmt = db.prepare('SELECT * FROM writers WHERE key = ?');
+        const row = stmt.get(key);
+        if (!row)
+            return undefined;
+        return {
+            key: row.key,
+            name: row.name,
+            description: row.description,
+            systemPrompt: row.systemPrompt,
+            profileImage: row.profileImage,
+            createdAt: row.createdAt,
+            updatedAt: row.updatedAt
+        };
     },
     getKey: async (pInput) => {
         if (pInput.key === undefined) {
