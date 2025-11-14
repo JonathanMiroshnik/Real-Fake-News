@@ -1,2 +1,20 @@
+# Dependencies
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Also add SQLite database files (from your migration)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+server/data/database.db
+server/data/database.db-*
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Environment files (already have these)
 server/.env
 client/.env

@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import app from './app.js';
+import { closeDatabase } from './lib/database/database.js';
 
 // Load environment variables
 config({ path: resolve(__dirname, '../.env') });
@@ -20,6 +21,7 @@ const startServer = async () => {
     const shutdown = async (signal: string) => {
       console.log(`🛑 Received ${signal}, shutting down gracefully...`);
       server.close(async () => {
+        closeDatabase(); // Close SQLite database connection
         console.log('💥 Process terminated');
         process.exit(0);
       });

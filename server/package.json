@@ -9,7 +9,8 @@
     "dev": "nodemon src/index.ts",
     "start": "node --no-warnings dist/index.js",
     "prestart": "npm run build",
-    "seed": "node data/seed-data.js"
+    "seed": "node data/seed-data.js",
+    "migrate": "ts-node src/scripts/migrateToSqlite.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,11 +20,13 @@
     "@langchain/deepseek": "^0.0.1",
     "@runware/sdk-js": "^1.1.38",
     "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/jimp": "^0.2.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
+    "better-sqlite3": "^12.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
