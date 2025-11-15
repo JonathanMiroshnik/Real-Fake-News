@@ -28,16 +28,29 @@ export async function pullHourlyBlogs(req: Request, res: Response) {
 }
 
 export async function pullBlogsByMinute(req: Request, res: Response) {
+    console.log('📥 Received request to /api/blogs/by-minute');
+    console.log('📥 Query params:', req.query);
+    console.log('📥 Headers:', req.headers);
+    
     try {
         const minutes: number = parseInt(req.query.minute as string, 10);
+        console.log('📥 Parsed minutes:', minutes);
+        
         if (isNaN(minutes)) {
+            console.error('❌ Invalid minute value:', req.query.minute);
             res.status(400).json({ error: 'Invalid minute value' });
             return;
         }
 
-        const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - minutes * 60 * 1000));
+        const startDate = new Date(Date.now() - minutes * 60 * 1000);
+        console.log('📥 Fetching articles after date:', startDate.toISOString());
+        
+        const result: BlogResponse = await getAllPostsAfterDate(startDate);
+        console.log('📥 Found', result.articles.length, 'articles');
+        
         res.json(result);
     } catch (error) {
+        console.error('❌ Error in pullBlogsByMinute:', error);
         res.status(500).json({ error: 'Analysis failed' });
     }
 }

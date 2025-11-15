@@ -1,11 +1,7 @@
 import { DatabaseConfig } from './databaseConfigurations';
 // Re-export SQLite operations - this maintains backward compatibility
-export { createPost, getAllPosts, getPostByKey, updatePost, deletePost } from '../database/sqliteOperations.js';
-
-// Every type of post has a unique key property
-export interface Post {
-  key: string | undefined;
-}
+// NOTE: All code should now import directly from '../database/sqliteOperations.js'
+export { createPost, getAllPosts, getPostByKey, updatePost, deletePost, Post } from '../database/sqliteOperations.js';
 
 // // EXAMPLE USAGE
 // export default async function crudTest() {

@@ -106,23 +106,28 @@ async function migrateJsonToSqlite() {
         console.log('\n⭐ Migrating featured blog posts...');
         try {
             const featuredPath = path.join(__dirname, '../../data/featuredBlogPosts.json');
-            const featuredData = JSON.parse(readFileSync(featuredPath, 'utf-8'));
-            const featuredPosts: FeaturedArticleScheme[] = featuredData.posts || [];
+            const featuredFileContent = readFileSync(featuredPath, 'utf-8').trim();
+            if (!featuredFileContent) {
+                console.log('⚠️  Featured blog posts file is empty, skipping...');
+            } else {
+                const featuredData = JSON.parse(featuredFileContent);
+                const featuredPosts: FeaturedArticleScheme[] = featuredData.posts || [];
             
-            for (const post of featuredPosts) {
-                try {
-                    const result = await createPost(post, featuredBlogDatabaseConfig);
-                    if (result) {
-                        totalMigrated++;
-                    } else {
-                        console.warn(`Featured post ${post.key} already exists, skipping`);
+                for (const post of featuredPosts) {
+                    try {
+                        const result = await createPost(post, featuredBlogDatabaseConfig);
+                        if (result) {
+                            totalMigrated++;
+                        } else {
+                            console.warn(`Featured post ${post.key} already exists, skipping`);
+                        }
+                    } catch (error) {
+                        console.error(`Error migrating featured post ${post.key}:`, error);
+                        totalErrors++;
                     }
-                } catch (error) {
-                    console.error(`Error migrating featured post ${post.key}:`, error);
-                    totalErrors++;
                 }
+                console.log(`✅ Migrated ${featuredPosts.length} featured blog posts`);
             }
-            console.log(`✅ Migrated ${featuredPosts.length} featured blog posts`);
         } catch (error) {
             console.error('Error migrating featured blog posts:', error);
             totalErrors++;

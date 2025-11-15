@@ -10,6 +10,9 @@ client/node_modules/
 server/data/database.db
 server/data/database.db-*
 
+# Server data images
+server/data/images/
+
 # Build outputs
 dist/
 server/dist/

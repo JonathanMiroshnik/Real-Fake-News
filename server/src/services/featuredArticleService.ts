@@ -10,7 +10,7 @@ import { generateTextFromString } from './llmService.js';
 import { getNRandom, getUniqueKey } from '../utils/general.js';
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatDeepSeek } from "@langchain/deepseek";
-import { createPost } from '../lib/lowdb/lowdbOperations.js';
+import { createPost } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------

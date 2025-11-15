@@ -2,8 +2,8 @@ import 'dotenv/config'
 import axios from 'axios';
 import cron from 'node-cron';
 import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS } from '../config/constants';
-import { getAllPosts } from '../lib/lowdb/lowdbOperations';
-import { newsDatabaseConfig } from '../lib/lowdb/databaseConfigurations';
+import { getAllPosts } from '../lib/database/sqliteOperations.js';
+import { newsDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { standardizeDate } from './timeService';
 
 // TODO: like this, it will be restarted every time we start up the project again

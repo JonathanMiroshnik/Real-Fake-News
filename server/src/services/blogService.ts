@@ -5,26 +5,46 @@ import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/art
 import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
-import { getAllPosts, createPost } from "../lib/lowdb/lowdbOperations.js";
+import { getAllPosts, createPost } from "../lib/database/sqliteOperations.js";
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
+    console.log('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
+    console.log('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
+    
     const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+    console.log('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
 
     const retArticles = allArticles.filter(article => {
-        if (!article.timestamp) return false;
+        if (!article.timestamp) {
+            console.log('⚠️ [getAllPostsAfterDate] Article', article.key, 'has no timestamp');
+            return false;
+        }
         
         try {
             const articleDate = new Date(article.timestamp);
             const startTime = startDate.getTime();
-            return articleDate.getTime() > startTime;
+            const articleTime = articleDate.getTime();
+            const isAfter = articleTime > startTime;
+            
+            if (!isAfter) {
+                console.log('⏰ [getAllPostsAfterDate] Article', article.key, 'timestamp', article.timestamp, 'is before start date');
+            }
+            
+            return isAfter;
         } catch (e) {
-            console.error('Invalid date format:', article.timestamp);
+            console.error('❌ [getAllPostsAfterDate] Invalid date format:', article.timestamp, 'Error:', e);
             return false;
         }
     });
+
+    console.log('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
+    if (retArticles.length > 0) {
+        console.log('📰 [getAllPostsAfterDate] Sample article timestamps:', 
+            retArticles.slice(0, 3).map(a => ({ key: a.key, timestamp: a.timestamp })));
+    }
 
     return {
         success: true,

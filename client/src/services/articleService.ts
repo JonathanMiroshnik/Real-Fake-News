@@ -44,42 +44,93 @@ const MIN_ACCEPTABLE_ARTICLES = 15;
  * @returns Array of articles.
  */
 export async function pullRecentArticles() {
+    console.log('🚀 [pullRecentArticles] Function called at:', new Date().toISOString());
+    console.log('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
+    
     // TODO: make this into global constant
     // Differentiates between development and production mode URLs
     let VITE_API_BASE: string = "";
     if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
       VITE_API_BASE = "http://localhost:5000";
+      console.log('🔍 [pullRecentArticles] VITE_LOCAL_DEV_MODE is undefined, using default:', VITE_API_BASE);
     }
     else {
       VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
                     "http://localhost:5000" : 
                     "https://real.sensorcensor.xyz";
+      console.log('🔍 [pullRecentArticles] VITE_LOCAL_DEV_MODE:', import.meta.env.VITE_LOCAL_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
     }
 
-    const response = await fetch(`${VITE_API_BASE}/api/blogs/by-minute?minute=${MIN_MINUTES_BEFORE_TO_CHECK}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    });
+    const url = `${VITE_API_BASE}/api/blogs/by-minute?minute=${MIN_MINUTES_BEFORE_TO_CHECK}`;
+    console.log('🔍 [pullRecentArticles] Full URL:', url);
+    console.log('🔍 [pullRecentArticles] Minutes to check:', MIN_MINUTES_BEFORE_TO_CHECK);
 
-    const articlesJSON = await response.json();
-    let finalArticles = articlesJSON.articles;
-
-    // TODO: don't like the two checks for number of articles, should be more generalized.
-    if (finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
-        const response = await fetch(`${VITE_API_BASE}/api/blogs/by-minute?minute=${MAX_MINUTES_BEFORE_TO_CHECK}`, {
+    try {
+        const fetchStartTime = performance.now();
+        console.log('📡 [pullRecentArticles] About to call fetch() at:', new Date().toISOString());
+        console.log('📡 [pullRecentArticles] Fetch options:', {
+            method: 'GET',
+            url: url,
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         });
+        
+        const fetchEndTime = performance.now();
+        console.log('📡 [pullRecentArticles] Fetch completed in', (fetchEndTime - fetchStartTime).toFixed(2), 'ms');
+        console.log('📡 [pullRecentArticles] Response status:', response.status, response.statusText);
+        console.log('📡 [pullRecentArticles] Response headers:', Object.fromEntries(response.headers.entries()));
 
+        if (!response.ok) {
+            console.error(`Failed to fetch articles: ${response.status} ${response.statusText}`);
+            return [];
+        }
+
+        console.log('📦 [pullRecentArticles] Parsing JSON response...');
         const articlesJSON = await response.json();
-        finalArticles = articlesJSON.articles;
-    }
+        console.log('📦 [pullRecentArticles] Response data:', articlesJSON);
+        let finalArticles = articlesJSON.articles || [];
+        console.log('📦 [pullRecentArticles] Articles count:', finalArticles.length);
 
-    return finalArticles;
+        // TODO: don't like the two checks for number of articles, should be more generalized.
+        if (finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
+            console.log('📡 [pullRecentArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
+            const secondUrl = `${VITE_API_BASE}/api/blogs/by-minute?minute=${MAX_MINUTES_BEFORE_TO_CHECK}`;
+            console.log('📡 [pullRecentArticles] Second fetch URL:', secondUrl);
+            
+            const secondFetchStart = performance.now();
+            const response = await fetch(secondUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const secondFetchEnd = performance.now();
+            console.log('📡 [pullRecentArticles] Second fetch completed in', (secondFetchEnd - secondFetchStart).toFixed(2), 'ms');
+
+            if (response.ok) {
+                const articlesJSON = await response.json();
+                finalArticles = articlesJSON.articles || [];
+                console.log('📦 [pullRecentArticles] Extended articles count:', finalArticles.length);
+            } else {
+                console.error('❌ [pullRecentArticles] Second fetch failed:', response.status, response.statusText);
+            }
+        }
+
+        console.log('✅ [pullRecentArticles] Returning', finalArticles.length, 'articles');
+        return finalArticles;
+    } catch (error) {
+        console.error('❌ [pullRecentArticles] Error caught:', error);
+        console.error('❌ [pullRecentArticles] Error type:', error?.constructor?.name);
+        console.error('❌ [pullRecentArticles] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [pullRecentArticles] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        return [];
+    }
 }
 
 /**

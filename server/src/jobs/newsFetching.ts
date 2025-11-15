@@ -1,6 +1,6 @@
 import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from "../config/constants";
-import { createPost } from "../lib/lowdb/lowdbOperations";
-import { newsDatabaseConfig } from "../lib/lowdb/databaseConfigurations";
+import { createPost } from "../lib/database/sqliteOperations.js";
+import { newsDatabaseConfig } from "../lib/lowdb/databaseConfigurations.js";
 import { NewsItem, remainingTokens, fetchNews } from "../services/newsService";
 
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.

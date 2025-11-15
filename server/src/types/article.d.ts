@@ -1,5 +1,4 @@
-import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/lowdb/lowdbOperations.js"
-import { DB_BLOG_POST_FILE } from "../lib/lowdb/lowdb_databases.js";
+import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/database/sqliteOperations.js"
 import { NewsItem } from "../services/newsService.js";
 import { Writer } from "./writer";
 

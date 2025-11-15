@@ -10,7 +10,7 @@
     "start": "node --no-warnings dist/index.js",
     "prestart": "npm run build",
     "seed": "node data/seed-data.js",
-    "migrate": "ts-node src/scripts/migrateToSqlite.ts"
+    "migrate": "npm run build && node dist/scripts/migrateToSqlite.js"
   },
   "keywords": [],
   "author": "",

@@ -33,13 +33,31 @@ function ArticleProvider({ children }: { children: ReactNode }) {
   // TODO: should this be here or in a different "jobs" folder and just be imported from there?
   // Data fetching effect - runs once on mount
   useEffect(() => {    
+      console.log('🎯 [ArticlesContext] useEffect triggered at:', new Date().toISOString());
+      console.log('🎯 [ArticlesContext] Component mounted, starting article fetch...');
+      
       async function fetchArticles() {
-          let finalArticles = await pullRecentArticles();
-          if (finalArticles === undefined) {
-            finalArticles = [];
-          }
+          try {
+              console.log('🎯 [ArticlesContext] fetchArticles() called at:', new Date().toISOString());
+              console.log('🎯 [ArticlesContext] Calling pullRecentArticles()...');
+              
+              let finalArticles = await pullRecentArticles();
+              
+              console.log('🎯 [ArticlesContext] pullRecentArticles() returned:', finalArticles?.length || 0, 'articles');
+              
+              if (finalArticles === undefined) {
+                console.warn('⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array');
+                finalArticles = [];
+              }
 
-          setArticles([...finalArticles]);
+              console.log('🎯 [ArticlesContext] Setting articles state with', finalArticles.length, 'articles');
+              setArticles([...finalArticles]);
+              console.log('✅ [ArticlesContext] Articles state updated successfully');
+          } catch (error) {
+              console.error('❌ [ArticlesContext] Error in fetchArticles:', error);
+              console.error('❌ [ArticlesContext] Error details:', error instanceof Error ? error.message : String(error));
+              setArticles([]);
+          }
       }
       
       fetchArticles();

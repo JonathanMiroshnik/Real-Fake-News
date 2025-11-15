@@ -2,6 +2,11 @@ import { getDatabase } from './database.js';
 import { DatabaseConfig } from '../lowdb/databaseConfigurations.js';
 import Database from 'better-sqlite3';
 
+// Every type of post has a unique key property
+export interface Post {
+  key: string | undefined;
+}
+
 /**
  * Maps DatabaseConfig source (table name) to actual SQLite table name
  */
