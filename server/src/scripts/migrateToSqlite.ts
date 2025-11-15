@@ -29,22 +29,38 @@ async function migrateJsonToSqlite() {
         try {
             const blogPostsPath = path.join(__dirname, '../../data/blogPosts.json');
             const blogPostsData = JSON.parse(readFileSync(blogPostsPath, 'utf-8'));
-            const blogPosts: ArticleScheme[] = blogPostsData.posts || [];
+            const rawBlogPosts: any[] = blogPostsData.posts || [];
             
+            // Filter and validate blog posts
+            const blogPosts: ArticleScheme[] = rawBlogPosts
+                .filter((post: any) => post.key && post.author) // Must have key and author
+                .map((post: any) => ({
+                    ...post,
+                    author: post.author || null, // Ensure author exists
+                    originalNewsItem: post.originalNewsItem || null
+                }));
+            
+            let blogMigrated = 0;
+            let blogSkipped = 0;
             for (const post of blogPosts) {
                 try {
+                    if (!post.key) {
+                        blogSkipped++;
+                        continue;
+                    }
                     const result = await createPost(post, blogDatabaseConfig);
                     if (result) {
                         totalMigrated++;
+                        blogMigrated++;
                     } else {
-                        console.warn(`Blog post ${post.key} already exists, skipping`);
+                        blogSkipped++;
                     }
                 } catch (error) {
                     console.error(`Error migrating blog post ${post.key}:`, error);
                     totalErrors++;
                 }
             }
-            console.log(`✅ Migrated ${blogPosts.length} blog posts`);
+            console.log(`✅ Processed ${rawBlogPosts.length} blog posts, migrated ${blogMigrated} new posts, skipped ${blogSkipped}`);
         } catch (error) {
             console.error('Error migrating blog posts:', error);
             totalErrors++;
@@ -55,13 +71,24 @@ async function migrateJsonToSqlite() {
         try {
             const newsDataPath = path.join(__dirname, '../../data/newsData.json');
             const newsData = JSON.parse(readFileSync(newsDataPath, 'utf-8'));
-            const newsItems: NewsItem[] = newsData.posts || [];
+            const rawNewsItems: any[] = newsData.posts || [];
             
+            // Map to NewsItem type (only required fields)
+            const newsItems: NewsItem[] = rawNewsItems.map((item: any) => ({
+                article_id: item.article_id || '',
+                title: item.title || '',
+                description: item.description || '',
+                pubDate: item.pubDate || '',
+                pubDateTZ: item.pubDateTZ || 'UTC'
+            })).filter((item: NewsItem) => item.article_id && item.title); // Filter out invalid items
+            
+            let newsMigrated = 0;
             for (const item of newsItems) {
                 try {
                     const result = await createPost(item, newsDatabaseConfig);
                     if (result) {
                         totalMigrated++;
+                        newsMigrated++;
                     } else {
                         console.warn(`News item ${item.article_id} already exists, skipping`);
                     }
@@ -70,7 +97,7 @@ async function migrateJsonToSqlite() {
                     totalErrors++;
                 }
             }
-            console.log(`✅ Migrated ${newsItems.length} news items`);
+            console.log(`✅ Processed ${rawNewsItems.length} news items, migrated ${newsMigrated} new items`);
         } catch (error) {
             console.error('Error migrating news items:', error);
             totalErrors++;
@@ -83,11 +110,13 @@ async function migrateJsonToSqlite() {
             const writersData = JSON.parse(readFileSync(writersPath, 'utf-8'));
             const writers: Writer[] = writersData.posts || [];
             
+            let writersMigrated = 0;
             for (const writer of writers) {
                 try {
                     const result = await createPost(writer, writerDatabaseConfig);
                     if (result) {
                         totalMigrated++;
+                        writersMigrated++;
                     } else {
                         console.warn(`Writer ${writer.key} already exists, skipping`);
                     }
@@ -96,7 +125,7 @@ async function migrateJsonToSqlite() {
                     totalErrors++;
                 }
             }
-            console.log(`✅ Migrated ${writers.length} writers`);
+            console.log(`✅ Processed ${writers.length} writers, migrated ${writersMigrated} new writers`);
         } catch (error) {
             console.error('Error migrating writers:', error);
             totalErrors++;
@@ -106,23 +135,33 @@ async function migrateJsonToSqlite() {
         console.log('\n⭐ Migrating featured blog posts...');
         try {
             const featuredPath = path.join(__dirname, '../../data/featuredBlogPosts.json');
-            const featuredData = JSON.parse(readFileSync(featuredPath, 'utf-8'));
-            const featuredPosts: FeaturedArticleScheme[] = featuredData.posts || [];
+            const featuredFileContent = readFileSync(featuredPath, 'utf-8').trim();
             
-            for (const post of featuredPosts) {
-                try {
-                    const result = await createPost(post, featuredBlogDatabaseConfig);
-                    if (result) {
-                        totalMigrated++;
-                    } else {
-                        console.warn(`Featured post ${post.key} already exists, skipping`);
+            // Handle empty file
+            if (!featuredFileContent || featuredFileContent === '{}' || featuredFileContent === '') {
+                console.log('⚠️  Featured blog posts file is empty, skipping...');
+                console.log(`✅ Processed 0 featured posts, migrated 0 new posts`);
+            } else {
+                const featuredData = JSON.parse(featuredFileContent);
+                const featuredPosts: FeaturedArticleScheme[] = featuredData.posts || [];
+            
+                let featuredMigrated = 0;
+                for (const post of featuredPosts) {
+                    try {
+                        const result = await createPost(post, featuredBlogDatabaseConfig);
+                        if (result) {
+                            totalMigrated++;
+                            featuredMigrated++;
+                        } else {
+                            console.warn(`Featured post ${post.key} already exists, skipping`);
+                        }
+                    } catch (error) {
+                        console.error(`Error migrating featured post ${post.key}:`, error);
+                        totalErrors++;
                     }
-                } catch (error) {
-                    console.error(`Error migrating featured post ${post.key}:`, error);
-                    totalErrors++;
                 }
+                console.log(`✅ Processed ${featuredPosts.length} featured posts, migrated ${featuredMigrated} new posts`);
             }
-            console.log(`✅ Migrated ${featuredPosts.length} featured blog posts`);
         } catch (error) {
             console.error('Error migrating featured blog posts:', error);
             totalErrors++;
@@ -157,17 +196,16 @@ async function migrateJsonToSqlite() {
 }
 
 // Run migration if this file is executed directly
-if (require.main === module) {
-    migrateJsonToSqlite()
-        .then(() => {
-            console.log('\n🎉 Migration finished!');
-            process.exit(0);
-        })
-        .catch((error) => {
-            console.error('\n❌ Migration failed:', error);
-            process.exit(1);
-        });
-}
+// This will work when run via: npm run migrate or tsx src/scripts/migrateToSqlite.ts
+migrateJsonToSqlite()
+    .then(() => {
+        console.log('\n🎉 Migration finished!');
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error('\n❌ Migration failed:', error);
+        process.exit(1);
+    });
 
 export { migrateJsonToSqlite };
 

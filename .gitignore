@@ -9,6 +9,8 @@ client/node_modules/
 *.sqlite-shm
 server/data/database.db
 server/data/database.db-*
+server/src/data/database.db
+server/src/data/database.db-*
 
 # Build outputs
 dist/

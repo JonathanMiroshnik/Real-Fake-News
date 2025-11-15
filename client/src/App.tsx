@@ -15,6 +15,7 @@ import WriterPage from './pages/WriterPage/WriterPage';
 import ContactPage from './pages/ContactPage/ContactPage';
 import TermsPage from './pages/TermsPage/TermsPage';
 import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
+import TwitterPage from './pages/TwitterPage/TwitterPage';
 
 import TicTacToeGame from './components/Games/TicTacToeComponents/Game/TicTacToeGame';
 import TriviaGame from './components/Games/TriviaComponents/TriviaGame/TriviaGame';
@@ -43,6 +44,8 @@ function App() {
             {/* TODO: Games section - currently separate pages */}
             <Route path="/games/tictactoe" element={<TicTacToeGame />} />
             <Route path="/games/trivia" element={<TriviaGame />} />
+            {/* Twitter */}
+            <Route path="/twitter" element={<TwitterPage />} />
             {/* Footer pages */}
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/terms" element={<TermsPage />} />

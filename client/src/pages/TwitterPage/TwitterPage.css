@@ -1,0 +1,130 @@
+.twitter-page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.twitter-page-header {
+  margin-bottom: 2rem;
+}
+
+.twitter-page-search-section {
+  margin-bottom: 2rem;
+}
+
+.twitter-search-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.twitter-search-type-toggle {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.twitter-search-type-toggle button {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--global-background-color);
+  color: var(--title-color);
+  border: 2px solid var(--border-separator-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.twitter-search-type-toggle button:hover {
+  border-color: var(--title-color);
+}
+
+.twitter-search-type-toggle button.active {
+  background-color: var(--title-color);
+  color: var(--global-background-color);
+  border-color: var(--title-color);
+}
+
+.twitter-search-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.twitter-search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  font-size: 16px;
+  border: 2px solid var(--border-separator-color);
+  border-radius: 8px;
+  background-color: var(--global-background-color);
+  color: var(--title-color);
+  transition: border-color 0.2s;
+}
+
+.twitter-search-input:focus {
+  outline: none;
+  border-color: var(--title-color);
+}
+
+.twitter-search-options {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--title-color);
+  font-size: 14px;
+}
+
+.twitter-max-results-input {
+  width: 60px;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-separator-color);
+  border-radius: 4px;
+  background-color: var(--global-background-color);
+  color: var(--title-color);
+}
+
+.twitter-search-button {
+  padding: 0.75rem 2rem;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: var(--title-color);
+  color: var(--global-background-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.twitter-search-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.twitter-search-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.twitter-page-results {
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .twitter-search-input-group {
+    width: 100%;
+  }
+
+  .twitter-search-input {
+    max-width: 100%;
+  }
+
+  .twitter-search-options {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+

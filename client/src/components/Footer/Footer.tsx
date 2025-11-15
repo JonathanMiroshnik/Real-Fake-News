@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import './Footer.css'
 
 /**
@@ -11,6 +12,7 @@ function Footer() {
           <a href="/disclaimer">Disclaimer</a>
           <a href="/terms">Terms of Use</a>
           <a href="/contact">Contact</a>
+          <Link to="/twitter">Twitter Search</Link>
         </div>
         <p className="footer-undertext">© 2025 Real Fake News - Satirical AI-generated content.</p>
         <p className="footer-undertext">All rights reserved. Real Fake News is not responsible for the content of external sites.</p>

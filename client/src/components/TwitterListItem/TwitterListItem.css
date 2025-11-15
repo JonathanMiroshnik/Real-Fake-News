@@ -1,0 +1,83 @@
+.twitter-list-item {
+  max-width: 40rem;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border: 1px solid var(--border-separator-color);
+  border-radius: 8px;
+  background-color: var(--global-background-color);
+  transition: box-shadow 0.2s;
+}
+
+.twitter-list-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.twitter-list-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.twitter-list-item-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.twitter-list-item-author-name {
+  color: var(--title-color);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.twitter-list-item-author-handle {
+  color: var(--description-color);
+  font-size: 14px;
+}
+
+.twitter-list-item-link {
+  color: var(--description-color);
+  text-decoration: none;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+
+.twitter-list-item-link:hover {
+  color: var(--title-color);
+}
+
+.twitter-list-item-text {
+  color: var(--title-color);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0.75rem 0;
+  word-wrap: break-word;
+}
+
+.twitter-list-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-separator-color);
+}
+
+.twitter-list-item-timestamp {
+  color: var(--undertext-color);
+  font-size: 12px;
+}
+
+.twitter-list-item-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 12px;
+}
+
+.twitter-stat {
+  color: var(--description-color);
+  font-size: 12px;
+}
+
+
