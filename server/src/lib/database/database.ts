@@ -13,6 +13,7 @@ class DatabaseManager {
         
         // Ensure the directory exists
         if (!fs.existsSync(dbDir)) {
+            console.log('Creating database directory...');
             fs.mkdirSync(dbDir, { recursive: true });
         }
         

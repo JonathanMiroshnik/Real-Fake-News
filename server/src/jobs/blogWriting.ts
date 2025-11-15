@@ -26,7 +26,13 @@ export async function generateScheduledArticles(writingInterval: number) {
     }
     
     for (let i = 0; i < newArticlesNeeded; i++) {
-        let currentNewsItem = currentNews.splice(randomInt(currentNews.length), 1)[0];
-        await writeBlogPost(await getRandomWriter(), currentNewsItem);
+        try {
+            let currentNewsItem = currentNews.splice(randomInt(currentNews.length), 1)[0];
+            const writer = await getRandomWriter();
+            await writeBlogPost(writer, currentNewsItem);
+        } catch (error) {
+            console.error(`Failed to generate article ${i + 1}/${newArticlesNeeded}:`, error instanceof Error ? error.message : error);
+            // Continue to next iteration even if one fails
+        }
     }    
 }

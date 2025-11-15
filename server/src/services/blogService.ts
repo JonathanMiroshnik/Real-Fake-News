@@ -5,7 +5,7 @@ import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/art
 import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
-import { getAllPosts, createPost } from "../lib/lowdb/lowdbOperations.js";
+import { getAllPosts, createPost } from "../lib/database/sqliteOperations.js";
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
