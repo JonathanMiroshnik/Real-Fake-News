@@ -1,6 +1,7 @@
 import { getDatabase } from './database.js';
 import { DatabaseConfig } from '../lowdb/databaseConfigurations.js';
 import Database from 'better-sqlite3';
+import { getUniqueKey } from '../../utils/general.js';
 
 // Every type of post has a unique key property
 export interface Post {
@@ -52,7 +53,16 @@ function deserializeJson<T>(value: string | null): T | undefined {
 export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promise<boolean> {
     const db = getDatabase();
     const tableName = getTableName(dbConfig.source);
-    const key = await dbConfig.getKey(post);
+    let key = await dbConfig.getKey(post);
+
+    // Generate a key if missing (for blog posts without keys)
+    if (!key || key === "") {
+        key = getUniqueKey();
+        // Set the key on the post object if possible
+        if (typeof post === 'object' && post !== null) {
+            (post as any).key = key;
+        }
+    }
 
     // Check if exists
     if (await dbConfig.exists(post)) {
@@ -69,16 +79,19 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
                     headImage, shortDescription, originalNewsItem
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
+            // Provide default timestamp if missing
+            const timestamp = article.timestamp || new Date().toISOString();
+            
             stmt.run(
                 key,
                 article.title || null,
                 article.content || null,
-                serializeJson(article.author),
-                article.timestamp || null,
+                serializeJson(article.author) || null,
+                timestamp,
                 article.category || null,
                 article.headImage || null,
                 article.shortDescription || null,
-                serializeJson(article.originalNewsItem)
+                serializeJson(article.originalNewsItem) || null
             );
         } else if (tableName === 'news_items') {
             const newsItem = post as any;

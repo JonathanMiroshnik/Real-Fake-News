@@ -8,7 +8,7 @@ import { NewsItem } from '../services/newsService.js';
 import { Writer } from '../types/writer.js';
 import { FeaturedArticleScheme } from '../types/article.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -167,7 +167,10 @@ async function migrateJsonToSqlite() {
 }
 
 // Run migration if this file is executed directly (ES module equivalent)
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Check if the current module URL matches the script being executed
+const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href || 
+                     import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+if (isMainModule) {
     migrateJsonToSqlite()
         .then(() => {
             console.log('\n🎉 Migration finished!');

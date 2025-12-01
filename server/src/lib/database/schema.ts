@@ -16,7 +16,7 @@ export function initializeSchema(): void {
             title TEXT,
             content TEXT,
             author TEXT,
-            timestamp TEXT NOT NULL,
+            timestamp TEXT,
             category TEXT,
             headImage TEXT,
             shortDescription TEXT,
