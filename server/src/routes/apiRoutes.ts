@@ -1,11 +1,17 @@
 import path from 'path';
 import { Router, Request, Response } from 'express';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Import sub-routes
 // import gameIntelligenceRoutes from '../lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js'
 // import llmRoutes from './llmRoutes.js';
 import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js'
 import blogRoutes from './blogRoutes.js'
+import adminRoutes from './adminRoutes.js'
 // import authRoutes from "./auth.js";
 
 const router = Router();
@@ -19,6 +25,9 @@ router.use('/trivia', triviaRoutes);
 
 // Getting daily news
 router.use('/blogs', blogRoutes);
+
+// Admin routes (password protected)
+router.use('/admin', adminRoutes);
 
 // TODO: auth test
 // router.use('/auth', authRoutes);

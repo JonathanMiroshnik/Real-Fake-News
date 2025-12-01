@@ -1,6 +1,11 @@
 import Database, { type Database as DatabaseType } from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 class DatabaseManager {
     private static instance: DatabaseManager | null = null;

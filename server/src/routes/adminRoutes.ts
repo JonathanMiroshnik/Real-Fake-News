@@ -1,8 +1,12 @@
-// import { Router } from 'express';
-// import { loginAdmin } from '../controllers/adminController';
+import { Router } from 'express';
+import { getAdminArticles, deleteAdminArticle, getAdminTexts, addAdminText } from '../controllers/adminController.js';
 
-// const router = Router();
+const router = Router();
 
-// router.post('/login', loginAdmin);
+// Admin routes - password protected via query parameter
+router.get('/articles', getAdminArticles);
+router.delete('/articles/:key', deleteAdminArticle);
+router.get('/texts', getAdminTexts);
+router.post('/texts', addAdminText);
 
-// export default router;
+export default router;

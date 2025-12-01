@@ -8,6 +8,11 @@ import { NewsItem } from '../services/newsService.js';
 import { Writer } from '../types/writer.js';
 import { FeaturedArticleScheme } from '../types/article.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Migration script to import JSON data into SQLite database
@@ -161,8 +166,8 @@ async function migrateJsonToSqlite() {
     }
 }
 
-// Run migration if this file is executed directly
-if (require.main === module) {
+// Run migration if this file is executed directly (ES module equivalent)
+if (import.meta.url === `file://${process.argv[1]}`) {
     migrateJsonToSqlite()
         .then(() => {
             console.log('\n🎉 Migration finished!');

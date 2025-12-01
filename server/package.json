@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon --exec tsx src/index.ts",
     "start": "node --no-warnings dist/index.js",
     "prestart": "npm run build",
     "seed": "node data/seed-data.js",
@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@langchain/deepseek": "^0.0.1",
     "@runware/sdk-js": "^1.1.38",
@@ -53,6 +53,7 @@
     "@types/node": "^22.15.17",
     "@types/node-cron": "^3.0.11",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.3"
   }
 }

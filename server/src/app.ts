@@ -23,7 +23,12 @@ initializeScheduledJobs();
 
 // Middleware pipeline
 app.use(cors({
-  origin: ["https://real.sensorcensor.xyz", "http://localhost:5173", "http://localhost:3000"],
+  origin: [
+    "https://real.sensorcensor.xyz", 
+    "http://localhost:5173", 
+    "http://localhost:5174", // Admin panel
+    "http://localhost:3000"
+  ],
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
