@@ -12,3 +12,21 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Hide newspaper view on screen, show normal view */
+.newspaper-view-wrapper {
+  display: none;
+}
+
+.normal-view-wrapper {
+  display: block;
+}
+
+/* When in print mode (via JavaScript), show newspaper */
+.app-div.print-mode .newspaper-view-wrapper {
+  display: block;
+}
+
+.app-div.print-mode .normal-view-wrapper {
+  display: none;
+}

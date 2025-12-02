@@ -1,0 +1,138 @@
+/* Print Styles - Controls how pages look when printing */
+
+@media print {
+  /* Reset page margins and ensure white background */
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  /* Ensure body and root have white background for printing */
+  body,
+  #root,
+  .app-div {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide the normal app content when printing (newspaper view will be shown instead) */
+  .normal-view-wrapper,
+  .layout,
+  .site-header,
+  .site-footer,
+  .theme-toggle,
+  .theme-toggle-container,
+  .header-content,
+  .header-navbar-list,
+  .nav-link,
+  .nav-a-link-wrapper,
+  button,
+  .ThemeToggle,
+  header:not(.newspaper-masthead),
+  footer:not(.newspaper-footer) {
+    display: none !important;
+  }
+  
+  /* Show newspaper view when printing */
+  .newspaper-view-wrapper {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure newspaper container is visible when printing */
+  .newspaper-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Remove shadows, borders, and decorative elements */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Newspaper view specific print optimizations */
+  .newspaper-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure newspaper columns print properly */
+  .newspaper-columns {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Page break controls for newspaper articles */
+  .newspaper-article,
+  .newspaper-featured-article {
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Prevent images from breaking across pages */
+  .newspaper-article-image,
+  .featured-article-image {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Show URLs for links in print (for any links in article content) */
+  .newspaper-article-content a[href]:after,
+  .featured-article-content a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+    word-break: break-all;
+  }
+
+  /* Don't show URLs for anchor links or javascript links */
+  a[href^="#"]:after,
+  a[href^="javascript:"]:after {
+    content: "";
+  }
+
+  /* Ensure links are readable in print */
+  a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+
+  /* Optimize lists for print */
+  ul, ol {
+    page-break-inside: avoid;
+  }
+
+  li {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure tables print well */
+  table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+  }
+
+  /* Code blocks and preformatted text */
+  pre, code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    page-break-inside: avoid;
+  }
+
+  /* Hide any elements with no-print class */
+  .no-print {
+    display: none !important;
+  }
+}
+

@@ -19,11 +19,16 @@ import DisclaimerPage from './pages/DisclaimerPage/DisclaimerPage';
 import TicTacToeGame from './components/Games/TicTacToeComponents/Game/TicTacToeGame';
 import TriviaGame from './components/Games/TriviaComponents/TriviaGame/TriviaGame';
 
+import { usePrintNewspaper } from './hooks/usePrintNewspaper';
+import NewspaperPrintView from './components/NewspaperPrintView/NewspaperPrintView';
+
 import './App.css'
 
 function App() {
+  const isPrintMode = usePrintNewspaper();
+
   return (
-    <div className="app-div">
+    <div className={`app-div ${isPrintMode ? 'print-mode' : ''}`}>
       <Helmet>
         <meta charSet="utf-8" />
         <title>Real Fake News</title>
@@ -32,26 +37,35 @@ function App() {
         <meta name="description" content="Real Fake News" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />            
-            <Route path="/article/:key" element={<ArticlePage />} />
-            {/* Article lists */}
-            <Route path="/category/:key" element={<CategoryPage />} />
-            <Route path="/writer/:key" element={<WriterPage />} />
-            {/* TODO: Games section - currently separate pages */}
-            <Route path="/games/tictactoe" element={<TicTacToeGame />} />
-            <Route path="/games/trivia" element={<TriviaGame />} />
-            {/* Footer pages */}
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/disclaimer" element={<DisclaimerPage />} />
-            {/* Catch-all */}
-            <Route path="*" element={<HomePage />} />
-          </Route>                      
-        </Routes>
-      </Router>
+      
+      {/* Newspaper view - shown when printing */}
+      <div className="newspaper-view-wrapper">
+        <NewspaperPrintView />
+      </div>
+      
+      {/* Normal app content - hidden when printing */}
+      <div className="normal-view-wrapper">
+        <Router>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage />} />            
+              <Route path="/article/:key" element={<ArticlePage />} />
+              {/* Article lists */}
+              <Route path="/category/:key" element={<CategoryPage />} />
+              <Route path="/writer/:key" element={<WriterPage />} />
+              {/* TODO: Games section - currently separate pages */}
+              <Route path="/games/tictactoe" element={<TicTacToeGame />} />
+              <Route path="/games/trivia" element={<TriviaGame />} />
+              {/* Footer pages */}
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/disclaimer" element={<DisclaimerPage />} />
+              {/* Catch-all */}
+              <Route path="*" element={<HomePage />} />
+            </Route>                      
+          </Routes>
+        </Router>
+      </div>
     </div>
   );
 }
