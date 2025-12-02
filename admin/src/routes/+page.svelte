@@ -2,8 +2,9 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl, getClientUrl } from '$lib/apiConfig';
+	import { getApiBaseUrl } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
 	// Disable SSR - this page is client-only
 	export const ssr = false;
@@ -169,12 +170,6 @@
 		}
 	}
 
-	// Get article URL (assuming articles are displayed on the main site)
-	function getArticleUrl(key: string | undefined): string {
-		if (!key) return '#';
-		const clientUrl = getClientUrl();
-		return `${clientUrl}/article/${key}`;
-	}
 
 	// Pagination calculations
 	const totalPages = $derived(Math.ceil(articles.length / itemsPerPage));
@@ -257,38 +252,12 @@
 							Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of {articles.length} articles
 						</div>
 					</div>
-					<div class="table-container">
-						<table>
-							<thead>
-								<tr>
-									<th>Title</th>
-									<th>Category</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each paginatedArticles.map((article, index) => ({ ...article, _index: startIndex + index })) as article (article.key ? article.key : `article-${article._index}`)}
-									<tr>
-										<td>
-											<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer">
-												{article.title || 'Untitled'}
-											</a>
-										</td>
-										<td>{article.category || 'Uncategorized'}</td>
-										<td>
-											<button 
-												class="delete-btn" 
-												onclick={() => deleteArticle(article.key)}
-												disabled={loading}
-											>
-												Delete
-											</button>
-										</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div>
+					<ArticleTable 
+						articles={paginatedArticles} 
+						{loading} 
+						onDelete={deleteArticle}
+						{startIndex}
+					/>
 					<Pagination bind:currentPage totalPages={totalPages} />
 				{/if}
 			</section>
@@ -457,77 +426,11 @@
 		color: #666;
 	}
 
-	.table-container {
-		overflow-x: auto;
-	}
-
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	thead {
-		background: #667eea;
-		color: white;
-	}
-
-	th {
-		padding: 1rem;
-		text-align: left;
-		font-weight: 600;
-	}
-
-	td {
-		padding: 1rem;
-		border-bottom: 1px solid #eee;
-	}
-
-	tbody tr:hover {
-		background: #f5f5f5;
-	}
-
-	tbody tr:last-child td {
-		border-bottom: none;
-	}
-
-	td a {
-		color: #667eea;
-		text-decoration: none;
-		font-weight: 500;
-		transition: color 0.2s;
-	}
-
-	td a:hover {
-		color: #764ba2;
-		text-decoration: underline;
-	}
-
 	.empty {
 		text-align: center;
 		color: #999;
 		padding: 2rem;
 		font-style: italic;
-	}
-
-	.delete-btn {
-		background: #ff4444;
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 6px;
-		cursor: pointer;
-		font-weight: 500;
-		transition: background 0.2s, transform 0.1s;
-	}
-
-	.delete-btn:hover:not(:disabled) {
-		background: #cc0000;
-		transform: translateY(-1px);
-	}
-
-	.delete-btn:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
 	}
 
 	.text-input-container {
@@ -622,14 +525,6 @@
 
 		.text-input-container button {
 			width: 100%;
-		}
-
-		table {
-			font-size: 0.9rem;
-		}
-
-		th, td {
-			padding: 0.75rem 0.5rem;
 		}
 	}
 </style>

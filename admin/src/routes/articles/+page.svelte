@@ -2,8 +2,9 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl, getClientUrl } from '$lib/apiConfig';
+	import { getApiBaseUrl } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
 	interface Article {
 		key?: string;
@@ -111,23 +112,6 @@
 		}
 	}
 
-	// Get article URL
-	function getArticleUrl(key: string | undefined): string {
-		if (!key) return '#';
-		const clientUrl = getClientUrl();
-		return `${clientUrl}/article/${key}`;
-	}
-
-	// Format date
-	function formatDate(timestamp: string | undefined): string {
-		if (!timestamp) return 'N/A';
-		try {
-			const date = new Date(timestamp);
-			return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-		} catch {
-			return timestamp;
-		}
-	}
 
 	// Pagination calculations
 	const totalPages = $derived(Math.ceil(articles.length / itemsPerPage));
@@ -233,42 +217,12 @@
 					Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of {articles.length} articles
 				</div>
 			</div>
-			<div class="table-container">
-				<table>
-					<thead>
-						<tr>
-							<th>Title</th>
-							<th>Category</th>
-							<th>Date</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each paginatedArticles.map((article, index) => ({ ...article, _index: startIndex + index })) as article (article.key ? article.key : `article-${article._index}`)}
-							<tr>
-								<td>
-									<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer" class="article-link">
-										{article.title || 'Untitled'}
-									</a>
-								</td>
-								<td>
-									<span class="category-badge">{article.category || 'Uncategorized'}</span>
-								</td>
-								<td class="date-cell">{formatDate(article.timestamp)}</td>
-								<td>
-									<button 
-										class="delete-btn" 
-										onclick={() => deleteArticle(article.key)}
-										disabled={loading}
-									>
-										🗑️ Delete
-									</button>
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
+			<ArticleTable 
+				articles={paginatedArticles} 
+				{loading} 
+				onDelete={deleteArticle}
+				{startIndex}
+			/>
 			<Pagination bind:currentPage totalPages={totalPages} />
 		{/if}
 	</div>
@@ -400,88 +354,6 @@
 		to { transform: rotate(360deg); }
 	}
 
-	.table-container {
-		overflow-x: auto;
-	}
-
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	thead {
-		background: #f8f9fa;
-	}
-
-	th {
-		padding: 1rem;
-		text-align: left;
-		font-weight: 600;
-		color: #2c3e50;
-		border-bottom: 2px solid #e0e0e0;
-	}
-
-	td {
-		padding: 1rem;
-		border-bottom: 1px solid #f0f0f0;
-	}
-
-	tbody tr:hover {
-		background: #f8f9fa;
-	}
-
-	tbody tr:last-child td {
-		border-bottom: none;
-	}
-
-	.article-link {
-		color: #667eea;
-		text-decoration: none;
-		font-weight: 500;
-		transition: color 0.2s;
-	}
-
-	.article-link:hover {
-		color: #764ba2;
-		text-decoration: underline;
-	}
-
-	.category-badge {
-		background: #e9ecef;
-		color: #495057;
-		padding: 0.25rem 0.75rem;
-		border-radius: 12px;
-		font-size: 0.85rem;
-		font-weight: 500;
-	}
-
-	.date-cell {
-		color: #7f8c8d;
-		font-size: 0.9rem;
-	}
-
-	.delete-btn {
-		background: #ff4444;
-		color: white;
-		border: none;
-		padding: 0.5rem 1rem;
-		border-radius: 6px;
-		cursor: pointer;
-		font-weight: 500;
-		font-size: 0.9rem;
-		transition: background 0.2s, transform 0.1s;
-	}
-
-	.delete-btn:hover:not(:disabled) {
-		background: #cc0000;
-		transform: translateY(-1px);
-	}
-
-	.delete-btn:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
 	@media (max-width: 768px) {
 		.page-header {
 			flex-direction: column;
@@ -501,14 +373,6 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 1rem;
-		}
-
-		table {
-			font-size: 0.9rem;
-		}
-
-		th, td {
-			padding: 0.75rem 0.5rem;
 		}
 	}
 </style>
