@@ -1,4 +1,5 @@
 import { ArticleProps } from "../pages/ArticlePage/ArticlePage";
+import { getApiBaseUrl } from "../config/apiConfig";
 
 export type NewsCategory = {
     name: string; // Technical name of the News category
@@ -106,20 +107,9 @@ export async function pullRecentArticles() {
     console.log('🚀 [pullRecentArticles] Function called at:', new Date().toISOString());
     console.log('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
     
-    // TODO: make this into global constant
-    // Differentiates between development and production mode URLs
-    // Development backend runs on port 5001
-    let VITE_API_BASE: string = "";
-    if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
-      VITE_API_BASE = "http://localhost:5001";
-      console.log('🔍 [pullRecentArticles] VITE_LOCAL_DEV_MODE is undefined, using default (dev port):', VITE_API_BASE);
-    }
-    else {
-      VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
-                    "http://localhost:5001" : 
-                    "https://real.sensorcensor.xyz";
-      console.log('🔍 [pullRecentArticles] VITE_LOCAL_DEV_MODE:', import.meta.env.VITE_LOCAL_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
-    }
+    // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
+    const VITE_API_BASE = getApiBaseUrl();
+    console.log('🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
 
     try {
         // Step 1: Try to get articles from the last 24 hours

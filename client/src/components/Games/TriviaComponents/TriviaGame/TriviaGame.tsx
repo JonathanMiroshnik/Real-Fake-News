@@ -5,6 +5,7 @@ import WinnerOverlay from '../WinnerOverlay/WinnerOverlay'
 import ScoreBoard from '../ScoreBoard/ScoreBoard'
 import QuestionCard from '../Question/QuestionCard'
 import { Question } from '../Question/QuestionCard'
+import { getApiBaseUrl } from '../../../../config/apiConfig'
 
 import './TriviaGame.css'
 
@@ -51,16 +52,8 @@ function TriviaGame() {
   // }, []);
   
   async function fetchQuestions(amount: number): Promise<Question[]> {
-    // Development backend runs on port 5001
-    let VITE_API_BASE: string = "";
-    if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
-      VITE_API_BASE = "http://localhost:5001";
-    }
-    else {
-      VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
-                    "http://localhost:5001" : 
-                    "https://real.sensorcensor.xyz";
-    }
+    // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
+    const VITE_API_BASE = getApiBaseUrl();
 
     const response = await fetch(VITE_API_BASE + '/api/trivia', {
         method: 'POST',

@@ -1,18 +1,10 @@
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
+import { getApiBaseUrl } from "../config/apiConfig";
 
 // The IP of the server is 162.0.237.138
 
-// TODO: make a constant file that contains this one
-// Development backend runs on port 5001
-let VITE_API_BASE: string = "";
-if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
-    VITE_API_BASE = "http://localhost:5001";
-}
-else {
-    VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
-                "http://localhost:5001" : 
-                "https://real.sensorcensor.xyz";
-}
+// Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
+const VITE_API_BASE = getApiBaseUrl();
                     
 export const DEFAULT_IMAGE="planet.jpg" // TODO: should this still be?
 
