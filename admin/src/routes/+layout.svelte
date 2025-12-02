@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
@@ -6,13 +7,15 @@
 
 	let { children } = $props();
 
+	import { getApiBaseUrl } from '$lib/apiConfig';
+
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
-	// API base URL - determined by dev/prod mode
-	const isDevMode = import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
-	const API_BASE = isDevMode
-		? (import.meta.env.VITE_API_BASE_DEV || 'http://localhost:5001/api')
-		: (import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz/api');
+	// API base URL - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrl();
+	// Frontend dev mode for other frontend-specific behavior (like default password)
+	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
+	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
 
 	// Navigation items
 	const navItems = [
@@ -21,23 +24,47 @@
 		{ path: '/settings', label: 'Settings', icon: '⚙️' }
 	];
 
-	// Reactive authorization check - works immediately on both server and client
-	const urlPassword = $derived($page.url.searchParams.get(ADMIN_PASSWORD_PARAM));
-	const password = $derived(
-		urlPassword !== null 
-			? urlPassword 
-			: (isDevMode ? 'changeme123' : '') // Default dev password, require in production
-	);
-	const isAuthorized = $derived(true); // Always authorized in debug mode
+	// Always authorized - actual password validation happens on backend API calls
+	let isAuthorized = $state(true);
+	let password = $state('');
+
+	// Get password from URL on mount (client-side only)
+	onMount(() => {
+		if (browser) {
+			const urlPassword = $page.url.searchParams.get(ADMIN_PASSWORD_PARAM);
+			if (urlPassword !== null) {
+				password = urlPassword;
+			} else {
+				// In frontend development mode, use default password; in production, require URL parameter
+				password = isFrontendDevMode ? 'changeme123' : '';
+			}
+		}
+	});
+
+	// Reactive password from URL changes
+	$effect(() => {
+		if (browser) {
+			const urlPassword = $page.url.searchParams.get(ADMIN_PASSWORD_PARAM);
+			if (urlPassword !== null) {
+				password = urlPassword;
+			} else if (isFrontendDevMode) {
+				password = 'changeme123';
+			}
+		}
+	});
 
 	function isActive(path: string): boolean {
+		if (!browser) return false;
 		return $page.url.pathname === path;
 	}
 
 	function navigate(path: string) {
+		if (!browser) return;
 		const url = new URL($page.url);
 		url.pathname = path;
-		url.searchParams.set(ADMIN_PASSWORD_PARAM, password);
+		if (password) {
+			url.searchParams.set(ADMIN_PASSWORD_PARAM, password);
+		}
 		goto(url.toString());
 	}
 </script>

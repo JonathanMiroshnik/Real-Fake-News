@@ -10,13 +10,15 @@
 	let error = '';
 	let success = '';
 
+	import { getApiBaseUrl } from '$lib/apiConfig';
+
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
-	// API base URL
-	const isDevMode = import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
-	const API_BASE = isDevMode
-		? (import.meta.env.VITE_API_BASE_DEV || 'http://localhost:5001/api')
-		: (import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz/api');
+	// API base URL - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrl();
+	// Frontend dev mode for other frontend-specific behavior
+	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
+	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
 
 	// Fetch texts
 	async function fetchTexts() {
@@ -158,8 +160,12 @@
 					<code>{API_BASE}</code>
 				</div>
 				<div class="info-item">
-					<label>Environment</label>
-					<code>{isDevMode ? 'Development' : 'Production'}</code>
+					<label>Backend Mode</label>
+					<code>{import.meta.env.VITE_BACKEND_DEV_MODE === 'true' ? 'Development' : 'Production'}</code>
+				</div>
+				<div class="info-item">
+					<label>Frontend Mode</label>
+					<code>{isFrontendDevMode ? 'Development' : 'Production'}</code>
 				</div>
 				<div class="info-item">
 					<label>Text Items Count</label>

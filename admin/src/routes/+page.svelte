@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
+	import { getApiBaseUrl, getClientUrl } from '$lib/apiConfig';
+	import Pagination from '$lib/components/Pagination.svelte';
 
 	// Disable SSR - this page is client-only
 	export const ssr = false;
@@ -13,19 +15,21 @@
 		timestamp?: string;
 	}
 
-	let articles: Article[] = [];
-	let texts: string[] = [];
-	let newText = '';
-	let loading = false;
-	let error = '';
-	let password = '';
-	let isAuthorized = false;
+	let articles = $state<Article[]>([]);
+	let texts = $state<string[]>([]);
+	let newText = $state('');
+	let loading = $state(false);
+	let error = $state('');
+	let password = $state('');
+	let isAuthorized = $state(false);
+	let currentPage = $state(1);
+	let itemsPerPage = $state(10);
 
-	// API base URL - determined by dev/prod mode
-	const isDevMode = import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
-	const API_BASE = isDevMode
-		? (import.meta.env.VITE_API_BASE_DEV || 'http://localhost:5001/api')
-		: (import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz/api');
+	// API base URL - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrl();
+	// Frontend dev mode for other frontend-specific behavior (like default password)
+	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
+	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
 	// Password and authorization will be set in onMount (client-side only)
@@ -37,12 +41,21 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/admin/articles?password=${encodeURIComponent(password)}`;
-			const response = await fetch(url);
+			// Add cache-busting parameter to prevent 304 responses
+			const url = `${API_BASE}/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
+			const response = await fetch(url, {
+				cache: 'no-store'
+			});
 			
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch articles`);
+			}
+			
+			// Handle 304 Not Modified (no body)
+			if (response.status === 304) {
+				console.log('Response cached (304), using existing articles');
+				return;
 			}
 			
 			const data = await response.json();
@@ -159,11 +172,25 @@
 	// Get article URL (assuming articles are displayed on the main site)
 	function getArticleUrl(key: string | undefined): string {
 		if (!key) return '#';
-		// Use environment variable to determine client URL based on dev/prod mode
-		const clientUrl = isDevMode 
-			? (import.meta.env.VITE_CLIENT_URL_DEV || 'http://localhost:5173')
-			: (import.meta.env.VITE_CLIENT_URL_PROD || 'https://real.sensorcensor.xyz');
+		const clientUrl = getClientUrl();
 		return `${clientUrl}/article/${key}`;
+	}
+
+	// Pagination calculations
+	const totalPages = $derived(Math.ceil(articles.length / itemsPerPage));
+	const startIndex = $derived((currentPage - 1) * itemsPerPage);
+	const endIndex = $derived(startIndex + itemsPerPage);
+	const paginatedArticles = $derived(articles.slice(startIndex, endIndex));
+
+	// Reset to page 1 when articles change or items per page changes
+	$effect(() => {
+		if (articles.length > 0 && currentPage > totalPages) {
+			currentPage = 1;
+		}
+	});
+
+	function handleItemsPerPageChange() {
+		currentPage = 1;
 	}
 
 	// Load data when authorized (only on client)
@@ -172,8 +199,8 @@
 		if (urlPassword !== null) {
 			password = urlPassword;
 		} else {
-			// In development, use default password; in production, require URL parameter
-			if (isDevMode) {
+			// In frontend development mode, use default password; in production, require URL parameter
+			if (isFrontendDevMode) {
 				password = 'changeme123'; // Default dev password
 			} else {
 				password = ''; // Require password in production
@@ -209,7 +236,27 @@
 				<h2>Article Management</h2>
 				{#if loading && articles.length === 0}
 					<div class="loading">Loading articles...</div>
+				{:else if articles.length === 0}
+					<div class="empty">No articles found</div>
 				{:else}
+					<div class="pagination-controls-top">
+						<div class="items-per-page">
+							<label for="items-per-page-select-dashboard">Items per page:</label>
+							<select 
+								id="items-per-page-select-dashboard"
+								bind:value={itemsPerPage}
+								onchange={handleItemsPerPageChange}
+							>
+								<option value={10}>10</option>
+								<option value={25}>25</option>
+								<option value={50}>50</option>
+								<option value={100}>100</option>
+							</select>
+						</div>
+						<div class="pagination-info">
+							Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of {articles.length} articles
+						</div>
+					</div>
 					<div class="table-container">
 						<table>
 							<thead>
@@ -220,34 +267,29 @@
 								</tr>
 							</thead>
 							<tbody>
-								{#if articles.length === 0}
+								{#each paginatedArticles.map((article, index) => ({ ...article, _index: startIndex + index })) as article (article.key ? article.key : `article-${article._index}`)}
 									<tr>
-										<td colspan="3" class="empty">No articles found</td>
+										<td>
+											<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer">
+												{article.title || 'Untitled'}
+											</a>
+										</td>
+										<td>{article.category || 'Uncategorized'}</td>
+										<td>
+											<button 
+												class="delete-btn" 
+												onclick={() => deleteArticle(article.key)}
+												disabled={loading}
+											>
+												Delete
+											</button>
+										</td>
 									</tr>
-								{:else}
-									{#each articles.map((article, index) => ({ ...article, _index: index })) as article (article.key ? article.key : `article-${article._index}`)}
-										<tr>
-											<td>
-												<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer">
-													{article.title || 'Untitled'}
-												</a>
-											</td>
-											<td>{article.category || 'Uncategorized'}</td>
-											<td>
-												<button 
-													class="delete-btn" 
-													onclick={() => deleteArticle(article.key)}
-													disabled={loading}
-												>
-													Delete
-												</button>
-											</td>
-										</tr>
-									{/each}
-								{/if}
+								{/each}
 							</tbody>
 						</table>
 					</div>
+					<Pagination bind:currentPage totalPages={totalPages} />
 				{/if}
 			</section>
 
@@ -361,6 +403,52 @@
 		color: #333;
 		border-bottom: 3px solid #667eea;
 		padding-bottom: 0.5rem;
+	}
+
+	.pagination-controls-top {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid #eee;
+	}
+
+	.items-per-page {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.items-per-page label {
+		font-weight: 500;
+		color: #333;
+		font-size: 0.9rem;
+	}
+
+	.items-per-page select {
+		padding: 0.5rem 0.75rem;
+		border: 2px solid #ddd;
+		border-radius: 6px;
+		background: white;
+		color: #333;
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: border-color 0.2s;
+	}
+
+	.items-per-page select:hover {
+		border-color: #667eea;
+	}
+
+	.items-per-page select:focus {
+		outline: none;
+		border-color: #667eea;
+	}
+
+	.pagination-info {
+		color: #666;
+		font-size: 0.9rem;
 	}
 
 	.loading {
@@ -520,6 +608,12 @@
 
 		section {
 			padding: 1.5rem;
+		}
+
+		.pagination-controls-top {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
 		}
 
 		.text-input-container {

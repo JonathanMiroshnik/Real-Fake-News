@@ -100,23 +100,47 @@ The admin panel uses the following API endpoints (all require password authentic
 
 ## Configuration
 
-### Backend API URL
+### Environment Variables
 
-If your backend runs on a different URL or port, create a `.env` file in the `admin` folder:
+The admin panel now supports separate toggles for frontend and backend development modes. Create a `.env` file in the `admin` folder:
 
 ```env
-VITE_API_BASE=http://localhost:5001/api
+# Backend Development Mode
+# Set to "true" to use local development backend (localhost:5001/api)
+# Set to "false" or leave undefined to use production backend (https://real.sensorcensor.xyz/api)
+VITE_BACKEND_DEV_MODE=true
+
+# Frontend Development Mode (optional)
+# Controls frontend-specific behavior like default passwords
+# Set to "true" for development, "false" or undefined for production
+VITE_FRONTEND_DEV_MODE=true
+
+# Optional: Override backend URLs
+VITE_API_BASE_DEV=http://localhost:5001/api
+VITE_API_BASE_PROD=https://real.sensorcensor.xyz/api
+
+# Optional: Override client URLs for article links
+VITE_CLIENT_URL_DEV=http://localhost:5173
+VITE_CLIENT_URL_PROD=https://real.sensorcensor.xyz
 ```
 
-The default is `http://localhost:5001/api` (note: the server defaults to port 5001, not 5000).
+**Key Points:**
+- `VITE_BACKEND_DEV_MODE` controls which backend API to connect to (local dev vs production)
+- `VITE_FRONTEND_DEV_MODE` controls frontend-specific behavior (like default passwords)
+- You can develop the frontend locally while using the production backend by setting `VITE_BACKEND_DEV_MODE=false`
+- Default behavior: If `VITE_BACKEND_DEV_MODE` is not set, it defaults to production backend
+
+### Backend API URL
+
+The backend API URL is determined by `VITE_BACKEND_DEV_MODE`:
+- `VITE_BACKEND_DEV_MODE=true` → `http://localhost:5001/api`
+- `VITE_BACKEND_DEV_MODE=false` or undefined → `https://real.sensorcensor.xyz/api`
 
 ### Client Article URLs
 
-If your main client application runs on a different URL, update the `getArticleUrl` function in `src/routes/+page.svelte`:
-
-```typescript
-const clientUrl = 'http://localhost:5173'; // Change to your production URL
-```
+The client URL for article links is determined by `VITE_FRONTEND_DEV_MODE`:
+- `VITE_FRONTEND_DEV_MODE=true` → `http://localhost:5173` (or `VITE_CLIENT_URL_DEV`)
+- `VITE_FRONTEND_DEV_MODE=false` or undefined → `https://real.sensorcensor.xyz` (or `VITE_CLIENT_URL_PROD`)
 
 ## Building for Production
 
@@ -144,7 +168,8 @@ The built files will be in the `build` directory. Deploy these files to your web
 ### Articles not loading
 - **Most common issue**: Make sure the backend server is running! Start it with `cd server && npm run dev`
 - Verify the server is running on the correct port (default is 5001, check `server/src/index.ts`)
-- If your backend runs on a different port, set `VITE_API_BASE` in `admin/.env`
+- Check `VITE_BACKEND_DEV_MODE` in your `.env` file - if set to `false` or not set, it will try to connect to production backend
+- If using local backend, ensure `VITE_BACKEND_DEV_MODE=true` in `admin/.env`
 - Check that CORS is properly configured in `server/src/app.ts` (should include admin panel ports)
 - Check browser console for detailed error messages
 - Verify the `ADMIN_PASSWORD` in your server's `.env` file matches the password in your URL
