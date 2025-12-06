@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { debugLog } from '../utils/debugLogger';
 
 /**
  * Custom hook that detects print events and manages print mode state
@@ -11,12 +12,12 @@ export function usePrintNewspaper() {
   useEffect(() => {
     // Method 1: Listen to beforeprint event
     const handleBeforePrint = () => {
-      console.log('🖨️ [Print] beforeprint event - switching to newspaper view');
+      debugLog('🖨️ [Print] beforeprint event - switching to newspaper view');
       setIsPrintMode(true);
     };
 
     const handleAfterPrint = () => {
-      console.log('🖨️ [Print] afterprint event - restoring normal view');
+      debugLog('🖨️ [Print] afterprint event - restoring normal view');
       // Small delay to ensure print preview is closed
       setTimeout(() => {
         setIsPrintMode(false);
@@ -28,7 +29,7 @@ export function usePrintNewspaper() {
     
     const handleMediaChange = (e: MediaQueryListEvent | MediaQueryList) => {
       const isPrint = e.matches;
-      console.log('🖨️ [Print] Media query changed:', isPrint);
+      debugLog('🖨️ [Print] Media query changed:', isPrint);
       setIsPrintMode(isPrint);
     };
 
@@ -37,10 +38,10 @@ export function usePrintNewspaper() {
     const startPolling = () => {
       pollInterval = window.setInterval(() => {
         if (mediaQuery.matches && !isPrintMode) {
-          console.log('🖨️ [Print] Poll detected print mode');
+          debugLog('🖨️ [Print] Poll detected print mode');
           setIsPrintMode(true);
         } else if (!mediaQuery.matches && isPrintMode) {
-          console.log('🖨️ [Print] Poll detected normal mode');
+          debugLog('🖨️ [Print] Poll detected normal mode');
           setIsPrintMode(false);
         }
       }, 100);

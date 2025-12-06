@@ -6,6 +6,7 @@ import ScoreBoard from '../ScoreBoard/ScoreBoard'
 import QuestionCard from '../Question/QuestionCard'
 import { Question } from '../Question/QuestionCard'
 import { getApiBaseUrl } from '../../../../config/apiConfig'
+import { debugError } from '../../../../utils/debugLogger'
 
 import './TriviaGame.css'
 
@@ -75,7 +76,7 @@ function TriviaGame() {
       const questions: Question[] = await fetchQuestions(players.length * QUESTIONS_PER_PLAYER);
       setQuestions(() => [...questions]);      
     } catch (error) {
-      console.error(error);
+      debugError(error);
     }
   };
 

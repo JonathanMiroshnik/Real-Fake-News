@@ -1,5 +1,6 @@
 import { ArticleProps } from "../pages/ArticlePage/ArticlePage";
 import { getApiBaseUrl } from "../config/apiConfig";
+import { debugLog, debugError } from "../utils/debugLogger";
 
 export type NewsCategory = {
     name: string; // Technical name of the News category
@@ -47,7 +48,7 @@ const MIN_ACCEPTABLE_ARTICLES = 15;
  */
 async function fetchArticlesByMinutes(apiBase: string, minutes: number): Promise<ArticleProps[]> {
     const url = `${apiBase}/api/blogs/by-minute?minute=${minutes}`;
-    console.log('📡 [pullRecentArticles] Fetching from URL:', url);
+    debugLog('📡 [pullRecentArticles] Fetching from URL:', url);
     
     try {
         const response = await fetch(url, {
@@ -58,18 +59,18 @@ async function fetchArticlesByMinutes(apiBase: string, minutes: number): Promise
         });
 
         if (!response.ok) {
-            console.error(`❌ [pullRecentArticles] Fetch failed: ${response.status} ${response.statusText}`);
+            debugError(`❌ [pullRecentArticles] Fetch failed: ${response.status} ${response.statusText}`);
             const errorText = await response.text().catch(() => 'No error details');
-            console.error(`❌ [pullRecentArticles] Error response:`, errorText);
+            debugError(`❌ [pullRecentArticles] Error response:`, errorText);
             return [];
         }
 
         const articlesJSON = await response.json();
         const articles = articlesJSON.articles || [];
-        console.log('📦 [pullRecentArticles] Fetched', articles.length, 'articles from', minutes, 'minutes window');
+        debugLog('📦 [pullRecentArticles] Fetched', articles.length, 'articles from', minutes, 'minutes window');
         
         if (articles.length > 0) {
-            console.log('📦 [pullRecentArticles] Sample article:', {
+            debugLog('📦 [pullRecentArticles] Sample article:', {
                 key: articles[0].key,
                 title: articles[0].title,
                 timestamp: articles[0].timestamp
@@ -78,10 +79,10 @@ async function fetchArticlesByMinutes(apiBase: string, minutes: number): Promise
         
         return articles;
     } catch (error) {
-        console.error('❌ [pullRecentArticles] Network error:', error);
+        debugError('❌ [pullRecentArticles] Network error:', error);
         if (error instanceof TypeError && error.message.includes('fetch')) {
-            console.error('❌ [pullRecentArticles] Could not connect to server. Is it running at', apiBase, '?');
-            console.error('❌ [pullRecentArticles] Note: Development backend runs on port 5001');
+            debugError('❌ [pullRecentArticles] Could not connect to server. Is it running at', apiBase, '?');
+            debugError('❌ [pullRecentArticles] Note: Development backend runs on port 5001');
         }
         return [];
     }
@@ -104,14 +105,14 @@ function sortArticlesByDate(articles: ArticleProps[]): ArticleProps[] {
  * @returns Array of articles, sorted by date (most recent first).
  */
 export async function getRelevantArticles(): Promise<ArticleProps[]> {
-    console.log('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
+    debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
     
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
     const VITE_API_BASE = getApiBaseUrl();
-    console.log('🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
+    debugLog('🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
 
     const url = `${VITE_API_BASE}/api/blogs/relevant`;
-    console.log('📡 [getRelevantArticles] Fetching from URL:', url);
+    debugLog('📡 [getRelevantArticles] Fetching from URL:', url);
     
     try {
         const response = await fetch(url, {
@@ -122,31 +123,31 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
         });
 
         if (!response.ok) {
-            console.error(`❌ [getRelevantArticles] Fetch failed: ${response.status} ${response.statusText}`);
+            debugError(`❌ [getRelevantArticles] Fetch failed: ${response.status} ${response.statusText}`);
             const errorText = await response.text().catch(() => 'No error details');
-            console.error(`❌ [getRelevantArticles] Error response:`, errorText);
+            debugError(`❌ [getRelevantArticles] Error response:`, errorText);
             return [];
         }
 
         const articlesJSON = await response.json();
         const articles = articlesJSON.articles || [];
-        console.log('📦 [getRelevantArticles] Fetched', articles.length, 'articles');
+        debugLog('📦 [getRelevantArticles] Fetched', articles.length, 'articles');
         
         if (articles.length > 0) {
-            console.log('📦 [getRelevantArticles] Sample article:', {
+            debugLog('📦 [getRelevantArticles] Sample article:', {
                 key: articles[0].key,
                 title: articles[0].title,
                 timestamp: articles[0].timestamp
             });
         }
         
-        console.log('✅ [getRelevantArticles] Returning', articles.length, 'articles');
+        debugLog('✅ [getRelevantArticles] Returning', articles.length, 'articles');
         return articles;
     } catch (error) {
-        console.error('❌ [getRelevantArticles] Network error:', error);
+        debugError('❌ [getRelevantArticles] Network error:', error);
         if (error instanceof TypeError && error.message.includes('fetch')) {
-            console.error('❌ [getRelevantArticles] Could not connect to server. Is it running at', VITE_API_BASE, '?');
-            console.error('❌ [getRelevantArticles] Note: Development backend runs on port 5001');
+            debugError('❌ [getRelevantArticles] Could not connect to server. Is it running at', VITE_API_BASE, '?');
+            debugError('❌ [getRelevantArticles] Note: Development backend runs on port 5001');
         }
         return [];
     }
@@ -159,25 +160,25 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
  * @returns Array of articles, sorted by date (most recent first).
  */
 export async function pullRecentArticles() {
-    console.log('🚀 [pullRecentArticles] Function called at:', new Date().toISOString());
-    console.log('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
+    debugLog('🚀 [pullRecentArticles] Function called at:', new Date().toISOString());
+    debugLog('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
     
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
     const VITE_API_BASE = getApiBaseUrl();
-    console.log('🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
+    debugLog('🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
 
     try {
         // Step 1: Try to get articles from the last 24 hours
-        console.log('📡 [pullRecentArticles] Step 1: Fetching articles from last 24 hours...');
+        debugLog('📡 [pullRecentArticles] Step 1: Fetching articles from last 24 hours...');
         let finalArticles = await fetchArticlesByMinutes(VITE_API_BASE, MIN_MINUTES_BEFORE_TO_CHECK);
 
         // Step 2: If we have no articles, try the 4-day window
         // If we have some but not enough, also try the 4-day window to get more
         if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
             if (finalArticles.length === 0) {
-                console.log('📡 [pullRecentArticles] No articles found in last 24 hours, fetching from last 4 days...');
+                debugLog('📡 [pullRecentArticles] No articles found in last 24 hours, fetching from last 4 days...');
             } else {
-                console.log('📡 [pullRecentArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
+                debugLog('📡 [pullRecentArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
             }
             
             const extendedArticles = await fetchArticlesByMinutes(VITE_API_BASE, MAX_MINUTES_BEFORE_TO_CHECK);
@@ -191,27 +192,27 @@ export async function pullRecentArticles() {
 
         // Step 3: If we still have no articles, fetch all articles and return the most recent ones
         if (finalArticles.length === 0) {
-            console.log('📡 [pullRecentArticles] Still no articles found, fetching all available articles...');
+            debugLog('📡 [pullRecentArticles] Still no articles found, fetching all available articles...');
             const allArticles = await fetchArticlesByMinutes(VITE_API_BASE, FALLBACK_MINUTES_BEFORE_TO_CHECK);
             
             if (allArticles.length > 0) {
                 // Sort by date and return the most recent ones
                 const sortedArticles = sortArticlesByDate(allArticles);
                 finalArticles = sortedArticles;
-                console.log('📦 [pullRecentArticles] Found', sortedArticles.length, 'total articles, returning most recent');
+                debugLog('📦 [pullRecentArticles] Found', sortedArticles.length, 'total articles, returning most recent');
             }
         } else {
             // Sort the articles by date to ensure most recent first
             finalArticles = sortArticlesByDate(finalArticles);
         }
 
-        console.log('✅ [pullRecentArticles] Returning', finalArticles.length, 'articles');
+        debugLog('✅ [pullRecentArticles] Returning', finalArticles.length, 'articles');
         return finalArticles;
     } catch (error) {
-        console.error('❌ [pullRecentArticles] Error caught:', error);
-        console.error('❌ [pullRecentArticles] Error type:', error?.constructor?.name);
-        console.error('❌ [pullRecentArticles] Error message:', error instanceof Error ? error.message : String(error));
-        console.error('❌ [pullRecentArticles] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        debugError('❌ [pullRecentArticles] Error caught:', error);
+        debugError('❌ [pullRecentArticles] Error type:', error?.constructor?.name);
+        debugError('❌ [pullRecentArticles] Error message:', error instanceof Error ? error.message : String(error));
+        debugError('❌ [pullRecentArticles] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
         return [];
     }
 }

@@ -6,6 +6,7 @@ import ArticleList from '../../components/ArticleList/ArticleList';
 import { useContext } from 'react';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
+import { debugLog } from '../../utils/debugLogger';
 
 function CategoryPage() {
   const { key } = useParams();
@@ -28,7 +29,7 @@ function CategoryPage() {
 
   // Mobile support, turning a horizontal list to a vertical one on smaller screens.
   let vertical = false;
-  console.log(articlesPerSection);
+  debugLog(articlesPerSection);
   // TODO: terrible, magic number
   if (articlesPerSection < 4) {
     vertical = true;

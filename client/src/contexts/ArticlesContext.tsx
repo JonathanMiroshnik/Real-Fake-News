@@ -3,6 +3,7 @@
 import { useEffect, createContext, useState, ReactNode } from "react";
 import { getRelevantArticles } from "../services/articleService";
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
+import { debugLog, debugWarn, debugError } from "../utils/debugLogger";
 
 /**
    * Provides article data and writer information to consuming components
@@ -33,29 +34,29 @@ function ArticleProvider({ children }: { children: ReactNode }) {
   // TODO: should this be here or in a different "jobs" folder and just be imported from there?
   // Data fetching effect - runs once on mount
   useEffect(() => {    
-      console.log('🎯 [ArticlesContext] useEffect triggered at:', new Date().toISOString());
-      console.log('🎯 [ArticlesContext] Component mounted, starting article fetch...');
+      debugLog('🎯 [ArticlesContext] useEffect triggered at:', new Date().toISOString());
+      debugLog('🎯 [ArticlesContext] Component mounted, starting article fetch...');
       
       async function fetchArticles() {
           try {
-              console.log('🎯 [ArticlesContext] fetchArticles() called at:', new Date().toISOString());
-              console.log('🎯 [ArticlesContext] Calling getRelevantArticles()...');
+              debugLog('🎯 [ArticlesContext] fetchArticles() called at:', new Date().toISOString());
+              debugLog('🎯 [ArticlesContext] Calling getRelevantArticles()...');
               
               let finalArticles = await getRelevantArticles();
               
-              console.log('🎯 [ArticlesContext] getRelevantArticles() returned:', finalArticles?.length || 0, 'articles');
+              debugLog('🎯 [ArticlesContext] getRelevantArticles() returned:', finalArticles?.length || 0, 'articles');
               
               if (finalArticles === undefined) {
-                console.warn('⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array');
+                debugWarn('⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array');
                 finalArticles = [];
               }
 
-              console.log('🎯 [ArticlesContext] Setting articles state with', finalArticles.length, 'articles');
+              debugLog('🎯 [ArticlesContext] Setting articles state with', finalArticles.length, 'articles');
               setArticles([...finalArticles]);
-              console.log('✅ [ArticlesContext] Articles state updated successfully');
+              debugLog('✅ [ArticlesContext] Articles state updated successfully');
           } catch (error) {
-              console.error('❌ [ArticlesContext] Error in fetchArticles:', error);
-              console.error('❌ [ArticlesContext] Error details:', error instanceof Error ? error.message : String(error));
+              debugError('❌ [ArticlesContext] Error in fetchArticles:', error);
+              debugError('❌ [ArticlesContext] Error details:', error instanceof Error ? error.message : String(error));
               setArticles([]);
           }
       }

@@ -5,6 +5,7 @@ import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { getRelevantArticles } from '../../services/articleService';
 import Image from '../Image/Image';
+import { debugLog, debugError } from '../../utils/debugLogger';
 import './NewspaperPrintView.css';
 
 /**
@@ -16,22 +17,22 @@ function NewspaperPrintView() {
   const [articles, setArticles] = useState<ArticleProps[]>(contextArticles);
   const [isLoading, setIsLoading] = useState(contextArticles.length === 0);
   
-  console.log('🖨️ [NewspaperPrintView] Context articles:', contextArticles.length);
-  console.log('🖨️ [NewspaperPrintView] State articles:', articles.length);
+  debugLog('🖨️ [NewspaperPrintView] Context articles:', contextArticles.length);
+  debugLog('🖨️ [NewspaperPrintView] State articles:', articles.length);
   
   // Fetch articles if context is empty or update when context changes
   useEffect(() => {
     if (contextArticles.length > 0) {
-      console.log('🖨️ [NewspaperPrintView] Using articles from context');
+      debugLog('🖨️ [NewspaperPrintView] Using articles from context');
       setArticles(contextArticles);
       setIsLoading(false);
     } else {
-      console.log('🖨️ [NewspaperPrintView] Context empty, fetching articles directly...');
+      debugLog('🖨️ [NewspaperPrintView] Context empty, fetching articles directly...');
       setIsLoading(true);
       getRelevantArticles()
         .then((fetchedArticles) => {
-          console.log('🖨️ [NewspaperPrintView] Fetched', fetchedArticles.length, 'articles');
-          console.log('🖨️ [NewspaperPrintView] Sample article:', fetchedArticles[0] ? {
+          debugLog('🖨️ [NewspaperPrintView] Fetched', fetchedArticles.length, 'articles');
+          debugLog('🖨️ [NewspaperPrintView] Sample article:', fetchedArticles[0] ? {
             key: fetchedArticles[0].key,
             title: fetchedArticles[0].title,
             hasContent: !!fetchedArticles[0].content,
@@ -42,7 +43,7 @@ function NewspaperPrintView() {
           setIsLoading(false);
         })
         .catch((error) => {
-          console.error('🖨️ [NewspaperPrintView] Error fetching articles:', error);
+          debugError('🖨️ [NewspaperPrintView] Error fetching articles:', error);
           setArticles([]);
           setIsLoading(false);
         });

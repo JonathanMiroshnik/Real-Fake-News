@@ -8,6 +8,7 @@ import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCou
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories, CATEGORIES } from '../../services/articleService';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
+import { debugLog, debugWarn } from '../../utils/debugLogger';
 
 import './HomePage.css'
 
@@ -24,20 +25,20 @@ function HomePage() {
   const categoryArticles = groupArticlesByCategories(articles);
 
   // Debug: Show article count
-  console.log('🏠 [HomePage] Articles count:', articles.length);
+  debugLog('🏠 [HomePage] Articles count:', articles.length);
   if (articles.length === 0) {
-    console.warn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
+    debugWarn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
   }
   
   // Debug: Show category distribution
-  console.log('🏠 [HomePage] Category articles:', categoryArticles.map((cat, idx) => ({
+  debugLog('🏠 [HomePage] Category articles:', categoryArticles.map((cat, idx) => ({
     category: CATEGORIES[idx]?.name || 'Unknown',
     count: cat.length
   })));
   
   // Debug: Show all article categories
   const allCategories = [...new Set(articles.map(a => a.category).filter(Boolean))];
-  console.log('🏠 [HomePage] All article categories in data:', allCategories);
+  debugLog('🏠 [HomePage] All article categories in data:', allCategories);
 
   // Preload featured article image for better LCP
   useEffect(() => {
