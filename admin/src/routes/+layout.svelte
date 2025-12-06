@@ -7,12 +7,8 @@
 
 	let { children } = $props();
 
-	import { getApiBaseUrl } from '$lib/apiConfig';
-
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
-	// API base URL - determined by VITE_BACKEND_DEV_MODE
-	const API_BASE = getApiBaseUrl();
 	// Frontend dev mode for other frontend-specific behavior (like default password)
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility

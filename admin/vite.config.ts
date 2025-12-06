@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [sveltekit()],
 		server: {
+			host: '0.0.0.0', // Allow external connections
 			port: parseInt(env.VITE_PORT || '5174', 10),
 			strictPort: false
 		}

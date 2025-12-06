@@ -5,6 +5,9 @@
 	import { getApiBaseUrl } from '$lib/apiConfig';
 	import { goto } from '$app/navigation';
 
+	// Valid categories
+	const VALID_CATEGORIES = ["Politics", "Sports", "Culture", "Economics", "Technology", "Food"];
+
 	interface Article {
 		key?: string;
 		title?: string;
@@ -12,6 +15,9 @@
 		headImage?: string;
 		category?: string;
 		timestamp?: string;
+		shortDescription?: string;
+		writerType?: "AI" | "Human" | "Synthesis";
+		originalNewsItem?: any;
 	}
 
 	let article = $state<Article | null>(null);
@@ -26,6 +32,10 @@
 	let title = $state('');
 	let content = $state('');
 	let headImage = $state('');
+	let category = $state('');
+	let shortDescription = $state('');
+	let writerType = $state<"AI" | "Human" | "Synthesis">('AI');
+	let timestamp = $state('');
 	
 	// File upload
 	let selectedFile = $state<File | null>(null);
@@ -63,6 +73,10 @@
 					title = article.title || '';
 					content = article.content || '';
 					headImage = article.headImage || '';
+					category = article.category || '';
+					shortDescription = article.shortDescription || '';
+					writerType = article.writerType || 'AI';
+					timestamp = article.timestamp || '';
 				}
 			} else {
 				throw new Error('Article not found');
@@ -97,7 +111,11 @@
 				body: JSON.stringify({
 					title: title.trim(),
 					content: content.trim(),
-					headImage: headImage.trim()
+					headImage: headImage.trim(),
+					category: category.trim(),
+					shortDescription: shortDescription.trim(),
+					writerType: writerType,
+					timestamp: timestamp.trim()
 				})
 			});
 			
@@ -114,6 +132,10 @@
 					article.title = title;
 					article.content = content;
 					article.headImage = headImage;
+					article.category = category;
+					article.shortDescription = shortDescription;
+					article.writerType = writerType;
+					article.timestamp = timestamp;
 				}
 				// Clear success message after 3 seconds
 				setTimeout(() => {
@@ -138,6 +160,57 @@
 	function getImageUrl(imageName: string | undefined): string {
 		if (!imageName) return '';
 		return `${API_BASE}/images/${encodeURIComponent(imageName)}`;
+	}
+
+	// Convert ISO timestamp to datetime-local format (YYYY-MM-DDTHH:mm)
+	function isoToDatetimeLocal(isoString: string | undefined): string {
+		if (!isoString) return '';
+		try {
+			const date = new Date(isoString);
+			if (isNaN(date.getTime())) return '';
+			// Format as YYYY-MM-DDTHH:mm for datetime-local input
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const hours = String(date.getHours()).padStart(2, '0');
+			const minutes = String(date.getMinutes()).padStart(2, '0');
+			return `${year}-${month}-${day}T${hours}:${minutes}`;
+		} catch {
+			return '';
+		}
+	}
+
+	// Convert datetime-local format to ISO timestamp
+	function datetimeLocalToIso(datetimeLocal: string): string {
+		if (!datetimeLocal) return '';
+		try {
+			const date = new Date(datetimeLocal);
+			if (isNaN(date.getTime())) return '';
+			return date.toISOString();
+		} catch {
+			return '';
+		}
+	}
+
+	// Handle timestamp input changes
+	function handleTimestampChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		timestamp = datetimeLocalToIso(target.value);
+	}
+
+	// Get timestamp in datetime-local format for display
+	function getTimestampLocal(): string {
+		return isoToDatetimeLocal(timestamp);
+	}
+
+	// Format originalNewsItem as JSON string for display
+	function formatOriginalNewsItem(newsItem: any): string {
+		if (!newsItem) return 'None';
+		try {
+			return JSON.stringify(newsItem, null, 2);
+		} catch {
+			return String(newsItem);
+		}
 	}
 
 	// Handle file selection
@@ -258,6 +331,19 @@
 	{:else if article}
 		<div class="content-card">
 			<form onsubmit={(e) => { e.preventDefault(); saveArticle(); }}>
+				<!-- Read-only Key Field -->
+				<div class="form-group">
+					<label for="key">Article Key</label>
+					<input 
+						type="text" 
+						id="key"
+						value={article.key || ''}
+						disabled
+						class="readonly-field"
+					/>
+					<p class="field-hint">This field cannot be changed</p>
+				</div>
+
 				<div class="form-group">
 					<label for="title">Title</label>
 					<input 
@@ -266,7 +352,20 @@
 						bind:value={title}
 						placeholder="Article title"
 						disabled={saving}
+						class="dark-input"
 					/>
+				</div>
+
+				<div class="form-group">
+					<label for="shortDescription">Short Description</label>
+					<textarea 
+						id="shortDescription"
+						bind:value={shortDescription}
+						placeholder="Short description or summary"
+						disabled={saving}
+						rows="3"
+						class="dark-input"
+					></textarea>
 				</div>
 
 				<div class="form-group">
@@ -277,6 +376,7 @@
 						placeholder="Article content (markdown supported)"
 						disabled={saving}
 						rows="20"
+						class="dark-input"
 					></textarea>
 				</div>
 
@@ -327,6 +427,7 @@
 							bind:value={headImage}
 							placeholder="Image filename (e.g., img-123.png)"
 							disabled={saving}
+							class="dark-input"
 						/>
 					</div>
 					
@@ -340,6 +441,61 @@
 							}} />
 						</div>
 					{/if}
+				</div>
+
+				<div class="form-group">
+					<label for="category">Category</label>
+					<select 
+						id="category"
+						bind:value={category}
+						disabled={saving}
+						class="dark-input"
+					>
+						<option value="">Select a category</option>
+						{#each VALID_CATEGORIES as cat}
+							<option value={cat}>{cat}</option>
+						{/each}
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="writerType">Writer Type</label>
+					<select 
+						id="writerType"
+						bind:value={writerType}
+						disabled={saving}
+						class="dark-input"
+					>
+						<option value="AI">AI</option>
+						<option value="Human">Human</option>
+						<option value="Synthesis">Synthesis</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="timestamp">Timestamp</label>
+					<input 
+						type="datetime-local" 
+						id="timestamp"
+						value={getTimestampLocal()}
+						oninput={handleTimestampChange}
+						disabled={saving}
+						class="dark-input"
+					/>
+					<p class="field-hint">Current value: {timestamp || 'Not set'}</p>
+				</div>
+
+				<div class="form-group">
+					<label for="originalNewsItem">Original News Item</label>
+					<textarea 
+						id="originalNewsItem"
+						value={formatOriginalNewsItem(article.originalNewsItem)}
+						disabled
+						class="readonly-field"
+						rows="8"
+						readonly
+					></textarea>
+					<p class="field-hint">This field is read-only and displays the original news item data</p>
 				</div>
 
 				<div class="form-actions">
@@ -488,10 +644,87 @@
 		border-color: #667eea;
 	}
 
+
 	.form-group input:disabled,
-	.form-group textarea:disabled {
+	.form-group textarea:disabled,
+	.form-group select:disabled {
 		background: #f5f5f5;
 		cursor: not-allowed;
+	}
+
+	.readonly-field {
+		background: #e9ecef !important;
+		color: #6c757d !important;
+		cursor: not-allowed;
+		border-color: #d0d0d0 !important;
+	}
+
+	.form-group select {
+		width: 100%;
+		padding: 0.75rem;
+		padding-right: 2.5rem;
+		border: 2px solid #e0e0e0;
+		border-radius: 8px;
+		font-size: 1rem;
+		font-family: inherit;
+		transition: border-color 0.2s;
+		box-sizing: border-box;
+		background-color: #ffffff;
+		color: #2c3e50;
+		cursor: pointer;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232c3e50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.75rem center;
+	}
+
+	.form-group select:focus {
+		outline: none;
+		border-color: #667eea;
+	}
+
+	.form-group select:hover:not(:disabled) {
+		border-color: #d0d0d0;
+	}
+
+	/* Dark input styling for Category, Content, Timestamp, Writer Type */
+	.dark-input {
+		background-color: #495057 !important;
+		color: #ffffff !important;
+		border-color: #495057 !important;
+	}
+
+	.dark-input:focus {
+		border-color: #667eea !important;
+		background-color: #495057 !important;
+		color: #ffffff !important;
+	}
+
+	.dark-input:hover:not(:disabled) {
+		border-color: #5a6268 !important;
+	}
+
+	.dark-input::placeholder {
+		color: #adb5bd !important;
+	}
+
+	/* Dark select specific styling - white dropdown arrow */
+	select.dark-input {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+	}
+
+	.dark-input option {
+		background-color: #495057;
+		color: #ffffff;
+	}
+
+	.field-hint {
+		margin: 0.25rem 0 0 0;
+		font-size: 0.85rem;
+		color: #6c757d;
+		font-style: italic;
 	}
 
 	.form-group textarea {

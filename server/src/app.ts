@@ -26,7 +26,9 @@ app.use(cors({
   origin: [
     "https://real.sensorcensor.xyz", 
     "http://localhost:5173", 
-    "http://localhost:5174", // Admin panel
+    "http://162.0.237.138:5173", // Client (production)
+    "http://localhost:5174", // Admin panel (dev)
+    "http://162.0.237.138:5174", // Admin panel (production)
     "http://localhost:3000"
   ],
   credentials: true,
@@ -39,12 +41,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Main backend routes
-let PREFIX: string = "";
-if (process.env.LOCAL_DEV_BACKEND === undefined) {
-  PREFIX = '/api';
-}
-else {
-  PREFIX = process.env.LOCAL_DEV_BACKEND === "true" ? '/api': "/";
+// Always use /api prefix in production, only use / for local dev when explicitly set
+let PREFIX: string = "/api";
+if (process.env.LOCAL_DEV_BACKEND === "true") {
+  // Only use root path if explicitly set to "true" for local development
+  PREFIX = "/";
 }
 
 app.use(PREFIX, apiRoutes);
@@ -54,8 +55,26 @@ app.use(PREFIX, apiRoutes);
 // Do NOT use '*', instead:
 //  https://stackoverflow.com/questions/78973586/typeerror-invalid-token-at-1-https-git-new-pathtoregexperror
 app.use(/(.*)/, (req: Request, res: Response) => {
+  // Ensure CORS headers are set even for 404 responses
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    "https://real.sensorcensor.xyz", 
+    "http://localhost:5173", 
+    "http://162.0.237.138:5173",
+    "http://localhost:5174",
+    "http://162.0.237.138:5174",
+    "http://localhost:3000"
+  ];
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
   res.status(404).json({
-    error: 'Endpoint not found'
+    error: 'Endpoint not found',
+    path: req.path,
+    method: req.method
   });
 });
 

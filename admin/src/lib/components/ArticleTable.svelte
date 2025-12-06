@@ -8,6 +8,7 @@
 		title?: string;
 		category?: string;
 		timestamp?: string;
+		writerType?: "AI" | "Human" | "Synthesis";
 		_index?: number;
 	}
 
@@ -54,6 +55,7 @@
 			<tr>
 				<th>Title</th>
 				<th>Category</th>
+				<th>Writer Type</th>
 				<th>Date</th>
 				<th>Actions</th>
 			</tr>
@@ -68,6 +70,11 @@
 					</td>
 					<td>
 						<span class="category-badge">{article.category || 'Uncategorized'}</span>
+					</td>
+					<td>
+						<span class="writer-type-badge" data-type={article.writerType || 'AI'}>
+							{article.writerType || 'AI'}
+						</span>
 					</td>
 					<td class="date-cell">{formatDate(article.timestamp)}</td>
 					<td>
@@ -148,6 +155,30 @@
 		border-radius: 12px;
 		font-size: 0.85rem;
 		font-weight: 500;
+	}
+
+	.writer-type-badge {
+		display: inline-block;
+		padding: 0.25rem 0.75rem;
+		border-radius: 12px;
+		font-size: 0.85rem;
+		font-weight: 500;
+		text-transform: uppercase;
+	}
+
+	.writer-type-badge[data-type="AI"] {
+		background: #e3f2fd;
+		color: #1976d2;
+	}
+
+	.writer-type-badge[data-type="Human"] {
+		background: #f3e5f5;
+		color: #7b1fa2;
+	}
+
+	.writer-type-badge[data-type="Synthesis"] {
+		background: #fff3e0;
+		color: #e65100;
 	}
 
 	.date-cell {
