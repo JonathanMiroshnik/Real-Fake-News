@@ -1,7 +1,7 @@
 // TODO: create another state for the Featured Article that will be kept separate and chosen from the other articles.
 
 import { useEffect, createContext, useState, ReactNode } from "react";
-import { pullRecentArticles } from "../services/articleService";
+import { getRelevantArticles } from "../services/articleService";
 import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
 
 /**
@@ -39,11 +39,11 @@ function ArticleProvider({ children }: { children: ReactNode }) {
       async function fetchArticles() {
           try {
               console.log('🎯 [ArticlesContext] fetchArticles() called at:', new Date().toISOString());
-              console.log('🎯 [ArticlesContext] Calling pullRecentArticles()...');
+              console.log('🎯 [ArticlesContext] Calling getRelevantArticles()...');
               
-              let finalArticles = await pullRecentArticles();
+              let finalArticles = await getRelevantArticles();
               
-              console.log('🎯 [ArticlesContext] pullRecentArticles() returned:', finalArticles?.length || 0, 'articles');
+              console.log('🎯 [ArticlesContext] getRelevantArticles() returned:', finalArticles?.length || 0, 'articles');
               
               if (finalArticles === undefined) {
                 console.warn('⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array');

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { VALID_CATEGORIES } from '../config/constants.js';
+import { VALID_CATEGORIES, MIN_MINUTES_BEFORE_TO_CHECK, MAX_MINUTES_BEFORE_TO_CHECK, FALLBACK_MINUTES_BEFORE_TO_CHECK, MIN_ACCEPTABLE_ARTICLES } from '../config/constants.js';
 import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
 import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
@@ -51,6 +51,89 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
         articles: retArticles,
         error: ""
     };
+}
+
+/**
+ * Sorts articles by timestamp (most recent first)
+ */
+function sortArticlesByDate(articles: ArticleScheme[]): ArticleScheme[] {
+    return [...articles].sort((a, b) => {
+        const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+        return dateB - dateA; // Most recent first
+    });
+}
+
+/**
+ * Gets relevant articles with fallback logic:
+ * 1. Try articles from last 24 hours
+ * 2. If none or not enough, try last 4 days
+ * 3. If still none, try all articles from last year and return most recent
+ * @returns BlogResponse with articles sorted by date (most recent first)
+ */
+export async function getRelevantArticles(): Promise<BlogResponse> {
+    console.log('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
+    
+    try {
+        // Step 1: Try to get articles from the last 24 hours
+        console.log('📡 [getRelevantArticles] Step 1: Fetching articles from last 24 hours...');
+        const startDate1 = new Date(Date.now() - MIN_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+        let result = await getAllPostsAfterDate(startDate1);
+        let finalArticles = result.articles;
+
+        // Step 2: If we have no articles, try the 4-day window
+        // If we have some but not enough, also try the 4-day window to get more
+        if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
+            if (finalArticles.length === 0) {
+                console.log('📡 [getRelevantArticles] No articles found in last 24 hours, fetching from last 4 days...');
+            } else {
+                console.log('📡 [getRelevantArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
+            }
+            
+            const startDate2 = new Date(Date.now() - MAX_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+            const extendedResult = await getAllPostsAfterDate(startDate2);
+            
+            // If we got articles from the extended window, use them
+            // This ensures we show something even if there are no recent articles
+            if (extendedResult.articles.length > 0) {
+                finalArticles = extendedResult.articles;
+            }
+        }
+
+        // Step 3: If we still have no articles, fetch all articles and return the most recent ones
+        if (finalArticles.length === 0) {
+            console.log('📡 [getRelevantArticles] Still no articles found, fetching all available articles...');
+            const startDate3 = new Date(Date.now() - FALLBACK_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+            const allResult = await getAllPostsAfterDate(startDate3);
+            
+            if (allResult.articles.length > 0) {
+                // Sort by date and return the most recent ones
+                const sortedArticles = sortArticlesByDate(allResult.articles);
+                finalArticles = sortedArticles;
+                console.log('📦 [getRelevantArticles] Found', sortedArticles.length, 'total articles, returning most recent');
+            }
+        } else {
+            // Sort the articles by date to ensure most recent first
+            finalArticles = sortArticlesByDate(finalArticles);
+        }
+
+        console.log('✅ [getRelevantArticles] Returning', finalArticles.length, 'articles');
+        return {
+            success: true,
+            articles: finalArticles,
+            error: ""
+        };
+    } catch (error) {
+        console.error('❌ [getRelevantArticles] Error caught:', error);
+        console.error('❌ [getRelevantArticles] Error type:', error?.constructor?.name);
+        console.error('❌ [getRelevantArticles] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [getRelevantArticles] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        return {
+            success: false,
+            articles: [],
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+    }
 }
 
 // TODO: add content filter step that will check for violence/bigotry in the original articles 

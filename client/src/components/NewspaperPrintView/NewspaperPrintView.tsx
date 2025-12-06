@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
-import { pullRecentArticles } from '../../services/articleService';
+import { getRelevantArticles } from '../../services/articleService';
 import Image from '../Image/Image';
 import './NewspaperPrintView.css';
 
@@ -28,7 +28,7 @@ function NewspaperPrintView() {
     } else {
       console.log('🖨️ [NewspaperPrintView] Context empty, fetching articles directly...');
       setIsLoading(true);
-      pullRecentArticles()
+      getRelevantArticles()
         .then((fetchedArticles) => {
           console.log('🖨️ [NewspaperPrintView] Fetched', fetchedArticles.length, 'articles');
           console.log('🖨️ [NewspaperPrintView] Sample article:', fetchedArticles[0] ? {

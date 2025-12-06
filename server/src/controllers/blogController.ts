@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { BlogResponse } from '../types/article.js';
-import { getAllPostsAfterDate } from '../services/blogService.js';
+import { getAllPostsAfterDate, getRelevantArticles } from '../services/blogService.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
 
 // TODO: some functions need to be combined here
@@ -52,5 +52,19 @@ export async function pullBlogsByMinute(req: Request, res: Response) {
     } catch (error) {
         console.error('❌ Error in pullBlogsByMinute:', error);
         res.status(500).json({ error: 'Analysis failed' });
+    }
+}
+
+export async function getRelevantArticlesController(req: Request, res: Response) {
+    console.log('📥 Received request to /api/blogs/relevant');
+    
+    try {
+        const result: BlogResponse = await getRelevantArticles();
+        console.log('📥 Returning', result.articles.length, 'relevant articles');
+        
+        res.json(result);
+    } catch (error) {
+        console.error('❌ Error in getRelevantArticlesController:', error);
+        res.status(500).json({ error: 'Failed to fetch relevant articles' });
     }
 }

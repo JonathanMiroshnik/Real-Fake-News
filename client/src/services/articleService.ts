@@ -99,6 +99,61 @@ function sortArticlesByDate(articles: ArticleProps[]): ArticleProps[] {
 }
 
 /**
+ * Gets relevant articles from the server.
+ * The server handles the fallback logic (24 hours -> 4 days -> 1 year).
+ * @returns Array of articles, sorted by date (most recent first).
+ */
+export async function getRelevantArticles(): Promise<ArticleProps[]> {
+    console.log('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
+    
+    // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
+    const VITE_API_BASE = getApiBaseUrl();
+    console.log('🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
+
+    const url = `${VITE_API_BASE}/api/blogs/relevant`;
+    console.log('📡 [getRelevantArticles] Fetching from URL:', url);
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`❌ [getRelevantArticles] Fetch failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'No error details');
+            console.error(`❌ [getRelevantArticles] Error response:`, errorText);
+            return [];
+        }
+
+        const articlesJSON = await response.json();
+        const articles = articlesJSON.articles || [];
+        console.log('📦 [getRelevantArticles] Fetched', articles.length, 'articles');
+        
+        if (articles.length > 0) {
+            console.log('📦 [getRelevantArticles] Sample article:', {
+                key: articles[0].key,
+                title: articles[0].title,
+                timestamp: articles[0].timestamp
+            });
+        }
+        
+        console.log('✅ [getRelevantArticles] Returning', articles.length, 'articles');
+        return articles;
+    } catch (error) {
+        console.error('❌ [getRelevantArticles] Network error:', error);
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            console.error('❌ [getRelevantArticles] Could not connect to server. Is it running at', VITE_API_BASE, '?');
+            console.error('❌ [getRelevantArticles] Note: Development backend runs on port 5001');
+        }
+        return [];
+    }
+}
+
+/**
+ * @deprecated Use getRelevantArticles() instead. This function is kept for backwards compatibility.
  * Pulls recent articles, prioritizing recent articles. If there are no recent articles,
  * falls back to the next most recent articles available.
  * @returns Array of articles, sorted by date (most recent first).
