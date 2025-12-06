@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { GenerateTriviaQuestionsRequest } from '../types/triviaGame';
-import { fetchTriviaQuestions } from '../services/triviaQuestionService';
+import { GenerateTriviaQuestionsRequest } from '../types/triviaGame.js';
+import { fetchTriviaQuestions } from '../services/triviaQuestionService.js';
 
 export const textToTriviaQuestions = async (req: Request, res: Response) => {
     try {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { chooseNextAction } from '../services/gameIntelligenceService';
-import { GenerateGameMoveRequest } from '../types/gameIntelligence';
+import { chooseNextAction } from '../services/gameIntelligenceService.js';
+import { GenerateGameMoveRequest } from '../types/gameIntelligence.js';
 
 export const textToGameAnalysis = async (req: Request, res: Response) => {
     try {

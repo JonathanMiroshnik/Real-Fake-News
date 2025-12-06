@@ -1,8 +1,8 @@
 import { getDatabase } from '../database/database.js';
-import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_WRITERS_FILE, DB_FEATURED_BLOG_POST_FILE } from "../../config/constants";
+import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_WRITERS_FILE, DB_FEATURED_BLOG_POST_FILE } from "../../config/constants.js";
 import { NewsItem } from "../../services/newsService.js";
 import { ArticleScheme, FeaturedArticleScheme } from "../../types/article.js";
-import { Writer } from '../../types/writer';
+import { Writer } from '../../types/writer.js';
 import Database from 'better-sqlite3';
 
 // Configuration for a database that holds data of type P

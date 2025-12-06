@@ -1,4 +1,4 @@
-import { Writer } from "../types/writer";
+import { Writer } from "../types/writer.js";
 
 // LowDB database locations
 const DB_BLOG_POST_FILE: string = "data/blogPosts.json";

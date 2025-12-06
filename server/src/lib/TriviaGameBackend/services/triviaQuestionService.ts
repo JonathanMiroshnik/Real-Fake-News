@@ -1,4 +1,4 @@
-import { Question, GenerateTriviaQuestionsRequest } from "../types/triviaGame";
+import { Question, GenerateTriviaQuestionsRequest } from "../types/triviaGame.js";
 
 // TODO: need to add non-boolean questions, difficulty level changes etc.
 

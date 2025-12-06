@@ -1,4 +1,4 @@
-import { DatabaseConfig } from './databaseConfigurations';
+import { DatabaseConfig } from './databaseConfigurations.js';
 // Re-export SQLite operations - this maintains backward compatibility
 // NOTE: All code should now import directly from '../database/sqliteOperations.js'
 export { createPost, getAllPosts, getPostByKey, updatePost, deletePost, Post } from '../database/sqliteOperations.js';

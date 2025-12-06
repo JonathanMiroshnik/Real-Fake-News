@@ -66,10 +66,11 @@ const upload = multer({
 export const uploadMiddleware = upload.single('image');
 
 // Get all articles for admin panel
-export const getAdminArticles = async (req: Request, res: Response) => {
+export const getAdminArticles = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
@@ -90,15 +91,17 @@ export const getAdminArticles = async (req: Request, res: Response) => {
 };
 
 // Get a single article by key
-export const getAdminArticle = async (req: Request, res: Response) => {
+export const getAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     const { key } = req.params;
     if (!key) {
-      return res.status(400).json({ error: 'Article key is required' });
+      res.status(400).json({ error: 'Article key is required' });
+      return;
     }
 
     const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
@@ -118,21 +121,24 @@ export const getAdminArticle = async (req: Request, res: Response) => {
 };
 
 // Update an article
-export const updateAdminArticle = async (req: Request, res: Response) => {
+export const updateAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     const { key } = req.params;
     if (!key) {
-      return res.status(400).json({ error: 'Article key is required' });
+      res.status(400).json({ error: 'Article key is required' });
+      return;
     }
 
     // Get the existing article first
     const existingArticle = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
     if (!existingArticle) {
-      return res.status(404).json({ error: 'Article not found' });
+      res.status(404).json({ error: 'Article not found' });
+      return;
     }
 
     // Update only the fields provided in the request body
@@ -161,15 +167,17 @@ export const updateAdminArticle = async (req: Request, res: Response) => {
 };
 
 // Delete an article
-export const deleteAdminArticle = async (req: Request, res: Response) => {
+export const deleteAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     const { key } = req.params;
     if (!key) {
-      return res.status(400).json({ error: 'Article key is required' });
+      res.status(400).json({ error: 'Article key is required' });
+      return;
     }
 
     const deleted = await deletePost<ArticleScheme>(key, blogDatabaseConfig);
@@ -186,10 +194,11 @@ export const deleteAdminArticle = async (req: Request, res: Response) => {
 };
 
 // Get all texts
-export const getAdminTexts = async (req: Request, res: Response) => {
+export const getAdminTexts = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     res.json({
@@ -207,14 +216,16 @@ export const getAdminTexts = async (req: Request, res: Response) => {
 };
 
 // Upload an image
-export const uploadAdminImage = async (req: Request, res: Response) => {
+export const uploadAdminImage = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
     }
 
     // Automatically compress the uploaded image for web use
@@ -243,15 +254,17 @@ export const uploadAdminImage = async (req: Request, res: Response) => {
 };
 
 // Add a text
-export const addAdminText = async (req: Request, res: Response) => {
+export const addAdminText = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      return res.status(401).json({ error: 'Invalid password' });
+      res.status(401).json({ error: 'Invalid password' });
+      return;
     }
 
     const { text } = req.body;
     if (!text || typeof text !== 'string' || !text.trim()) {
-      return res.status(400).json({ error: 'Text is required and must be a non-empty string' });
+      res.status(400).json({ error: 'Text is required and must be a non-empty string' });
+      return;
     }
 
     texts.push(text.trim());

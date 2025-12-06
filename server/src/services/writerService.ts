@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { Writer } from "../types/writer";
+import { Writer } from "../types/writer.js";
 import { getAllPosts } from "../lib/database/sqliteOperations.js";
 import { writerDatabaseConfig } from "../lib/lowdb/databaseConfigurations.js";
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { textToGameAnalysis } from '../controllers/gameIntelligenceController';
+import { textToGameAnalysis } from '../controllers/gameIntelligenceController.js';
 
 const router = Router();
 

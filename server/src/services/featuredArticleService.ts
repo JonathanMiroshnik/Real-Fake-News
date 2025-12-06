@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import { DB_FEATURED_BLOG_POST_FILE, VALID_CATEGORIES } from '../config/constants.js';
-import { FeaturedArticleScheme } from '../types/article';
-import { ArticleScheme } from '../types/article';
-import { writeBlogPost } from './blogService';
-import { Writer } from '../types/writer';
-import { NewsItem } from './newsService';
+import { FeaturedArticleScheme } from '../types/article.js';
+import { ArticleScheme } from '../types/article.js';
+import { writeBlogPost } from './blogService.js';
+import { Writer } from '../types/writer.js';
+import { NewsItem } from './newsService.js';
 import { generateAndSaveImage } from './imageService.js';
 import { generateTextFromString } from './llmService.js';
 import { getNRandom, getUniqueKey } from '../utils/general.js';

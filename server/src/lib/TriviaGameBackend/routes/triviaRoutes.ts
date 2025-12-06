@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { textToTriviaQuestions } from '../controllers/triviaGameController';
+import { textToTriviaQuestions } from '../controllers/triviaGameController.js';
 
 const router = Router();
 

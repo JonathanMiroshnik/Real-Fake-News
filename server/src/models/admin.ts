@@ -8,7 +8,7 @@ const AdminSchema = new mongoose.Schema({
 });
 
 // Hash password before save
-AdminSchema.pre('save', async function(next) {
+AdminSchema.pre('save', async function(next: mongoose.CallbackWithoutResultAndOptionalError) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
   }
