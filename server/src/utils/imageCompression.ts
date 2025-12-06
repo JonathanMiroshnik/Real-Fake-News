@@ -1,4 +1,6 @@
-import sharp from 'sharp';
+// import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
+import { Jimp } from 'jimp';
+import { JimpMime } from 'jimp';
 import path from 'path';
 import fs from 'fs';
 
@@ -7,11 +9,13 @@ import fs from 'fs';
  * 
  * Compression settings:
  * - Max width: 1920px (maintains aspect ratio)
- * - Format: WebP (better compression than PNG/JPEG)
+ * - Format: JPEG (jimp doesn't support WebP, but JPEG provides good compression)
  * - Quality: 80 (good balance between size and quality)
  * 
  * For images around 200KB, this typically reduces to 50-100KB
  * For larger images (1MB+), this can reduce to 200-400KB
+ * 
+ * Note: Using jimp instead of sharp due to CPU compatibility issues
  * 
  * @param inputPath - Path to the original image
  * @param outputPath - Path where compressed image should be saved
@@ -26,21 +30,26 @@ export async function compressImageForWeb(
     const outputDir = path.dirname(outputPath);
     fs.mkdirSync(outputDir, { recursive: true });
 
+    // Load image with jimp
+    const image = await Jimp.read(inputPath);
+    
     // Get image metadata to determine if it's a profile image
-    const metadata = await sharp(inputPath).metadata();
-    const isSmallImage = metadata.width && metadata.width < 500;
+    const isSmallImage = image.width < 500;
     
     // Use different settings for small images (likely profile images)
     const maxWidth = isSmallImage ? 400 : 1920;
     const quality = isSmallImage ? 75 : 80;
 
-    await sharp(inputPath)
-      .resize(maxWidth, null, {
-        withoutEnlargement: true, // Don't upscale small images
-        fit: 'inside' // Maintain aspect ratio
-      })
-      .webp({ quality })
-      .toFile(outputPath);
+    // Resize if needed (maintains aspect ratio, doesn't upscale)
+    if (image.width > maxWidth) {
+      image.resize({ w: maxWidth });
+    }
+
+    // Get JPEG buffer (quality is handled in getBuffer options if supported)
+    const jpegBuffer = await image.getBuffer(JimpMime.jpeg);
+    
+    // Write to file
+    await fs.promises.writeFile(outputPath, jpegBuffer);
 
     // Get file sizes for logging
     const originalSize = fs.statSync(inputPath).size;
@@ -68,7 +77,8 @@ export function getCompressedImagePath(filename: string): string {
   const compressedDir = path.join(imagesDir, 'compressed');
   const ext = path.extname(filename);
   const basename = path.basename(filename, ext);
-  return path.join(compressedDir, `${basename}.webp`);
+  // Using .jpg instead of .webp since jimp doesn't support WebP
+  return path.join(compressedDir, `${basename}.jpg`);
 }
 
 /**
