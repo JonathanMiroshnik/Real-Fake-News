@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { Router, Request, Response } from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -50,7 +51,17 @@ router.get('/images/:filename', (req, res) => {
     'Access-Control-Allow-Origin': process.env.CLIENT_URL
   });
   
-  res.sendFile(path.join(__dirname, '../../data/images', sanitized));
+  // Try to serve compressed version first, fallback to original
+  const compressedPath = path.join(__dirname, '../../data/images/compressed', 
+    path.basename(sanitized, path.extname(sanitized)) + '.webp');
+  const originalPath = path.join(__dirname, '../../data/images', sanitized);
+  
+  // Check if compressed version exists, otherwise serve original
+  if (fs.existsSync(compressedPath)) {
+    res.sendFile(compressedPath);
+  } else {
+    res.sendFile(originalPath);
+  }
 });
 
 export default router;

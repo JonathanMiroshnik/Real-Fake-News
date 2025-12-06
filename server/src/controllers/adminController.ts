@@ -9,6 +9,7 @@ import { getAllPosts, getPostByKey, updatePost } from '../lib/database/sqliteOpe
 import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
+import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -214,6 +215,19 @@ export const uploadAdminImage = async (req: Request, res: Response) => {
 
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Automatically compress the uploaded image for web use
+    // Original is kept in the main images directory
+    const originalPath = req.file.path;
+    const compressedPath = getCompressedImagePath(req.file.filename);
+    
+    try {
+      await compressImageForWeb(originalPath, compressedPath);
+      console.log(`Compressed uploaded image: ${req.file.filename}`);
+    } catch (compressError) {
+      // Log error but don't fail the upload - original is still saved
+      console.error('Error compressing uploaded image:', compressError);
     }
 
     // Return the filename so the frontend can use it
