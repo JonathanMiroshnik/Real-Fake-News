@@ -21,9 +21,37 @@ export function initializeSchema(): void {
             headImage TEXT,
             shortDescription TEXT,
             originalNewsItem TEXT,
+            writerType TEXT DEFAULT 'AI',
             createdAt TEXT DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+    // Migration: Add writerType column to existing blog_posts table if it doesn't exist
+    try {
+        db.exec(`
+            ALTER TABLE blog_posts 
+            ADD COLUMN writerType TEXT DEFAULT 'AI'
+        `);
+        // If column was just added, update existing rows to have 'AI' as default
+        db.exec(`
+            UPDATE blog_posts 
+            SET writerType = 'AI' 
+            WHERE writerType IS NULL
+        `);
+    } catch (error: any) {
+        // Column already exists, ignore error
+        // SQLite error codes: SQLITE_ERROR (1) for duplicate column
+        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
+            console.warn('Warning: Could not add writerType column:', error.message);
+        } else {
+            // Column exists, just ensure all rows have a value
+            db.exec(`
+                UPDATE blog_posts 
+                SET writerType = 'AI' 
+                WHERE writerType IS NULL
+            `);
+        }
+    }
 
     // News Items Table
     // Stores news articles fetched from external APIs (NewsItem)

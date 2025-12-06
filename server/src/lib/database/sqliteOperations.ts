@@ -76,11 +76,13 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
             const stmt = db.prepare(`
                 INSERT INTO blog_posts (
                     key, title, content, author, timestamp, category, 
-                    headImage, shortDescription, originalNewsItem
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    headImage, shortDescription, originalNewsItem, writerType
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
             // Provide default timestamp if missing
             const timestamp = article.timestamp || new Date().toISOString();
+            // Default writerType to 'AI' if not provided
+            const writerType = article.writerType || 'AI';
             
             stmt.run(
                 key,
@@ -91,7 +93,8 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
                 article.category || null,
                 article.headImage || null,
                 article.shortDescription || null,
-                serializeJson(article.originalNewsItem) || null
+                serializeJson(article.originalNewsItem) || null,
+                writerType
             );
         } else if (tableName === 'news_items') {
             const newsItem = post as any;
@@ -185,6 +188,7 @@ export async function getAllPosts<P>(dbConfig: DatabaseConfig<P>): Promise<P[]> 
                 post.headImage = row.headImage;
                 post.shortDescription = row.shortDescription;
                 post.originalNewsItem = deserializeJson(row.originalNewsItem);
+                post.writerType = row.writerType || 'AI';
             } else if (tableName === 'news_items') {
                 post.article_id = row.article_id;
                 post.title = row.title;
@@ -248,6 +252,7 @@ export async function getPostByKey<P>(key: string, dbConfig: DatabaseConfig<P>):
             post.headImage = row.headImage;
             post.shortDescription = row.shortDescription;
             post.originalNewsItem = deserializeJson(row.originalNewsItem);
+            post.writerType = row.writerType || 'AI';
         } else if (tableName === 'news_items') {
             post.article_id = row.article_id;
             post.title = row.title;
@@ -305,9 +310,11 @@ export async function updatePost<P>(newPost: P, dbConfig: DatabaseConfig<P>): Pr
             const stmt = db.prepare(`
                 UPDATE blog_posts SET
                     title = ?, content = ?, author = ?, timestamp = ?, category = ?,
-                    headImage = ?, shortDescription = ?, originalNewsItem = ?
+                    headImage = ?, shortDescription = ?, originalNewsItem = ?, writerType = ?
                 WHERE key = ?
             `);
+            // Default writerType to 'AI' if not provided
+            const writerType = article.writerType || 'AI';
             stmt.run(
                 article.title || null,
                 article.content || null,
@@ -317,6 +324,7 @@ export async function updatePost<P>(newPost: P, dbConfig: DatabaseConfig<P>): Pr
                 article.headImage || null,
                 article.shortDescription || null,
                 serializeJson(article.originalNewsItem),
+                writerType,
                 key
             );
         } else if (tableName === 'news_items') {

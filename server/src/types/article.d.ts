@@ -11,6 +11,7 @@ export interface ArticleScheme extends Post {
   headImage?: string;
   shortDescription?: string;
   originalNewsItem?: NewsItem;
+  writerType?: "AI" | "Human" | "Synthesis";
 }
 
 export interface FeaturedArticleScheme extends ArticleScheme {

@@ -147,6 +147,10 @@ export const updateAdminArticle = async (req: Request, res: Response): Promise<v
       ...(req.body.title !== undefined && { title: req.body.title }),
       ...(req.body.content !== undefined && { content: req.body.content }),
       ...(req.body.headImage !== undefined && { headImage: req.body.headImage }),
+      ...(req.body.category !== undefined && { category: req.body.category }),
+      ...(req.body.shortDescription !== undefined && { shortDescription: req.body.shortDescription }),
+      ...(req.body.writerType !== undefined && { writerType: req.body.writerType }),
+      ...(req.body.timestamp !== undefined && { timestamp: req.body.timestamp }),
     };
 
     const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
