@@ -38,7 +38,9 @@
 }
 
 .featured-article-image {
-    width: 200%;
+    width: 100%;
+    max-width: 500px;
+    flex-shrink: 0;
 }
 
 /* Chose to use em for media queries, reasoning: https://zellwk.com/blog/media-query-units/ */

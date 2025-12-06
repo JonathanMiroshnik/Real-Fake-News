@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { getLatestTime } from '../../services/timeService';
+import Image from '../Image/Image';
 
 import './ArticleListItem.css'
 
@@ -27,11 +28,16 @@ function ArticleListItem({article, showImage=true, showDescription=true, showUnd
     return (
         <Link className="article-list-item-title" to={`/article/${article.key}`}>
             <div className="article-list-item">
-                {showImage && <div style={{textAlign: "center"}}>
-                    <img className="article-list-item-head-image" 
-                    src={getImageURLFromArticle(article, DEFAULT_IMAGE)} 
-                    alt={article.title}/>     
-                </div>}
+                {showImage && (
+                    <Image
+                        src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
+                        alt={article.title}
+                        className="article-list-item-head-image"
+                        aspectRatio="16/9"
+                        placeholder={true}
+                        objectFit="cover"
+                    />
+                )}
                 <h3 className='article-list-item-title-header'>
                     {article.title}
                 </h3>

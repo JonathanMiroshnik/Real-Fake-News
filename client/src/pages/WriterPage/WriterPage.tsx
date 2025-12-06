@@ -5,6 +5,7 @@ import ArticleList from '../../components/ArticleList/ArticleList';
 import { desanitizeWriterName } from '../../services/writerService';
 import { getImageURLFromWriter } from '../../services/imageService';
 import { DEFAULT_IMAGE } from '../../services/imageService';
+import Image from '../../components/Image/Image';
 import './WriterPage.css'
 
 /**
@@ -49,8 +50,14 @@ function WriterPage() {
     <div className="home-container">
       <div className="writer-profile-section">
             <h2 className="writer-name">{ authorName }</h2>
-            <img src={getImageURLFromWriter(foundWriter, DEFAULT_IMAGE)} 
-            alt={foundWriter.name} className="writer-page-profile-img"/>
+            <Image
+              src={getImageURLFromWriter(foundWriter, DEFAULT_IMAGE)}
+              alt={foundWriter.name}
+              className="writer-page-profile-img"
+              aspectRatio="1/1"
+              placeholder={true}
+              objectFit="cover"
+            />
             <br/>
             <p className="writer-description">{ foundWriter.description }</p>            
       </div>

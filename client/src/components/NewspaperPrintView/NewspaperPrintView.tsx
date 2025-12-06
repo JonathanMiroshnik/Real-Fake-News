@@ -4,6 +4,7 @@ import { ArticleContext } from '../../contexts/ArticlesContext';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { pullRecentArticles } from '../../services/articleService';
+import Image from '../Image/Image';
 import './NewspaperPrintView.css';
 
 /**
@@ -112,10 +113,13 @@ function NewspaperPrintView() {
           </div>
           {featuredArticle.headImage && (
             <div className="featured-article-image-container">
-              <img 
-                src={getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE)} 
+              <Image
+                src={getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE)}
                 alt={featuredArticle.title}
                 className="featured-article-image"
+                aspectRatio="16/9"
+                placeholder={false}
+                objectFit="contain"
               />
             </div>
           )}
@@ -175,7 +179,14 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
       </div>
       {imageURL && imageURL !== "" && (
         <div className="newspaper-article-image-container">
-          <img src={imageURL} alt={article.title} className="newspaper-article-image" />
+          <Image
+            src={imageURL}
+            alt={article.title}
+            className="newspaper-article-image"
+            aspectRatio="4/3"
+            placeholder={false}
+            objectFit="contain"
+          />
         </div>
       )}
       <div className="newspaper-article-content">

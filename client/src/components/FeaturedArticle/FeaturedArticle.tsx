@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import { getImageURLFromArticle } from "../../services/imageService";
 import { DEFAULT_IMAGE } from "../../services/imageService";
+import Image from "../Image/Image";
 
 import './FeaturedArticle.css'
 
@@ -31,7 +32,14 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                             </span>
                         </div>
                     </div>
-                    <img className="featured-article-image" src={getImageURLFromArticle(article, DEFAULT_IMAGE)} alt={article.title} />
+                    <Image
+                        src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
+                        alt={article.title}
+                        className="featured-article-image"
+                        aspectRatio="4/3"
+                        placeholder={true}
+                        objectFit="cover"
+                    />
                 </section>
             </Link>
         </div>

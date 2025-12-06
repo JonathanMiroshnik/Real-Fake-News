@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { sanitizeWriterName } from '../../services/writerService';
+import Image from '../../components/Image/Image';
 import './ArticlePage.css'
 
 export interface WriterProps {
@@ -52,9 +53,18 @@ function ArticlePage() {
         </div>
       </div>
       
-      <div className='article-page-head-image'>
-        {imageURL !== "" && (<img src={imageURL} alt={foundArticle.title} className="article-image" /> )}
-      </div>
+      {imageURL !== "" && (
+        <div className='article-page-head-image'>
+          <Image
+            src={imageURL}
+            alt={foundArticle.title}
+            className="article-image"
+            aspectRatio="16/9"
+            placeholder={true}
+            objectFit="cover"
+          />
+        </div>
+      )}
       <div className="article-content">
         <ReactMarkdown>{foundArticle.content}</ReactMarkdown>
       </div>

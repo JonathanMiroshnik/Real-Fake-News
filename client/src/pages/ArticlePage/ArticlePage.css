@@ -21,11 +21,12 @@
 .article-page-head-image {
   display: flex;
   justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 .article-image {
-  /* TODO: should this width 100% be here or keep original img size? */
   width: 100%;
+  max-width: 800px;
 }
 
 .article-header h2 {
