@@ -1,15 +1,14 @@
-import { getDatabase } from '../database/database.js';
-import { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_WRITERS_FILE, DB_FEATURED_BLOG_POST_FILE } from "../../config/constants.js";
-import { NewsItem } from "../../services/newsService.js";
+import { getDatabase } from './database.js';
 import { ArticleScheme, FeaturedArticleScheme } from "../../types/article.js";
+import { NewsItem } from "../../services/newsService.js";
 import { Writer } from '../../types/writer.js';
-import Database from 'better-sqlite3';
 
 // Configuration for a database that holds data of type P
+// This interface is used by sqliteOperations to work with different table types
 export interface DatabaseConfig<P> {
-  // Place of database file 
+  // Source identifier (kept for compatibility, but not used for file paths anymore)
   source: string;
-  // Returns true if pInput exists in database file
+  // Returns true if pInput exists in database
   exists: (pInput: P) => Promise<boolean>;
   // Returns P from database that corresponds to input key
   find: (key: string) => Promise<P | undefined>;
@@ -19,10 +18,8 @@ export interface DatabaseConfig<P> {
   copyValues: (fromInput: P, toInput: P) => boolean;
 };
 
-// TODO: copyValues never returns false under these circumstances!
-
 export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
-    source: DB_BLOG_POST_FILE,
+    source: "blog_posts",
     exists: async (article: ArticleScheme) => {
         const db = getDatabase();
         const key = article.key;
@@ -74,7 +71,7 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
 };
 
 export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> = {
-    source: DB_FEATURED_BLOG_POST_FILE,
+    source: "featured_blog_posts",
     exists: async (article: FeaturedArticleScheme) => {
         const db = getDatabase();
         const key = article.key;
@@ -137,7 +134,7 @@ export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> =
 };
 
 export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
-    source: DB_NEWS_DATA_FILE,
+    source: "news_items",
     exists: async (article: NewsItem) => {
         const db = getDatabase();
         const stmt = db.prepare('SELECT 1 FROM news_items WHERE article_id = ?');
@@ -171,7 +168,7 @@ export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
 };
 
 export const writerDatabaseConfig: DatabaseConfig<Writer> = {
-    source: DB_WRITERS_FILE,
+    source: "writers",
     exists: async (article: Writer) => {
         const db = getDatabase();
         const key = article.key;
@@ -215,3 +212,4 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
         return true;
     }
 };
+

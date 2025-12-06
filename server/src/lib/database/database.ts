@@ -23,15 +23,9 @@ class DatabaseManager {
             // __dirname in compiled code is server/dist/lib/database/
             // So we go up 3 levels to get to server root
             const serverRoot = resolve(__dirname, '../../..');
-            const sourceDataPath = path.join(serverRoot, 'src/data/database.db');
-            const distDataPath = path.join(serverRoot, 'dist/data/database.db');
-            
-            // Prefer source database if it exists (for development), otherwise use dist
-            if (fs.existsSync(sourceDataPath)) {
-                dbPath = sourceDataPath;
-            } else {
-                dbPath = distDataPath;
-            }
+            // Use server/data/database.db - this is outside src/ and dist/ so it won't be affected by builds
+            // This directory already exists and is used for other data files (images, JSON files, etc.)
+            dbPath = path.join(serverRoot, 'data/database.db');
         }
         
         const dbDir = path.dirname(dbPath);

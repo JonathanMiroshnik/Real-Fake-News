@@ -1,5 +1,5 @@
 import { getDatabase } from './database.js';
-import { DatabaseConfig } from '../lowdb/databaseConfigurations.js';
+import { DatabaseConfig } from './databaseConfigurations.js';
 import Database from 'better-sqlite3';
 import { getUniqueKey } from '../../utils/general.js';
 

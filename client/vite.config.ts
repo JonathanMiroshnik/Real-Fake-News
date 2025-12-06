@@ -20,22 +20,26 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 //import mkcert from 'vite-plugin-mkcert'
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   plugins: [react(),
 //mkcert()
 ],
   server: {
     host: '0.0.0.0',
     port: 5173,
-    hmr: mode === 'production' ? {
-      protocol: 'wss',
-      clientPort: 443, // Connect through Nginx's HTTPS in production
-    } : {
-      protocol: 'ws', // Use regular WebSocket in development
+    // Disable HMR when NODE_ENV is production to avoid mixed content issues
+    // When accessed via HTTPS, HMR WebSocket connections are blocked by browser security
+    hmr: process.env.NODE_ENV === 'production' ? false : {
+      protocol: 'ws',
       port: 5173,
     },
-    allowedHosts: ["yonatan-h110m-s2v.local", 'www.sensorcensor.xyz', 
-'real.sensorcensor.x', "real.sensorcensor.xyz"]
+    allowedHosts: [
+      "yonatan-h110m-s2v.local",
+      "www.sensorcensor.xyz",
+      "real.sensorcensor.xyz",
+      "162.0.237.138",
+      "localhost"
+    ]
   }
 }))
 

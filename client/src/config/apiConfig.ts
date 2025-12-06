@@ -22,16 +22,16 @@ export function getApiBaseUrl(): string {
   
   if (backendDevMode === undefined) {
     // Default behavior: if not set, use production backend
-    return "https://real.sensorcensor.xyz";
+    return import.meta.env.VITE_API_BASE_PROD || "https://real.sensorcensor.xyz";
   }
   
   // If explicitly set to "true", use local dev backend
   if (backendDevMode === "true") {
-    return "http://localhost:5001";
+    return import.meta.env.VITE_API_BASE_DEV || "http://localhost:5001";
   }
   
   // Otherwise (including "false"), use production backend
-  return "https://real.sensorcensor.xyz";
+  return import.meta.env.VITE_API_BASE_PROD || "https://real.sensorcensor.xyz";
 }
 
 /**

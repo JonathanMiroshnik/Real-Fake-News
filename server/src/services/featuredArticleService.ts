@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { DB_FEATURED_BLOG_POST_FILE, VALID_CATEGORIES } from '../config/constants.js';
+import { VALID_CATEGORIES } from '../config/constants.js';
 import { FeaturedArticleScheme } from '../types/article.js';
 import { ArticleScheme } from '../types/article.js';
 import { writeBlogPost } from './blogService.js';
@@ -11,7 +11,7 @@ import { getNRandom, getUniqueKey } from '../utils/general.js';
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatDeepSeek } from "@langchain/deepseek";
 import { createPost } from '../lib/database/sqliteOperations.js';
-import { featuredBlogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
+import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 

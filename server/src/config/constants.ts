@@ -1,11 +1,12 @@
 import { Writer } from "../types/writer.js";
 
-// LowDB database locations
-const DB_BLOG_POST_FILE: string = "data/blogPosts.json";
-const DB_NEWS_DATA_FILE: string = "data/newsData.json"
-const DB_FEATURED_BLOG_POST_FILE: string = "data/featuredBlogPosts.json";
-const DB_USERS_FILE: string = "data/users.json";
-const DB_WRITERS_FILE: string = "data/writers.json";
+// Legacy LowDB file paths (no longer used - data is now in SQLite)
+// Kept for reference only
+// const DB_BLOG_POST_FILE: string = "data/blogPosts.json";
+// const DB_NEWS_DATA_FILE: string = "data/newsData.json"
+// const DB_FEATURED_BLOG_POST_FILE: string = "data/featuredBlogPosts.json";
+// const DB_USERS_FILE: string = "data/users.json";
+// const DB_WRITERS_FILE: string = "data/writers.json";
 
 // Calculated in milliseconds
 const MILLISECS_IN_SEC: number = 1000;
@@ -40,7 +41,7 @@ const EDITOR: Writer = {
     updatedAt: (new Date()).toString()
 }
 
-export { DB_BLOG_POST_FILE, DB_NEWS_DATA_FILE, DB_FEATURED_BLOG_POST_FILE, DB_USERS_FILE, DB_WRITERS_FILE, 
+export { 
          
          MINIMAL_NUM_DAILY_ARTICLES, 
 

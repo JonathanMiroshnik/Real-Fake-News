@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 import { VALID_CATEGORIES, MIN_MINUTES_BEFORE_TO_CHECK, MAX_MINUTES_BEFORE_TO_CHECK, FALLBACK_MINUTES_BEFORE_TO_CHECK, MIN_ACCEPTABLE_ARTICLES } from '../config/constants.js';
 import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
-import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
+import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
 import { getAllPosts, createPost } from "../lib/database/sqliteOperations.js";

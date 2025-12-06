@@ -7,7 +7,7 @@ import { dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllPosts, getPostByKey, updatePost } from '../lib/database/sqliteOperations.js';
 import { deletePost } from '../lib/database/sqliteOperations.js';
-import { blogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
+import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
 

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { initializeSchema } from '../lib/database/schema.js';
 import { getDatabase, closeDatabase } from '../lib/database/database.js';
-import { blogDatabaseConfig, newsDatabaseConfig, writerDatabaseConfig, featuredBlogDatabaseConfig } from '../lib/lowdb/databaseConfigurations.js';
+import { blogDatabaseConfig, newsDatabaseConfig, writerDatabaseConfig, featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { ArticleScheme } from '../types/article.js';
 import { NewsItem } from '../services/newsService.js';
