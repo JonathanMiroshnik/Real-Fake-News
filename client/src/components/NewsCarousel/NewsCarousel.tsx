@@ -5,6 +5,7 @@ import ArticleListItem from '../ArticleListItem/ArticleListItem';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { HOUR_MILLISECS } from '../../services/timeService';
 import 'react-alice-carousel/lib/alice-carousel.css';
+import './NewsCarousel.css';
 
 // The news ticker should present news from the last 4 hours~
 const RECENT_ARTICLE_CUTOFF = HOUR_MILLISECS * 4;
@@ -33,41 +34,48 @@ function NewsCarousel({maxItems = -1}: NewsCarouselProps) {
     });
 
     let items = [...articlesbyCategory.map((ar) => 
-        // style={{width:"300px"}}
-        <div key={"carousel_" + ar.key}> 
+        <div key={"carousel_" + ar.key} style={{width: "300px", minHeight: "120px"}}> 
             <ArticleListItem article={ar} showUnderText={false} showImage={false}/>
         </div>
     )];
 
     // Not enough items to show // TODO: magic number 3
     if (items.length < 3) {
-        return null;
+        // Return empty container with fixed height to prevent layout shift
+        return <div className="news-carousel-wrapper" />;
     }
 
     if (maxItems === 0) {
-        return null;
+        // Return empty container with fixed height to prevent layout shift
+        return <div className="news-carousel-wrapper" />;
     }
     if (maxItems > 0) {
         items = items.splice(0, maxItems);
     }
     
-    return items.length > 0 && <AliceCarousel 
-        autoPlay={true} 
-        autoPlayStrategy="all" 
-        mouseTracking 
-        items={items} 
-        infinite={true}
-        autoPlayInterval={3000}
-        disableDotsControls={true}
-        responsive=      {{
-            600: {
-                items: 0,
-            },
-            1024: {
-                items: 4,
-            }
-          }} 
-        />;
+    return items.length > 0 ? (
+        <div className="news-carousel-wrapper">
+            <AliceCarousel 
+                autoPlay={true} 
+                autoPlayStrategy="all" 
+                mouseTracking 
+                items={items} 
+                infinite={true}
+                autoPlayInterval={3000}
+                disableDotsControls={true}
+                responsive={{
+                    600: {
+                        items: 0,
+                    },
+                    1024: {
+                        items: 4,
+                    }
+                }} 
+            />
+        </div>
+    ) : (
+        <div className="news-carousel-wrapper" />
+    );
 }
 
 export default NewsCarousel;

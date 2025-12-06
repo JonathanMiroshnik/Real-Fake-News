@@ -1,0 +1,84 @@
+/* NewsCarousel styles to prevent layout shifts */
+
+/* Ensure carousel container has consistent height */
+.news-carousel-wrapper {
+  min-height: 120px;
+  width: 100%;
+  position: relative;
+}
+
+/* Fix alice-carousel button layout shifts */
+.alice-carousel__prev-btn,
+.alice-carousel__next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  border: 1px solid var(--border-separator-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.alice-carousel__prev-btn {
+  left: 10px;
+}
+
+.alice-carousel__next-btn {
+  right: 10px;
+}
+
+.alice-carousel__prev-btn:hover,
+.alice-carousel__next-btn:hover {
+  opacity: 0.8;
+}
+
+/* Ensure carousel stage items have consistent sizing */
+.alice-carousel__stage-item {
+  width: 300px !important;
+  min-height: 120px;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* Ensure carousel item content has consistent height */
+.alice-carousel__stage-item .article-list-item {
+  height: 100%;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent layout shifts from carousel wrapper */
+.alice-carousel {
+  position: relative;
+  width: 100%;
+}
+
+/* Dark theme adjustments */
+.dark-theme .alice-carousel__prev-btn,
+.dark-theme .alice-carousel__next-btn {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: var(--border-separator-color);
+}
+
+/* Mobile: hide buttons on small screens to prevent layout issues */
+@media (max-width: 600px) {
+  .alice-carousel__prev-btn,
+  .alice-carousel__next-btn {
+    display: none;
+  }
+  
+  .alice-carousel__stage-item {
+    width: 100% !important;
+  }
+}
+
