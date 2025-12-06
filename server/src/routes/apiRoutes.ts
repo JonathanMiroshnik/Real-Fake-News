@@ -48,12 +48,15 @@ router.get('/images/:filename', (req, res) => {
   res.set({
     'Cross-Origin-Resource-Policy': 'cross-origin',
     'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    'Access-Control-Allow-Origin': process.env.CLIENT_URL
+    'Access-Control-Allow-Origin': process.env.CLIENT_URL,
+    // Cache headers for better performance
+    'Cache-Control': 'public, max-age=31536000, immutable'
   });
   
   // Try to serve compressed version first, fallback to original
+  // Note: compression creates .jpg files, not .webp
   const compressedPath = path.join(__dirname, '../../data/images/compressed', 
-    path.basename(sanitized, path.extname(sanitized)) + '.webp');
+    path.basename(sanitized, path.extname(sanitized)) + '.jpg');
   const originalPath = path.join(__dirname, '../../data/images', sanitized);
   
   // Check if compressed version exists, otherwise serve original

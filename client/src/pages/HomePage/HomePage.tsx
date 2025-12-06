@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import GamesList from '../../components/GamesList/GamesList';
@@ -7,6 +7,7 @@ import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories, CATEGORIES } from '../../services/articleService';
+import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 
 import './HomePage.css'
 
@@ -37,6 +38,37 @@ function HomePage() {
   // Debug: Show all article categories
   const allCategories = [...new Set(articles.map(a => a.category).filter(Boolean))];
   console.log('🏠 [HomePage] All article categories in data:', allCategories);
+
+  // Preload featured article image for better LCP
+  useEffect(() => {
+    if (randomArticle) {
+      const imageUrl = getImageURLFromArticle(randomArticle, DEFAULT_IMAGE);
+      if (imageUrl) {
+        // Remove any existing preload link
+        const existingLink = document.querySelector('link[rel="preload"][as="image"][data-featured-image]');
+        if (existingLink) {
+          existingLink.remove();
+        }
+        
+        // Create and add preload link
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = imageUrl;
+        link.setAttribute('fetchpriority', 'high');
+        link.setAttribute('data-featured-image', 'true');
+        document.head.appendChild(link);
+        
+        return () => {
+          // Cleanup on unmount
+          const linkToRemove = document.querySelector('link[rel="preload"][as="image"][data-featured-image]');
+          if (linkToRemove) {
+            linkToRemove.remove();
+          }
+        };
+      }
+    }
+  }, [randomArticle]);
 
   return (
     <div className="home-container">

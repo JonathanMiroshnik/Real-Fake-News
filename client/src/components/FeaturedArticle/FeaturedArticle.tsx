@@ -39,6 +39,8 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                         aspectRatio="4/3"
                         placeholder={true}
                         objectFit="cover"
+                        loading="eager"
+                        fetchPriority="high"
                     />
                 </section>
             </Link>

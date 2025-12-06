@@ -8,6 +8,8 @@ interface ImageProps {
   aspectRatio?: string; // e.g., "16/9", "4/3", "1/1"
   placeholder?: boolean;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 /**
@@ -25,7 +27,9 @@ function Image({
   className = '', 
   aspectRatio = '16/9',
   placeholder = true,
-  objectFit = 'cover'
+  objectFit = 'cover',
+  loading = 'lazy',
+  fetchPriority = 'auto'
 }: ImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -71,7 +75,8 @@ function Image({
             setIsLoading(false);
             setHasError(true);
           }}
-          loading="lazy"
+          loading={loading}
+          fetchPriority={fetchPriority}
         />
       )}
       {hasError && placeholder && (
