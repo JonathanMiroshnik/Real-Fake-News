@@ -26,6 +26,8 @@ const ASPECT_RATIO: number = 1.75;
 const DEFAULT_IMAGE_HEIGHT: number = 512;
 const DEFAULT_IMAGE_WIDTH: number = DEFAULT_IMAGE_HEIGHT * ASPECT_RATIO;
 
+const RUNWARE_IMAGE_MODEL: string = process.env.RUNWARE_IMAGE_MODEL || "runware:z-image@turbo";
+
 var runware: any = undefined;
 
 export async function initializeRunware(): Promise<boolean> {
@@ -54,7 +56,7 @@ export async function generateImage(positivePrompt: string,
         positivePrompt: positivePrompt,
         width: DEFAULT_IMAGE_WIDTH,
         height: DEFAULT_IMAGE_HEIGHT,
-        model: "runware:100@1", // FLUX Schnell => 16k images for 10$
+        model: RUNWARE_IMAGE_MODEL,
         numberResults: 1,
         outputType: "dataURI", //"URL" | "base64Data";
         outputFormat: format, //"JPG" "WEBP"; // TODO: use webp?

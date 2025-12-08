@@ -5,6 +5,12 @@ export default function ContactPage() {
     <div className="contact-container">
       <h1>How to (Not) Reach Us</h1>
       <div className="contact-methods">
+        <div className="method email">
+          <h2>E-mail</h2>
+          <p>Send an electronic telegram to your's truly: jonathanmiroshnik@gmail.com</p>
+          <small>Response time: I'll try my best.</small>
+        </div>
+
         <div className="method carrier-pigeon">
           <h2>Carrier Pigeon</h2>
           <p>Attach message to leg of nearest suspicious-looking bird</p>

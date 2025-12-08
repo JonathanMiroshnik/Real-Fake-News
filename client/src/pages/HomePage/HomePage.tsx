@@ -29,6 +29,8 @@ function HomePage() {
   if (articles.length === 0) {
     debugWarn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
   }
+
+  debugLog('🏠 [HomePage] All articles:', articles.map(a => a.title));
   
   // Debug: Show category distribution
   debugLog('🏠 [HomePage] Category articles:', categoryArticles.map((cat, idx) => ({
