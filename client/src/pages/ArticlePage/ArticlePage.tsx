@@ -1,9 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { sanitizeWriterName } from '../../services/writerService';
+import { getArticleByKey } from '../../services/articleService';
 import Image from '../../components/Image/Image';
 import './ArticlePage.css'
 
@@ -27,8 +28,41 @@ export interface ArticleProps {
 
 function ArticlePage() {
   const { key } = useParams();
-  const articles = useContext(ArticleContext).articles;  
-  const foundArticle = articles.find((article) => article.key === key);
+  const articles = useContext(ArticleContext).articles;
+  const [foundArticle, setFoundArticle] = useState<ArticleProps | null | undefined>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (!key) {
+      setFoundArticle(undefined);
+      setLoading(false);
+      return;
+    }
+
+    // First, try to find article in context (from relevant articles)
+    const articleFromContext = articles.find((article) => article.key === key);
+    
+    if (articleFromContext) {
+      setFoundArticle(articleFromContext);
+      setLoading(false);
+      return;
+    }
+
+    // If not found in context, fetch from server
+    async function fetchArticle() {
+      setLoading(true);
+      const article = await getArticleByKey(key);
+      setFoundArticle(article || undefined);
+      setLoading(false);
+    }
+
+    fetchArticle();
+  }, [key, articles]);
+
+  if (loading) {
+    return <div>Loading article...</div>;
+  }
+
   if (foundArticle === null || foundArticle === undefined) {
     return <div>ARTICLE NOT FOUND</div>;
   }

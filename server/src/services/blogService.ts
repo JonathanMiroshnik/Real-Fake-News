@@ -141,13 +141,18 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
 
 export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true) {    
     // const newArticle = await createArticle(writer, currentNewsItem);
-    const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem);
+    // Pass saveArticle=false to generateNewsArticleWithExplanation so we can control when to save
+    // This prevents saving invalid articles if generation fails partway through
+    const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem, false);
     if (newArticle === undefined) {
+        console.error('❌ [writeBlogPost] Article generation failed, not saving');
         return;
     }
 
-    // Add new AI news article to AI news article database
-    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+    // Only save if saveArticle is true and we have a valid article
+    if (saveArticle) {
+        await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+    }
     return newArticle;
 }
 
@@ -161,7 +166,15 @@ async function createArticle(writer: Writer, currentNewsItem: NewsItem = { artic
         return;
     } 
 
-    const parsedData = JSON.parse(result.generatedText);
+    // Parse JSON response - if it fails, don't create article
+    let parsedData: any;
+    try {
+        parsedData = JSON.parse(result.generatedText);
+    } catch (error) {
+        console.error('❌ [createArticle] Failed to parse LLM JSON response:', error);
+        console.error('❌ [createArticle] Raw response:', result.generatedText?.substring(0, 500));
+        return undefined;
+    }
     const imgName = await generateAndSaveImage(parsedData.prompt);
 
     const newArticle: ArticleScheme =  {
@@ -392,8 +405,34 @@ export async function generateNewsArticleFromExplanation(writer: Writer, explana
         return undefined;
     } 
 
-    const parsedData = JSON.parse(result.generatedText);
-    const imgName = await generateAndSaveImage(parsedData.prompt);
+    // Parse JSON response - if it fails, don't create article
+    let parsedData: any;
+    try {
+        parsedData = JSON.parse(result.generatedText);
+    } catch (error) {
+        console.error('❌ [generateNewsArticleFromExplanation] Failed to parse LLM JSON response:', error);
+        console.error('❌ [generateNewsArticleFromExplanation] Raw response:', result.generatedText?.substring(0, 500));
+        return undefined;
+    }
+    
+    // Validate that we have a prompt for image generation
+    if (!parsedData.prompt) {
+        console.error('❌ [generateNewsArticleFromExplanation] Missing prompt in LLM response, cannot generate image');
+        return undefined;
+    }
+    
+    // Generate image - if it fails, don't create the article
+    let imgName: string;
+    try {
+        imgName = await generateAndSaveImage(parsedData.prompt);
+        if (!imgName || imgName === '') {
+            console.error('❌ [generateNewsArticleFromExplanation] Image generation returned empty string');
+            return undefined;
+        }
+    } catch (error) {
+        console.error('❌ [generateNewsArticleFromExplanation] Image generation failed:', error);
+        return undefined;
+    }
 
     const newArticle: ArticleScheme = {
         key: getUniqueKey(),

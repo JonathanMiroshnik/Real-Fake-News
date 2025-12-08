@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { BlogResponse } from '../types/article.js';
 import { getAllPostsAfterDate, getRelevantArticles } from '../services/blogService.js';
+import { getPostByKey } from '../lib/database/sqliteOperations.js';
+import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { ArticleScheme } from '../types/article.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
 
 // TODO: some functions need to be combined here
@@ -66,5 +69,39 @@ export async function getRelevantArticlesController(req: Request, res: Response)
     } catch (error) {
         console.error('❌ Error in getRelevantArticlesController:', error);
         res.status(500).json({ error: 'Failed to fetch relevant articles' });
+    }
+}
+
+export async function getArticleByKeyController(req: Request, res: Response) {
+    const { key } = req.params;
+    console.log('📥 Received request to /api/blogs/:key for key:', key);
+    
+    if (!key) {
+        res.status(400).json({ error: 'Article key is required' });
+        return;
+    }
+    
+    try {
+        const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+        
+        if (article) {
+            console.log('📥 Returning article:', article.key, article.title);
+            res.json({
+                success: true,
+                article: article
+            });
+        } else {
+            console.log('📥 Article not found for key:', key);
+            res.status(404).json({ 
+                success: false,
+                error: 'Article not found' 
+            });
+        }
+    } catch (error) {
+        console.error('❌ Error in getArticleByKeyController:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to fetch article' 
+        });
     }
 }

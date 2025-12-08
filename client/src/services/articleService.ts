@@ -218,6 +218,54 @@ export async function pullRecentArticles() {
 }
 
 /**
+ * Fetches a single article by key from the server
+ * @param key The article key to fetch
+ * @returns The article if found, undefined otherwise
+ */
+export async function getArticleByKey(key: string): Promise<ArticleProps | undefined> {
+    debugLog('🚀 [getArticleByKey] Function called for key:', key);
+    
+    const VITE_API_BASE = getApiBaseUrlWithPrefix();
+    const url = `${VITE_API_BASE}/blogs/${key}`;
+    debugLog('📡 [getArticleByKey] Fetching from URL:', url);
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                debugLog('📦 [getArticleByKey] Article not found (404)');
+                return undefined;
+            }
+            debugError(`❌ [getArticleByKey] Fetch failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'No error details');
+            debugError(`❌ [getArticleByKey] Error response:`, errorText);
+            return undefined;
+        }
+
+        const data = await response.json();
+        if (data.success && data.article) {
+            debugLog('✅ [getArticleByKey] Successfully fetched article:', data.article.key);
+            return data.article as ArticleProps;
+        } else {
+            debugLog('📦 [getArticleByKey] Article not found in response');
+            return undefined;
+        }
+    } catch (error) {
+        debugError('❌ [getArticleByKey] Network error:', error);
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            debugError('❌ [getArticleByKey] Could not connect to server. Is it running at', VITE_API_BASE, '?');
+        }
+        return undefined;
+    }
+}
+
+/**
  * Filters the articles by the given News Category
  * @param articles Articles to filter from.
  * @param category Category that should be filtered for.
