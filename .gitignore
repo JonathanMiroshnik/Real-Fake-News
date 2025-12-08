@@ -7,6 +7,7 @@ client/node_modules/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+server/data/
 server/data/database.db
 server/data/database.db-*
 
