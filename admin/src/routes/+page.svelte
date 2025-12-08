@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl } from '$lib/apiConfig';
+	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
@@ -27,7 +27,7 @@
 	let itemsPerPage = $state(10);
 
 	// API base URL - determined by VITE_BACKEND_DEV_MODE
-	const API_BASE = getApiBaseUrl();
+	const API_BASE = getApiBaseUrlWithPrefix();
 	// Frontend dev mode for other frontend-specific behavior (like default password)
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility

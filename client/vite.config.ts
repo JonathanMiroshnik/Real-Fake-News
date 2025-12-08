@@ -37,7 +37,6 @@ export default defineConfig(() => ({
       "yonatan-h110m-s2v.local",
       "www.sensorcensor.xyz",
       "real.sensorcensor.xyz",
-      "162.0.237.138",
       "localhost"
     ]
   }

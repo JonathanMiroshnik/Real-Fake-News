@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl } from '$lib/apiConfig';
+	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import { goto } from '$app/navigation';
 
 	// Valid categories
@@ -42,7 +42,7 @@
 	let imagePreview = $state<string | null>(null);
 
 	const ADMIN_PASSWORD_PARAM = 'pwd';
-	const API_BASE = getApiBaseUrl();
+	const API_BASE = getApiBaseUrlWithPrefix();
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
 

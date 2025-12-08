@@ -1,5 +1,5 @@
 import { ArticleProps } from "../pages/ArticlePage/ArticlePage";
-import { getApiBaseUrl } from "../config/apiConfig";
+import { getApiBaseUrlWithPrefix } from "../config/apiConfig";
 import { debugLog, debugError } from "../utils/debugLogger";
 
 export type NewsCategory = {
@@ -47,7 +47,7 @@ const MIN_ACCEPTABLE_ARTICLES = 15;
  * Helper function to fetch articles from the API
  */
 async function fetchArticlesByMinutes(apiBase: string, minutes: number): Promise<ArticleProps[]> {
-    const url = `${apiBase}/api/blogs/by-minute?minute=${minutes}`;
+    const url = `${apiBase}/blogs/by-minute?minute=${minutes}`;
     debugLog('📡 [pullRecentArticles] Fetching from URL:', url);
     
     try {
@@ -108,10 +108,10 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
     debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
     
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
-    const VITE_API_BASE = getApiBaseUrl();
+    const VITE_API_BASE = getApiBaseUrlWithPrefix();
     debugLog('🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
 
-    const url = `${VITE_API_BASE}/api/blogs/relevant`;
+    const url = `${VITE_API_BASE}/blogs/relevant`;
     debugLog('📡 [getRelevantArticles] Fetching from URL:', url);
     
     try {
@@ -164,7 +164,7 @@ export async function pullRecentArticles() {
     debugLog('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
     
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
-    const VITE_API_BASE = getApiBaseUrl();
+    const VITE_API_BASE = getApiBaseUrlWithPrefix();
     debugLog('🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:', import.meta.env.VITE_BACKEND_DEV_MODE, '→ API_BASE:', VITE_API_BASE);
 
     try {

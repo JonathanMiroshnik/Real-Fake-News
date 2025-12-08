@@ -5,7 +5,7 @@ import WinnerOverlay from '../WinnerOverlay/WinnerOverlay'
 import ScoreBoard from '../ScoreBoard/ScoreBoard'
 import QuestionCard from '../Question/QuestionCard'
 import { Question } from '../Question/QuestionCard'
-import { getApiBaseUrl } from '../../../../config/apiConfig'
+import { getApiBaseUrlWithPrefix } from '../../../../config/apiConfig'
 import { debugError } from '../../../../utils/debugLogger'
 
 import './TriviaGame.css'
@@ -54,9 +54,9 @@ function TriviaGame() {
   
   async function fetchQuestions(amount: number): Promise<Question[]> {
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
-    const VITE_API_BASE = getApiBaseUrl();
+    const VITE_API_BASE = getApiBaseUrlWithPrefix();
 
-    const response = await fetch(VITE_API_BASE + '/api/trivia', {
+    const response = await fetch(VITE_API_BASE + '/trivia', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

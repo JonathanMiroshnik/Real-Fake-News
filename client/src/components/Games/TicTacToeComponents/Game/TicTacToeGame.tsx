@@ -38,8 +38,11 @@ type VictoryStatus = {
     symbol: Symbols;
 }
 
-// Server addess for backend
-const SERVER_SIDE = "http://162.0.237.138:7001"; // "http://www.sensorcensor.xyz:7001"; // http://localhost:5000
+// Server address for backend
+// TODO: This should use environment variables or config similar to other API calls
+const SERVER_SIDE = import.meta.env.PROD
+  ? "https://www.sensorcensor.xyz:7001" 
+  : "http://localhost:7001";
 
 // The symbol the AI plays as.
 const aiSymbol: Symbols = Symbols.O;
