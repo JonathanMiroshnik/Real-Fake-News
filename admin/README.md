@@ -105,9 +105,15 @@ The admin panel uses the following API endpoints (all require password authentic
 The admin panel now supports separate toggles for frontend and backend development modes. Create a `.env` file in the `admin` folder:
 
 ```env
+# Use Relative API URLs (for nginx proxy - RECOMMENDED for production)
+# Set to "true" to use relative URLs like "/api" instead of full URLs
+# This allows nginx to handle API routing
+VITE_USE_RELATIVE_API=true
+
 # Backend Development Mode
 # Set to "true" to use local development backend (localhost:5001/api)
 # Set to "false" or leave undefined to use production backend (https://real.sensorcensor.xyz/api)
+# NOTE: Ignored when VITE_USE_RELATIVE_API=true
 VITE_BACKEND_DEV_MODE=true
 
 # Frontend Development Mode (optional)
@@ -116,6 +122,7 @@ VITE_BACKEND_DEV_MODE=true
 VITE_FRONTEND_DEV_MODE=true
 
 # Optional: Override backend URLs
+# NOTE: Ignored when VITE_USE_RELATIVE_API=true
 VITE_API_BASE_DEV=http://localhost:5001/api
 VITE_API_BASE_PROD=https://real.sensorcensor.xyz/api
 
@@ -125,7 +132,8 @@ VITE_CLIENT_URL_PROD=https://real.sensorcensor.xyz
 ```
 
 **Key Points:**
-- `VITE_BACKEND_DEV_MODE` controls which backend API to connect to (local dev vs production)
+- `VITE_USE_RELATIVE_API=true` (RECOMMENDED for production) - Uses relative URLs (`/api`) for nginx proxy
+- `VITE_BACKEND_DEV_MODE` controls which backend API to connect to (local dev vs production) - Ignored if `VITE_USE_RELATIVE_API=true`
 - `VITE_FRONTEND_DEV_MODE` controls frontend-specific behavior (like default passwords)
 - You can develop the frontend locally while using the production backend by setting `VITE_BACKEND_DEV_MODE=false`
 - Default behavior: If `VITE_BACKEND_DEV_MODE` is not set, it defaults to production backend

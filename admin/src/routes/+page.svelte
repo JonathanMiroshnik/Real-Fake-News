@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
+	import { getApiBaseUrl } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
@@ -26,8 +26,8 @@
 	let currentPage = $state(1);
 	let itemsPerPage = $state(10);
 
-	// API base URL - determined by VITE_BACKEND_DEV_MODE
-	const API_BASE = getApiBaseUrlWithPrefix();
+	// API base URL (without /api prefix) - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrl();
 	// Frontend dev mode for other frontend-specific behavior (like default password)
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
@@ -43,7 +43,7 @@
 		error = '';
 		try {
 			// Add cache-busting parameter to prevent 304 responses
-			const url = `${API_BASE}/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
+			const url = `${API_BASE}/api/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
 			const response = await fetch(url, {
 				cache: 'no-store'
 			});
@@ -85,7 +85,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/admin/articles/${key}?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/api/admin/articles/${key}?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'DELETE'
 			});
@@ -115,7 +115,7 @@
 		
 		loading = true;
 		try {
-			const url = `${API_BASE}/admin/texts?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/api/admin/texts?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url);
 			
 			if (!response.ok) {
@@ -141,7 +141,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/admin/texts?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/api/admin/texts?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'POST',
 				headers: {
