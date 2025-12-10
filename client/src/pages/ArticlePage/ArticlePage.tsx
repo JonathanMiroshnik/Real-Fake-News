@@ -51,7 +51,7 @@ function ArticlePage() {
     // If not found in context, fetch from server
     async function fetchArticle() {
       setLoading(true);
-      const article = await getArticleByKey(key);
+      const article = await getArticleByKey(key ?? '');
       setFoundArticle(article || undefined);
       setLoading(false);
     }
@@ -91,7 +91,7 @@ function ArticlePage() {
         <div className='article-page-head-image'>
           <Image
             src={imageURL}
-            alt={foundArticle.title}
+            alt={foundArticle.title ?? 'Article'}
             className="article-image"
             aspectRatio="16/9"
             placeholder={true}

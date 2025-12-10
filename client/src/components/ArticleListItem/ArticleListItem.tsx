@@ -31,7 +31,7 @@ function ArticleListItem({article, showImage=true, showDescription=true, showUnd
                 {showImage && (
                     <Image
                         src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
-                        alt={article.title}
+                        alt={article.title ?? 'Article'}
                         className="article-list-item-head-image"
                         aspectRatio="16/9"
                         placeholder={true}

@@ -116,7 +116,7 @@ function NewspaperPrintView() {
             <div className="featured-article-image-container">
               <Image
                 src={getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE)}
-                alt={featuredArticle.title}
+                alt={featuredArticle.title ?? 'Featured Article'}
                 className="featured-article-image"
                 aspectRatio="16/9"
                 placeholder={false}
@@ -182,7 +182,7 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
         <div className="newspaper-article-image-container">
           <Image
             src={imageURL}
-            alt={article.title}
+            alt={article.title ?? 'Article'}
             className="newspaper-article-image"
             aspectRatio="4/3"
             placeholder={false}

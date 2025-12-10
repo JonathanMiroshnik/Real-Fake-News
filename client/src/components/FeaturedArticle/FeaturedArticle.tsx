@@ -34,7 +34,7 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                     </div>
                     <Image
                         src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
-                        alt={article.title}
+                        alt={article.title ?? 'Featured Article'}
                         className="featured-article-image"
                         aspectRatio="4/3"
                         placeholder={true}
