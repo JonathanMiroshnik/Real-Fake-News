@@ -8,6 +8,28 @@ for the reader as well as backend interactions between the different "writers" a
 The tech stack will be MERN(MongoDB, Express, React, Node).
 As of 22.10.25, MongoDB is not used, instead, I am using LowDB as it is a simpler approach and MongoDB is not currently needed, a possible move to SQLite is in order.
 
+# Environment Configuration
+
+All environment variables, config files, and constants used across the project are documented in **`ENV_CONFIG.example`** in the root directory.
+
+This comprehensive file includes:
+- **Environment Variables**: All `.env` variables for Server, Client, and Admin
+- **Config Files**: Documentation of all configuration files and their purposes
+- **Constants**: All hardcoded constants and where they're used
+
+The file is organized by:
+- **Server** (Node.js/Express backend) - `server/.env`
+- **Client** (React frontend) - `client/.env`
+- **Admin** (Svelte admin panel) - `admin/.env`
+
+To set up the project:
+1. Copy `ENV_CONFIG.example` and extract the relevant sections to create `.env` files in each subdirectory
+2. Fill in your API keys (DeepSeek, NewsData.io, Runware)
+3. Configure Gmail credentials if using email service
+4. Set a secure `ADMIN_PASSWORD` (change from default!)
+
+See `ENV_CONFIG.example` for complete documentation of all environment variables, config files, and constants.
+
 # Design
 ## Front-end
 An example website that I use as a model is: https://www.ynet.co.il, https://www.bbc.com/news 

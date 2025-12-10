@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import ArticleList from '../../components/ArticleList/ArticleList';
 import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import GamesList from '../../components/GamesList/GamesList';
@@ -23,10 +23,34 @@ function HomePage() {
   const articlesPerSection: number = useResponsiveArticlesCount();
   const randomArticle = articles[Math.floor(Math.random() * articles.length)];
   const categoryArticles = groupArticlesByCategories(articles);
+  const [showNoArticlesMessage, setShowNoArticlesMessage] = useState(false);
+
+  // Get delay from environment variable, default to 3000ms (3 seconds)
+  const noArticlesMessageDelay = parseInt(
+    import.meta.env.VITE_NO_ARTICLES_MESSAGE_DELAY || "3000",
+    10
+  );
+
+  // Timer to delay showing "No articles loaded" message
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (articles.length === 0) {
+        setShowNoArticlesMessage(true);
+      }
+    }, noArticlesMessageDelay);
+
+    // Clear timer if articles load before timeout
+    if (articles.length > 0) {
+      setShowNoArticlesMessage(false);
+      clearTimeout(timer);
+    }
+
+    return () => clearTimeout(timer);
+  }, [articles.length]);
 
   // Debug: Show article count
   debugLog('🏠 [HomePage] Articles count:', articles.length);
-  if (articles.length === 0) {
+  if (articles.length === 0 && showNoArticlesMessage) {
     debugWarn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
   }
 
@@ -75,7 +99,7 @@ function HomePage() {
 
   return (
     <div className="home-container">
-      {articles.length === 0 && (
+      {articles.length === 0 && showNoArticlesMessage && (
         <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
           <p><strong>No articles loaded.</strong></p>
           <p>Check the browser console (F12) for errors.</p>
