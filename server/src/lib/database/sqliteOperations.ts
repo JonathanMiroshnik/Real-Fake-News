@@ -224,6 +224,103 @@ export async function getAllPosts<P>(dbConfig: DatabaseConfig<P>): Promise<P[]> 
 }
 
 /**
+ * Gets the total count of posts in the database
+ */
+export async function getPostsCount<P>(dbConfig: DatabaseConfig<P>): Promise<number> {
+    const db = getDatabase();
+    const tableName = getTableName(dbConfig.source);
+
+    try {
+        const stmt = db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`);
+        const result = stmt.get() as any;
+        return result?.count || 0;
+    } catch (error) {
+        console.error('Error getting posts count:', error);
+        return 0;
+    }
+}
+
+/**
+ * Gets paginated posts from the database
+ * @param dbConfig Database configuration
+ * @param page Page number (1-indexed)
+ * @param itemsPerPage Number of items per page
+ * @param orderBy Column to order by (default: 'timestamp')
+ * @param orderDirection 'ASC' or 'DESC' (default: 'DESC')
+ */
+export async function getPostsPaginated<P>(
+    dbConfig: DatabaseConfig<P>,
+    page: number = 1,
+    itemsPerPage: number = 10,
+    orderBy: string = 'timestamp',
+    orderDirection: 'ASC' | 'DESC' = 'DESC'
+): Promise<P[]> {
+    const db = getDatabase();
+    const tableName = getTableName(dbConfig.source);
+
+    try {
+        // Validate and sanitize orderBy to prevent SQL injection
+        const validColumns = ['timestamp', 'key', 'title', 'category'];
+        const safeOrderBy = validColumns.includes(orderBy) ? orderBy : 'timestamp';
+        const safeOrderDirection = orderDirection === 'ASC' ? 'ASC' : 'DESC';
+        
+        const offset = (page - 1) * itemsPerPage;
+        const limit = itemsPerPage;
+        
+        const stmt = db.prepare(
+            `SELECT * FROM ${tableName} ORDER BY ${safeOrderBy} ${safeOrderDirection} LIMIT ? OFFSET ?`
+        );
+        const rows = stmt.all(limit, offset) as any[];
+
+        return rows.map(row => {
+            const post: any = {};
+
+            if (tableName === 'blog_posts') {
+                post.key = row.key;
+                post.title = row.title;
+                post.content = row.content;
+                post.author = deserializeJson(row.author);
+                post.timestamp = row.timestamp;
+                post.category = row.category;
+                post.headImage = row.headImage;
+                post.shortDescription = row.shortDescription;
+                post.originalNewsItem = deserializeJson(row.originalNewsItem);
+                post.writerType = row.writerType || 'AI';
+            } else if (tableName === 'news_items') {
+                post.article_id = row.article_id;
+                post.title = row.title;
+                post.description = row.description;
+                post.pubDate = row.pubDate;
+                post.pubDateTZ = row.pubDateTZ;
+            } else if (tableName === 'writers') {
+                post.key = row.key;
+                post.name = row.name;
+                post.description = row.description;
+                post.systemPrompt = row.systemPrompt;
+                post.profileImage = row.profileImage;
+                post.createdAt = row.createdAt;
+                post.updatedAt = row.updatedAt;
+            } else if (tableName === 'featured_blog_posts') {
+                post.key = row.key;
+                post.title = row.title;
+                post.content = deserializeJson(row.content);
+                post.author = deserializeJson(row.author);
+                post.timestamp = row.timestamp;
+                post.category = row.category;
+                post.headImage = row.headImage;
+                post.shortDescription = row.shortDescription;
+                post.originalNewsItem = deserializeJson(row.originalNewsItem);
+            }
+
+            return post as P;
+        });
+    } catch (error) {
+        console.error('Error getting paginated posts:', error);
+        return [];
+    }
+}
+
+/**
  * Gets a post by its key
  */
 export async function getPostByKey<P>(key: string, dbConfig: DatabaseConfig<P>): Promise<P | undefined> {

@@ -5,7 +5,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { getAllPosts, getPostByKey, updatePost } from '../lib/database/sqliteOperations.js';
+import { getAllPosts, getPostByKey, updatePost, getPostsCount, getPostsPaginated } from '../lib/database/sqliteOperations.js';
 import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
@@ -65,7 +65,8 @@ const upload = multer({
 // Export multer middleware for use in routes
 export const uploadMiddleware = upload.single('image');
 
-// Get all articles for admin panel
+// Get all articles for admin panel (with optional pagination)
+// Supports fetching multiple pages at once via pages parameter (comma-separated page numbers)
 export const getAdminArticles = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
@@ -73,19 +74,88 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
-    
-    res.json({
-      success: true,
-      articles: allArticles,
-      error: ''
-    });
+    // Check if pagination parameters are provided
+    const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
+    const itemsPerPage = req.query.itemsPerPage ? parseInt(req.query.itemsPerPage as string, 10) : undefined;
+    const pages = req.query.pages ? (req.query.pages as string).split(',').map(p => parseInt(p.trim(), 10)).filter(p => !isNaN(p) && p > 0) : undefined;
+
+    if (pages && pages.length > 0 && itemsPerPage !== undefined) {
+      // Fetch multiple pages at once
+      // Sort pages to ensure correct order in response
+      const sortedPages = [...pages].sort((a, b) => a - b);
+      const allArticles: ArticleScheme[] = [];
+      for (const pageNum of sortedPages) {
+        const pageArticles = await getPostsPaginated<ArticleScheme>(
+          blogDatabaseConfig,
+          pageNum,
+          itemsPerPage,
+          'timestamp',
+          'DESC'
+        );
+        allArticles.push(...pageArticles);
+      }
+      
+      res.json({
+        success: true,
+        articles: allArticles,
+        error: ''
+      });
+    } else if (page !== undefined && itemsPerPage !== undefined) {
+      // Single page request
+      const articles: ArticleScheme[] = await getPostsPaginated<ArticleScheme>(
+        blogDatabaseConfig,
+        page,
+        itemsPerPage,
+        'timestamp',
+        'DESC'
+      );
+      
+      res.json({
+        success: true,
+        articles: articles,
+        error: ''
+      });
+    } else {
+      // Non-paginated request (backward compatibility)
+      const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+      
+      res.json({
+        success: true,
+        articles: allArticles,
+        error: ''
+      });
+    }
   } catch (error) {
     console.error('Error fetching admin articles:', error);
     res.status(500).json({
       success: false,
       articles: [],
       error: 'Failed to fetch articles'
+    });
+  }
+};
+
+// Get total count of articles for admin panel
+export const getAdminArticlesCount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    const totalCount = await getPostsCount<ArticleScheme>(blogDatabaseConfig);
+    
+    res.json({
+      success: true,
+      totalCount: totalCount,
+      error: ''
+    });
+  } catch (error) {
+    console.error('Error fetching admin articles count:', error);
+    res.status(500).json({
+      success: false,
+      totalCount: 0,
+      error: 'Failed to fetch articles count'
     });
   }
 };

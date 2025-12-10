@@ -11,14 +11,24 @@
 		title?: string;
 		category?: string;
 		timestamp?: string;
+		writerType?: "AI" | "Human" | "Synthesis";
 	}
 
-	let articles = $state<Article[]>([]);
+	// Store articles by page number
+	let articlesByPage = $state<Map<number, Article[]>>(new Map());
+	let totalCount = $state(0);
 	let loading = $state(false);
 	let error = $state('');
 	let password = $state('');
 	let currentPage = $state(1);
 	let itemsPerPage = $state(10);
+	
+	// Track which pages have been fetched
+	let fetchedPages = $state<Set<number>>(new Set());
+	
+	// Page buffer size - how many pages to fetch around the current page
+	// This can be configured via env variable, defaulting to 2
+	const PAGE_BUFFER_SIZE = parseInt(import.meta.env.VITE_ADMIN_PAGE_BUFFER_SIZE || '2', 10);
 
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
@@ -28,53 +38,114 @@
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
 
-	// Fetch articles
-	async function fetchArticles() {
-		console.log('fetchArticles called', { password, browser, API_BASE });
-		if (!password || !browser) {
-			console.log('Early return:', { password: !!password, browser });
-			return;
+	// Fetch total count of articles
+	async function fetchTotalCount(): Promise<number> {
+		if (!password || !browser) return 0;
+		
+		try {
+			const url = `${API_BASE}/api/admin/articles/count?password=${encodeURIComponent(password)}`;
+			const response = await fetch(url, { cache: 'no-store' });
+			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch count`);
+			}
+			
+			const data = await response.json();
+			return data.totalCount || 0;
+		} catch (err) {
+			console.error('Error fetching total count:', err);
+			return 0;
 		}
+	}
+
+	// Fetch specific page(s) of articles
+	async function fetchPages(pageNumbers: number[]): Promise<void> {
+		if (!password || !browser || pageNumbers.length === 0) return;
+		
+		// Filter out pages that are already fetched
+		const pagesToFetch = pageNumbers.filter(pageNum => !fetchedPages.has(pageNum));
+		if (pagesToFetch.length === 0) return;
 		
 		loading = true;
 		error = '';
 		try {
-			// Add cache-busting parameter to prevent 304 responses
-			const url = `${API_BASE}/api/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
-			console.log('Fetching from URL:', url);
+			// Fetch multiple pages at once using comma-separated pages parameter
+			const pagesParam = pagesToFetch.join(',');
+			const url = `${API_BASE}/api/admin/articles?password=${encodeURIComponent(password)}&pages=${pagesParam}&itemsPerPage=${itemsPerPage}&_t=${Date.now()}`;
+			console.log('Fetching pages:', pagesToFetch, 'from URL:', url);
+			
 			const response = await fetch(url, {
 				cache: 'no-store'
 			});
-			
-			console.log('Response received:', { status: response.status, ok: response.ok, headers: Object.fromEntries(response.headers.entries()) });
 			
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch articles`);
 			}
 			
-			// Handle 304 Not Modified (no body)
-			if (response.status === 304) {
-				console.log('Response cached (304), using existing articles');
-				return;
+			const data = await response.json();
+			const fetchedArticles: Article[] = data.articles || [];
+			
+			// Distribute articles to their respective pages
+			// The server returns articles in page order (page 1, then page 2, etc.)
+			// So we split them sequentially
+			const sortedPages = [...pagesToFetch].sort((a, b) => a - b);
+			let articleIndex = 0;
+			
+			for (const pageNum of sortedPages) {
+				const pageArticles = fetchedArticles.slice(articleIndex, articleIndex + itemsPerPage);
+				
+				if (pageArticles.length > 0) {
+					articlesByPage.set(pageNum, pageArticles);
+					fetchedPages.add(pageNum);
+					articleIndex += pageArticles.length;
+				} else {
+					// If we run out of articles, mark the page as fetched (empty)
+					articlesByPage.set(pageNum, []);
+					fetchedPages.add(pageNum);
+				}
 			}
 			
-			const data = await response.json();
-			console.log('Response data:', { success: data.success, articlesCount: data.articles?.length, error: data.error });
-			articles = data.articles || [];
-			console.log('Articles set:', articles.length, 'articles');
+			console.log('Fetched pages:', pagesToFetch, 'articles:', fetchedArticles.length);
 		} catch (err) {
-			console.error('Error fetching articles:', err);
+			console.error('Error fetching pages:', err);
 			if (err instanceof TypeError && err.message.includes('fetch')) {
 				error = 'Network error: Is the backend server running on ' + API_BASE + '?';
 			} else {
 				error = err instanceof Error ? err.message : 'An error occurred';
 			}
-			articles = [];
 		} finally {
 			loading = false;
-			console.log('fetchArticles completed', { loading, articlesCount: articles.length, error });
 		}
+	}
+
+	// Get articles for current page (from cache or fetch if needed)
+	async function ensurePageFetched(pageNum: number): Promise<void> {
+		if (fetchedPages.has(pageNum)) {
+			return; // Already fetched
+		}
+		
+		// Calculate which pages to fetch (current page + buffer)
+		const pagesToFetch: number[] = [];
+		const startPage = Math.max(1, pageNum - PAGE_BUFFER_SIZE);
+		const endPage = Math.min(totalPages, pageNum + PAGE_BUFFER_SIZE);
+		
+		for (let p = startPage; p <= endPage; p++) {
+			if (!fetchedPages.has(p)) {
+				pagesToFetch.push(p);
+			}
+		}
+		
+		if (pagesToFetch.length > 0) {
+			await fetchPages(pagesToFetch);
+		}
+	}
+
+	// Handle page change
+	async function handlePageChange(pageNum: number) {
+		currentPage = pageNum;
+		await ensurePageFetched(pageNum);
 	}
 
 	// Delete article
@@ -98,8 +169,11 @@
 				throw new Error(errorData.error || `HTTP ${response.status}: Failed to delete article`);
 			}
 			
-			// Refresh articles list
-			await fetchArticles();
+			// Invalidate cache and refresh
+			articlesByPage = new Map();
+			fetchedPages = new Set();
+			totalCount = await fetchTotalCount();
+			await ensurePageFetched(currentPage);
 		} catch (err) {
 			console.error('Error deleting article:', err);
 			if (err instanceof TypeError && err.message.includes('fetch')) {
@@ -112,31 +186,34 @@
 		}
 	}
 
+	// Refresh all data
+	async function refreshArticles() {
+		articlesByPage = new Map();
+		fetchedPages = new Set();
+		totalCount = await fetchTotalCount();
+		await ensurePageFetched(currentPage);
+	}
 
 	// Pagination calculations
-	const totalPages = $derived(Math.ceil(articles.length / itemsPerPage));
+	const totalPages = $derived(Math.ceil(totalCount / itemsPerPage));
+	const paginatedArticles = $derived(articlesByPage.get(currentPage) || []);
 	const startIndex = $derived((currentPage - 1) * itemsPerPage);
-	const endIndex = $derived(startIndex + itemsPerPage);
-	const paginatedArticles = $derived(articles.slice(startIndex, endIndex));
 
-	// Debug reactive values
+	// Watch for page changes and fetch if needed
 	$effect(() => {
-		console.log('Articles state changed:', {
-			articlesCount: articles.length,
-			currentPage,
-			totalPages,
-			startIndex,
-			endIndex,
-			paginatedArticlesCount: paginatedArticles.length,
-			itemsPerPage
-		});
+		if (totalCount > 0 && currentPage >= 1 && currentPage <= totalPages) {
+			ensurePageFetched(currentPage);
+		}
 	});
 
-	// Reset to page 1 when articles change or items per page changes
+	// Watch for itemsPerPage changes - reset cache
 	$effect(() => {
-		if (articles.length > 0 && currentPage > totalPages) {
-			console.log('Resetting to page 1 because currentPage > totalPages');
-			currentPage = 1;
+		if (itemsPerPage > 0) {
+			articlesByPage = new Map();
+			fetchedPages = new Set();
+			if (totalCount > 0) {
+				ensurePageFetched(currentPage);
+			}
 		}
 	});
 
@@ -157,7 +234,7 @@
 		}
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		console.log('onMount called', { browser });
 		if (!browser) return;
 		const urlPassword = $page.url.searchParams.get(ADMIN_PASSWORD_PARAM);
@@ -168,7 +245,12 @@
 			password = isFrontendDevMode ? 'changeme123' : '';
 		}
 		console.log('Password set:', password ? '***' : 'empty');
-		fetchArticles();
+		
+		// Fetch total count first, then fetch initial page
+		totalCount = await fetchTotalCount();
+		if (totalCount > 0) {
+			await ensurePageFetched(currentPage);
+		}
 	});
 </script>
 
@@ -179,7 +261,7 @@
 <div class="articles-page">
 	<header class="page-header">
 		<h1>Article Management</h1>
-		<button class="refresh-btn" onclick={fetchArticles} disabled={loading}>
+		<button class="refresh-btn" onclick={refreshArticles} disabled={loading}>
 			🔄 Refresh
 		</button>
 	</header>
@@ -189,12 +271,12 @@
 	{/if}
 
 	<div class="content-card">
-		{#if loading && articles.length === 0}
+		{#if loading && totalCount === 0 && paginatedArticles.length === 0}
 			<div class="loading-state">
 				<div class="spinner"></div>
 				<p>Loading articles...</p>
 			</div>
-		{:else if articles.length === 0}
+		{:else if totalCount === 0}
 			<div class="empty-state">
 				<p>No articles found</p>
 			</div>
@@ -214,16 +296,23 @@
 					</select>
 				</div>
 				<div class="pagination-info">
-					Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of {articles.length} articles
+					Showing {startIndex + 1}-{Math.min(startIndex + paginatedArticles.length, totalCount)} of {totalCount} articles
 				</div>
 			</div>
-			<ArticleTable 
-				articles={paginatedArticles} 
-				{loading} 
-				onDelete={deleteArticle}
-				{startIndex}
-			/>
-			<Pagination bind:currentPage totalPages={totalPages} />
+			{#if loading && paginatedArticles.length === 0}
+				<div class="loading-state">
+					<div class="spinner"></div>
+					<p>Loading page {currentPage}...</p>
+				</div>
+			{:else}
+				<ArticleTable 
+					articles={paginatedArticles} 
+					{loading} 
+					onDelete={deleteArticle}
+					{startIndex}
+				/>
+			{/if}
+			<Pagination bind:currentPage totalPages={totalPages} onPageChange={handlePageChange} />
 		{/if}
 	</div>
 </div>
@@ -376,4 +465,5 @@
 		}
 	}
 </style>
+
 
