@@ -1,0 +1,109 @@
+services:
+  # SQLite Database Service (using mcp/sqlite image for management)
+  # Note: SQLite is file-based, so the server accesses the database file directly
+  # This container is optional and mainly useful for database management/admin tasks
+  sqlite:
+    image: mcp/sqlite:latest
+    container_name: real-fake-news-sqlite
+    volumes:
+      # Mount database directory from host (outside repository)
+      # Change this path to your desired location on the host
+      - ${SQLITE_DATA_PATH:-./database}:/data
+    environment:
+      - SQLITE_DB_PATH=/data/database.db
+    restart: unless-stopped
+    networks:
+      - app-network
+    # This container provides SQLite CLI tools for management
+    # The server accesses the database file directly via host mount
+    # You can use this container to run SQL commands: docker-compose exec sqlite sqlite3 /data/database.db
+
+  # Backend Server
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: real-fake-news-server
+    ports:
+      - "${SERVER_PORT:-5001}:5001"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=5001
+      - DATABASE_PATH=/data/database.db
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme123}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - NEWSDATA_API_KEY=${NEWSDATA_API_KEY}
+      - RUNWARE_API_KEY=${RUNWARE_API_KEY}
+      - RUNWARE_IMAGE_MODEL=${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - ENABLE_SCHEDULED_JOBS=${ENABLE_SCHEDULED_JOBS:-true}
+      - LOCAL_DEV_BACKEND=${LOCAL_DEV_BACKEND:-false}
+    volumes:
+      # Mount database from host (same path as sqlite service)
+      - ${SQLITE_DATA_PATH:-./database}:/data:rw
+      # Mount images directory from host
+      - ${IMAGES_DATA_PATH:-./images}:/app/data/images:rw
+    # Server accesses database file directly via volume mount
+    # No dependency on sqlite container needed, but kept for management tools
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Client Frontend (React)
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}
+        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
+        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
+        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-false}
+        - VITE_DEBUG_LOGS=${VITE_DEBUG_LOGS:-true}
+    container_name: real-fake-news-client
+    ports:
+      - "${CLIENT_PORT:-5173}:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Admin Frontend (SvelteKit)
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+      args:
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}
+        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
+        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
+        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-false}
+        - VITE_FRONTEND_DEV_MODE=${VITE_FRONTEND_DEV_MODE:-true}
+        - VITE_CLIENT_URL_DEV=${VITE_CLIENT_URL_DEV:-http://localhost:5173}
+        - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-http://localhost:5173}
+    container_name: real-fake-news-admin
+    ports:
+      - "${ADMIN_PORT:-5174}:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# Note: We use host-mounted volumes (bind mounts) instead of named volumes
+# This allows the database and images to persist outside Docker
+# Volumes are defined inline in each service's volumes: section
+

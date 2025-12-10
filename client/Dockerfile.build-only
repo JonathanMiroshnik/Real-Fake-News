@@ -1,0 +1,46 @@
+# Build-only Dockerfile - Outputs static files for your production nginx
+# Use this if your production server has nginx that will serve the files directly
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Accept build arguments for Vite environment variables
+ARG VITE_BACKEND_DEV_MODE=true
+ARG VITE_API_BASE_DEV=http://localhost:5001
+ARG VITE_API_BASE_PROD=http://server:5001
+ARG VITE_USE_RELATIVE_API=false
+ARG VITE_DEBUG_LOGS=true
+
+# Set as environment variables for Vite build
+ENV VITE_BACKEND_DEV_MODE=$VITE_BACKEND_DEV_MODE
+ENV VITE_API_BASE_DEV=$VITE_API_BASE_DEV
+ENV VITE_API_BASE_PROD=$VITE_API_BASE_PROD
+ENV VITE_USE_RELATIVE_API=$VITE_USE_RELATIVE_API
+ENV VITE_DEBUG_LOGS=$VITE_DEBUG_LOGS
+
+# Copy package files
+COPY client/package*.json ./
+RUN npm ci
+
+# Copy source code and config
+COPY client/src ./src
+COPY client/public ./public
+COPY client/index.html ./
+COPY client/vite.config.ts ./
+COPY client/tsconfig.json ./
+COPY client/tsconfig.*.json ./
+COPY client/eslint.config.js ./
+
+# Build React app
+RUN npm run build
+
+# Output stage - just copy the built files
+# The built files will be in /app/dist
+# You can copy them out using: docker cp <container>:/app/dist ./output
+
+# Keep container running so you can copy files out
+# Or use a volume mount to extract files
+VOLUME ["/app/dist"]
+
+CMD ["sh", "-c", "echo 'Build complete. Files are in /app/dist. Use: docker cp <container>:/app/dist ./output' && sleep infinity"]

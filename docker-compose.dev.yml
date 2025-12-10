@@ -1,0 +1,25 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yml
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  server:
+    environment:
+      - NODE_ENV=development
+      - LOCAL_DEV_BACKEND=false
+    # Mount source code for hot reload (optional - requires nodemon in container)
+    # volumes:
+    #   - ./server/src:/app/src:ro
+    #   - ./server/tsconfig.json:/app/tsconfig.json:ro
+
+  client:
+    environment:
+      - VITE_BACKEND_DEV_MODE=true
+      - VITE_DEBUG_LOGS=true
+
+  admin:
+    environment:
+      - VITE_BACKEND_DEV_MODE=true
+      - VITE_FRONTEND_DEV_MODE=true
+

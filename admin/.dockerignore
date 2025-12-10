@@ -1,0 +1,12 @@
+node_modules
+build
+.svelte-kit
+*.log
+.env
+.env.local
+.vscode
+.git
+.gitignore
+coverage
+.nyc_output
+

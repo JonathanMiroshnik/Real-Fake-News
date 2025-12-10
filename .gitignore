@@ -22,6 +22,8 @@ build/
 *.log
 
 # Environment files (already have these)
+.env
+admin/.env
 server/.env
 client/.env
 
