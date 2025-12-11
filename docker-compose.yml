@@ -1,23 +1,4 @@
 services:
-  # SQLite Database Service (using mcp/sqlite image for management)
-  # Note: SQLite is file-based, so the server accesses the database file directly
-  # This container is optional and mainly useful for database management/admin tasks
-  sqlite:
-    image: mcp/sqlite:latest
-    container_name: real-fake-news-sqlite
-    volumes:
-      # Mount database directory from host (outside repository)
-      # Change this path to your desired location on the host
-      - ${SQLITE_DATA_PATH:-./database}:/data
-    environment:
-      - SQLITE_DB_PATH=/data/database.db
-    restart: unless-stopped
-    networks:
-      - app-network
-    # This container provides SQLite CLI tools for management
-    # The server accesses the database file directly via host mount
-    # You can use this container to run SQL commands: docker-compose exec sqlite sqlite3 /data/database.db
-
   # Backend Server
   server:
     build:
@@ -41,12 +22,13 @@ services:
       - ENABLE_SCHEDULED_JOBS=${ENABLE_SCHEDULED_JOBS:-true}
       - LOCAL_DEV_BACKEND=${LOCAL_DEV_BACKEND:-false}
     volumes:
-      # Mount database from host (same path as sqlite service)
+      # Mount database directory from host (outside repository)
+      # Set SQLITE_DATA_PATH in .env to specify location
       - ${SQLITE_DATA_PATH:-./database}:/data:rw
-      # Mount images directory from host
+      # Mount images directory from host (outside repository)
+      # Set IMAGES_DATA_PATH in .env to specify location
       - ${IMAGES_DATA_PATH:-./images}:/app/data/images:rw
-    # Server accesses database file directly via volume mount
-    # No dependency on sqlite container needed, but kept for management tools
+    # Server accesses database file directly via volume mount at /data/database.db
     restart: unless-stopped
     networks:
       - app-network
@@ -90,6 +72,7 @@ services:
         - VITE_FRONTEND_DEV_MODE=${VITE_FRONTEND_DEV_MODE:-true}
         - VITE_CLIENT_URL_DEV=${VITE_CLIENT_URL_DEV:-http://localhost:5173}
         - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-http://localhost:5173}
+        - SVELTEKIT_BASE_PATH=${SVELTEKIT_BASE_PATH:-/admin}
     container_name: real-fake-news-admin
     ports:
       - "${ADMIN_PORT:-5174}:80"

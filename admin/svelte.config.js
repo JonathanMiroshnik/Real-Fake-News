@@ -16,7 +16,12 @@ const config = {
 			fallback: 'index.html',
 			precompress: false,
 			strict: false
-		})
+		}),
+		// Set base path for serving under /admin subdirectory
+		// This makes SvelteKit generate paths like /admin/_app/... instead of /_app/...
+		paths: {
+			base: process.env.SVELTEKIT_BASE_PATH || ''
+		}
 	}
 };
 
