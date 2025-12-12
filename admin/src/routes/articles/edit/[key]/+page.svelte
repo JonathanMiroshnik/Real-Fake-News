@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl } from '$lib/apiConfig';
+	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import { goto } from '$app/navigation';
 
 	// Valid categories
@@ -42,7 +42,7 @@
 	let imagePreview = $state<string | null>(null);
 
 	const ADMIN_PASSWORD_PARAM = 'pwd';
-	const API_BASE = getApiBaseUrl();
+	const API_BASE = getApiBaseUrlWithPrefix();
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
 
@@ -56,7 +56,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/api/admin/articles/${articleKey}?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/articles/${articleKey}?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				cache: 'no-store'
 			});
@@ -102,7 +102,7 @@
 		successMessage = '';
 		
 		try {
-			const url = `${API_BASE}/api/admin/articles/${articleKey}?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/articles/${articleKey}?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'PUT',
 				headers: {
@@ -159,7 +159,7 @@
 	// Get image URL (images are served from /api/images/:filename)
 	function getImageUrl(imageName: string | undefined): string {
 		if (!imageName) return '';
-		return `${API_BASE}/api/images/${encodeURIComponent(imageName)}`;
+		return `${API_BASE}/images/${encodeURIComponent(imageName)}`;
 	}
 
 	// Convert ISO timestamp to datetime-local format (YYYY-MM-DDTHH:mm)
@@ -240,7 +240,7 @@
 			const formData = new FormData();
 			formData.append('image', selectedFile);
 			
-			const url = `${API_BASE}/api/admin/images/upload?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/images/upload?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'POST',
 				body: formData

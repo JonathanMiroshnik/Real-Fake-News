@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAdminArticles, getAdminArticlesCount, getAdminArticle, updateAdminArticle, deleteAdminArticle, uploadAdminImage, uploadMiddleware, getAdminTexts, addAdminText } from '../controllers/adminController.js';
+import { getAdminArticles, getAdminArticlesCount, getAdminArticle, updateAdminArticle, deleteAdminArticle, uploadAdminImage, uploadMiddleware, getAdminTexts, addAdminText, generateAdminArticle, generateAdminRecipe } from '../controllers/adminController.js';
 
 const router = Router();
 
@@ -12,5 +12,7 @@ router.delete('/articles/:key', deleteAdminArticle);
 router.post('/images/upload', uploadMiddleware, uploadAdminImage);
 router.get('/texts', getAdminTexts);
 router.post('/texts', addAdminText);
+router.post('/generate/article', generateAdminArticle);
+router.post('/generate/recipe', generateAdminRecipe);
 
 export default router;

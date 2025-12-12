@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl } from '$lib/apiConfig';
+	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
@@ -32,8 +32,8 @@
 
 	const ADMIN_PASSWORD_PARAM = 'pwd';
 
-	// API base URL (without /api prefix) - determined by VITE_BACKEND_DEV_MODE
-	const API_BASE = getApiBaseUrl();
+	// API base URL (with /api prefix) - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrlWithPrefix();
 	// Frontend dev mode for other frontend-specific behavior (like default password)
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
@@ -43,7 +43,7 @@
 		if (!password || !browser) return 0;
 		
 		try {
-			const url = `${API_BASE}/api/admin/articles/count?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/articles/count?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, { cache: 'no-store' });
 			
 			if (!response.ok) {
@@ -72,7 +72,7 @@
 		try {
 			// Fetch multiple pages at once using comma-separated pages parameter
 			const pagesParam = pagesToFetch.join(',');
-			const url = `${API_BASE}/api/admin/articles?password=${encodeURIComponent(password)}&pages=${pagesParam}&itemsPerPage=${itemsPerPage}&_t=${Date.now()}`;
+			const url = `${API_BASE}/admin/articles?password=${encodeURIComponent(password)}&pages=${pagesParam}&itemsPerPage=${itemsPerPage}&_t=${Date.now()}`;
 			console.log('Fetching pages:', pagesToFetch, 'from URL:', url);
 			
 			const response = await fetch(url, {
@@ -85,7 +85,12 @@
 			}
 			
 			const data = await response.json();
-			const fetchedArticles: Article[] = data.articles || [];
+			// Sort articles by date (most recent first) before distributing to pages
+			const fetchedArticles: Article[] = (data.articles || []).sort((a: Article, b: Article) => {
+				const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+				const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+				return dateB - dateA; // Descending order (most recent first)
+			});
 			
 			// Distribute articles to their respective pages
 			// The server returns articles in page order (page 1, then page 2, etc.)
@@ -159,7 +164,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/api/admin/articles/${key}?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/articles/${key}?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'DELETE'
 			});

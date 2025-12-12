@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { getApiBaseUrl } from '$lib/apiConfig';
+	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import ArticleTable from '$lib/components/ArticleTable.svelte';
 
@@ -26,8 +26,8 @@
 	let currentPage = $state(1);
 	let itemsPerPage = $state(10);
 
-	// API base URL (without /api prefix) - determined by VITE_BACKEND_DEV_MODE
-	const API_BASE = getApiBaseUrl();
+	// API base URL (with /api prefix) - determined by VITE_BACKEND_DEV_MODE
+	const API_BASE = getApiBaseUrlWithPrefix();
 	// Frontend dev mode for other frontend-specific behavior (like default password)
 	const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' || 
 	                          import.meta.env.VITE_LOCAL_DEV_MODE === 'true'; // Backward compatibility
@@ -43,7 +43,7 @@
 		error = '';
 		try {
 			// Add cache-busting parameter to prevent 304 responses
-			const url = `${API_BASE}/api/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
+			const url = `${API_BASE}/admin/articles?password=${encodeURIComponent(password)}&_t=${Date.now()}`;
 			const response = await fetch(url, {
 				cache: 'no-store'
 			});
@@ -60,7 +60,13 @@
 			}
 			
 			const data = await response.json();
-			articles = data.articles || [];
+			// Sort articles by date (most recent first)
+			const fetchedArticles = data.articles || [];
+			articles = fetchedArticles.sort((a: Article, b: Article) => {
+				const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+				const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+				return dateB - dateA; // Descending order (most recent first)
+			});
 		} catch (err) {
 			console.error('Error fetching articles:', err);
 			if (err instanceof TypeError && err.message.includes('fetch')) {
@@ -85,7 +91,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/api/admin/articles/${key}?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/articles/${key}?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'DELETE'
 			});
@@ -115,7 +121,7 @@
 		
 		loading = true;
 		try {
-			const url = `${API_BASE}/api/admin/texts?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/texts?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url);
 			
 			if (!response.ok) {
@@ -141,7 +147,7 @@
 		loading = true;
 		error = '';
 		try {
-			const url = `${API_BASE}/api/admin/texts?password=${encodeURIComponent(password)}`;
+			const url = `${API_BASE}/admin/texts?password=${encodeURIComponent(password)}`;
 			const response = await fetch(url, {
 				method: 'POST',
 				headers: {
@@ -167,6 +173,88 @@
 			}
 		} finally {
 			loading = false;
+		}
+	}
+
+	// Generate article
+	let generatingArticle = $state(false);
+	async function generateArticle() {
+		if (!password || !browser) return;
+		
+		generatingArticle = true;
+		error = '';
+		try {
+			const url = `${API_BASE}/admin/generate/article?password=${encodeURIComponent(password)}`;
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: Failed to generate article`);
+			}
+			
+			const data = await response.json();
+			if (data.success) {
+				// Refresh articles list
+				await fetchArticles();
+				error = ''; // Clear any previous errors
+				alert('Article generated successfully!');
+			} else {
+				throw new Error(data.error || 'Failed to generate article');
+			}
+		} catch (err) {
+			console.error('Error generating article:', err);
+			if (err instanceof TypeError && err.message.includes('fetch')) {
+				error = 'Network error: Is the backend server running on ' + API_BASE + '?';
+			} else {
+				error = err instanceof Error ? err.message : 'Failed to generate article';
+			}
+		} finally {
+			generatingArticle = false;
+		}
+	}
+
+	// Generate recipe
+	let generatingRecipe = $state(false);
+	async function generateRecipe() {
+		if (!password || !browser) return;
+		
+		generatingRecipe = true;
+		error = '';
+		try {
+			const url = `${API_BASE}/admin/generate/recipe?password=${encodeURIComponent(password)}`;
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: Failed to generate recipe`);
+			}
+			
+			const data = await response.json();
+			if (data.success) {
+				error = ''; // Clear any previous errors
+				alert('Recipe generated successfully!');
+			} else {
+				throw new Error(data.error || 'Failed to generate recipe');
+			}
+		} catch (err) {
+			console.error('Error generating recipe:', err);
+			if (err instanceof TypeError && err.message.includes('fetch')) {
+				error = 'Network error: Is the backend server running on ' + API_BASE + '?';
+			} else {
+				error = err instanceof Error ? err.message : 'Failed to generate recipe';
+			}
+		} finally {
+			generatingRecipe = false;
 		}
 	}
 
@@ -226,6 +314,30 @@
 		</header>
 
 		<div class="sections">
+			<!-- Content Generation Section -->
+			<section class="generation-section">
+				<h2>Content Generation</h2>
+				<div class="generation-buttons">
+					<button 
+						onclick={generateArticle} 
+						disabled={generatingArticle || loading}
+						class="generate-button generate-article"
+					>
+						{generatingArticle ? 'Generating...' : '📰 Generate Article'}
+					</button>
+					<button 
+						onclick={generateRecipe} 
+						disabled={generatingRecipe || loading}
+						class="generate-button generate-recipe"
+					>
+						{generatingRecipe ? 'Generating...' : '🍳 Generate Recipe'}
+					</button>
+				</div>
+				<p class="generation-hint">
+					Generate a new article from recent news or a new recipe from random foods.
+				</p>
+			</section>
+
 			<!-- Article Management Section -->
 			<section class="article-section">
 				<h2>Article Management</h2>
@@ -478,6 +590,66 @@
 	.text-input-container button:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+
+	.generation-section {
+		background: white;
+		border-radius: 12px;
+		padding: 2rem;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	}
+
+	.generation-buttons {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.generate-button {
+		flex: 1;
+		min-width: 200px;
+		padding: 1rem 2rem;
+		border: none;
+		border-radius: 8px;
+		font-size: 1.1rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+		color: white;
+	}
+
+	.generate-article {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	.generate-article:hover:not(:disabled) {
+		background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+	}
+
+	.generate-recipe {
+		background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	}
+
+	.generate-recipe:hover:not(:disabled) {
+		background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+	}
+
+	.generate-button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.generation-hint {
+		color: #666;
+		font-size: 0.9rem;
+		margin-top: 0.5rem;
+		font-style: italic;
 	}
 
 	.texts-display {

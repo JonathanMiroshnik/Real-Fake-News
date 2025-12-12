@@ -14,6 +14,7 @@ import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js'
 import blogRoutes from './blogRoutes.js'
 import adminRoutes from './adminRoutes.js'
 import horoscopeRoutes from './horoscopeRoutes.js'
+import recipeRoutes from './recipeRoutes.js'
 // import authRoutes from "./auth.js";
 
 const router = Router();
@@ -30,6 +31,9 @@ router.use('/blogs', blogRoutes);
 
 // Horoscope routes
 router.use('/horoscopes', horoscopeRoutes);
+
+// Recipe routes
+router.use('/recipes', recipeRoutes);
 
 // Admin routes (password protected)
 router.use('/admin', adminRoutes);
