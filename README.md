@@ -33,6 +33,225 @@ To set up the project:
 
 See `ENV_CONFIG.example` for complete documentation of all environment variables, config files, and constants.
 
+# Running the Application
+
+## Prerequisites
+
+1. **Docker and Docker Compose** installed on your system
+2. **Root `.env` file** created from `docker-compose.env.example`:
+   ```bash
+   cp docker-compose.env.example .env
+   # Edit .env and fill in your API keys and paths
+   ```
+3. **Required directories** created (as specified in `.env`):
+   ```bash
+   mkdir -p /path/to/your/SQLITE_DATA_PATH
+   mkdir -p /path/to/your/IMAGES_DATA_PATH
+   ```
+
+## Development Mode
+
+**Use this for local development and testing.**
+
+### Start Development Environment
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+### Development Mode Features
+
+- **Server**: Runs with `NODE_ENV=development`
+- **Client**: Debug logs enabled (`VITE_DEBUG_LOGS=true`)
+- **Admin**: Frontend dev mode enabled
+- **Hot Reload**: Not enabled by default (see below for enabling)
+
+### Development Commands
+
+```bash
+# Start in detached mode (background)
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+# View logs
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
+
+# Rebuild specific service
+docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
+
+# Stop services
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+
+# Restart a service
+docker compose -f docker-compose.yml -f docker-compose.dev.yml restart client
+```
+
+### Access Development Services
+
+- **Client**: http://localhost:5173
+- **Admin**: http://localhost:5174
+- **Server API**: http://localhost:5001/api
+
+---
+
+## Production Mode
+
+**Use this for production deployments.**
+
+### Start Production Environment
+
+```bash
+docker compose up --build
+```
+
+### Production Mode Features
+
+- **Server**: Runs with `NODE_ENV=production`
+- **Client**: Debug logs disabled (`VITE_DEBUG_LOGS=false`)
+- **Admin**: Frontend dev mode disabled
+- **Optimized**: Production-optimized builds
+
+### Production Commands
+
+```bash
+# Start in detached mode (background)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Rebuild all services
+docker compose build --no-cache
+
+# Stop services
+docker compose down
+
+# Restart services
+docker compose restart
+```
+
+### Access Production Services
+
+- **Client**: http://localhost:5173 (or your configured port)
+- **Admin**: http://localhost:5174 (or your configured port)
+- **Server API**: http://localhost:5001/api (or your configured port)
+
+---
+
+## Key Differences
+
+| Feature | Development Mode | Production Mode |
+|---------|-----------------|-----------------|
+| **Command** | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up` | `docker compose up` |
+| **NODE_ENV** | `development` | `production` |
+| **Debug Logs** | Enabled | Disabled |
+| **Error Messages** | Detailed | Generic |
+| **Build Optimization** | Standard | Optimized |
+
+## Common Tasks
+
+### Rebuild After Code Changes
+
+**Development:**
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
+```
+
+**Production:**
+```bash
+docker compose build --no-cache client
+docker compose up -d client
+```
+
+### View Service Logs
+
+**Development:**
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f server
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f client
+```
+
+**Production:**
+```bash
+docker compose logs -f server
+docker compose logs -f client
+```
+
+### Check Service Status
+
+```bash
+docker compose ps
+# or for development:
+docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
+```
+
+### Stop All Services
+
+**Development:**
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+```
+
+**Production:**
+```bash
+docker compose down
+```
+
+## Troubleshooting
+
+### Services Won't Start
+
+1. Check if ports are already in use:
+   ```bash
+   netstat -tulpn | grep -E "5001|5173|5174"
+   ```
+
+2. Verify `.env` file exists and has correct values:
+   ```bash
+   cat .env | grep -E "SQLITE_DATA_PATH|IMAGES_DATA_PATH"
+   ```
+
+3. Check Docker logs:
+   ```bash
+   docker compose logs
+   ```
+
+### Client Can't Connect to Server
+
+1. Verify all containers are running:
+   ```bash
+   docker compose ps
+   ```
+
+2. Test server directly:
+   ```bash
+   curl http://localhost:5001/api/health
+   ```
+
+3. Test proxy:
+   ```bash
+   curl http://localhost:5173/api/health
+   ```
+
+4. Rebuild client with correct config:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
+   ```
+
+### Database Issues
+
+- Ensure `SQLITE_DATA_PATH` directory exists and is writable
+- Check database file permissions:
+  ```bash
+  ls -la /path/to/your/database.db
+  ```
+
+For more detailed troubleshooting, see:
+- `DOCKER_ENV_SETUP.md` - Docker environment setup guide
+- `CLIENT_CONNECTION_DEBUG.md` - Client-server connection debugging
+- `DATABASE_LOCATION.md` - Database location configuration
+
 # Design
 ## Front-end
 An example website that I use as a model is: https://www.ynet.co.il, https://www.bbc.com/news 

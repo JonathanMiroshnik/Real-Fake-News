@@ -45,11 +45,13 @@ services:
       context: .
       dockerfile: client/Dockerfile
       args:
-        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}
+        # Production defaults: use relative API URLs with nginx proxy
+        # Override in root .env file or docker-compose.dev.yml for development
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-false}
         - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
         - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
-        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-false}
-        - VITE_DEBUG_LOGS=${VITE_DEBUG_LOGS:-true}
+        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-true}
+        - VITE_DEBUG_LOGS=${VITE_DEBUG_LOGS:-false}
     container_name: real-fake-news-client
     ports:
       - "${CLIENT_PORT:-5173}:80"
@@ -65,13 +67,15 @@ services:
       context: .
       dockerfile: admin/Dockerfile
       args:
-        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}
+        # Production defaults: use relative API URLs with nginx proxy
+        # Override in root .env file or docker-compose.dev.yml for development
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-false}
         - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
         - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
-        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-false}
-        - VITE_FRONTEND_DEV_MODE=${VITE_FRONTEND_DEV_MODE:-true}
+        - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-true}
+        - VITE_FRONTEND_DEV_MODE=${VITE_FRONTEND_DEV_MODE:-false}
         - VITE_CLIENT_URL_DEV=${VITE_CLIENT_URL_DEV:-http://localhost:5173}
-        - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-http://localhost:5173}
+        - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-https://real.sensorcensor.xyz}
         - SVELTEKIT_BASE_PATH=${SVELTEKIT_BASE_PATH:-/admin}
     container_name: real-fake-news-admin
     ports:

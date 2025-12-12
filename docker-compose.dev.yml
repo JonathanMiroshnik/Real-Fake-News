@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Development overrides for docker-compose.yml
 # Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
@@ -14,12 +12,24 @@ services:
     #   - ./server/tsconfig.json:/app/tsconfig.json:ro
 
   client:
-    environment:
-      - VITE_BACKEND_DEV_MODE=true
-      - VITE_DEBUG_LOGS=true
+    build:
+      args:
+        # In Docker, use relative API URLs with nginx proxy (recommended)
+        # OR use Docker service name 'server' instead of localhost
+        - VITE_USE_RELATIVE_API=true
+        - VITE_BACKEND_DEV_MODE=false  # Set to false to use PROD URL (which will be server:5001)
+        - VITE_API_BASE_DEV=http://localhost:5001  # Not used when USE_RELATIVE_API=true
+        - VITE_API_BASE_PROD=http://server:5001  # Docker service name for inter-container communication
+        - VITE_DEBUG_LOGS=true
 
   admin:
-    environment:
-      - VITE_BACKEND_DEV_MODE=true
-      - VITE_FRONTEND_DEV_MODE=true
+    build:
+      args:
+        - VITE_BACKEND_DEV_MODE=false  # Use PROD URL (server:5001) in Docker
+        - VITE_API_BASE_DEV=http://localhost:5001
+        - VITE_API_BASE_PROD=http://server:5001  # Docker service name
+        - VITE_USE_RELATIVE_API=false
+        - VITE_FRONTEND_DEV_MODE=true
+        - VITE_CLIENT_URL_DEV=http://localhost:5173
+        - VITE_CLIENT_URL_PROD=http://client:80  # Docker service name
 
