@@ -3,7 +3,6 @@ import { Horoscope } from '../../../types/horoscope';
 import { getHoroscopes, getAstrologicalData } from '../../../services/horoscopeService';
 import HoroscopeCard from '../HoroscopeCard/HoroscopeCard';
 import SectionHeader from '../../SectionHeader/SectionHeader';
-import './HoroscopeSection.css';
 
 function HoroscopeSection() {
   const [horoscopes, setHoroscopes] = useState<Horoscope[]>([]);
@@ -44,7 +43,7 @@ function HoroscopeSection() {
     return (
       <>
         <SectionHeader topLine="Daily Horoscopes" bottomLine="Cosmic Guidance" />
-        <div className="horoscope-section-content">
+        <div className="py-4">
           <p>Loading horoscopes...</p>
         </div>
       </>
@@ -55,7 +54,7 @@ function HoroscopeSection() {
     return (
       <>
         <SectionHeader topLine="Daily Horoscopes" bottomLine="Cosmic Guidance" />
-        <div className="horoscope-section-content">
+        <div className="py-4">
           <p>{error}</p>
         </div>
       </>
@@ -66,12 +65,12 @@ function HoroscopeSection() {
     <>
       <SectionHeader topLine="Daily Horoscopes" bottomLine="Cosmic Guidance" />
       {retrogradeInfo.length > 0 && (
-        <div className="horoscope-retrograde-notice">
+        <div className="bg-[var(--notice-background,#fff3cd)] border border-[var(--notice-border,#ffc107)] rounded px-4 py-3 my-4 text-[var(--notice-text,#856404)] text-[0.9rem]">
           <strong>Planets in Retrograde:</strong> {retrogradeInfo.join(', ')}
         </div>
       )}
-      <div className="horoscope-section-content">
-        <div className="horoscope-grid">
+      <div className="py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
           {horoscopes.map((horoscope) => (
             <HoroscopeCard key={horoscope.zodiacSign} horoscope={horoscope} />
           ))}

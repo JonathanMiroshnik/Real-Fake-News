@@ -6,8 +6,6 @@ import { getRelevantRecipes } from '../../services/recipeService';
 import { RecipeProps } from '../../types/recipe';
 import { debugLog, debugWarn } from '../../utils/debugLogger';
 
-import './RecipeSection.css'
-
 function RecipeSection() {
   const [recipes, setRecipes] = useState<RecipeProps[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +28,7 @@ function RecipeSection() {
   }, []);
 
   if (loading) {
-    return <div className="recipe-section-loading">Loading recipes...</div>;
+    return <div className="py-8 text-center text-[var(--description-color)]">Loading recipes...</div>;
   }
 
   if (recipes.length === 0) {
@@ -38,9 +36,9 @@ function RecipeSection() {
   }
 
   return (
-    <div className="recipe-section">
+    <div className="my-8">
       <SectionHeader topLine="Recipes" bottomLine="Food" />
-      <div className='recipe-section-content'>
+      <div className="flex justify-center">
         <RecipeList recipes={recipes} vertical={false} maxItems={recipesPerSection} />
       </div>
     </div>

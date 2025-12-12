@@ -5,14 +5,22 @@
   min-height: 70vh;
 }
 
+.contact-container h1 {
+  color: var(--title-color);
+}
+
 .contact-methods {
   display: grid;
   gap: 2rem;
   padding: 2rem;
-  background: #fff3f5;
+  background: var(--global-background-color);
   border-radius: 20px;
   border: 3px solid #ff6b81;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .contact-methods {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .method {
@@ -25,29 +33,54 @@
   transform: translateY(-3px);
 }
 
+.email {
+  background: rgba(107, 107, 255, 0.1);
+  border: 2px solid rgba(107, 107, 255, 0.3);
+}
+
+.dark-theme .email {
+  background: rgba(107, 107, 255, 0.15);
+  border: 2px solid rgba(107, 107, 255, 0.4);
+}
+
 .carrier-pigeon {
-  background: #dfe4ea;
+  background: rgba(223, 228, 234, 0.5);
   border: 2px dashed #2f3542;
 }
 
+.dark-theme .carrier-pigeon {
+  background: rgba(223, 228, 234, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
 .tin-can-phone {
-  background: #fff200;
+  background: rgba(255, 242, 0, 0.3);
   border: 2px dotted #3742fa;
 }
 
+.dark-theme .tin-can-phone {
+  background: rgba(255, 242, 0, 0.2);
+  border: 2px dotted rgba(55, 66, 250, 0.5);
+}
+
 .psychic {
-  background: #a4b0be;
+  background: rgba(164, 176, 190, 0.3);
   border: 2px double #ff4757;
 }
 
+.dark-theme .psychic {
+  background: rgba(164, 176, 190, 0.15);
+  border: 2px double rgba(255, 71, 87, 0.6);
+}
+
 .method h2 {
-  color: #2d3436;
+  color: var(--title-color);
   margin-bottom: 0.5rem;
   font-family: 'Comic Neue', cursive;
 }
 
 .method p {
-  color: #2d3436;
+  color: var(--title-color);
   line-height: 1.6;
 }
 
@@ -55,7 +88,7 @@
   display: block;
   margin-top: 0.5rem;
   font-style: italic;
-  color: #666;
+  color: var(--description-color);
 }
 
 .psychic small {

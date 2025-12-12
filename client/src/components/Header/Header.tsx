@@ -2,7 +2,6 @@ import { Link, NavLink } from 'react-router';
 import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
-import './Header.css'
 
 // import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
@@ -78,23 +77,23 @@ function Header({ sections }: HeaderProps) {
 
 
   return (
-    <header className="site-header">
+    <header className="w-full mb-8 border-b border-[#cc0000]">
       {/* <GoogleOAuthProvider clientId="512847879646-rc53sf1m84t99athm9fi99rd32ig7ue9.apps.googleusercontent.com">
         <GoogleLogin
           onSuccess={handleLoginSuccess}
           onError={() => console.log("Login Failed")}
         />
       </GoogleOAuthProvider> */}
-      <div className="header-content">
-        <div className="header-top">
-          <h1 className="logo">
+      <div className="flex flex-col items-center w-full">
+        <div className="flex justify-center w-full mb-4">
+          <h1 className="m-4 font-serif text-[80px] cursor-pointer will-change-[filter] transition-[filter] duration-300 hover:drop-shadow-[0_0_2em_#646cffaa]">
             <Link to="/">
-              <img src={darkMode ? "/mainWhiteLogo.png" : "/mainBlackLogo.png"} className="logo-img" alt="Logo" />
+              <img src={darkMode ? "/mainWhiteLogo.png" : "/mainBlackLogo.png"} className="w-[15rem]" alt="Logo" />
             </Link>
           </h1>
         </div>
-        <div className="header-bottom">
-          <nav className="header-navbar-list">
+        <div className="flex items-center justify-center w-full relative max-[600px]:flex-col max-[600px]:gap-4">
+          <nav className="flex items-center justify-center flex-1 gap-6 max-[600px]:grid max-[600px]:justify-items-center max-[600px]:grid-cols-2 max-[600px]:grid-rows-2 max-[600px]:flex-none max-[600px]:w-full max-[600px]:gap-4">
             {sections.map((section) => (
               // <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>
               //  {/* <button className='nav-button' >
@@ -114,7 +113,7 @@ function Header({ sections }: HeaderProps) {
                   {/* <button className='nav-button' >
                     {section}
                   </button> */}
-                  <div className="nav-a-link-wrapper nav-a-link">
+                  <div className="text-[var(--title-color)] px-5 py-3 rounded-lg border-b-[0.2rem] border-transparent transition-all duration-300 ease-in-out hover:border-b-[0.2rem] hover:border-[var(--title-color)] hover:bg-[darkgray] hover:shadow-md active:border-b-[0.2rem] active:border-[var(--title-color)] active:bg-[darkgray] font-medium">
                     {section}
                   </div>  
               </NavLink>

@@ -5,12 +5,20 @@
   min-height: 70vh;
 }
 
+.terms-container h1 {
+  color: var(--title-color);
+}
+
 .terms-content {
-  background: #f8f9fa;
+  background: var(--global-background-color);
   padding: 2rem;
   border-radius: 15px;
   border: 3px dotted #2ed573;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .terms-content {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .terms-content section {
@@ -18,13 +26,21 @@
 }
 
 .terms-content h2 {
-  color: #2d3436;
+  color: var(--title-color);
   margin-bottom: 1rem;
   font-family: 'Comic Neue', cursive;
 }
 
+.terms-content p {
+  color: var(--title-color);
+}
+
+.terms-content ul {
+  color: var(--title-color);
+}
+
 .clauses {
-  background: #ffffff;
+  background: var(--global-background-color);
   padding: 1.5rem;
   border-left: 4px solid #ffa502;
   margin: 1.5rem 0;
@@ -40,8 +56,13 @@
   counter-increment: clause-counter;
   margin: 1rem 0;
   padding: 0.5rem;
-  background: #fff9f9;
+  background: rgba(255, 165, 2, 0.1);
   border-radius: 5px;
+  color: var(--title-color);
+}
+
+.dark-theme .clauses li {
+  background: rgba(255, 165, 2, 0.15);
 }
 
 .clauses li::before {
@@ -53,7 +74,7 @@
 .footnote {
   margin-top: 2rem;
   font-size: 0.9em;
-  color: #666;
-  border-top: 1px dashed #ddd;
+  color: var(--description-color);
+  border-top: 1px dashed var(--border-separator-color);
   padding-top: 1rem;
 }

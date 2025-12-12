@@ -1,7 +1,6 @@
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import ArticleListItem from "../ArticleListItem/ArticleListItem";
 
-import './ArticleList.css'
 
 /**
  * Generic article list component with optional title
@@ -26,13 +25,13 @@ interface ArticleListProps {
 function ArticleList({title = "", articles, vertical = false, maxItems = 4, showImages=true}: ArticleListProps) {
     return (
         articles.length > 0 &&
-        <div className="article-list-main">
-            { title && <h2 className="article-list-title">{ title }</h2>}
+        <div className="flex">
+            { title && <h2 className="text-[var(--title-color)]">{ title }</h2>}
             
             {/* TODO: should we have a <nav> tag here, the <ul> inside it? */}
-            <ul className={`article-list-ul article-list-ul-${vertical ? "vertical": "horizontal"}`} >
-                { articles.slice(0, maxItems).map((ar) => (
-                    <li key={"article_list_item_" + ar.key} >
+            <ul className={`gap-8 p-0 m-0 list-none ${vertical ? "inline-block" : "flex"}`} >
+                { articles.slice(0, maxItems).map((ar, index) => (
+                    <li key={"article_list_item_" + ar.key} className={`m-0 ${vertical && index > 0 ? "border-t border-gray" : ""}`}>
                         <ArticleListItem showImage={showImages} article={ar}/>
                     </li>
                 )) }

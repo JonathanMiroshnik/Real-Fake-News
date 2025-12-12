@@ -1,3 +1,48 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss";
+
+@reference "tailwindcss";
+
+@theme {
+  /* Custom colors that reference CSS variables */
+  --color-title: var(--title-color);
+  --color-description: var(--description-color);
+  --color-undertext: var(--undertext-color);
+  --color-border-separator: var(--border-separator-color);
+  --color-border-big-separator: var(--border-big-separator-color);
+  --color-global-bg: var(--global-background-color);
+  
+  /* Custom breakpoint */
+  --breakpoint-mobile: 600px;
+  
+  /* Custom font families */
+  --font-serif: 'Times New Roman', Times, serif;
+  --font-sans: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  
+  /* Custom animations */
+  --animate-logo-spin: logo-spin infinite 20s linear;
+  --animate-shimmer: shimmer 1.5s infinite;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* CSS Variables for theme system - kept for runtime theme switching */
 :root {
   /* CONSTANTS */
   --title-color: black;
@@ -9,53 +54,52 @@
   
   /* TODO: figure out how to do mobile cutoff global, see: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/ */
   /* --mobile-size-cutoff: 600px; */
-
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;  
 }
 
-a {
-  font-weight: 500;
-  text-decoration: inherit;
+/* Navigation link active state */
+.nav-link.active > div {
+  border-bottom: 0.2rem solid var(--title-color);
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+/* Base element styles migrated to Tailwind @layer base */
+@layer base {
+  :root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    @apply font-medium no-underline;
+  }
+
+  body {
+    @apply m-0 min-w-[320px] min-h-screen;
+  }
+
+  h1 {
+    @apply text-[3.2em] leading-[1.1];
+  }
+
+  button {
+    @apply rounded-lg border border-transparent px-[1.2em] py-[0.6em] text-base font-medium cursor-pointer transition-[border-color] duration-[0.25s];
+    font-family: inherit;
+  }
+
+  button:focus,
+  button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* Dark theme */
+/* Dark theme - CSS variables for runtime theme switching */
 .dark-theme {
-  background-color: black;
-
+  @apply bg-black;
+  
   --title-color: white;
   --description-color: gray;
   --undertext-color: white;
@@ -65,18 +109,18 @@ button:focus-visible {
 }
 
 .dark-theme a:hover {
-  color: #747bff;
+  @apply text-[#747bff];
 }
 
 .dark-theme button {
   background-color: var(--global-background-color);
-  color: white;  
+  @apply text-white;
 }
 
-/* Light theme */
+/* Light theme - CSS variables for runtime theme switching */
 .light-theme {
-  background-color: #ffffff;
-
+  @apply bg-white;
+  
   --title-color: black;
   --description-color: gray;
   --undertext-color: black;
@@ -86,12 +130,12 @@ button:focus-visible {
 }
 
 .light-theme a:hover {
-  color: #747bff;
+  @apply text-[#747bff];
 }
 
 .light-theme button {
   background-color: var(--global-background-color);
-  color: black;
+  @apply text-black;
 }
 
 /* Fallback for when no theme class is applied (initial load) */

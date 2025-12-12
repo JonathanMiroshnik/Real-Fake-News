@@ -12,10 +12,9 @@ import { groupArticlesByCategories, CATEGORIES } from '../../services/articleSer
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { debugLog, debugWarn } from '../../utils/debugLogger';
 
-import './HomePage.css'
 
 // Temporary feature flag - remove when no longer needed
-const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES !== 'false';
+const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === 'true';
 const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES !== 'false';
 
 // /**
@@ -104,7 +103,7 @@ function HomePage() {
   }, [randomArticle]);
 
   return (
-    <div className="home-container">
+    <div className="max-w-[1200px]">
       {articles.length === 0 && showNoArticlesMessage && (
         <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
           <p><strong>No articles loaded.</strong></p>
@@ -114,9 +113,9 @@ function HomePage() {
       )}
       {/* TODO: magic number 4 */}
       <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />    
-      <div className="home-section">
+      <div className="w-full mb-12 last:mb-0">
         <SectionHeader topLine="Featured Article" bottomLine="Interest" />
-        <div className='home-section-content'>
+        <div className='flex gap-4 pb-4 mb-8'>
           <div>
             {randomArticle && <FeaturedArticle article={randomArticle} />}
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
@@ -159,9 +158,9 @@ function HomePage() {
         const categoryArticleList = categoryArticles[index];
         if (categoryArticleList && categoryArticleList.length > 0) {
           return (
-            <div key={`category-section-${category.name}`} className="home-section">
+            <div key={`category-section-${category.name}`} className="w-full mb-12 last:mb-0">
               <SectionHeader topLine={category.text} bottomLine={category.name} />
-              <div className='home-section-content'>
+              <div className='flex gap-4 pb-4 mb-8'>
                 <ArticleList articles={categoryArticleList} vertical={false} maxItems={articlesPerSection} />
               </div>
             </div>
@@ -172,29 +171,29 @@ function HomePage() {
       
       {/* Fallback: If no articles in any category, show all articles */}
       {articles.length > 0 && categoryArticles.every(cat => cat.length === 0) && (
-        <div className="home-section">
+        <div className="w-full mb-12 last:mb-0">
           <SectionHeader topLine="All Articles" bottomLine="Latest News" />
-          <div className='home-section-content'>
+          <div className='flex gap-4 pb-4 mb-8'>
             <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
           </div>
         </div>
       )}
       
-      <div className="home-section">
+      <div className="w-full mb-12 last:mb-0">
         <SectionHeader topLine="Interactive" bottomLine="Games" />
-        <div className='home-section-content'>
+        <div className='flex gap-4 pb-4 mb-8 justify-center'>
           <GamesList />
         </div>
       </div>
 
       {SHOW_HOROSCOPES && (
-        <div className="home-section">
+        <div className="w-full mb-12 last:mb-0">
           <HoroscopeSection />
         </div>
       )}
 
       {SHOW_RECIPES && (
-        <div className="home-section">
+        <div className="w-full mb-12 last:mb-0">
           <RecipeSection />
         </div>
       )}

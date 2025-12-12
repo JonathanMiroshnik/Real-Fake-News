@@ -1,5 +1,4 @@
 import GameItem from './GameItem/GameItem';
-import './GamesList.css'
 
 /**
  * Component to show the Games
@@ -28,8 +27,8 @@ function GamesList() {
     ];
 
     return (
-        <div className="games-list-section">
-            <div className="games-list-items">            
+        <div className="m-0 p-0 flex justify-center w-full">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 max-w-[900px] mx-auto px-4 w-full max-[768px]:grid-cols-1 max-[768px]:gap-6 max-[768px]:px-2 max-[480px]:gap-4">            
                 { GAMES.map((game, ind) => <GameItem key={"game_" + ind.toString()} {...game} />) }       
             </div>
         </div>

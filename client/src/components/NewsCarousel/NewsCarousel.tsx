@@ -42,7 +42,7 @@ function NewsCarousel({maxItems = -1}: NewsCarouselProps) {
     // Not enough items to show // TODO: magic number 3
     if (items.length < 3) {
         // Return empty container with fixed height to prevent layout shift
-        return <div className="news-carousel-wrapper" />;
+        return null;
     }
 
     if (maxItems === 0) {

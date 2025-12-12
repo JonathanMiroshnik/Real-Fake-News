@@ -4,7 +4,6 @@ import { Link } from 'react-router';
 import { ArticleProps } from '../../../pages/ArticlePage/ArticlePage';
 // import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { getLatestTime } from '../../../services/timeService';
-import './ArticleListItem.css'
 
 /**
  * Individual article list item component

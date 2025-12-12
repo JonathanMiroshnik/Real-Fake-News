@@ -4,7 +4,6 @@ import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageServi
 import { getLatestTime } from '../../services/timeService';
 import Image from '../Image/Image';
 
-import './ArticleListItem.css'
 
 /**
  * Individual article list item component
@@ -26,25 +25,25 @@ interface ArticleListItemProps {
 
 function ArticleListItem({article, showImage=true, showDescription=true, showUnderText=true}: ArticleListItemProps) {
     return (
-        <Link className="article-list-item-title" to={`/article/${article.key}`}>
-            <div className="article-list-item">
+        <Link className="no-underline group" to={`/article/${article.key}`}>
+            <div className="max-h-[40rem] max-w-[40rem] text-left">
                 {showImage && (
                     <Image
                         src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
                         alt={article.title ?? 'Article'}
-                        className="article-list-item-head-image"
+                        className="w-full mb-2 group-hover:brightness-110 transition-[filter]"
                         aspectRatio="16/9"
                         placeholder={true}
                         objectFit="cover"
                     />
                 )}
-                <h3 className='article-list-item-title-header'>
+                <h3 className='text-[var(--title-color)] text-[18px] m-[5px] p-0 group-hover:underline group-active:underline'>
                     {article.title}
                 </h3>
-                { article.shortDescription && showDescription && <p className='article-list-item-description'>
+                { article.shortDescription && showDescription && <p className='text-[var(--description-color)] text-[14px]'>
                     {article.shortDescription}
                 </p> }
-                {showUnderText && <div className="article-list-item-undertext">
+                {showUnderText && <div className="text-[var(--undertext-color)] text-[12px] text-center">
                     { article.author?.name + " | " +
                         (article.timestamp ? 
                             getLatestTime(new Date().getTime() - new Date(article.timestamp).getTime()) 

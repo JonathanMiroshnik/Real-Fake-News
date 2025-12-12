@@ -3,7 +3,6 @@ import { ArticleContext } from "../../contexts/ArticlesContext";
 import { NewsCategory } from "../../services/articleService";
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import ArticleList from "../ArticleList/ArticleList";
-import './CategoryArticleList.css'
 
 // TODO: maybe this component is irrelevant and should just be replaced entirely with ArticleList?
 
@@ -29,8 +28,8 @@ function CategoryArticleList(props: CategoryArticleListProps) {
 
     return (
         articlesbyCategory.length > 0 &&
-        <div className="category-article-list-main">
-            <h2 className="category-article-list-title">{ props.category.text }</h2>
+        <div>
+            <h2>{ props.category.text }</h2>
             <ArticleList vertical={props?.vertical} articles={articlesbyCategory}/>
         </div>
     );

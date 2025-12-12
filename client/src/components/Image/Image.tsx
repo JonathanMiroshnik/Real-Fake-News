@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import './Image.css';
 
 interface ImageProps {
   src: string;
@@ -38,37 +37,33 @@ function Image({
   if (!src || src === '') {
     return placeholder ? (
       <div 
-        className={`image-container ${className}`}
+        className={`relative w-full overflow-hidden ${className}`}
         style={{ 
           aspectRatio: aspectRatio,
-          position: 'relative',
-          overflow: 'hidden',
           backgroundColor: 'var(--image-placeholder-bg, #f0f0f0)'
         }}
       >
-        <div className="image-placeholder" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--image-placeholder-bg,#f0f0f0)] via-[var(--image-placeholder-shimmer,#e0e0e0)] to-[var(--image-placeholder-bg,#f0f0f0)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
       </div>
     ) : null;
   }
 
   return (
     <div 
-      className={`image-container ${className}`}
+      className={`relative w-full overflow-hidden ${className}`}
       style={{ 
         aspectRatio: aspectRatio,
-        position: 'relative',
-        overflow: 'hidden',
         backgroundColor: placeholder ? 'var(--image-placeholder-bg, #f0f0f0)' : 'transparent'
       }}
     >
       {(isLoading || hasError) && placeholder && (
-        <div className="image-placeholder" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--image-placeholder-bg,#f0f0f0)] via-[var(--image-placeholder-shimmer,#e0e0e0)] to-[var(--image-placeholder-bg,#f0f0f0)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
       )}
       {!hasError && (
         <img
           src={src}
           alt={alt}
-          className={`image-content ${isLoading ? 'image-loading' : 'image-loaded'}`}
+          className={`absolute inset-0 w-full h-full transition-opacity duration-300 ease-in-out ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           style={{ objectFit }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
@@ -80,7 +75,7 @@ function Image({
         />
       )}
       {hasError && placeholder && (
-        <div className="image-error">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--image-placeholder-bg,#f0f0f0)] text-[var(--description-color,#666)] text-[0.9rem]">
           <span>Image unavailable</span>
         </div>
       )}

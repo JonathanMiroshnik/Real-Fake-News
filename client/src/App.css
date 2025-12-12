@@ -1,34 +1,33 @@
+@reference "tailwindcss";
+
+/* Root container styles - migrated to Tailwind */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  min-height: 100vh;
-  width: 100%;
+  @apply max-w-[1280px] mx-auto p-8 text-center min-h-screen w-full;
 }
 
+/* Utility classes - kept for backward compatibility if used elsewhere */
 .card {
-  padding: 2em;
+  @apply p-[2em];
 }
 
 .read-the-docs {
-  color: #888;
+  @apply text-[#888];
 }
 
-/* Hide newspaper view on screen, show normal view */
+/* Print mode visibility - functional logic, kept as-is */
 .newspaper-view-wrapper {
-  display: none;
+  @apply hidden;
 }
 
 .normal-view-wrapper {
-  display: block;
+  @apply block;
 }
 
 /* When in print mode (via JavaScript), show newspaper */
 .app-div.print-mode .newspaper-view-wrapper {
-  display: block;
+  @apply block;
 }
 
 .app-div.print-mode .normal-view-wrapper {
-  display: none;
+  @apply hidden;
 }
