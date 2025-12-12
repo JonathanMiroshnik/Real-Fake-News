@@ -16,6 +16,7 @@ import './HomePage.css'
 
 // Temporary feature flag - remove when no longer needed
 const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES !== 'false';
+const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES !== 'false';
 
 // /**
 //  * Application homepage showing all news categories
@@ -192,9 +193,11 @@ function HomePage() {
         </div>
       )}
 
-      <div className="home-section">
-        <RecipeSection />
-      </div>
+      {SHOW_RECIPES && (
+        <div className="home-section">
+          <RecipeSection />
+        </div>
+      )}
 
         {/* <aside className="sidebar">
           <NewsCarousel/>
