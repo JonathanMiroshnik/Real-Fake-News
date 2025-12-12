@@ -1,5 +1,5 @@
 import { getDatabase } from './database.js';
-import { ArticleScheme, FeaturedArticleScheme } from "../../types/article.js";
+import { ArticleScheme, FeaturedArticleScheme, RecipeScheme } from "../../types/article.js";
 import { NewsItem } from "../../services/newsService.js";
 import { Writer } from '../../types/writer.js';
 
@@ -208,6 +208,58 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
         toInput.profileImage = fromInput.profileImage;
         toInput.createdAt = fromInput.createdAt;
         toInput.updatedAt = fromInput.updatedAt;
+
+        return true;
+    }
+};
+
+export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
+    source: "recipes",
+    exists: async (recipe: RecipeScheme) => {
+        const db = getDatabase();
+        const key = recipe.key;
+        if (!key) return false;
+        const stmt = db.prepare('SELECT 1 FROM recipes WHERE key = ?');
+        const result = stmt.get(key);
+        return result !== undefined;
+    },
+    find: async (key: string) => {
+        const db = getDatabase();
+        const stmt = db.prepare('SELECT * FROM recipes WHERE key = ?');
+        const row = stmt.get(key) as any;
+        if (!row) return undefined;
+        
+        return {
+            key: row.key,
+            title: row.title,
+            paragraphs: row.paragraphs ? JSON.parse(row.paragraphs) : undefined,
+            author: row.author ? JSON.parse(row.author) : undefined,
+            timestamp: row.timestamp,
+            category: row.category,
+            headImage: row.headImage,
+            images: row.images ? JSON.parse(row.images) : undefined,
+            shortDescription: row.shortDescription,
+            writerType: row.writerType || 'AI'
+        } as RecipeScheme;
+    },
+    getKey: async (pInput: RecipeScheme) => {
+        if (pInput.key === undefined) {
+            return "";
+        }
+
+        return pInput.key;
+    },
+    copyValues: (fromInput: RecipeScheme, toInput: RecipeScheme) => {
+        toInput.key = fromInput.key;
+        toInput.author = fromInput.author;
+        toInput.category = fromInput.category;
+        toInput.paragraphs = fromInput.paragraphs;
+        toInput.headImage = fromInput.headImage;
+        toInput.images = fromInput.images;
+        toInput.shortDescription = fromInput.shortDescription;
+        toInput.timestamp = fromInput.timestamp;
+        toInput.title = fromInput.title;
+        toInput.writerType = fromInput.writerType || 'AI';
 
         return true;
     }

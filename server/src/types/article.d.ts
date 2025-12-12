@@ -36,6 +36,18 @@ export interface BlogResponse {
   error?: string;
 }
 
+export interface RecipeScheme extends Post {
+  title?: string;
+  paragraphs?: string[];
+  author?: Writer;
+  timestamp?: string;
+  category?: string;
+  headImage?: string;
+  images?: string[];
+  shortDescription?: string;
+  writerType?: "AI" | "Human" | "Synthesis";
+}
+
 
 // FOR TESTING PURPOSRS ----------------------------------------------------------------------------------
 

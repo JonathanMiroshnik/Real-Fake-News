@@ -1,0 +1,36 @@
+.recipe-list-main {
+    display: flex;
+}
+
+.recipe-list-title {
+    color: var(--title-color);
+}
+
+/* Shared base styles */
+.recipe-list-ul {
+    gap: 2rem;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+/* Vertical layout */
+.recipe-list-ul-vertical {
+    display: inline-block;
+}
+
+/* Horizontal layout */
+.recipe-list-ul-horizontal {
+    display: flex;
+}
+
+.recipe-list-ul > li {
+    margin: 0;
+}
+
+/* Should work only when in vertical mode, 
+adding separating border between any two listed items */
+.recipe-list-ul-vertical > li + li {
+    border-top: 1px gray solid;
+}
+

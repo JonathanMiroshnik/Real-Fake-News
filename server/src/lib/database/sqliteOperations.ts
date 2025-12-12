@@ -145,6 +145,29 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
                 featured.shortDescription || null,
                 serializeJson(featured.originalNewsItem)
             );
+        } else if (tableName === 'recipes') {
+            const recipe = post as any;
+            const stmt = db.prepare(`
+                INSERT INTO recipes (
+                    key, title, paragraphs, author, timestamp, category,
+                    headImage, images, shortDescription, writerType
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+            const timestamp = recipe.timestamp || new Date().toISOString();
+            const writerType = recipe.writerType || 'AI';
+            
+            stmt.run(
+                key,
+                recipe.title || null,
+                serializeJson(recipe.paragraphs) || null,
+                serializeJson(recipe.author) || null,
+                timestamp,
+                recipe.category || null,
+                recipe.headImage || null,
+                serializeJson(recipe.images) || null,
+                recipe.shortDescription || null,
+                writerType
+            );
         } else {
             throw new Error(`Unknown table: ${tableName}`);
         }

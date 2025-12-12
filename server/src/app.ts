@@ -40,14 +40,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Main backend routes
-// Always use /api prefix in production, only use / for local dev when explicitly set
-let PREFIX: string = "/api";
-if (process.env.LOCAL_DEV_BACKEND === "true") {
-  // Only use root path if explicitly set to "true" for local development
-  PREFIX = "/";
-}
-
-app.use(PREFIX, apiRoutes);
+// Always use /api prefix for consistency across dev and production
+// This ensures all clients (admin, client, etc.) can use the same API paths
+app.use("/api", apiRoutes);
 
 // 404 Handler
 

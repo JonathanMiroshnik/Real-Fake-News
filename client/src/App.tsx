@@ -11,6 +11,7 @@ import HomePage from './pages/HomePage/HomePage';
 import ArticlePage from './pages/ArticlePage/ArticlePage';
 import CategoryPage from './pages/CategoryPage/CategoryPage';
 import WriterPage from './pages/WriterPage/WriterPage';
+import RecipePage from './pages/RecipePage/RecipePage';
 
 import ContactPage from './pages/ContactPage/ContactPage';
 import TermsPage from './pages/TermsPage/TermsPage';
@@ -50,6 +51,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />            
               <Route path="/article/:key" element={<ArticlePage />} />
+              <Route path="/recipe/:key" element={<RecipePage />} />
               {/* Article lists */}
               <Route path="/category/:key" element={<CategoryPage />} />
               <Route path="/writer/:key" element={<WriterPage />} />

@@ -122,6 +122,38 @@ export function initializeSchema(): void {
         ON featured_blog_posts(timestamp)
     `);
 
+    // Foods Table
+    // Stores random food names for recipe generation
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS foods (
+            name TEXT PRIMARY KEY
+        )
+    `);
+
+    // Recipes Table
+    // Stores recipe articles (RecipeScheme)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS recipes (
+            key TEXT PRIMARY KEY,
+            title TEXT,
+            paragraphs TEXT,
+            author TEXT,
+            timestamp TEXT,
+            category TEXT,
+            headImage TEXT,
+            images TEXT,
+            shortDescription TEXT,
+            writerType TEXT DEFAULT 'AI',
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Index on recipes timestamp
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_recipes_timestamp 
+        ON recipes(timestamp)
+    `);
+
     console.log('SQLite schema initialized successfully');
 }
 

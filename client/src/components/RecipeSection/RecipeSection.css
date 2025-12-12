@@ -1,0 +1,15 @@
+.recipe-section {
+  margin: 2rem 0;
+}
+
+.recipe-section-content {
+  display: flex;
+  justify-content: center;
+}
+
+.recipe-section-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--description-color);
+}
+

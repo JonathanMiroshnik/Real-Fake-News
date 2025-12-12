@@ -10,6 +10,11 @@ import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
+import { writeBlogPost } from '../services/blogService.js';
+import { getRandomWriter } from '../services/writerService.js';
+import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
+import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
+import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -350,5 +355,117 @@ export const addAdminText = async (req: Request, res: Response): Promise<void> =
   } catch (error) {
     console.error('Error adding text:', error);
     res.status(500).json({ error: 'Failed to add text' });
+  }
+};
+
+// Generate a news article
+export const generateAdminArticle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    console.log('📝 [generateAdminArticle] Admin requested article generation');
+
+    // Get a random writer
+    const writer = await getRandomWriter();
+    console.log('📝 [generateAdminArticle] Selected writer:', writer.name);
+
+    // Get a random news item from recent news
+    const recentNews = await getAllNewsArticlesAfterDate(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
+    
+    if (recentNews.length === 0) {
+      res.status(400).json({ 
+        success: false,
+        error: 'No recent news articles available. Please ensure news fetching is working.' 
+      });
+      return;
+    }
+
+    // Pick a random news item
+    const randomIndex = Math.floor(Math.random() * recentNews.length);
+    const newsItem: NewsItem = recentNews[randomIndex];
+    console.log('📝 [generateAdminArticle] Selected news item:', newsItem.title);
+
+    // Generate the article
+    const article = await writeBlogPost(writer, newsItem, true);
+
+    if (!article) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to generate article. Check server logs for details.' 
+      });
+      return;
+    }
+
+    console.log('✅ [generateAdminArticle] Article generated successfully:', article.key);
+
+    res.json({
+      success: true,
+      message: 'Article generated successfully',
+      article: article
+    });
+  } catch (error) {
+    console.error('❌ [generateAdminArticle] Error generating article:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to generate article' 
+    });
+  }
+};
+
+// Generate a recipe
+export const generateAdminRecipe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    console.log('🍳 [generateAdminRecipe] Admin requested recipe generation');
+
+    // Get a random writer
+    const writer = await getRandomWriter();
+    console.log('🍳 [generateAdminRecipe] Selected writer:', writer.name);
+
+    // Get random foods (2-3 foods)
+    const numFoods = 2 + Math.floor(Math.random() * 2); // 2 or 3 foods
+    const foods = await getRandomFoods(numFoods);
+    
+    if (foods.length === 0) {
+      res.status(400).json({ 
+        success: false,
+        error: 'No foods available in database. Please add foods to the foods table.' 
+      });
+      return;
+    }
+
+    console.log('🍳 [generateAdminRecipe] Selected foods:', foods.join(', '));
+
+    // Generate the recipe
+    const recipe = await generateRecipe(writer, foods, true);
+
+    if (!recipe) {
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to generate recipe. Check server logs for details.' 
+      });
+      return;
+    }
+
+    console.log('✅ [generateAdminRecipe] Recipe generated successfully:', recipe.key);
+
+    res.json({
+      success: true,
+      message: 'Recipe generated successfully',
+      recipe: recipe
+    });
+  } catch (error) {
+    console.error('❌ [generateAdminRecipe] Error generating recipe:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to generate recipe' 
+    });
   }
 };

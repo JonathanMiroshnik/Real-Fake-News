@@ -5,6 +5,7 @@ import GamesList from '../../components/GamesList/GamesList';
 import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/HoroscopeSection';
+import RecipeSection from '../../components/RecipeSection/RecipeSection';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories, CATEGORIES } from '../../services/articleService';
@@ -190,6 +191,10 @@ function HomePage() {
           <HoroscopeSection />
         </div>
       )}
+
+      <div className="home-section">
+        <RecipeSection />
+      </div>
 
         {/* <aside className="sidebar">
           <NewsCarousel/>
