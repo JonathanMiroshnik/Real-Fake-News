@@ -1,0 +1,39 @@
+.horoscope-section-content {
+  padding: 1rem 0;
+}
+
+.horoscope-retrograde-notice {
+  background: var(--notice-background, #fff3cd);
+  border: 1px solid var(--notice-border, #ffc107);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  color: var(--notice-text, #856404);
+  font-size: 0.9rem;
+}
+
+.horoscope-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .horoscope-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .horoscope-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .horoscope-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+

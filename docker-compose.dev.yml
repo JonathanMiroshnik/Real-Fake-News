@@ -21,6 +21,7 @@ services:
         - VITE_API_BASE_DEV=http://localhost:5001  # Not used when USE_RELATIVE_API=true
         - VITE_API_BASE_PROD=http://server:5001  # Docker service name for inter-container communication
         - VITE_DEBUG_LOGS=true
+        - VITE_SHOW_HOROSCOPES=${VITE_SHOW_HOROSCOPES:-true}
 
   admin:
     build:

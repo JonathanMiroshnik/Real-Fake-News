@@ -1,0 +1,33 @@
+.horoscope-card {
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.horoscope-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.horoscope-card-header {
+  margin-bottom: 0.75rem;
+}
+
+.horoscope-card-sign {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary, #333);
+}
+
+.horoscope-card-content {
+  color: var(--text-secondary, #666);
+  line-height: 1.6;
+}
+
+.horoscope-card-content p {
+  margin: 0;
+}
+

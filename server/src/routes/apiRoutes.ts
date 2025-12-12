@@ -13,6 +13,7 @@ const __dirname = dirname(__filename);
 import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js'
 import blogRoutes from './blogRoutes.js'
 import adminRoutes from './adminRoutes.js'
+import horoscopeRoutes from './horoscopeRoutes.js'
 // import authRoutes from "./auth.js";
 
 const router = Router();
@@ -26,6 +27,9 @@ router.use('/trivia', triviaRoutes);
 
 // Getting daily news
 router.use('/blogs', blogRoutes);
+
+// Horoscope routes
+router.use('/horoscopes', horoscopeRoutes);
 
 // Admin routes (password protected)
 router.use('/admin', adminRoutes);

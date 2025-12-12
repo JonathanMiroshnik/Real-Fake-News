@@ -4,6 +4,7 @@ import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
 import GamesList from '../../components/GamesList/GamesList';
 import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/HoroscopeSection';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories, CATEGORIES } from '../../services/articleService';
@@ -11,6 +12,9 @@ import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageServi
 import { debugLog, debugWarn } from '../../utils/debugLogger';
 
 import './HomePage.css'
+
+// Temporary feature flag - remove when no longer needed
+const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES !== 'false';
 
 // /**
 //  * Application homepage showing all news categories
@@ -176,10 +180,16 @@ function HomePage() {
       
       <div className="home-section">
         <SectionHeader topLine="Interactive" bottomLine="Games" />
-        {/* <div className='home-section-content'> */}
-        <GamesList />
-        {/* </div> */}
-      </div>        
+        <div className='home-section-content'>
+          <GamesList />
+        </div>
+      </div>
+
+      {SHOW_HOROSCOPES && (
+        <div className="home-section">
+          <HoroscopeSection />
+        </div>
+      )}
 
         {/* <aside className="sidebar">
           <NewsCarousel/>
