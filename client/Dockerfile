@@ -33,6 +33,8 @@ COPY client/vite.config.ts ./
 COPY client/tsconfig.json ./
 COPY client/tsconfig.*.json ./
 COPY client/eslint.config.js ./
+COPY client/postcss.config.js ./
+COPY client/tailwind.config.js ./
 
 # Build React app (environment variables are baked into the bundle)
 RUN npm run build
