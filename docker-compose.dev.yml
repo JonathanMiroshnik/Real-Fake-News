@@ -5,7 +5,7 @@ services:
   server:
     environment:
       - NODE_ENV=development
-      - LOCAL_DEV_BACKEND=false
+      # LOCAL_DEV_BACKEND removed - always use /api prefix for consistency
     # Mount source code for hot reload (optional - requires nodemon in container)
     # volumes:
     #   - ./server/src:/app/src:ro
@@ -26,11 +26,13 @@ services:
   admin:
     build:
       args:
-        - VITE_BACKEND_DEV_MODE=false  # Use PROD URL (server:5001) in Docker
-        - VITE_API_BASE_DEV=http://localhost:5001
-        - VITE_API_BASE_PROD=http://server:5001  # Docker service name
+        # Default to dev mode (localhost:5001) - can be overridden in .env for production backend
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}  # true = use localhost:5001, false = use PROD URL
+        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}  # Dev backend URL
+        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://162.0.237.138:5001}  # Production backend IP:port (override in .env)
         - VITE_USE_RELATIVE_API=false
         - VITE_FRONTEND_DEV_MODE=true
         - VITE_CLIENT_URL_DEV=http://localhost:5173
         - VITE_CLIENT_URL_PROD=http://client:80  # Docker service name
+        - SVELTEKIT_BASE_PATH=  # Empty for dev mode - serve from root instead of /admin
 
