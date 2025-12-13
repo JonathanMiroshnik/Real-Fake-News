@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -51,13 +52,13 @@
 
 	function isActive(path: string): boolean {
 		if (!browser) return false;
-		return $page.url.pathname === path;
+		return $page.url.pathname === `${base}${path}`;
 	}
 
 	function navigate(path: string) {
 		if (!browser) return;
 		const url = new URL($page.url);
-		url.pathname = path;
+		url.pathname = `${base}${path}`;
 		if (password) {
 			url.searchParams.set(ADMIN_PASSWORD_PARAM, password);
 		}

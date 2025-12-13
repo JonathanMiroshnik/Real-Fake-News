@@ -4,6 +4,7 @@
 	import { browser } from '$app/environment';
 	import { getApiBaseUrlWithPrefix } from '$lib/apiConfig';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 
 	// Valid categories
 	const VALID_CATEGORIES = ["Politics", "Sports", "Culture", "Economics", "Technology", "Food"];
@@ -369,7 +370,7 @@
 <div class="edit-page">
 	<header class="page-header">
 		<h1>Edit Article</h1>
-		<button class="back-btn" onclick={() => goto(`/articles?${ADMIN_PASSWORD_PARAM}=${encodeURIComponent(password)}`)}>
+		<button class="back-btn" onclick={() => goto(`${base}/articles?${ADMIN_PASSWORD_PARAM}=${encodeURIComponent(password)}`)}>
 			← Back to Articles
 		</button>
 	</header>

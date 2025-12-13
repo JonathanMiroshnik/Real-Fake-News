@@ -2,6 +2,7 @@
 	import { getClientUrl } from '$lib/apiConfig';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 
 	interface Article {
 		key?: string;
@@ -29,7 +30,7 @@
 	function handleEdit(key: string | undefined) {
 		if (!key) return;
 		const passwordParam = password ? `?pwd=${encodeURIComponent(password)}` : '';
-		goto(`/articles/edit/${key}${passwordParam}`);
+		goto(`${base}/articles/edit/${key}${passwordParam}`);
 	}
 
 	// Get article URL
