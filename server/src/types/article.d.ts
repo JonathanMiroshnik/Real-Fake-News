@@ -12,6 +12,8 @@ export interface ArticleScheme extends Post {
   shortDescription?: string;
   originalNewsItem?: NewsItem;
   writerType?: "AI" | "Human" | "Synthesis";
+  isFeatured?: boolean;
+  featuredDate?: string;
 }
 
 export interface FeaturedArticleScheme extends ArticleScheme {

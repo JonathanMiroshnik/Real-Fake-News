@@ -18,12 +18,15 @@
 		shortDescription?: string;
 		writerType?: "AI" | "Human" | "Synthesis";
 		originalNewsItem?: any;
+		isFeatured?: boolean;
+		featuredDate?: string;
 	}
 
 	let article = $state<Article | null>(null);
 	let loading = $state(false);
 	let saving = $state(false);
 	let uploading = $state(false);
+	let settingFeatured = $state(false);
 	let error = $state('');
 	let successMessage = $state('');
 	let password = $state('');
@@ -279,6 +282,62 @@
 		}
 	}
 
+	// Set article as featured
+	async function setAsFeatured() {
+		if (!articleKey || !password || !browser) return;
+		
+		settingFeatured = true;
+		error = '';
+		successMessage = '';
+		
+		try {
+			const url = `${API_BASE}/admin/articles/${articleKey}/featured?password=${encodeURIComponent(password)}`;
+			const response = await fetch(url, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: Failed to set as featured`);
+			}
+			
+			const data = await response.json();
+			if (data.success) {
+				successMessage = 'Article set as featured successfully!';
+				// Update local article state
+				if (article) {
+					article.isFeatured = true;
+					article.featuredDate = new Date().toISOString().split('T')[0];
+				}
+				// Clear success message after 3 seconds
+				setTimeout(() => {
+					successMessage = '';
+				}, 3000);
+			} else {
+				throw new Error('Failed to set as featured');
+			}
+		} catch (err) {
+			console.error('Error setting as featured:', err);
+			if (err instanceof TypeError && err.message.includes('fetch')) {
+				error = 'Network error: Is the backend server running on ' + API_BASE + '?';
+			} else {
+				error = err instanceof Error ? err.message : 'Failed to set as featured';
+			}
+		} finally {
+			settingFeatured = false;
+		}
+	}
+
+	// Check if article is featured today
+	function isFeaturedToday(): boolean {
+		if (!article?.isFeatured || !article?.featuredDate) return false;
+		const today = new Date().toISOString().split('T')[0];
+		return article.featuredDate === today;
+	}
+
 	// Reactive password from URL changes
 	$effect(() => {
 		if (browser) {
@@ -499,6 +558,14 @@
 				</div>
 
 				<div class="form-actions">
+					<button 
+						type="button"
+						class="featured-btn" 
+						onclick={setAsFeatured}
+						disabled={settingFeatured || saving || isFeaturedToday()}
+					>
+						{settingFeatured ? 'Setting...' : isFeaturedToday() ? '⭐ Currently Featured' : '⭐ Set as Featured Article'}
+					</button>
 					<button 
 						type="submit" 
 						class="save-btn" 
@@ -835,6 +902,30 @@
 		margin-top: 2rem;
 		padding-top: 2rem;
 		border-top: 1px solid #e0e0e0;
+	}
+
+	.featured-btn {
+		background: #ffc107;
+		color: #2c3e50;
+		border: none;
+		padding: 0.75rem 2rem;
+		border-radius: 8px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 1rem;
+		transition: background 0.2s, transform 0.1s;
+	}
+
+	.featured-btn:hover:not(:disabled) {
+		background: #ffb300;
+		transform: translateY(-1px);
+	}
+
+	.featured-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+		background: #ffc107;
 	}
 
 	.save-btn {

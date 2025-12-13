@@ -3,6 +3,7 @@ import { ONE_HOUR_MILLISECS, MILLISECS_IN_SEC, DAY_MILLISECS } from "../config/c
 import { generateScheduledArticles } from "./blogWriting.js";
 import { addNewsToTotal } from "./newsFetching.js";
 import { generateScheduledRecipes } from "./recipeGeneration.js";
+import { scheduleFeaturedArticleSelection } from "./featuredArticleSelection.js";
 import { debugLog } from "../utils/debugLogger.js";
 
 // Scheduler of recurring jobs in the backend.
@@ -26,6 +27,7 @@ export function initializeScheduledJobs() {
     addNewsToTotal(NEWS_ARTICLES_TO_ADD);
     generateScheduledArticles(GENERATE_AI_ARTICLE_AVERAGE_TIME);
     generateScheduledRecipes(GENERATE_RECIPE_AVERAGE_TIME);
+    scheduleFeaturedArticleSelection();
 
     startRandomInterval(() => generateScheduledArticles(GENERATE_AI_ARTICLE_AVERAGE_TIME), 1, 2 * GENERATE_AI_ARTICLE_AVERAGE_TIME / MILLISECS_IN_SEC);
     startRandomInterval(() => addNewsToTotal(NEWS_ARTICLES_TO_ADD), 1, 2 * FETCH_RECENT_NEWS_ARTICLES_AVERAGE_TIME / MILLISECS_IN_SEC);

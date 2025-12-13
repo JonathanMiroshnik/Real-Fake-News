@@ -218,6 +218,49 @@ export async function pullRecentArticles() {
 }
 
 /**
+ * Gets the featured article for today
+ * @returns The featured article if found, null otherwise
+ */
+export async function getFeaturedArticle(): Promise<ArticleProps | null> {
+    debugLog('🚀 [getFeaturedArticle] Function called');
+    
+    const VITE_API_BASE = getApiBaseUrlWithPrefix();
+    const url = `${VITE_API_BASE}/blogs/featured`;
+    debugLog('📡 [getFeaturedArticle] Fetching from URL:', url);
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            debugError(`❌ [getFeaturedArticle] Fetch failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text().catch(() => 'No error details');
+            debugError(`❌ [getFeaturedArticle] Error response:`, errorText);
+            return null;
+        }
+
+        const data = await response.json();
+        if (data.success && data.article) {
+            debugLog('✅ [getFeaturedArticle] Successfully fetched featured article:', data.article.key);
+            return data.article as ArticleProps;
+        } else {
+            debugLog('📦 [getFeaturedArticle] No featured article found');
+            return null;
+        }
+    } catch (error) {
+        debugError('❌ [getFeaturedArticle] Network error:', error);
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            debugError('❌ [getFeaturedArticle] Could not connect to server. Is it running at', VITE_API_BASE, '?');
+        }
+        return null;
+    }
+}
+
+/**
  * Fetches a single article by key from the server
  * @param key The article key to fetch
  * @returns The article if found, undefined otherwise

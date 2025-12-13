@@ -54,6 +54,32 @@ export function initializeSchema(): void {
         }
     }
 
+    // Migration: Add isFeatured column to existing blog_posts table if it doesn't exist
+    try {
+        db.exec(`
+            ALTER TABLE blog_posts 
+            ADD COLUMN isFeatured INTEGER DEFAULT 0
+        `);
+    } catch (error: any) {
+        // Column already exists, ignore error
+        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
+            debugWarn('Warning: Could not add isFeatured column:', error.message);
+        }
+    }
+
+    // Migration: Add featuredDate column to existing blog_posts table if it doesn't exist
+    try {
+        db.exec(`
+            ALTER TABLE blog_posts 
+            ADD COLUMN featuredDate TEXT
+        `);
+    } catch (error: any) {
+        // Column already exists, ignore error
+        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
+            debugWarn('Warning: Could not add featuredDate column:', error.message);
+        }
+    }
+
     // News Items Table
     // Stores news articles fetched from external APIs (NewsItem)
     db.exec(`

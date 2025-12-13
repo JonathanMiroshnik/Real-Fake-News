@@ -44,7 +44,9 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
             headImage: row.headImage,
             shortDescription: row.shortDescription,
             originalNewsItem: row.originalNewsItem ? JSON.parse(row.originalNewsItem) : undefined,
-            writerType: row.writerType || 'AI'
+            writerType: row.writerType || 'AI',
+            isFeatured: row.isFeatured === 1 || row.isFeatured === true,
+            featuredDate: row.featuredDate
         } as ArticleScheme;
     },
     getKey: async (pInput: ArticleScheme) => {
@@ -65,6 +67,8 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
         toInput.timestamp = fromInput.timestamp;
         toInput.title = fromInput.title;
         toInput.writerType = fromInput.writerType || 'AI';
+        toInput.isFeatured = fromInput.isFeatured;
+        toInput.featuredDate = fromInput.featuredDate;
 
         return true;
     }

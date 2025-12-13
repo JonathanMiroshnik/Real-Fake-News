@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAllPosts, getPostByKey, updatePost, getPostsCount, getPostsPaginated } from '../lib/database/sqliteOperations.js';
 import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { getDatabase } from '../lib/database/database.js';
 import { ArticleScheme } from '../types/article.js';
 import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
 import { writeBlogPost } from '../services/blogService.js';
@@ -270,6 +271,63 @@ export const deleteAdminArticle = async (req: Request, res: Response): Promise<v
   } catch (error) {
     console.error('Error deleting article:', error);
     res.status(500).json({ error: 'Failed to delete article' });
+  }
+};
+
+// Set an article as featured for today
+export const setFeaturedArticle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    const { key } = req.params;
+    if (!key) {
+      res.status(400).json({ error: 'Article key is required' });
+      return;
+    }
+
+    // Get the article to feature
+    const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+    if (!article) {
+      res.status(404).json({ error: 'Article not found' });
+      return;
+    }
+
+    const db = getDatabase();
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+    // Unset any existing featured article for today
+    const unsetStmt = db.prepare(`
+      UPDATE blog_posts 
+      SET isFeatured = 0, featuredDate = NULL 
+      WHERE isFeatured = 1 AND featuredDate = ?
+    `);
+    unsetStmt.run(today);
+
+    // Set the new article as featured
+    const updatedArticle: ArticleScheme = {
+      ...article,
+      isFeatured: true,
+      featuredDate: today
+    };
+
+    const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
+    
+    if (success) {
+      debugLog('✅ [setFeaturedArticle] Article set as featured:', key, 'for date:', today);
+      res.json({ 
+        success: true, 
+        message: 'Article set as featured successfully',
+        article: updatedArticle
+      });
+    } else {
+      res.status(500).json({ error: 'Failed to set article as featured' });
+    }
+  } catch (error) {
+    console.error('Error setting featured article:', error);
+    res.status(500).json({ error: 'Failed to set article as featured' });
   }
 };
 

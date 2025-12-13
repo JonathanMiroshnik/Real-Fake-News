@@ -8,9 +8,10 @@ import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/Horosc
 import RecipeSection from '../../components/RecipeSection/RecipeSection';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
-import { groupArticlesByCategories, CATEGORIES } from '../../services/articleService';
+import { groupArticlesByCategories, CATEGORIES, getFeaturedArticle } from '../../services/articleService';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { debugLog, debugWarn } from '../../utils/debugLogger';
+import { ArticleProps } from '../ArticlePage/ArticlePage';
 
 
 // Temporary feature flag - remove when no longer needed
@@ -26,9 +27,9 @@ const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES !== 'false';
 function HomePage() {
   const articles = useContext(ArticleContext).articles;
   const articlesPerSection: number = useResponsiveArticlesCount();
-  const randomArticle = articles[Math.floor(Math.random() * articles.length)];
   const categoryArticles = groupArticlesByCategories(articles);
   const [showNoArticlesMessage, setShowNoArticlesMessage] = useState(false);
+  const [featuredArticle, setFeaturedArticle] = useState<ArticleProps | null>(null);
 
   // Get delay from environment variable, default to 3000ms (3 seconds)
   const noArticlesMessageDelay = parseInt(
@@ -71,10 +72,19 @@ function HomePage() {
   const allCategories = [...new Set(articles.map(a => a.category).filter(Boolean))];
   debugLog('🏠 [HomePage] All article categories in data:', allCategories);
 
+  // Fetch featured article on mount
+  useEffect(() => {
+    async function fetchFeatured() {
+      const featured = await getFeaturedArticle();
+      setFeaturedArticle(featured);
+    }
+    fetchFeatured();
+  }, []);
+
   // Preload featured article image for better LCP
   useEffect(() => {
-    if (randomArticle) {
-      const imageUrl = getImageURLFromArticle(randomArticle, DEFAULT_IMAGE);
+    if (featuredArticle) {
+      const imageUrl = getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE);
       if (imageUrl) {
         // Remove any existing preload link
         const existingLink = document.querySelector('link[rel="preload"][as="image"][data-featured-image]');
@@ -100,7 +110,7 @@ function HomePage() {
         };
       }
     }
-  }, [randomArticle]);
+  }, [featuredArticle]);
 
   return (
     <div className="max-w-[1200px]">
@@ -117,7 +127,7 @@ function HomePage() {
         <SectionHeader topLine="Featured Article" bottomLine="Interest" />
         <div className='flex gap-4 pb-4 mb-8'>
           <div>
-            {randomArticle && <FeaturedArticle article={randomArticle} />}
+            {featuredArticle && <FeaturedArticle article={featuredArticle} />}
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
             {/* Show Politics articles, or fallback to all articles if no category matches */}
             {categoryArticles[0] && categoryArticles[0].length > 0 ? (

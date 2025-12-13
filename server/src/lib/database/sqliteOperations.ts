@@ -76,13 +76,16 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
             const stmt = db.prepare(`
                 INSERT INTO blog_posts (
                     key, title, content, author, timestamp, category, 
-                    headImage, shortDescription, originalNewsItem, writerType
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    headImage, shortDescription, originalNewsItem, writerType,
+                    isFeatured, featuredDate
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
             // Provide default timestamp if missing
             const timestamp = article.timestamp || new Date().toISOString();
             // Default writerType to 'AI' if not provided
             const writerType = article.writerType || 'AI';
+            // Convert boolean to integer for SQLite
+            const isFeatured = article.isFeatured ? 1 : 0;
             
             stmt.run(
                 key,
@@ -94,7 +97,9 @@ export async function createPost<P>(post: P, dbConfig: DatabaseConfig<P>): Promi
                 article.headImage || null,
                 article.shortDescription || null,
                 serializeJson(article.originalNewsItem) || null,
-                writerType
+                writerType,
+                isFeatured,
+                article.featuredDate || null
             );
         } else if (tableName === 'news_items') {
             const newsItem = post as any;
@@ -212,6 +217,8 @@ export async function getAllPosts<P>(dbConfig: DatabaseConfig<P>): Promise<P[]> 
                 post.shortDescription = row.shortDescription;
                 post.originalNewsItem = deserializeJson(row.originalNewsItem);
                 post.writerType = row.writerType || 'AI';
+                post.isFeatured = row.isFeatured === 1 || row.isFeatured === true;
+                post.featuredDate = row.featuredDate;
             } else if (tableName === 'news_items') {
                 post.article_id = row.article_id;
                 post.title = row.title;
@@ -309,6 +316,8 @@ export async function getPostsPaginated<P>(
                 post.shortDescription = row.shortDescription;
                 post.originalNewsItem = deserializeJson(row.originalNewsItem);
                 post.writerType = row.writerType || 'AI';
+                post.isFeatured = row.isFeatured === 1 || row.isFeatured === true;
+                post.featuredDate = row.featuredDate;
             } else if (tableName === 'news_items') {
                 post.article_id = row.article_id;
                 post.title = row.title;
@@ -373,6 +382,8 @@ export async function getPostByKey<P>(key: string, dbConfig: DatabaseConfig<P>):
             post.shortDescription = row.shortDescription;
             post.originalNewsItem = deserializeJson(row.originalNewsItem);
             post.writerType = row.writerType || 'AI';
+            post.isFeatured = row.isFeatured === 1 || row.isFeatured === true;
+            post.featuredDate = row.featuredDate;
         } else if (tableName === 'news_items') {
             post.article_id = row.article_id;
             post.title = row.title;
@@ -430,11 +441,14 @@ export async function updatePost<P>(newPost: P, dbConfig: DatabaseConfig<P>): Pr
             const stmt = db.prepare(`
                 UPDATE blog_posts SET
                     title = ?, content = ?, author = ?, timestamp = ?, category = ?,
-                    headImage = ?, shortDescription = ?, originalNewsItem = ?, writerType = ?
+                    headImage = ?, shortDescription = ?, originalNewsItem = ?, writerType = ?,
+                    isFeatured = ?, featuredDate = ?
                 WHERE key = ?
             `);
             // Default writerType to 'AI' if not provided
             const writerType = article.writerType || 'AI';
+            // Convert boolean to integer for SQLite
+            const isFeatured = article.isFeatured ? 1 : 0;
             stmt.run(
                 article.title || null,
                 article.content || null,
@@ -445,6 +459,8 @@ export async function updatePost<P>(newPost: P, dbConfig: DatabaseConfig<P>): Pr
                 article.shortDescription || null,
                 serializeJson(article.originalNewsItem),
                 writerType,
+                isFeatured,
+                article.featuredDate || null,
                 key
             );
         } else if (tableName === 'news_items') {

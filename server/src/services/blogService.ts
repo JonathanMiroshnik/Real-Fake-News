@@ -5,7 +5,8 @@ import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/art
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { Writer } from "../types/writer.js";
 import { generateTextFromString } from './llmService.js';
-import { getAllPosts, createPost } from "../lib/database/sqliteOperations.js";
+import { getAllPosts, createPost, getPostByKey } from "../lib/database/sqliteOperations.js";
+import { getDatabase } from "../lib/database/database.js";
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
@@ -134,6 +135,39 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
             articles: [],
             error: error instanceof Error ? error.message : 'Unknown error occurred'
         };
+    }
+}
+
+/**
+ * Gets the featured article for a specific date
+ * @param date Date string in YYYY-MM-DD format (defaults to today)
+ * @returns Featured article if found, undefined otherwise
+ */
+export async function getFeaturedArticleForDate(date?: string): Promise<ArticleScheme | undefined> {
+    const db = getDatabase();
+    const targetDate = date || new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    debugLog('🔍 [getFeaturedArticleForDate] Looking for featured article for date:', targetDate);
+    
+    try {
+        const stmt = db.prepare(`
+            SELECT key FROM blog_posts 
+            WHERE isFeatured = 1 AND featuredDate = ?
+            LIMIT 1
+        `);
+        const result = stmt.get(targetDate) as any;
+        
+        if (!result || !result.key) {
+            debugLog('📰 [getFeaturedArticleForDate] No featured article found for date:', targetDate);
+            return undefined;
+        }
+        
+        const article = await getPostByKey<ArticleScheme>(result.key, blogDatabaseConfig);
+        debugLog('✅ [getFeaturedArticleForDate] Found featured article:', article?.key, article?.title);
+        return article;
+    } catch (error) {
+        debugError('❌ [getFeaturedArticleForDate] Error fetching featured article:', error);
+        return undefined;
     }
 }
 

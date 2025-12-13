@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { BlogResponse } from '../types/article.js';
-import { getAllPostsAfterDate, getRelevantArticles } from '../services/blogService.js';
+import { getAllPostsAfterDate, getRelevantArticles, getFeaturedArticleForDate } from '../services/blogService.js';
 import { getPostByKey } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
@@ -103,6 +103,36 @@ export async function getArticleByKeyController(req: Request, res: Response) {
         res.status(500).json({ 
             success: false,
             error: 'Failed to fetch article' 
+        });
+    }
+}
+
+export async function getFeaturedArticleController(req: Request, res: Response) {
+    debugLog('📥 Received request to /api/blogs/featured');
+    
+    try {
+        const date = req.query.date as string | undefined;
+        const article = await getFeaturedArticleForDate(date);
+        
+        if (article) {
+            debugLog('📥 Returning featured article:', article.key, article.title);
+            res.json({
+                success: true,
+                article: article
+            });
+        } else {
+            debugLog('📥 No featured article found');
+            res.json({
+                success: false,
+                article: null,
+                message: 'No featured article found for the specified date'
+            });
+        }
+    } catch (error) {
+        console.error('❌ Error in getFeaturedArticleController:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'Failed to fetch featured article' 
         });
     }
 }

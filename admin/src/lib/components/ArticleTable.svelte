@@ -9,6 +9,8 @@
 		category?: string;
 		timestamp?: string;
 		writerType?: "AI" | "Human" | "Synthesis";
+		isFeatured?: boolean;
+		featuredDate?: string;
 		_index?: number;
 	}
 
@@ -47,6 +49,13 @@
 			return timestamp;
 		}
 	}
+
+	// Check if article is featured today
+	function isFeaturedToday(article: Article): boolean {
+		if (!article.isFeatured || !article.featuredDate) return false;
+		const today = new Date().toISOString().split('T')[0];
+		return article.featuredDate === today;
+	}
 </script>
 
 <div class="table-container">
@@ -64,9 +73,14 @@
 			{#each articles.map((article, index) => ({ ...article, _index: startIndex + index })) as article (article.key ? article.key : `article-${article._index}`)}
 				<tr>
 					<td>
-						<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer" class="article-link">
-							{article.title || 'Untitled'}
-						</a>
+						<div class="title-cell">
+							<a href={getArticleUrl(article.key)} target="_blank" rel="noopener noreferrer" class="article-link">
+								{article.title || 'Untitled'}
+							</a>
+							{#if isFeaturedToday(article)}
+								<span class="featured-badge" title="Featured Article Today">⭐</span>
+							{/if}
+						</div>
 					</td>
 					<td>
 						<span class="category-badge">{article.category || 'Uncategorized'}</span>
@@ -146,6 +160,22 @@
 	.article-link:hover {
 		color: #764ba2;
 		text-decoration: underline;
+	}
+
+	.title-cell {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.featured-badge {
+		background: #ffc107;
+		color: #2c3e50;
+		padding: 0.2rem 0.5rem;
+		border-radius: 12px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: help;
 	}
 
 	.category-badge {
