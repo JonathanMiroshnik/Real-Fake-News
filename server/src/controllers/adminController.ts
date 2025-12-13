@@ -15,6 +15,7 @@ import { getRandomWriter } from '../services/writerService.js';
 import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
 import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -314,7 +315,7 @@ export const uploadAdminImage = async (req: Request, res: Response): Promise<voi
     
     try {
       await compressImageForWeb(originalPath, compressedPath);
-      console.log(`Compressed uploaded image: ${req.file.filename}`);
+      debugLog(`Compressed uploaded image: ${req.file.filename}`);
     } catch (compressError) {
       // Log error but don't fail the upload - original is still saved
       console.error('Error compressing uploaded image:', compressError);
@@ -366,11 +367,11 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
       return;
     }
 
-    console.log('📝 [generateAdminArticle] Admin requested article generation');
+    debugLog('📝 [generateAdminArticle] Admin requested article generation');
 
     // Get a random writer
     const writer = await getRandomWriter();
-    console.log('📝 [generateAdminArticle] Selected writer:', writer.name);
+    debugLog('📝 [generateAdminArticle] Selected writer:', writer.name);
 
     // Get a random news item from recent news
     const recentNews = await getAllNewsArticlesAfterDate(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
@@ -386,7 +387,7 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
     // Pick a random news item
     const randomIndex = Math.floor(Math.random() * recentNews.length);
     const newsItem: NewsItem = recentNews[randomIndex];
-    console.log('📝 [generateAdminArticle] Selected news item:', newsItem.title);
+    debugLog('📝 [generateAdminArticle] Selected news item:', newsItem.title);
 
     // Generate the article
     const article = await writeBlogPost(writer, newsItem, true);
@@ -399,7 +400,7 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
       return;
     }
 
-    console.log('✅ [generateAdminArticle] Article generated successfully:', article.key);
+    debugLog('✅ [generateAdminArticle] Article generated successfully:', article.key);
 
     res.json({
       success: true,
@@ -423,11 +424,11 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
       return;
     }
 
-    console.log('🍳 [generateAdminRecipe] Admin requested recipe generation');
+    debugLog('🍳 [generateAdminRecipe] Admin requested recipe generation');
 
     // Get a random writer
     const writer = await getRandomWriter();
-    console.log('🍳 [generateAdminRecipe] Selected writer:', writer.name);
+    debugLog('🍳 [generateAdminRecipe] Selected writer:', writer.name);
 
     // Get random foods (2-3 foods)
     const numFoods = 2 + Math.floor(Math.random() * 2); // 2 or 3 foods
@@ -441,7 +442,7 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
       return;
     }
 
-    console.log('🍳 [generateAdminRecipe] Selected foods:', foods.join(', '));
+    debugLog('🍳 [generateAdminRecipe] Selected foods:', foods.join(', '));
 
     // Generate the recipe
     const recipe = await generateRecipe(writer, foods, true);
@@ -454,7 +455,7 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
       return;
     }
 
-    console.log('✅ [generateAdminRecipe] Recipe generated successfully:', recipe.key);
+    debugLog('✅ [generateAdminRecipe] Recipe generated successfully:', recipe.key);
 
     res.json({
       success: true,

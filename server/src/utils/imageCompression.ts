@@ -3,6 +3,7 @@ import { Jimp } from 'jimp';
 import { JimpMime } from 'jimp';
 import path from 'path';
 import fs from 'fs';
+import { debugLog } from './debugLogger.js';
 
 /**
  * Compresses an image for web use while preserving the original
@@ -56,7 +57,7 @@ export async function compressImageForWeb(
     const compressedSize = fs.statSync(outputPath).size;
     const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
     
-    console.log(
+    debugLog(
       `Compressed ${path.basename(inputPath)}: ` +
       `${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB ` +
       `(${reduction}% reduction)`

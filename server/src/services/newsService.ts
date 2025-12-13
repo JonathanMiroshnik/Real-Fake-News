@@ -5,6 +5,7 @@ import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS } from '../config/constants.js
 import { getAllPosts } from '../lib/database/sqliteOperations.js';
 import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { standardizeDate } from './timeService.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: like this, it will be restarted every time we start up the project again
 /**
@@ -15,7 +16,7 @@ export var remainingTokens: number = NEWS_API_DAILY_TOKENS;
 // Every day at midnight
 cron.schedule('0 0 * * *', () => {
   remainingTokens = NEWS_API_DAILY_TOKENS;
-  console.log('Daily tokens reset.');
+  debugLog('Daily tokens reset.');
 });
 
 export type NewsItem = {

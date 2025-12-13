@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import axios from 'axios';
+import { debugWarn } from '../utils/debugLogger.js';
 
 export interface PlanetaryPosition {
   name: string;
@@ -76,7 +77,7 @@ export async function fetchAstrologicalData(date?: Date): Promise<AstrologicalDa
     } else {
       // Fallback: Create basic planetary data structure if API response is different
       // This is a fallback in case the API structure is different
-      console.warn('Unexpected API response structure, using fallback data');
+      debugWarn('Unexpected API response structure, using fallback data');
       return createFallbackAstrologicalData(dateString);
     }
 

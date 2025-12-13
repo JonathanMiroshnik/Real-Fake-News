@@ -12,6 +12,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatDeepSeek } from "@langchain/deepseek";
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
@@ -28,7 +29,7 @@ async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsIte
 
         currentArticles.push(currentArticle);
     }
-    console.log("Generating new article");
+    debugLog("Generating new article");
     const result = await generateTextFromString(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");    

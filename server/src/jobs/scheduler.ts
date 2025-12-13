@@ -3,6 +3,7 @@ import { ONE_HOUR_MILLISECS, MILLISECS_IN_SEC, DAY_MILLISECS } from "../config/c
 import { generateScheduledArticles } from "./blogWriting.js";
 import { addNewsToTotal } from "./newsFetching.js";
 import { generateScheduledRecipes } from "./recipeGeneration.js";
+import { debugLog } from "../utils/debugLogger.js";
 
 // Scheduler of recurring jobs in the backend.
 // Will contain all the activation functions of the recurring jobs, along with the timing(time to recur)
@@ -13,7 +14,7 @@ export function initializeScheduledJobs() {
     const ENABLE_SCHEDULED_JOBS = process.env.ENABLE_SCHEDULED_JOBS === 'true';
     
     if (!ENABLE_SCHEDULED_JOBS) {
-        console.log('⏸️  Scheduled jobs are disabled (ENABLE_SCHEDULED_JOBS=false)');
+        debugLog('⏸️  Scheduled jobs are disabled (ENABLE_SCHEDULED_JOBS=false)');
         return;
     }
 

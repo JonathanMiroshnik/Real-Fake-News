@@ -1,4 +1,5 @@
 import { getDatabase } from './database.js';
+import { debugLog, debugWarn } from '../../utils/debugLogger.js';
 
 /**
  * Initializes the SQLite database schema.
@@ -42,7 +43,7 @@ export function initializeSchema(): void {
         // Column already exists, ignore error
         // SQLite error codes: SQLITE_ERROR (1) for duplicate column
         if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
-            console.warn('Warning: Could not add writerType column:', error.message);
+            debugWarn('Warning: Could not add writerType column:', error.message);
         } else {
             // Column exists, just ensure all rows have a value
             db.exec(`
@@ -154,6 +155,6 @@ export function initializeSchema(): void {
         ON recipes(timestamp)
     `);
 
-    console.log('SQLite schema initialized successfully');
+    debugLog('SQLite schema initialized successfully');
 }
 

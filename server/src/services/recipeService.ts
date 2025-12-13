@@ -9,6 +9,7 @@ import { getDatabase } from '../lib/database/database.js';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { getRandomWriter } from './writerService.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 /**
  * Gets random foods from the foods table
@@ -33,7 +34,7 @@ export async function generateRecipe(writer: Writer, foods: string[], saveRecipe
     try {
         const prompt = createRecipePrompt(writer, foods);
         
-        console.log('🍳 [generateRecipe] Generating recipe with foods:', foods.join(', '));
+        debugLog('🍳 [generateRecipe] Generating recipe with foods:', foods.join(', '));
         const result = await generateTextFromString(prompt, 'json_object');
         
         if (result === undefined || !result?.success) {
@@ -80,7 +81,7 @@ export async function generateRecipe(writer: Writer, foods: string[], saveRecipe
 
         if (saveRecipe) {
             await createPost<RecipeScheme>(newRecipe, recipeDatabaseConfig);
-            console.log('✅ [generateRecipe] Recipe saved:', newRecipe.key);
+            debugLog('✅ [generateRecipe] Recipe saved:', newRecipe.key);
         }
 
         return newRecipe;

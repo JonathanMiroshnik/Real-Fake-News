@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { debugLog } from '../../utils/debugLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,7 +36,7 @@ class DatabaseManager {
             fs.mkdirSync(dbDir, { recursive: true });
         }
         
-        console.log('📁 [DatabaseManager] Using database at:', dbPath);
+        debugLog('📁 [DatabaseManager] Using database at:', dbPath);
         this.db = new Database(dbPath);
         this.db.pragma('journal_mode = WAL');
         this.db.pragma('busy_timeout = 5000');

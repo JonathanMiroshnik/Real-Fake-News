@@ -6,13 +6,14 @@ import {
 } from '../services/horoscopeService.js';
 import { HoroscopeResponse } from '../types/horoscope.js';
 import { fetchAstrologicalData } from '../services/astrologyService.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 /**
  * GET /api/horoscopes
  * Gets all horoscopes for today (or specified date)
  */
 export const getHoroscopes = async (req: Request, res: Response): Promise<void> => {
-  console.log('getHoroscopes');
+  debugLog('getHoroscopes');
 
   try {
     const dateParam = req.query.date as string;

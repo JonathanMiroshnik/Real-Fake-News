@@ -9,17 +9,18 @@ import { getAllPosts, createPost } from "../lib/database/sqliteOperations.js";
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
+import { debugLog, debugWarn, debugError } from '../utils/debugLogger.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
-    console.log('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
-    console.log('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
+    debugLog('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
+    debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
     
     const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
-    console.log('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
+    debugLog('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
 
     const retArticles = allArticles.filter(article => {
         if (!article.timestamp) {
-            console.log('⚠️ [getAllPostsAfterDate] Article', article.key, 'has no timestamp');
+            debugWarn('⚠️ [getAllPostsAfterDate] Article', article.key, 'has no timestamp');
             return false;
         }
         
@@ -30,7 +31,7 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
             const isAfter = articleTime > startTime;
             
             if (!isAfter) {
-                console.log('⏰ [getAllPostsAfterDate] Article', article.key, 'timestamp', article.timestamp, 'is before start date');
+                debugLog('⏰ [getAllPostsAfterDate] Article', article.key, 'timestamp', article.timestamp, 'is before start date');
             }
             
             return isAfter;
@@ -40,9 +41,9 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
         }
     });
 
-    console.log('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
+    debugLog('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
     if (retArticles.length > 0) {
-        console.log('📰 [getAllPostsAfterDate] Sample article timestamps:', 
+        debugLog('📰 [getAllPostsAfterDate] Sample article timestamps:', 
             retArticles.slice(0, 3).map(a => ({ key: a.key, timestamp: a.timestamp })));
     }
 
@@ -72,11 +73,11 @@ function sortArticlesByDate(articles: ArticleScheme[]): ArticleScheme[] {
  * @returns BlogResponse with articles sorted by date (most recent first)
  */
 export async function getRelevantArticles(): Promise<BlogResponse> {
-    console.log('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
+    debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
     
     try {
         // Step 1: Try to get articles from the last 24 hours
-        console.log('📡 [getRelevantArticles] Step 1: Fetching articles from last 24 hours...');
+        debugLog('📡 [getRelevantArticles] Step 1: Fetching articles from last 24 hours...');
         const startDate1 = new Date(Date.now() - MIN_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
         let result = await getAllPostsAfterDate(startDate1);
         let finalArticles = result.articles;
@@ -85,9 +86,9 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
         // If we have some but not enough, also try the 4-day window to get more
         if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
             if (finalArticles.length === 0) {
-                console.log('📡 [getRelevantArticles] No articles found in last 24 hours, fetching from last 4 days...');
+                debugLog('📡 [getRelevantArticles] No articles found in last 24 hours, fetching from last 4 days...');
             } else {
-                console.log('📡 [getRelevantArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
+                debugLog('📡 [getRelevantArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
             }
             
             const startDate2 = new Date(Date.now() - MAX_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
@@ -102,7 +103,7 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
 
         // Step 3: If we still have no articles, fetch all articles and return the most recent ones
         if (finalArticles.length === 0) {
-            console.log('📡 [getRelevantArticles] Still no articles found, fetching all available articles...');
+            debugLog('📡 [getRelevantArticles] Still no articles found, fetching all available articles...');
             const startDate3 = new Date(Date.now() - FALLBACK_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
             const allResult = await getAllPostsAfterDate(startDate3);
             
@@ -110,14 +111,14 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
                 // Sort by date and return the most recent ones
                 const sortedArticles = sortArticlesByDate(allResult.articles);
                 finalArticles = sortedArticles;
-                console.log('📦 [getRelevantArticles] Found', sortedArticles.length, 'total articles, returning most recent');
+                debugLog('📦 [getRelevantArticles] Found', sortedArticles.length, 'total articles, returning most recent');
             }
         } else {
             // Sort the articles by date to ensure most recent first
             finalArticles = sortArticlesByDate(finalArticles);
         }
 
-        console.log('✅ [getRelevantArticles] Returning', finalArticles.length, 'articles');
+        debugLog('✅ [getRelevantArticles] Returning', finalArticles.length, 'articles');
         return {
             success: true,
             articles: finalArticles,
@@ -159,7 +160,7 @@ export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = 
 async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
     const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
 
-    console.log("Generating new article");
+    debugLog("Generating new article");
     const result = await generateTextFromString(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("Meta prompt output invalid!");    
@@ -374,7 +375,7 @@ function writeNewsArticleFromExplanationPrompt(writer: Writer, explanationPoints
 export async function generateNewsExplanation(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }): Promise<string[] | undefined> {
     const prompt: string = writeNewsExplanationPrompt(writer, currentNewsItem);
 
-    console.log("Generating news explanation");
+    debugLog("Generating news explanation");
     const result = await generateTextFromString(prompt, 'text');
     if (result === undefined || !result?.success) {
         console.error("News explanation generation failed!");    
@@ -398,7 +399,7 @@ export async function generateNewsExplanation(writer: Writer, currentNewsItem: N
 export async function generateNewsArticleFromExplanation(writer: Writer, explanationPoints: string[], currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true): Promise<ArticleScheme | undefined> {
     const prompt: string = writeNewsArticleFromExplanationPrompt(writer, explanationPoints, currentNewsItem);
 
-    console.log("Generating news article from explanation");
+    debugLog("Generating news article from explanation");
     const result = await generateTextFromString(prompt, 'json_object');
     if (result === undefined || !result?.success) {
         console.error("News article generation from explanation failed!");    

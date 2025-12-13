@@ -4,13 +4,14 @@ import { getAllRecipesAfterDate, getAllRecipes } from '../services/recipeService
 import { getPostByKey } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { DAY_MILLISECS } from '../config/constants.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 export async function getRelevantRecipesController(req: Request, res: Response) {
-    console.log('📥 Received request to /api/recipes/relevant');
+    debugLog('📥 Received request to /api/recipes/relevant');
     
     try {
         const recipes = await getAllRecipes();
-        console.log('📥 Returning', recipes.length, 'recipes');
+        debugLog('📥 Returning', recipes.length, 'recipes');
         
         res.json({
             success: true,
@@ -26,11 +27,11 @@ export async function getRelevantRecipesController(req: Request, res: Response) 
 }
 
 export async function getDailyRecipesController(req: Request, res: Response) {
-    console.log('📥 Received request to /api/recipes/daily');
+    debugLog('📥 Received request to /api/recipes/daily');
     
     try {
         const recipes = await getAllRecipesAfterDate(new Date(Date.now() - DAY_MILLISECS));
-        console.log('📥 Returning', recipes.length, 'daily recipes');
+        debugLog('📥 Returning', recipes.length, 'daily recipes');
         
         res.json({
             success: true,
@@ -47,7 +48,7 @@ export async function getDailyRecipesController(req: Request, res: Response) {
 
 export async function getRecipeByKeyController(req: Request, res: Response) {
     const { key } = req.params;
-    console.log('📥 Received request to /api/recipes/:key for key:', key);
+    debugLog('📥 Received request to /api/recipes/:key for key:', key);
     
     if (!key) {
         res.status(400).json({ 
@@ -61,13 +62,13 @@ export async function getRecipeByKeyController(req: Request, res: Response) {
         const recipe = await getPostByKey<RecipeScheme>(key, recipeDatabaseConfig);
         
         if (recipe) {
-            console.log('📥 Returning recipe:', recipe.key, recipe.title);
+            debugLog('📥 Returning recipe:', recipe.key, recipe.title);
             res.json({
                 success: true,
                 recipe: recipe
             });
         } else {
-            console.log('📥 Recipe not found for key:', key);
+            debugLog('📥 Recipe not found for key:', key);
             res.status(404).json({ 
                 success: false,
                 error: 'Recipe not found' 

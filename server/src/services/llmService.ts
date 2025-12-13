@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { OpenAI } from 'openai';
 
 import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
@@ -57,7 +58,7 @@ export class LLMService {
         error: error as string
       };
 
-      console.log('LLM generation error:', error);
+      debugLog('LLM generation error:', error);
       throw new Error('Content generation failed');
     }
 
@@ -79,7 +80,7 @@ export async function generateTextFromString(prompt: string, type: string = 'tex
 
         return result;
     } catch (error) {
-        console.log("Text Generation error: ", error);
+        debugLog("Text Generation error: ", error);
         throw new Error('Text generation from string failed');
     }
 }

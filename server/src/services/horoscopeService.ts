@@ -3,6 +3,7 @@ import { fetchAstrologicalData, AstrologicalData } from './astrologyService.js';
 import { generateTextFromString } from './llmService.js';
 import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
 import { getDatabase } from '../lib/database/database.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 /**
  * Generates a horoscope for a specific zodiac sign using LLM
@@ -181,10 +182,10 @@ export async function ensureHoroscopesForToday(): Promise<Horoscope[]> {
   }
 
   // Otherwise, generate new ones
-  console.log('Generating horoscopes for today...');
+  debugLog('Generating horoscopes for today...');
   const horoscopes = await generateHoroscopesForDate(today);
   await saveHoroscopes(horoscopes);
-  console.log(`Generated and saved ${horoscopes.length} horoscopes`);
+  debugLog(`Generated and saved ${horoscopes.length} horoscopes`);
 
   return horoscopes;
 }
