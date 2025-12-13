@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import ArticleProvider from './contexts/ArticlesContext';
 
 // TODO: should I use this? theoretically solves STRICT error in browser.
 // https://stackoverflow.com/questions/62202890/how-can-i-fix-using-unsafe-componentwillmount-in-strict-mode-is-not-recommended 
@@ -47,25 +48,27 @@ function App() {
       {/* Normal app content - hidden when printing */}
       <div className="normal-view-wrapper">
         <Router>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<HomePage />} />            
-              <Route path="/article/:key" element={<ArticlePage />} />
-              <Route path="/recipe/:key" element={<RecipePage />} />
-              {/* Article lists */}
-              <Route path="/category/:key" element={<CategoryPage />} />
-              <Route path="/writer/:key" element={<WriterPage />} />
-              {/* TODO: Games section - currently separate pages */}
-              <Route path="/games/tictactoe" element={<TicTacToeGame />} />
-              <Route path="/games/trivia" element={<TriviaGame />} />
-              {/* Footer pages */}
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/disclaimer" element={<DisclaimerPage />} />
-              {/* Catch-all */}
-              <Route path="*" element={<HomePage />} />
-            </Route>                      
-          </Routes>
+          <ArticleProvider>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<HomePage />} />            
+                <Route path="/article/:key" element={<ArticlePage />} />
+                <Route path="/recipe/:key" element={<RecipePage />} />
+                {/* Article lists */}
+                <Route path="/category/:key" element={<CategoryPage />} />
+                <Route path="/writer/:key" element={<WriterPage />} />
+                {/* TODO: Games section - currently separate pages */}
+                <Route path="/games/tictactoe" element={<TicTacToeGame />} />
+                <Route path="/games/trivia" element={<TriviaGame />} />
+                {/* Footer pages */}
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/disclaimer" element={<DisclaimerPage />} />
+                {/* Catch-all */}
+                <Route path="*" element={<HomePage />} />
+              </Route>                      
+            </Routes>
+          </ArticleProvider>
         </Router>
       </div>
     </div>
