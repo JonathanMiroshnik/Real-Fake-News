@@ -28,7 +28,7 @@ function RecipeSection() {
   }, []);
 
   if (loading) {
-    return <div className="py-8 text-center text-[var(--description-color)]">Loading recipes...</div>;
+    return <div className="py-8 text-center text-(--description-color)">Loading recipes...</div>;
   }
 
   if (recipes.length === 0) {

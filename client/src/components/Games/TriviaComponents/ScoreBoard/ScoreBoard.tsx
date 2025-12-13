@@ -13,7 +13,8 @@ function ScoreBoard({players, currentPlayerInd = 0} : ScoreBoardProps) {
     return (
         <div className="player-highlights">
             { players.map((p, i) => 
-                <div className={`player-card-wrapper ${ i === currentPlayerInd ? "current-player-highlight" : ""}`}>
+                <div className={`player-card-wrapper 
+                                ${ i === currentPlayerInd ? "current-player-highlight" : ""}`}>
                     <ScoreCard player={p} />
                 </div>
             )}

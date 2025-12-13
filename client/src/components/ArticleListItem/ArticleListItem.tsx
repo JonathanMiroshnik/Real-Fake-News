@@ -37,13 +37,14 @@ function ArticleListItem({article, showImage=true, showDescription=true, showUnd
                         objectFit="cover"
                     />
                 )}
-                <h3 className='text-[var(--title-color)] text-[18px] m-[5px] p-0 group-hover:underline group-active:underline'>
+                <h3 className='text-(--title-color) text-[18px] m-[5px] p-0 
+                                group-hover:underline group-active:underline'>
                     {article.title}
                 </h3>
-                { article.shortDescription && showDescription && <p className='text-[var(--description-color)] text-[14px]'>
+                { article.shortDescription && showDescription && <p className='text-(--description-color) text-[14px]'>
                     {article.shortDescription}
                 </p> }
-                {showUnderText && <div className="text-[var(--undertext-color)] text-[12px] text-center">
+                {showUnderText && <div className="text-(--undertext-color) text-[12px] text-center">
                     { article.author?.name + " | " +
                         (article.timestamp ? 
                             getLatestTime(new Date().getTime() - new Date(article.timestamp).getTime()) 

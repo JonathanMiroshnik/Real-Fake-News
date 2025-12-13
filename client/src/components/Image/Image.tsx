@@ -40,10 +40,14 @@ function Image({
         className={`relative w-full overflow-hidden ${className}`}
         style={{ 
           aspectRatio: aspectRatio,
-          backgroundColor: 'var(--image-placeholder-bg, #f0f0f0)'
+          backgroundColor: 'var(--global-background-color, #f0f0f0)'
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--image-placeholder-bg,#f0f0f0)] via-[var(--image-placeholder-shimmer,#e0e0e0)] to-[var(--image-placeholder-bg,#f0f0f0)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
+        <div className="absolute inset-0 bg-linear-to-r 
+                        from-(--global-background-color,#f0f0f0) 
+                        via-(--image-placeholder-shimmer,#e0e0e0) 
+                        to-(--global-background-color,#f0f0f0) 
+                        bg-size-[200%_100%] animate-shimmer" />
       </div>
     ) : null;
   }
@@ -53,17 +57,23 @@ function Image({
       className={`relative w-full overflow-hidden ${className}`}
       style={{ 
         aspectRatio: aspectRatio,
-        backgroundColor: placeholder ? 'var(--image-placeholder-bg, #f0f0f0)' : 'transparent'
+        backgroundColor: placeholder ? 'var(--global-background-color, #f0f0f0)' : 'transparent'
       }}
     >
       {(isLoading || hasError) && placeholder && (
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--image-placeholder-bg,#f0f0f0)] via-[var(--image-placeholder-shimmer,#e0e0e0)] to-[var(--image-placeholder-bg,#f0f0f0)] bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]" />
+        <div className="absolute inset-0 bg-linear-to-r 
+                        from-(--global-background-color,#f0f0f0) 
+                        via-(--image-placeholder-shimmer,#e0e0e0) 
+                        to-(--global-background-color,#f0f0f0) 
+                        bg-size-[200%_100%] animate-shimmer" />
       )}
       {!hasError && (
         <img
           src={src}
           alt={alt}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-300 ease-in-out ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          className={`absolute inset-0 w-full h-full 
+                      transition-opacity duration-300 ease-in-out 
+                      ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           style={{ objectFit }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
@@ -75,7 +85,9 @@ function Image({
         />
       )}
       {hasError && placeholder && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[var(--image-placeholder-bg,#f0f0f0)] text-[var(--description-color,#666)] text-[0.9rem]">
+        <div className="absolute inset-0 flex items-center justify-center 
+                        bg-(--global-background-color,#f0f0f0) 
+                        text-(--description-color,#666) text-[0.9rem]">
           <span>Image unavailable</span>
         </div>
       )}
