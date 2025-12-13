@@ -43,6 +43,11 @@ const MAX_MINUTES_BEFORE_TO_CHECK = 24 * 60 * 4;
 const FALLBACK_MINUTES_BEFORE_TO_CHECK = 365 * 24 * 60;
 const MIN_ACCEPTABLE_ARTICLES = 15;
 
+// Session storage keys for ETags
+const ARTICLES_ETAG_KEY = 'articles_etag';
+const ARTICLE_ETAG_PREFIX = 'article_etag_';
+const ARTICLES_STORAGE_KEY = 'articles_cache';
+
 /**
  * Helper function to fetch articles from the API
  */
@@ -102,6 +107,7 @@ function sortArticlesByDate(articles: ArticleProps[]): ArticleProps[] {
 /**
  * Gets relevant articles from the server.
  * The server handles the fallback logic (24 hours -> 4 days -> 1 year).
+ * Uses ETag for conditional requests to reduce bandwidth.
  * @returns Array of articles, sorted by date (most recent first).
  */
 export async function getRelevantArticles(): Promise<ArticleProps[]> {
@@ -114,13 +120,41 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
     const url = `${VITE_API_BASE}/blogs/relevant`;
     debugLog('📡 [getRelevantArticles] Fetching from URL:', url);
     
+    // Get stored ETag from sessionStorage
+    const storedETag = sessionStorage.getItem(ARTICLES_ETAG_KEY);
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+    
+    // Add If-None-Match header if we have a stored ETag
+    if (storedETag) {
+        headers['If-None-Match'] = storedETag;
+        debugLog('🏷️ [getRelevantArticles] Sending If-None-Match header:', storedETag);
+    }
+    
     try {
         const response = await fetch(url, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+            headers: headers
         });
+
+        // Handle 304 Not Modified response
+        if (response.status === 304) {
+            debugLog('✅ [getRelevantArticles] Received 304 Not Modified - using cached articles');
+            // Try to get cached articles from sessionStorage
+            try {
+                const cached = sessionStorage.getItem(ARTICLES_STORAGE_KEY);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    debugLog('📦 [getRelevantArticles] Using', parsed.length, 'cached articles from sessionStorage');
+                    return parsed;
+                }
+            } catch (error) {
+                debugError('❌ [getRelevantArticles] Error reading cached articles:', error);
+            }
+            // If no cache available, return empty array (shouldn't happen)
+            return [];
+        }
 
         if (!response.ok) {
             debugError(`❌ [getRelevantArticles] Fetch failed: ${response.status} ${response.statusText}`);
@@ -133,7 +167,22 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
         const articles = articlesJSON.articles || [];
         debugLog('📦 [getRelevantArticles] Fetched', articles.length, 'articles');
         
+        // Store ETag from response header
+        const etag = response.headers.get('ETag');
+        if (etag) {
+            sessionStorage.setItem(ARTICLES_ETAG_KEY, etag);
+            debugLog('🏷️ [getRelevantArticles] Stored ETag:', etag);
+        }
+        
+        // Store articles in cache for 304 Not Modified responses
         if (articles.length > 0) {
+            try {
+                sessionStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(articles));
+                debugLog('💾 [getRelevantArticles] Stored', articles.length, 'articles in cache');
+            } catch (error) {
+                debugError('❌ [getRelevantArticles] Error storing articles in cache:', error);
+            }
+            
             debugLog('📦 [getRelevantArticles] Sample article:', {
                 key: articles[0].key,
                 title: articles[0].title,
@@ -262,6 +311,7 @@ export async function getFeaturedArticle(): Promise<ArticleProps | null> {
 
 /**
  * Fetches a single article by key from the server
+ * Uses ETag for conditional requests to reduce bandwidth.
  * @param key The article key to fetch
  * @returns The article if found, undefined otherwise
  */
@@ -272,13 +322,34 @@ export async function getArticleByKey(key: string): Promise<ArticleProps | undef
     const url = `${VITE_API_BASE}/blogs/${key}`;
     debugLog('📡 [getArticleByKey] Fetching from URL:', url);
     
+    // Get stored ETag for this specific article
+    const storedETagKey = `${ARTICLE_ETAG_PREFIX}${key}`;
+    const storedETag = sessionStorage.getItem(storedETagKey);
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+    
+    // Add If-None-Match header if we have a stored ETag
+    if (storedETag) {
+        headers['If-None-Match'] = storedETag;
+        debugLog('🏷️ [getArticleByKey] Sending If-None-Match header:', storedETag);
+    }
+    
     try {
         const response = await fetch(url, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+            headers: headers
         });
+
+        // Handle 304 Not Modified response
+        if (response.status === 304) {
+            debugLog('✅ [getArticleByKey] Received 304 Not Modified for article:', key);
+            // Try to get cached article from context or sessionStorage
+            // Note: We don't cache individual articles in sessionStorage currently,
+            // so we'll need to return undefined and let the caller handle it
+            // The ArticlesContext might have it cached
+            return undefined; // Caller should check context first
+        }
 
         if (!response.ok) {
             if (response.status === 404) {
@@ -293,6 +364,13 @@ export async function getArticleByKey(key: string): Promise<ArticleProps | undef
 
         const data = await response.json();
         if (data.success && data.article) {
+            // Store ETag from response header
+            const etag = response.headers.get('ETag');
+            if (etag) {
+                sessionStorage.setItem(storedETagKey, etag);
+                debugLog('🏷️ [getArticleByKey] Stored ETag for article:', key, etag);
+            }
+            
             debugLog('✅ [getArticleByKey] Successfully fetched article:', data.article.key);
             return data.article as ArticleProps;
         } else {

@@ -65,9 +65,9 @@ function HoroscopeSection() {
     <>
       <SectionHeader topLine="Daily Horoscopes" bottomLine="Cosmic Guidance" />
       {retrogradeInfo.length > 0 && (
-        <div className="bg-(--notice-background,#fff3cd) 
-                        border border-(--notice-border,#ffc107) rounded 
-                        px-4 py-3 my-4 text-(--notice-text,#856404) text-[0.9rem]">
+        <div className="bg-[var(--notice-background,#fff3cd)] 
+                        border border-[var(--notice-border,#ffc107)] rounded 
+                        px-4 py-3 my-4 text-[var(--notice-text,#856404)] text-[0.9rem]">
           <strong>Planets in Retrograde:</strong> {retrogradeInfo.join(', ')}
         </div>
       )}

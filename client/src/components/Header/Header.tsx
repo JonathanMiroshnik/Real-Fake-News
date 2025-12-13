@@ -119,11 +119,11 @@ function Header({ sections }: HeaderProps) {
                   {/* <button className='nav-button' >
                     {section}
                   </button> */}
-                  <div className="text-(--title-color) px-5 py-3 rounded-lg 
+                  <div className="text-[var(--title-color)] px-5 py-3 rounded-lg 
                                   border-b-[0.2rem] border-transparent transition-all duration-300 
-                                  ease-in-out hover:border-b-[0.2rem] hover:border-(--title-color) 
+                                  ease-in-out hover:border-b-[0.2rem] hover:border-[var(--title-color)] 
                                   hover:bg-[darkgray] hover:shadow-md active:border-b-[0.2rem] 
-                                  active:border-(--title-color) active:bg-[darkgray] font-medium">
+                                  active:border-[var(--title-color)] active:bg-[darkgray] font-medium">
                     {section}
                   </div>  
               </NavLink>

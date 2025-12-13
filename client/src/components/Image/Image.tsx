@@ -43,11 +43,11 @@ function Image({
           backgroundColor: 'var(--global-background-color, #f0f0f0)'
         }}
       >
-        <div className="absolute inset-0 bg-linear-to-r 
-                        from-(--global-background-color,#f0f0f0) 
-                        via-(--image-placeholder-shimmer,#e0e0e0) 
-                        to-(--global-background-color,#f0f0f0) 
-                        bg-size-[200%_100%] animate-shimmer" />
+        <div className="absolute inset-0 bg-gradient-to-r 
+                        from-[var(--global-background-color,#f0f0f0)] 
+                        via-[var(--image-placeholder-shimmer,#e0e0e0)] 
+                        to-[var(--global-background-color,#f0f0f0)] 
+                        bg-[length:200%_100%] animate-shimmer" />
       </div>
     ) : null;
   }
@@ -61,11 +61,11 @@ function Image({
       }}
     >
       {(isLoading || hasError) && placeholder && (
-        <div className="absolute inset-0 bg-linear-to-r 
-                        from-(--global-background-color,#f0f0f0) 
-                        via-(--image-placeholder-shimmer,#e0e0e0) 
-                        to-(--global-background-color,#f0f0f0) 
-                        bg-size-[200%_100%] animate-shimmer" />
+        <div className="absolute inset-0 bg-gradient-to-r 
+                        from-[var(--global-background-color,#f0f0f0)] 
+                        via-[var(--image-placeholder-shimmer,#e0e0e0)] 
+                        to-[var(--global-background-color,#f0f0f0)] 
+                        bg-[length:200%_100%] animate-shimmer" />
       )}
       {!hasError && (
         <img
@@ -86,8 +86,8 @@ function Image({
       )}
       {hasError && placeholder && (
         <div className="absolute inset-0 flex items-center justify-center 
-                        bg-(--global-background-color,#f0f0f0) 
-                        text-(--description-color,#666) text-[0.9rem]">
+                        bg-[var(--global-background-color,#f0f0f0)] 
+                        text-[var(--description-color,#666)] text-[0.9rem]">
           <span>Image unavailable</span>
         </div>
       )}

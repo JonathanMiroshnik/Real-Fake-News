@@ -26,7 +26,7 @@ function ArticleList({title = "", articles, vertical = false, maxItems = 4, show
     return (
         articles.length > 0 &&
         <div className="flex">
-            { title && <h2 className="text-(--title-color)">{ title }</h2>}
+            { title && <h2 className="text-[var(--title-color)]">{ title }</h2>}
             
             {/* TODO: should we have a <nav> tag here, the <ul> inside it? */}
             <ul className={`gap-8 p-0 m-0 list-none ${vertical ? "inline-block" : "flex"}`} >
