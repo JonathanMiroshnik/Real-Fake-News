@@ -36,8 +36,22 @@ function App() {
         <title>Real Fake News</title>
         <link rel="canonical" href="https://www.sensorcensor.xyz" />
         {/* <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" /> */}
-        <meta name="description" content="Real Fake News" />
+        <meta name="description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        {/* Open Graph / Facebook / WhatsApp */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.sensorcensor.xyz" />
+        <meta property="og:title" content="Real Fake News" />
+        <meta property="og:description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
+        <meta property="og:image" content="https://www.sensorcensor.xyz/longMainBlackLogo.png" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.sensorcensor.xyz" />
+        <meta name="twitter:title" content="Real Fake News" />
+        <meta name="twitter:description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
+        <meta name="twitter:image" content="https://www.sensorcensor.xyz/longMainBlackLogo.png" />
       </Helmet>
       
       {/* Newspaper view - shown when printing */}
