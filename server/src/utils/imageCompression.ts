@@ -101,3 +101,75 @@ export function compressedImageExists(filename: string): boolean {
   return fs.existsSync(compressedPath);
 }
 
+/**
+ * Set to track images currently being compressed to prevent duplicate work
+ */
+const compressingImages = new Set<string>();
+
+/**
+ * Compression timeout in milliseconds (30 seconds)
+ * Prevents compression from getting stuck indefinitely
+ */
+const COMPRESSION_TIMEOUT_MS = 30000;
+
+/**
+ * Compresses an image in the background with timeout protection
+ * This function is fire-and-forget - it doesn't block and handles errors internally
+ * 
+ * @param filename - Image filename to compress
+ * @param originalPath - Full path to the original image file
+ */
+export function compressImageInBackground(filename: string, originalPath: string): void {
+  // Check if already compressing this image
+  if (compressingImages.has(filename)) {
+    debugLog(`Skipping compression of ${filename} - already in progress`);
+    return;
+  }
+
+  // Check if compressed version already exists
+  const compressedPath = getCompressedImagePath(filename);
+  if (fs.existsSync(compressedPath)) {
+    debugLog(`Skipping compression of ${filename} - compressed version already exists`);
+    return;
+  }
+
+  // Check if original file exists
+  if (!fs.existsSync(originalPath)) {
+    console.error(`Cannot compress ${filename} - original file does not exist`);
+    return;
+  }
+
+  // Mark as compressing
+  compressingImages.add(filename);
+
+  // Create a promise with timeout
+  const compressionPromise = compressImageForWeb(originalPath, compressedPath)
+    .then(() => {
+      debugLog(`✅ Background compression completed: ${filename}`);
+    })
+    .catch((error) => {
+      console.error(`❌ Background compression failed for ${filename}:`, error);
+    })
+    .finally(() => {
+      // Always remove from set, even on timeout
+      compressingImages.delete(filename);
+    });
+
+  // Create timeout promise
+  const timeoutPromise = new Promise<void>((resolve) => {
+    setTimeout(() => {
+      if (compressingImages.has(filename)) {
+        console.error(`⏱️ Compression timeout for ${filename} after ${COMPRESSION_TIMEOUT_MS}ms`);
+        compressingImages.delete(filename);
+        resolve();
+      }
+    }, COMPRESSION_TIMEOUT_MS);
+  });
+
+  // Race between compression and timeout
+  Promise.race([compressionPromise, timeoutPromise]).catch((error) => {
+    console.error(`Unexpected error in background compression for ${filename}:`, error);
+    compressingImages.delete(filename);
+  });
+}
+

@@ -16,6 +16,8 @@ import { JimpMime } from "jimp";
 // import webp from 'wasm-webp';
 
 import { Runware } from "@runware/sdk-js";
+import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
@@ -90,10 +92,20 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     const imagesDir = path.join(__dirname, '../../data/images');
     fs.mkdirSync(imagesDir, { recursive: true });
 
-    // Save file
+    // Save original file
     const filename = `img-${uuidv4()}.png`;
     const filePath = path.join(imagesDir, filename);
     await fs.promises.writeFile(filePath, pngBuffer);
+
+    // Compress and save compressed version
+    try {
+        const compressedPath = getCompressedImagePath(filename);
+        await compressImageForWeb(filePath, compressedPath);
+        debugLog(`Compressed AI-generated image: ${filename}`);
+    } catch (compressError) {
+        // Log error but don't fail - original is still saved
+        console.error(`Error compressing AI-generated image ${filename}:`, compressError);
+    }
 
     return filename;
 }
@@ -113,6 +125,17 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
         // Convert base64 to buffer and write to file
         const buffer = Buffer.from(matches[2], 'base64');
         await fs.promises.writeFile(imagePath, buffer);
+        
+        // Compress and save compressed version
+        try {
+            const compressedPath = getCompressedImagePath(filename);
+            await compressImageForWeb(imagePath, compressedPath);
+            debugLog(`Compressed AI-generated image: ${filename}`);
+        } catch (compressError) {
+            // Log error but don't fail - original is still saved
+            console.error(`Error compressing AI-generated image ${filename}:`, compressError);
+        }
+        
         return filename;
     } catch (error) {
         throw new Error(`Failed to save WebP image: ${error instanceof Error ? error.message : 'Unknown error'}`);

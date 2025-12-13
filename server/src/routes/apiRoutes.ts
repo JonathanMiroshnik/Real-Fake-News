@@ -3,6 +3,7 @@ import fs from 'fs';
 import { Router, Request, Response } from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { compressImageInBackground, getCompressedImagePath, getOriginalImagePath } from '../utils/imageCompression.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,17 +62,24 @@ router.get('/images/:filename', (req, res) => {
     'Cache-Control': 'public, max-age=31536000, immutable'
   });
   
-  // Try to serve compressed version first, fallback to original
-  // Note: compression creates .jpg files, not .webp
-  const compressedPath = path.join(__dirname, '../../data/images/compressed', 
-    path.basename(sanitized, path.extname(sanitized)) + '.jpg');
-  const originalPath = path.join(__dirname, '../../data/images', sanitized);
+  // Get paths for compressed and original images
+  const compressedPath = getCompressedImagePath(sanitized);
+  const originalPath = getOriginalImagePath(sanitized);
   
-  // Check if compressed version exists, otherwise serve original
+  // Check if compressed version exists
   if (fs.existsSync(compressedPath)) {
+    // Serve compressed version
     res.sendFile(compressedPath);
-  } else {
+  } else if (fs.existsSync(originalPath)) {
+    // Original exists but compressed doesn't - serve original immediately
+    // and trigger background compression
     res.sendFile(originalPath);
+    
+    // Start background compression (non-blocking, fire-and-forget)
+    compressImageInBackground(sanitized, originalPath);
+  } else {
+    // Neither exists - return 404
+    res.status(404).json({ error: 'Image not found' });
   }
 });
 
