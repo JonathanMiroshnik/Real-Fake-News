@@ -6,6 +6,7 @@ import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/HoroscopeSection';
 import RecipeSection from '../../components/RecipeSection/RecipeSection';
+// import SectionWithSidebars from '../../components/SectionWithSidebars/SectionWithSidebars';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
 import { ArticleContext } from '../../contexts/ArticlesContext';
 import { groupArticlesByCategories, CATEGORIES, getFeaturedArticle } from '../../services/articleService';
@@ -123,10 +124,10 @@ function HomePage() {
       )}
       {/* TODO: magic number 4 */}
       <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />    
-      <div className="w-full mb-12 last:mb-0">
+      <div className="w-full mt-16 mb-16 last:mb-0">
         <SectionHeader topLine="Featured Article" bottomLine="Interest" />
-        <div className='flex gap-4 pb-4 mb-8'>
-          <div>
+        <div className='flex gap-4 pb-4 mb-12'>
+          <div className="flex-1" style={{ minWidth: 0 }}>
             {featuredArticle && <FeaturedArticle article={featuredArticle} />}
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
             {/* Show Politics articles, or fallback to all articles if no category matches */}
@@ -142,11 +143,13 @@ function HomePage() {
           </div>
           {/* TODO: 4 magic number */}
           { articlesPerSection >= 4 && (
-            categoryArticles[0] && categoryArticles[0].length > 0 ? (
-              <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={true}/>
-            ) : articles.length > 0 ? (
-              <ArticleList articles={articles.slice(0, 3)} maxItems={3} showImages={false} vertical={true}/>
-            ) : null
+            <div className="shrink-0" style={{ width: '280px', flexShrink: 0 }}>
+              {categoryArticles[0] && categoryArticles[0].length > 0 ? (
+                <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={true}/>
+              ) : articles.length > 0 ? (
+                <ArticleList articles={articles.slice(0, 3)} maxItems={3} showImages={false} vertical={true}/>
+              ) : null}
+            </div>
           )}
         </div>
       </div>
@@ -168,11 +171,26 @@ function HomePage() {
         const categoryArticleList = categoryArticles[index];
         if (categoryArticleList && categoryArticleList.length > 0) {
           return (
-            <div key={`category-section-${category.name}`} className="w-full mb-12 last:mb-0">
-              <SectionHeader topLine={category.text} bottomLine={category.name} />
-              <div className='flex gap-4 pb-4 mb-8'>
-                <ArticleList articles={categoryArticleList} vertical={false} maxItems={articlesPerSection} />
-              </div>
+            <div key={`category-section-${category.name}`} className="w-full mb-16 last:mb-0">
+              {/* <SectionWithSidebars
+                mainWidthPercent={70}
+                right={
+                  <a href="/print-edition" target="_blank" rel="noopener noreferrer">
+                    <img
+                      src="/print-edition-ad.jpg"
+                      alt="Subscribe to our print edition"
+                      width={300}
+                      height={400}
+                      className="w-full h-auto object-contain border-2 border-red-500"
+                    />
+                  </a>
+                }
+              > */}
+                <SectionHeader topLine={category.text} bottomLine={category.name} />
+                <div className='flex gap-4 pb-4 mb-12'>
+                  <ArticleList articles={categoryArticleList} vertical={false} maxItems={articlesPerSection} />
+                </div>
+              {/* </SectionWithSidebars> */}
             </div>
           );
         }
@@ -181,15 +199,30 @@ function HomePage() {
       
       {/* Fallback: If no articles in any category, show all articles */}
       {articles.length > 0 && categoryArticles.every(cat => cat.length === 0) && (
-        <div className="w-full mb-12 last:mb-0">
-          <SectionHeader topLine="All Articles" bottomLine="Latest News" />
-          <div className='flex gap-4 pb-4 mb-8'>
-            <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
-          </div>
+        <div className="w-full mb-16 last:mb-0">
+          {/* <SectionWithSidebars
+            mainWidthPercent={70}
+            right={
+              <a href="/print-edition" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="/print-edition-ad.jpg"
+                  alt="Subscribe to our print edition"
+                  width={300}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </a>
+            }
+          > */}
+            <SectionHeader topLine="All Articles" bottomLine="Latest News" />
+            <div className='flex gap-4 pb-4 mb-12'>
+              <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
+            </div>
+          {/* </SectionWithSidebars> */}
         </div>
       )}
       
-      <div className="w-full mb-12 last:mb-0">
+      <div className="w-full mb-16 last:mb-0">
         <SectionHeader topLine="Interactive" bottomLine="Games" />
         <div className='flex gap-4 pb-4 mb-8 justify-center'>
           <GamesList />
@@ -197,13 +230,13 @@ function HomePage() {
       </div>
 
       {SHOW_HOROSCOPES && (
-        <div className="w-full mb-12 last:mb-0">
+        <div className="w-full mb-16 last:mb-0">
           <HoroscopeSection />
         </div>
       )}
 
       {SHOW_RECIPES && (
-        <div className="w-full mb-12 last:mb-0">
+        <div className="w-full mb-16 last:mb-0">
           <RecipeSection />
         </div>
       )}
