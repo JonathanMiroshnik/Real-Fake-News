@@ -5,10 +5,10 @@ import { CATEGORIES } from "../../services/articleService";
 
 function Layout() {
     return (
-        <div className="layout">
+        <div className="layout flex flex-col" style={{ minHeight: '100vh' }}>
             <Header sections={ CATEGORIES.map((category) => category.name) }/>           
             {/* TODO: make this into a regular css style for main */}
-            <main style={{display: "flex", justifyContent: "center"}}>
+            <main className="flex-1 flex justify-center">
                 <Outlet />
             </main>
             <Footer/>

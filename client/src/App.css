@@ -2,7 +2,7 @@
 
 /* Root container styles - migrated to Tailwind */
 #root {
-  @apply max-w-[1280px] mx-auto p-8 text-center min-h-screen w-full;
+  @apply max-w-[1280px] mx-auto pt-8 px-8 text-center min-h-screen w-full;
 }
 
 /* Utility classes - kept for backward compatibility if used elsewhere */

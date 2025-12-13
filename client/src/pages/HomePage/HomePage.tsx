@@ -16,7 +16,7 @@ import { ArticleProps } from '../ArticlePage/ArticlePage';
 
 // Temporary feature flag - remove when no longer needed
 const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === 'true';
-const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES !== 'false';
+const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES === 'true';
 
 // /**
 //  * Application homepage showing all news categories
@@ -207,10 +207,6 @@ function HomePage() {
           <RecipeSection />
         </div>
       )}
-
-        {/* <aside className="sidebar">
-          <NewsCarousel/>
-        </aside> */}
     </div>
   );
 };
