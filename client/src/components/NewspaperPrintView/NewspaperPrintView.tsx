@@ -49,6 +49,29 @@ function NewspaperPrintView() {
         });
     }
   }, [contextArticles]);
+
+  // Preload images for print view to ensure they're available when printing
+  useEffect(() => {
+    if (articles.length === 0) return;
+
+    const imageUrls: string[] = [];
+    
+    // Collect all image URLs from articles
+    articles.forEach((article) => {
+      const imageURL = getImageURLFromArticle(article, DEFAULT_IMAGE);
+      if (imageURL && imageURL !== '') {
+        imageUrls.push(imageURL);
+      }
+    });
+
+    // Preload images
+    imageUrls.forEach((url) => {
+      const img = new window.Image();
+      img.src = url;
+      img.loading = 'eager';
+      debugLog('🖨️ [NewspaperPrintView] Preloading image:', url);
+    });
+  }, [articles]);
   
   // Sort articles by date (most recent first)
   const sortedArticles = [...articles].sort((a, b) => {
@@ -60,12 +83,6 @@ function NewspaperPrintView() {
   // Get featured article (first one)
   const featuredArticle = sortedArticles[0];
   const otherArticles = sortedArticles.slice(1);
-
-  // Split remaining articles into columns (3 columns)
-  const articlesPerColumn = Math.ceil(otherArticles.length / 3);
-  const column1 = otherArticles.slice(0, articlesPerColumn);
-  const column2 = otherArticles.slice(articlesPerColumn, articlesPerColumn * 2);
-  const column3 = otherArticles.slice(articlesPerColumn * 2);
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -121,6 +138,8 @@ function NewspaperPrintView() {
                 aspectRatio="16/9"
                 placeholder={false}
                 objectFit="contain"
+                loading="eager"
+                fetchPriority="high"
               />
             </div>
           )}
@@ -134,24 +153,12 @@ function NewspaperPrintView() {
         </article>
       )}
 
-      {/* Three Column Layout - Only show if we have articles */}
+      {/* Three Column Layout - Articles flow continuously down columns */}
       {!isLoading && articles.length > 0 && (
         <div className="newspaper-columns">
-          <div className="newspaper-column">
-            {column1.map((article) => (
-              <NewspaperArticle key={article.key} article={article} />
-            ))}
-          </div>
-          <div className="newspaper-column">
-            {column2.map((article) => (
-              <NewspaperArticle key={article.key} article={article} />
-            ))}
-          </div>
-          <div className="newspaper-column">
-            {column3.map((article) => (
-              <NewspaperArticle key={article.key} article={article} />
-            ))}
-          </div>
+          {otherArticles.map((article) => (
+            <NewspaperArticle key={article.key} article={article} />
+          ))}
         </div>
       )}
     </div>
@@ -187,6 +194,8 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
             aspectRatio="4/3"
             placeholder={false}
             objectFit="contain"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
       )}

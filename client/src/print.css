@@ -60,31 +60,144 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0.25rem !important;
+    box-sizing: border-box !important;
   }
 
-  /* Ensure newspaper columns print properly */
+  /* Ensure newspaper columns print properly - use CSS columns for flow */
   .newspaper-columns {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 1.5rem !important;
+    display: block !important;
+    column-count: 3 !important;
+    column-gap: 1.5rem !important;
+    column-fill: auto !important;
+    padding: 0.25rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Add padding to columns and ensure text wrapping */
+  .newspaper-column {
+    padding: 0 0.5rem !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  /* Ensure articles flow properly in columns */
+  .newspaper-columns > .newspaper-article {
+    break-inside: avoid-column !important;
+    page-break-inside: auto !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Ensure text containers wrap properly and don't overflow */
+  .newspaper-article-content,
+  .featured-article-content {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ensure article titles wrap */
+  .newspaper-article-title,
+  .featured-article-title {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure article containers don't overflow */
+  .newspaper-article,
+  .newspaper-featured-article {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
   /* Page break controls for newspaper articles */
-  .newspaper-article,
   .newspaper-featured-article {
-    page-break-inside: avoid;
-    orphans: 3;
-    widows: 3;
+    page-break-inside: auto !important;
+    orphans: 8 !important;
+    widows: 8 !important;
+  }
+
+  .newspaper-article {
+    page-break-inside: auto !important;
+    page-break-before: avoid !important;
+    orphans: 8 !important;
+    widows: 8 !important;
+    min-height: 300px !important;
+  }
+
+  /* Keep article headers and images together */
+  .newspaper-article-title,
+  .newspaper-article-meta,
+  .newspaper-article-image-container,
+  .featured-article-header,
+  .featured-article-image-container {
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Allow article content to break naturally */
+  .newspaper-article-content,
+  .featured-article-content {
+    page-break-inside: auto !important;
+    orphans: 4 !important;
+    widows: 4 !important;
+  }
+
+  .newspaper-column > .newspaper-article {
+    min-height: 300px !important;
+  }
+
+  /* Use a pseudo-element to create minimum space requirement before articles */
+  .newspaper-article::before {
+    content: '' !important;
+    display: block !important;
+    height: 0 !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Ensure articles have enough space - use larger min-height as proxy for "few hundred characters" */
+  .newspaper-columns > .newspaper-article {
+    min-height: 400px !important;
   }
 
   /* Prevent images from breaking across pages */
   .newspaper-article-image,
   .featured-article-image {
-    page-break-inside: avoid;
-    page-break-after: avoid;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
     max-width: 100% !important;
     height: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure image containers don't break */
+  .featured-article-image-container,
+  .newspaper-article-image-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Force images to load and display in print */
+  .featured-article-image img,
+  .newspaper-article-image img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 
   /* Show URLs for links in print (for any links in article content) */

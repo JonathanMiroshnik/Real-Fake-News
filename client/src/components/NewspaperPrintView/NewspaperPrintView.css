@@ -18,6 +18,14 @@
   page-break-after: avoid;
 }
 
+@media print {
+  .newspaper-masthead {
+    padding: 0.5rem 0 !important;
+    margin-bottom: 0.75rem !important;
+    page-break-after: auto !important;
+  }
+}
+
 .newspaper-title {
   font-size: 4rem;
   font-weight: bold;
@@ -45,6 +53,29 @@
   padding-bottom: 1.5rem;
   border-bottom: 2px solid #333;
   page-break-inside: avoid;
+}
+
+@media print {
+  .newspaper-featured-article {
+    margin-top: 0 !important;
+    margin-bottom: 1.5rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 1rem !important;
+    /* Allow featured article to break across pages, but keep header/image together */
+    page-break-inside: auto !important;
+  }
+
+  /* Keep featured article header and image together */
+  .featured-article-header,
+  .featured-article-image-container {
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Allow featured article content to break naturally */
+  .featured-article-content {
+    page-break-inside: auto !important;
+  }
 }
 
 .featured-article-header {
@@ -99,7 +130,7 @@
   font-weight: bold;
 }
 
-/* Three Column Layout */
+/* Three Column Layout - Use CSS columns for continuous flow */
 .newspaper-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -107,10 +138,27 @@
   margin-top: 2rem;
 }
 
+@media print {
+  .newspaper-columns {
+    margin-top: 1rem !important;
+    /* Use CSS columns for automatic article flow */
+    display: block !important;
+    column-count: 3 !important;
+    column-gap: 1.5rem !important;
+    column-fill: auto !important;
+  }
+}
+
 .newspaper-column {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+@media print {
+  .newspaper-column {
+    display: block !important;
+  }
 }
 
 /* Individual Articles in Columns */
@@ -188,34 +236,144 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0.25rem !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    box-sizing: border-box !important;
   }
 
   .newspaper-columns {
     gap: 1.5rem;
     display: grid !important;
+    padding: 0.25rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .newspaper-column {
+    padding: 0 0.5rem !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  /* Ensure articles don't break across columns inappropriately */
+  .newspaper-article {
+    break-inside: avoid-column !important;
+    page-break-inside: auto !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Ensure text wraps and doesn't overflow */
+  .newspaper-article-content,
+  .featured-article-content {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .newspaper-article-title,
+  .featured-article-title {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure article containers don't overflow */
+  .newspaper-article,
+  .newspaper-featured-article {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
   .newspaper-article {
-    page-break-inside: avoid;
-    orphans: 3;
-    widows: 3;
+    /* Allow articles to break, but ensure minimum space requirements */
+    page-break-inside: auto;
+    page-break-before: avoid;
+    orphans: 8;
+    widows: 8;
+    min-height: 300px;
+  }
+
+  /* Prevent articles from starting too close to page bottom */
+  .newspaper-article::before {
+    content: '';
+    display: block;
+    height: 0;
+    page-break-before: avoid;
   }
 
   .newspaper-featured-article {
-    page-break-inside: avoid;
+    page-break-inside: auto !important;
+    page-break-before: auto;
+    orphans: 8;
+    widows: 8;
+  }
+
+  /* Prevent articles from starting too close to page bottom */
+  .newspaper-article:first-child,
+  .newspaper-column > .newspaper-article:first-child {
+    page-break-before: auto;
+  }
+
+  /* Use break-inside to ensure articles don't start with insufficient space */
+  .newspaper-column > .newspaper-article {
+    break-inside: avoid-column;
+    min-height: 300px;
+    /* Ensure article header and image stay together */
+    page-break-inside: auto;
+  }
+
+  /* Keep article headers and images together */
+  .newspaper-article-title,
+  .newspaper-article-meta,
+  .newspaper-article-image-container {
+    page-break-after: avoid;
+  }
+
+  /* Allow article content to break naturally */
+  .newspaper-article-content {
+    page-break-inside: auto;
+    orphans: 4;
+    widows: 4;
   }
 
   /* Ensure images don't break across pages */
   .featured-article-image,
   .newspaper-article-image {
-    page-break-inside: avoid;
-    page-break-after: avoid;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
     max-width: 100% !important;
     height: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure image containers don't break */
+  .featured-article-image-container,
+  .newspaper-article-image-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Force images to load and display in print */
+  .featured-article-image img,
+  .newspaper-article-image img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
   
   /* Ensure all text is visible */
@@ -229,6 +387,25 @@
   .featured-article-content {
     color: black !important;
     visibility: visible !important;
+  }
+
+  /* Reduce masthead spacing for print */
+  .newspaper-masthead {
+    padding: 0.5rem 0 !important;
+    margin-bottom: 0.75rem !important;
+    page-break-after: auto !important;
+  }
+
+  /* Ensure featured article starts immediately after masthead */
+  .newspaper-featured-article {
+    margin-top: 0 !important;
+    margin-bottom: 1.5rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .newspaper-columns {
+    margin-top: 1rem !important;
   }
 }
 
