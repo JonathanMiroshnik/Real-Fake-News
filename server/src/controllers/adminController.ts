@@ -10,7 +10,7 @@ import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { getDatabase } from '../lib/database/database.js';
 import { ArticleScheme } from '../types/article.js';
-import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
+import { compressImageForWeb, getCompressedImagePath, getImagesDirectory } from '../utils/imageCompression.js';
 import { writeBlogPost } from '../services/blogService.js';
 import { getRandomWriter } from '../services/writerService.js';
 import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
@@ -41,7 +41,7 @@ let texts: string[] = [];
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const imagesDir = path.join(__dirname, '../../data/images');
+    const imagesDir = getImagesDirectory();
     fs.mkdirSync(imagesDir, { recursive: true });
     cb(null, imagesDir);
   },

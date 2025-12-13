@@ -1,18 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { compressImageForWeb, getCompressedImagePath, getImagesDirectory } from '../utils/imageCompression.js';
 
 /**
  * Script to compress all existing images in the images directory
  * This creates compressed versions while keeping originals intact
  */
 async function compressAllImages() {
-  const imagesDir = path.join(__dirname, '../../data/images');
+  const imagesDir = getImagesDirectory();
   const compressedDir = path.join(imagesDir, 'compressed');
   
   // Create compressed directory if it doesn't exist

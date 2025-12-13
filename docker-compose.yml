@@ -10,7 +10,15 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=5001
+      # Database path inside container (mounted from SQLITE_DATA_PATH on host)
       - DATABASE_PATH=/data/database.db
+      # Container paths for SQLITE_DATA_PATH and IMAGES_DATA_PATH
+      # SQLITE_DATA_PATH host directory is mounted to /data in container
+      - SQLITE_DATA_PATH=/data
+      # IMAGES_DATA_PATH: images directory inside container
+      # Defaults to /data/images (same directory as database)
+      # If you want images in a separate location, you can override this
+      - IMAGES_DATA_PATH=/data/images
       - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme123}
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
@@ -24,10 +32,13 @@ services:
     volumes:
       # Mount database directory from host (outside repository)
       # Set SQLITE_DATA_PATH in .env to specify location
+      # Database file will be at /data/database.db inside container
       - ${SQLITE_DATA_PATH:-./database}:/data:rw
-      # Mount images directory from host (outside repository)
-      # Set IMAGES_DATA_PATH in .env to specify location
-      - ${IMAGES_DATA_PATH:-./images}:/app/data/images:rw
+      # Images are stored in the same directory as the database
+      # If IMAGES_DATA_PATH is set, it will be used directly by the application
+      # Otherwise, images will be in /data/images (same directory as database)
+      # Note: We still mount SQLITE_DATA_PATH to /data, and the app will use /data/images
+      # If you want images in a separate location, set IMAGES_DATA_PATH in .env
     # Server accesses database file directly via volume mount at /data/database.db
     restart: unless-stopped
     networks:

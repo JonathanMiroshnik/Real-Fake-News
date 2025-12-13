@@ -16,7 +16,7 @@ import { JimpMime } from "jimp";
 // import webp from 'wasm-webp';
 
 import { Runware } from "@runware/sdk-js";
-import { compressImageForWeb, getCompressedImagePath } from '../utils/imageCompression.js';
+import { compressImageForWeb, getCompressedImagePath, getImagesDirectory } from '../utils/imageCompression.js';
 import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
@@ -89,7 +89,7 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     const pngBuffer = await image.getBuffer(JimpMime.png);
 
     // Ensure directory exists
-    const imagesDir = path.join(__dirname, '../../data/images');
+    const imagesDir = getImagesDirectory();
     fs.mkdirSync(imagesDir, { recursive: true });
 
     // Save original file
@@ -119,7 +119,9 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
 
     // Generate unique filename
     const filename = `img-${uuidv4()}.webp`;
-    const imagePath = path.resolve(__dirname, '../../data/images', filename);
+    const imagesDir = getImagesDirectory();
+    fs.mkdirSync(imagesDir, { recursive: true });
+    const imagePath = path.join(imagesDir, filename);
     
     try {
         // Convert base64 to buffer and write to file

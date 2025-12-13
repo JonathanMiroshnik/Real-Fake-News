@@ -17,9 +17,16 @@ class DatabaseManager {
         // Use environment variable if set, otherwise resolve relative to server root
         let dbPath: string;
         
-        if (process.env.DATABASE_PATH) {
+        // Priority 1: Use SQLITE_DATA_PATH/database.db if SQLITE_DATA_PATH is set (from root .env)
+        if (process.env.SQLITE_DATA_PATH) {
+            dbPath = path.join(process.env.SQLITE_DATA_PATH, 'database.db');
+        }
+        // Priority 2: Use DATABASE_PATH if set (container path, e.g., /data/database.db)
+        else if (process.env.DATABASE_PATH) {
             dbPath = process.env.DATABASE_PATH;
-        } else {
+        }
+        // Priority 3: Default fallback - relative to server root
+        else {
             // Resolve relative to server root (where .env is located)
             // __dirname in compiled code is server/dist/lib/database/
             // So we go up 3 levels to get to server root
