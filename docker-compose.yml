@@ -53,7 +53,6 @@ services:
         - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-true}
         - VITE_DEBUG_LOGS=${VITE_DEBUG_LOGS:-false}
         - VITE_SHOW_HOROSCOPES=${VITE_SHOW_HOROSCOPES:-true}
-        - VITE_SHOW_RECIPES=${VITE_SHOW_RECIPES:-true}
     container_name: real-fake-news-client
     ports:
       - "${CLIENT_PORT:-5173}:80"
