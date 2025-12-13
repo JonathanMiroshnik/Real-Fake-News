@@ -153,21 +153,21 @@ function StickyNav({ sections }: StickyNavProps) {
                 `nav-link ${isActive ? 'active' : ''} whitespace-nowrap`
               }
             >
-              <div 
-                className="px-2 py-1 rounded-lg 
-                            border-b-[0.15rem] border-transparent transition-all duration-300 
-                            ease-in-out hover:border-b-[0.15rem] hover:border-[var(--title-color)]
-                            hover:bg-[darkgray] hover:shadow-md active:border-b-[0.15rem] 
-                            active:border-[var(--title-color)] active:bg-[darkgray] font-medium text-xs"
-                style={{ 
-                  color: 'var(--title-color, ' + (darkMode ? 'white' : 'black') + ')',
-                  minHeight: '24px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                {section}
-              </div>  
+              {({ isActive }) => (
+                <div 
+                  className={`px-3 py-2 font-medium text-xs min-w-[100px] text-center
+                              ${isActive ? 'border-b-2 border-[var(--title-color)]' : 'border-b-2 border-transparent'}`}
+                  style={{ 
+                    color: 'var(--title-color, ' + (darkMode ? 'white' : 'black') + ')',
+                    minHeight: '28px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {section}
+                </div>
+              )}
             </NavLink>
           ))}
         </div>

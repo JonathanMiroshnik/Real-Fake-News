@@ -25,13 +25,13 @@ interface ArticleListProps {
 function ArticleList({title = "", articles, vertical = false, maxItems = 4, showImages=true}: ArticleListProps) {
     return (
         articles.length > 0 &&
-        <div className="flex">
-            { title && <h2 className="text-[var(--title-color)]">{ title }</h2>}
+        <div className="flex" style={{ width: '100%', minWidth: 0 }}>
+            { title && <h2 className="text-(--title-color)">{ title }</h2>}
             
             {/* TODO: should we have a <nav> tag here, the <ul> inside it? */}
-            <ul className={`gap-8 p-0 m-0 list-none ${vertical ? "inline-block" : "flex"}`} >
+            <ul className={`gap-8 p-0 m-0 list-none ${vertical ? "inline-block" : "flex"}`} style={{ width: '100%', minWidth: 0 }}>
                 { articles.slice(0, maxItems).map((ar, index) => (
-                    <li key={"article_list_item_" + ar.key} className={`m-0 ${vertical && index > 0 ? "border-t border-gray" : ""}`}>
+                    <li key={"article_list_item_" + ar.key} className={`m-0 ${vertical && index > 0 ? "border-t border-gray" : ""}`} style={{ minWidth: 0 }}>
                         <ArticleListItem showImage={showImages} article={ar}/>
                     </li>
                 )) }

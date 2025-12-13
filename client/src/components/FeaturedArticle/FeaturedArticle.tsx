@@ -19,7 +19,7 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
         <div>
             <Link to={`/article/${article.key}`} className="group">
                 <section className="flex mb-8 border-b-2 border-[#eee] pb-8 gap-[5rem] max-[600px]:block">
-                    <div className="text-left">
+                    <div className="text-left flex-1" style={{ minWidth: 0 }}>
                         <h2 className="text-[var(--title-color)] text-[28px] group-hover:underline">{ article.title }</h2>
                         {article.shortDescription && <p className="text-[var(--description-color)] text-[16px]">
                             {article.shortDescription}
@@ -31,18 +31,20 @@ function FeaturedArticle({article}: FeaturedArticleProps) {
                             </span>
                         </div>
                     </div>
-                    <Image
-                        src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
-                        alt={article.title ?? 'Featured Article'}
-                        className="w-full max-w-[750px] shrink-0 
-                                   group-hover:brightness-110 transition-[filter] 
-                                   max-[600px]:w-full"
-                        aspectRatio="16/9"
-                        placeholder={true}
-                        objectFit="cover"
-                        loading="eager"
-                        fetchPriority="high"
-                    />
+                    <div className="shrink-0" style={{ maxWidth: '500px', width: '100%' }}>
+                        <Image
+                            src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
+                            alt={article.title ?? 'Featured Article'}
+                            className="w-full
+                                       group-hover:brightness-110 transition-[filter] 
+                                       max-[600px]:w-full"
+                            aspectRatio="16/9"
+                            placeholder={true}
+                            objectFit="cover"
+                            loading="eager"
+                            fetchPriority="high"
+                        />
+                    </div>
                 </section>
             </Link>
         </div>

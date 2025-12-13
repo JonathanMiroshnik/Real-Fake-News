@@ -27,55 +27,6 @@ interface HeaderProps {
 function Header({ sections }: HeaderProps) {
   const darkMode: boolean = useContext(DarkModeContext).dark;
   
-
-
-
-
-
-
-  // async function handleLoginSuccess(credentialResponse: CredentialResponse) {
-  //   // TODO: make this into global constant
-  //   // Differentiates between development and production mode URLs
-  //   let VITE_API_BASE: string = "";
-  //   if (import.meta.env.VITE_LOCAL_DEV_MODE === undefined) {
-  //     VITE_API_BASE = "http://localhost:5000";
-  //   }
-  //   else {
-  //     VITE_API_BASE = import.meta.env.VITE_LOCAL_DEV_MODE === "true" ? 
-  //                   "http://localhost:5000" : 
-  //                   "https://real.sensorcensor.xyz";
-  //   }
-
-  //   if (!credentialResponse.credential) {
-  //     console.error("Missing credential in response");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await fetch(`${VITE_API_BASE}/api/auth/google`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ token: credentialResponse.credential }),
-  //     });
-
-  //     if (!res.ok) {
-  //       throw new Error(`Backend responded with status ${res.status}`);
-  //     }
-
-  //     const data = await res.json();
-  //     console.log("User verified on backend:", data);
-  //     // TODO: store user info / token
-  //   } catch (error) {
-  //     console.error("Google login failed:", error);
-  //   }
-  // }
-
-
-
-
-
-
-
   return (
     <header className="w-full mb-8 border-b border-[#cc0000]">
       {/* <GoogleOAuthProvider clientId="512847879646-rc53sf1m84t99athm9fi99rd32ig7ue9.apps.googleusercontent.com">
@@ -101,14 +52,6 @@ function Header({ sections }: HeaderProps) {
                           max-[600px]:grid-cols-2 max-[600px]:grid-rows-2 max-[600px]:flex-none 
                           max-[600px]:w-full max-[600px]:gap-4">
             {sections.map((section) => (
-              // <Link key={"header_link_" + section} to={`/category/${section.toLowerCase()}`}>
-              //  {/* <button className='nav-button' >
-              //     {section}
-              //  </button> */}
-              //  <div className="nav-a-link-wrapper">
-              //   <a className="nav-a-link">{section}</a>
-              //  </div>           
-              // </Link>
               <NavLink 
                   key={"header_link_" + section}
                   to={`/category/${section.toLowerCase()}`}
@@ -116,22 +59,19 @@ function Header({ sections }: HeaderProps) {
                     `nav-link ${isActive ? 'active' : ''}`
                   }
                 >
-                  {/* <button className='nav-button' >
-                    {section}
-                  </button> */}
-                  <div className="text-[var(--title-color)] px-5 py-3 rounded-lg 
-                                  border-b-[0.2rem] border-transparent transition-all duration-300 
-                                  ease-in-out hover:border-b-[0.2rem] hover:border-[var(--title-color)] 
-                                  hover:bg-[darkgray] hover:shadow-md active:border-b-[0.2rem] 
-                                  active:border-[var(--title-color)] active:bg-[darkgray] font-medium">
-                    {section}
-                  </div>  
+                  {({ isActive }) => (
+                    <div className={`text-[var(--title-color)] px-6 py-4 font-medium min-w-[120px] text-center
+                                    ${isActive ? 'border-b-2 border-[var(--title-color)]' : 'border-b-2 border-transparent'}`}>
+                      {section}
+                    </div>
+                  )}
               </NavLink>
             ))}
           </nav>
           <ThemeToggle />
         </div>
       </div>
+      {/* <hr className="border-t border-[#cc0000] mt-4" /> */}
     </header>
   );
 };
