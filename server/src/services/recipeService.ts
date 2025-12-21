@@ -10,6 +10,7 @@ import { createPost } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { getRandomWriter } from './writerService.js';
 import { debugLog } from '../utils/debugLogger.js';
+import { normalizeParagraphFormatting } from '../utils/contentNormalizer.js';
 
 /**
  * Gets random foods from the foods table
@@ -66,10 +67,15 @@ export async function generateRecipe(writer: Writer, foods: string[], saveRecipe
             }
         }
 
+        // Normalize paragraph formatting for proper markdown rendering
+        const normalizedParagraphs = (parsedData.paragraphs || []).map((paragraph: string) => 
+            normalizeParagraphFormatting(paragraph)
+        );
+        
         const newRecipe: RecipeScheme = {
             key: getUniqueKey(),
             title: parsedData.title,
-            paragraphs: parsedData.paragraphs || [],
+            paragraphs: normalizedParagraphs,
             author: writer,
             timestamp: new Date().toISOString(),
             category: 'Food',
@@ -105,6 +111,7 @@ Please parse this request to a JSON output. I will give examples after.
 The recipe should be structured as a series of paragraphs that will be interleaved with images. Each paragraph should be a separate string in the paragraphs array.
 
 Make sure the content of the recipe is detailed and engaging. The paragraphs should be in markdown format, meaning that you should emphasize words and phrases as you see fit in accordance to markdown rules.
+IMPORTANT: Use proper paragraph formatting with TWO newlines (blank line) between paragraphs for markdown rendering.
 
 ${writer.name !== "" ? "Your name is " + writer.name + "." : ""}
 ${writer.description !== "" ? "Your description is " + writer.description + "." : ""}
@@ -201,4 +208,3 @@ export async function getAllRecipes(): Promise<RecipeScheme[]> {
         writerType: row.writerType || 'AI'
     } as RecipeScheme));
 }
-

@@ -218,6 +218,46 @@
 		}
 	}
 
+	// Fetch news
+	let fetchingNews = $state(false);
+	async function fetchNews() {
+		if (!password || !browser) return;
+		
+		fetchingNews = true;
+		error = '';
+		try {
+			const url = `${API_BASE}/admin/fetch/news?password=${encodeURIComponent(password)}`;
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch news`);
+			}
+			
+			const data = await response.json();
+			if (data.success) {
+				error = ''; // Clear any previous errors
+				alert(`Successfully fetched ${data.articles?.length || 0} news articles!`);
+			} else {
+				throw new Error(data.error || 'Failed to fetch news');
+			}
+		} catch (err) {
+			console.error('Error fetching news:', err);
+			if (err instanceof TypeError && err.message.includes('fetch')) {
+				error = 'Network error: Is the backend server running on ' + API_BASE + '?';
+			} else {
+				error = err instanceof Error ? err.message : 'Failed to fetch news';
+			}
+		} finally {
+			fetchingNews = false;
+		}
+	}
+
 	// Generate recipe
 	let generatingRecipe = $state(false);
 	async function generateRecipe() {
@@ -326,6 +366,13 @@
 						{generatingArticle ? 'Generating...' : '📰 Generate Article'}
 					</button>
 					<button 
+						onclick={fetchNews} 
+						disabled={fetchingNews || loading}
+						class="generate-button fetch-news"
+					>
+						{fetchingNews ? 'Fetching...' : '📰 Fetch News'}
+					</button>
+					<button 
 						onclick={generateRecipe} 
 						disabled={generatingRecipe || loading}
 						class="generate-button generate-recipe"
@@ -334,7 +381,7 @@
 					</button>
 				</div>
 				<p class="generation-hint">
-					Generate a new article from recent news or a new recipe from random foods.
+					Generate a new article from recent news, fetch fresh news from API, or generate a new recipe from random foods.
 				</p>
 			</section>
 
@@ -637,6 +684,16 @@
 		background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+	}
+
+	.fetch-news {
+		background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+	}
+
+	.fetch-news:hover:not(:disabled) {
+		background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 	}
 
 	.generate-button:disabled {

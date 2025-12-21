@@ -5,6 +5,7 @@ services:
   server:
     environment:
       - NODE_ENV=development
+      - DEBUG_LOGS=true
       # LOCAL_DEV_BACKEND removed - always use /api prefix for consistency
     # Mount source code for hot reload (optional - requires nodemon in container)
     # volumes:
@@ -36,4 +37,3 @@ services:
         - VITE_CLIENT_URL_DEV=http://localhost:5173
         - VITE_CLIENT_URL_PROD=http://client:80  # Docker service name
         - SVELTEKIT_BASE_PATH=  # Empty for dev mode - serve from root instead of /admin
-

@@ -11,6 +11,9 @@ import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from "../services/newsService.js";
 import { generateAndSaveImage } from "../services/imageService.js";
 import { debugLog, debugWarn, debugError } from '../utils/debugLogger.js';
+import { runEditorialPipeline } from './editorialService.js';
+import { selectStyleForNewsItem, getStyleByKey } from './styleService.js';
+import { normalizeParagraphFormatting } from '../utils/contentNormalizer.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
     debugLog('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
@@ -174,58 +177,7 @@ export async function getFeaturedArticleForDate(date?: string): Promise<ArticleS
 // TODO: add content filter step that will check for violence/bigotry in the original articles 
 //  and will eliminate them as useful thus.
 
-export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true) {    
-    // const newArticle = await createArticle(writer, currentNewsItem);
-    // Pass saveArticle=false to generateNewsArticleWithExplanation so we can control when to save
-    // This prevents saving invalid articles if generation fails partway through
-    const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem, false);
-    if (newArticle === undefined) {
-        console.error('❌ [writeBlogPost] Article generation failed, not saving');
-        return;
-    }
-
-    // Only save if saveArticle is true and we have a valid article
-    if (saveArticle) {
-        await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
-    }
-    return newArticle;
-}
-
-async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
-
-    debugLog("Generating new article");
-    const result = await generateTextFromString(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("Meta prompt output invalid!");    
-        return;
-    } 
-
-    // Parse JSON response - if it fails, don't create article
-    let parsedData: any;
-    try {
-        parsedData = JSON.parse(result.generatedText);
-    } catch (error) {
-        console.error('❌ [createArticle] Failed to parse LLM JSON response:', error);
-        console.error('❌ [createArticle] Raw response:', result.generatedText?.substring(0, 500));
-        return undefined;
-    }
-    const imgName = await generateAndSaveImage(parsedData.prompt);
-
-    const newArticle: ArticleScheme =  {
-        key: getUniqueKey(),
-        content: parsedData.content,
-        author: writer,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    };     
-
-    return newArticle;
-}
+// Note: The writeBlogPost function has been moved to the end of the file with the new pipeline implementation
 
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
 
@@ -240,7 +192,8 @@ function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { artic
 
     Please parse this request to a json output. I will give examples after. \n
     Make sure the content of the article is longer than that of the examples given.\n
-    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n
+    IMPORTANT: Use proper paragraph formatting with TWO newlines (blank line) between paragraphs for markdown rendering.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
@@ -358,7 +311,8 @@ function writeNewsArticleFromExplanationPrompt(writer: Writer, explanationPoints
     
     Please parse this request to a json output. I will give examples after.\n
     Make sure the content of the article is longer than that of the examples given.\n
-    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n
+    IMPORTANT: Use proper paragraph formatting with TWO newlines (blank line) between paragraphs for markdown rendering.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
@@ -469,9 +423,12 @@ export async function generateNewsArticleFromExplanation(writer: Writer, explana
         return undefined;
     }
 
+    // Normalize paragraph formatting for proper markdown rendering
+    const normalizedContent = normalizeParagraphFormatting(parsedData.content);
+    
     const newArticle: ArticleScheme = {
         key: getUniqueKey(),
-        content: parsedData.content,
+        content: normalizedContent,
         author: writer,
         title: parsedData.title,
         timestamp: (new Date()).toUTCString(),
@@ -500,4 +457,152 @@ export async function generateNewsArticleWithExplanation(writer: Writer, current
     // Then expand them into a full article
     const article = await generateNewsArticleFromExplanation(writer, explanationPoints, currentNewsItem, saveArticle);
     return article;
+}
+
+// ----------------------------------------------- NEW PIPELINE FUNCTIONS (Phase 1) -----------------------------------------------
+
+/**
+ * Create a draft article using the new editorial pipeline with style selection
+ */
+export async function createDraftArticle(
+    writer: Writer, 
+    newsItem: NewsItem, 
+    styleKey?: string
+): Promise<{ content: string; styleUsed: string; editorNotes: any } | undefined> {
+    try {
+        debugLog("Creating draft article using editorial pipeline");
+        
+        // Run the editorial pipeline
+        const pipelineResult = await runEditorialPipeline(writer, newsItem, styleKey);
+        if (!pipelineResult) {
+            debugError("Editorial pipeline failed");
+            return undefined;
+        }
+        
+        return {
+            content: pipelineResult.content,
+            styleUsed: pipelineResult.styleUsed,
+            editorNotes: pipelineResult.editorNotes
+        };
+    } catch (error) {
+        debugError('Error creating draft article:', error);
+        return undefined;
+    }
+}
+
+/**
+ * Generate a complete article with image and metadata using the new pipeline
+ */
+export async function generateCompleteArticle(
+    writer: Writer,
+    newsItem: NewsItem,
+    styleKey?: string,
+    saveArticle: boolean = true
+): Promise<ArticleScheme | undefined> {
+    try {
+        debugLog("📝 [generateCompleteArticle] Starting complete article generation");
+        debugLog("📝 [generateCompleteArticle] Writer:", writer.name);
+        debugLog("📝 [generateCompleteArticle] News item:", newsItem.title);
+        debugLog("📝 [generateCompleteArticle] Style key:", styleKey || 'auto-select');
+        
+        // Create draft using editorial pipeline
+        debugLog("📝 [generateCompleteArticle] Creating draft article via editorial pipeline...");
+        const draftResult = await createDraftArticle(writer, newsItem, styleKey);
+        if (!draftResult) {
+            debugError("❌ [generateCompleteArticle] Failed to create draft article");
+            return undefined;
+        }
+        
+        debugLog("✅ [generateCompleteArticle] Draft article created successfully");
+        debugLog("📝 [generateCompleteArticle] Style used:", draftResult.styleUsed);
+        debugLog("📝 [generateCompleteArticle] Content length:", draftResult.content.length, "characters");
+        
+        // Use the news item title as the article title (the parody bot should not include titles in content)
+        const title = `${newsItem.title} - Parody Version`;
+        let articleContent = draftResult.content.trim();
+        
+        // Normalize paragraph formatting for proper markdown rendering
+        articleContent = normalizeParagraphFormatting(articleContent);
+        
+        debugLog("📝 [generateCompleteArticle] Article title:", title);
+        debugLog("📝 [generateCompleteArticle] Content length:", articleContent.length, "characters");
+        debugLog("📝 [generateCompleteArticle] Paragraph formatting normalized for markdown");
+        
+        // Generate image prompt based on the title
+        const style = getStyleByKey(draftResult.styleUsed);
+        const imagePrompt = `A parody news illustration for: ${title}. Style: ${draftResult.styleUsed}. ${style?.comedic_approach || 'Subtle humor'}`;
+        debugLog("📝 [generateCompleteArticle] Image prompt:", imagePrompt);
+        
+        // Generate image
+        debugLog("📝 [generateCompleteArticle] Generating image...");
+        const imgName = await generateAndSaveImage(imagePrompt);
+        if (!imgName) {
+            debugError("❌ [generateCompleteArticle] Failed to generate image");
+            return undefined;
+        }
+        
+        debugLog("✅ [generateCompleteArticle] Image generated successfully:", imgName);
+        
+        // Create article object
+        const newArticle: ArticleScheme = {
+            key: getUniqueKey(),
+            content: articleContent,
+            author: writer,
+            title: title,
+            timestamp: (new Date()).toUTCString(),
+            category: 'General', // Would extract from content analysis
+            originalNewsItem: newsItem,
+            shortDescription: `A parody news article: ${title}`,
+            headImage: imgName
+        };
+        
+        debugLog("📝 [generateCompleteArticle] Article object created with key:", newArticle.key);
+        
+        if (saveArticle) {
+            debugLog("📝 [generateCompleteArticle] Saving article to database...");
+            await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+            debugLog("✅ [generateCompleteArticle] Article saved to database");
+        }
+        
+        debugLog("✅ [generateCompleteArticle] Complete article generated successfully");
+        return newArticle;
+    } catch (error) {
+        debugError('❌ [generateCompleteArticle] Error generating complete article:', error);
+        return undefined;
+    }
+}
+
+/**
+ * Updated writeBlogPost using the new pipeline (backward compatible)
+ */
+export async function writeBlogPost(
+    writer: Writer, 
+    currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, 
+    saveArticle: boolean = true
+): Promise<ArticleScheme | undefined> {
+    debugLog("📝 [writeBlogPost] Starting article generation with new pipeline");
+    debugLog("📝 [writeBlogPost] Writer:", writer.name);
+    debugLog("📝 [writeBlogPost] News item:", currentNewsItem.title);
+    debugLog("📝 [writeBlogPost] Save article:", saveArticle);
+    
+    // Use the new pipeline for article generation
+    debugLog("📝 [writeBlogPost] Calling generateCompleteArticle...");
+    const newArticle = await generateCompleteArticle(writer, currentNewsItem, undefined, false);
+    
+    if (newArticle === undefined) {
+        debugLog('❌ [writeBlogPost] Article generation failed, generateCompleteArticle returned undefined');
+        console.error('❌ [writeBlogPost] Article generation failed, not saving');
+        return undefined;
+    }
+
+    debugLog("✅ [writeBlogPost] Article generated successfully:", newArticle.key);
+    
+    // Only save if saveArticle is true and we have a valid article
+    if (saveArticle) {
+        debugLog("📝 [writeBlogPost] Saving article to database...");
+        await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+        debugLog("✅ [writeBlogPost] Article saved to database");
+    }
+    
+    return newArticle;
 }

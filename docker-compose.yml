@@ -29,6 +29,7 @@ services:
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
       - ENABLE_SCHEDULED_JOBS=${ENABLE_SCHEDULED_JOBS:-true}
       - LOCAL_DEV_BACKEND=${LOCAL_DEV_BACKEND:-false}
+      - DEBUG_LOGS=${DEBUG_LOGS:-false}
     volumes:
       # Mount database directory from host (outside repository)
       # Set SQLITE_DATA_PATH in .env to specify location
@@ -105,4 +106,3 @@ networks:
 # Note: We use host-mounted volumes (bind mounts) instead of named volumes
 # This allows the database and images to persist outside Docker
 # Volumes are defined inline in each service's volumes: section
-

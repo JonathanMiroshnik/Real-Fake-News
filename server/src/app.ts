@@ -8,6 +8,7 @@ import apiRoutes from './routes/apiRoutes.js';
 import { initializeScheduledJobs } from './jobs/scheduler.js';
 import { initializeSchema } from './lib/database/schema.js';
 import { getDatabase } from './lib/database/database.js';
+import { initializeStylesInDatabase } from './services/styleService.js';
 
 // TODO: change express use to get set etc?
 
@@ -17,6 +18,9 @@ const app = express();
 // Initialize SQLite database schema
 initializeSchema();
 getDatabase(); // Establish connection
+
+// Initialize article styles in database
+initializeStylesInDatabase();
 
 // Activating the recurring jobs
 initializeScheduledJobs();

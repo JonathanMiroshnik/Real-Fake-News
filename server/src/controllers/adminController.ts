@@ -17,6 +17,7 @@ import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.j
 import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
+import { addNewsToTotal } from '../jobs/newsFetching.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -420,21 +421,28 @@ export const addAdminText = async (req: Request, res: Response): Promise<void> =
 // Generate a news article
 export const generateAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
+    debugLog('📝 [generateAdminArticle] Starting article generation request');
+    
     if (!validatePassword(req)) {
+      debugLog('❌ [generateAdminArticle] Invalid password');
       res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
-    debugLog('📝 [generateAdminArticle] Admin requested article generation');
+    debugLog('📝 [generateAdminArticle] Password validated, proceeding with article generation');
 
     // Get a random writer
+    debugLog('📝 [generateAdminArticle] Getting random writer...');
     const writer = await getRandomWriter();
-    debugLog('📝 [generateAdminArticle] Selected writer:', writer.name);
+    debugLog('📝 [generateAdminArticle] Selected writer:', writer.name, 'Key:', writer.key);
 
     // Get a random news item from recent news
+    debugLog('📝 [generateAdminArticle] Fetching recent news articles...');
     const recentNews = await getAllNewsArticlesAfterDate(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
+    debugLog('📝 [generateAdminArticle] Found', recentNews.length, 'recent news articles');
     
     if (recentNews.length === 0) {
+      debugLog('❌ [generateAdminArticle] No recent news articles available');
       res.status(400).json({ 
         success: false,
         error: 'No recent news articles available. Please ensure news fetching is working.' 
@@ -445,12 +453,14 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
     // Pick a random news item
     const randomIndex = Math.floor(Math.random() * recentNews.length);
     const newsItem: NewsItem = recentNews[randomIndex];
-    debugLog('📝 [generateAdminArticle] Selected news item:', newsItem.title);
+    debugLog('📝 [generateAdminArticle] Selected news item:', newsItem.title, 'ID:', newsItem.article_id);
 
     // Generate the article
+    debugLog('📝 [generateAdminArticle] Calling writeBlogPost with writer and news item...');
     const article = await writeBlogPost(writer, newsItem, true);
 
     if (!article) {
+      debugLog('❌ [generateAdminArticle] writeBlogPost returned null/undefined');
       res.status(500).json({ 
         success: false,
         error: 'Failed to generate article. Check server logs for details.' 
@@ -458,7 +468,7 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
       return;
     }
 
-    debugLog('✅ [generateAdminArticle] Article generated successfully:', article.key);
+    debugLog('✅ [generateAdminArticle] Article generated successfully:', article.key, 'Title:', article.title);
 
     res.json({
       success: true,
@@ -466,6 +476,7 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
       article: article
     });
   } catch (error) {
+    debugLog('❌ [generateAdminArticle] Error caught in try-catch:', error);
     console.error('❌ [generateAdminArticle] Error generating article:', error);
     res.status(500).json({ 
       success: false,
@@ -525,6 +536,52 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
     res.status(500).json({ 
       success: false,
       error: error instanceof Error ? error.message : 'Failed to generate recipe' 
+    });
+  }
+};
+
+// Fetch news from API
+export const fetchAdminNews = async (req: Request, res: Response): Promise<void> => {
+  try {
+    debugLog('📰 [fetchAdminNews] Starting news fetch request');
+    
+    if (!validatePassword(req)) {
+      debugLog('❌ [fetchAdminNews] Invalid password');
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    debugLog('📰 [fetchAdminNews] Password validated, proceeding with news fetch');
+
+    // Get number of articles to fetch from query parameter (default: 10)
+    const numArticles = req.query.numArticles ? parseInt(req.query.numArticles as string, 10) : 10;
+    debugLog('📰 [fetchAdminNews] Fetching', numArticles, 'news articles');
+
+    // Fetch news articles
+    const fetchedArticles = await addNewsToTotal(numArticles);
+    
+    if (!fetchedArticles || fetchedArticles.length === 0) {
+      debugLog('❌ [fetchAdminNews] No articles were fetched');
+      res.status(400).json({ 
+        success: false,
+        error: 'Failed to fetch news articles. Check API keys and token limits.' 
+      });
+      return;
+    }
+
+    debugLog('✅ [fetchAdminNews] Successfully fetched', fetchedArticles.length, 'news articles');
+    
+    res.json({
+      success: true,
+      message: `Successfully fetched ${fetchedArticles.length} news articles`,
+      articles: fetchedArticles
+    });
+  } catch (error) {
+    debugLog('❌ [fetchAdminNews] Error caught in try-catch:', error);
+    console.error('❌ [fetchAdminNews] Error fetching news:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch news' 
     });
   }
 };

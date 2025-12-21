@@ -145,17 +145,42 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
 };
 
 export async function generateAndSaveImage(positivePrompt: string) {
+    debugLog("📝 [generateAndSaveImage] Starting image generation");
+    debugLog("📝 [generateAndSaveImage] Prompt:", positivePrompt);
+    
     if (!SERVICE_ACTIVATED) {
+        debugLog('⚠️ [generateAndSaveImage] Service not activated, returning default image');
         return DEFAULT_IMAGE_NAME;
     }
 
     const format: "PNG" | "JPG" | "WEBP" = "WEBP";
-    const dataURI = await generateImage(positivePrompt, format);
+    debugLog("📝 [generateAndSaveImage] Using format:", format);
     
-    if (format === "WEBP") {
-        return await saveDataUriAsWebp(dataURI);
+    try {
+        debugLog("📝 [generateAndSaveImage] Calling generateImage API...");
+        const dataURI = await generateImage(positivePrompt, format);
+        
+        if (!dataURI || dataURI === "") {
+            debugLog('❌ [generateAndSaveImage] generateImage returned empty dataURI');
+            return "";
+        }
+        
+        debugLog("✅ [generateAndSaveImage] Image generated successfully, dataURI length:", dataURI.length);
+        
+        let filename: string;
+        if (format === "WEBP") {
+            debugLog("📝 [generateAndSaveImage] Saving as WebP...");
+            filename = await saveDataUriAsWebp(dataURI);
+        }
+        else {
+            debugLog("📝 [generateAndSaveImage] Saving as PNG...");
+            filename = await saveDataURIToPNG(dataURI);
+        }
+        
+        debugLog("✅ [generateAndSaveImage] Image saved successfully:", filename);
+        return filename;
+    } catch (error) {
+        debugLog('❌ [generateAndSaveImage] Error generating/saving image:', error);
+        return "";
     }
-    else {
-        return await saveDataURIToPNG(dataURI);
-    }
-} 
+}

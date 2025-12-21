@@ -181,6 +181,55 @@ export function initializeSchema(): void {
         ON recipes(timestamp)
     `);
 
+    // Article Pipeline Table (Phase 1)
+    // Tracks articles through the parody news production pipeline
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS article_pipeline (
+            id TEXT PRIMARY KEY,
+            raw_source_id TEXT,
+            article_style TEXT DEFAULT 'general_newspaper_parody',
+            draft_content TEXT,
+            editor_notes JSON,
+            current_stage TEXT DEFAULT 'draft',
+            stage_history JSON,
+            humor_score REAL,
+            published BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Article Styles Table (Phase 1)
+    // Defines different comedic styles for parody articles
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS article_styles (
+            style_key TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT NOT NULL,
+            voice_guidelines TEXT NOT NULL,
+            comedic_approach TEXT NOT NULL,
+            example_headline TEXT,
+            example_paragraph TEXT,
+            is_default BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Index on article_pipeline for querying
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_article_pipeline_current_stage 
+        ON article_pipeline(current_stage)
+    `);
+
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_article_pipeline_published 
+        ON article_pipeline(published)
+    `);
+
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_article_pipeline_created_at 
+        ON article_pipeline(created_at)
+    `);
+
     debugLog('SQLite schema initialized successfully');
 }
-

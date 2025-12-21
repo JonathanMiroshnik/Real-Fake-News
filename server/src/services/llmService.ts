@@ -29,10 +29,15 @@ export class LLMService {
     };
     
     if (!SERVICE_ACTIVATED) {
+      debugLog('⚠️ [LLMService] Service not activated, returning empty response');
       return contentRes;
     }
 
     try {
+      debugLog('📝 [LLMService] Generating content with type:', options.type);
+      debugLog('📝 [LLMService] Prompt length:', options.prompt.length, 'characters');
+      debugLog('📝 [LLMService] Prompt preview:', options.prompt.substring(0, 200) + '...');
+      
       // TODO: fix model and make it in .env as a dictionary?
       const completion = await this.openai.chat.completions.create({
         messages: [{ role: "system", content: options.prompt }],
@@ -42,12 +47,18 @@ export class LLMService {
         }
       });      
       
+      debugLog('✅ [LLMService] LLM API call successful');
+      debugLog('📝 [LLMService] Response received, choices:', completion.choices.length);
+      
       // TODO: what do I do with the return statement here with the ? parts
       contentRes = {
         success: true,
         generatedText: completion?.choices[0]?.message.content as string,
         error: ""
       };
+
+      debugLog('📝 [LLMService] Generated text length:', contentRes.generatedText?.length || 0, 'characters');
+      debugLog('📝 [LLMService] Generated text preview:', contentRes.generatedText?.substring(0, 200) + '...');
 
       // return completion?.choices[0]?.message.content as string;
     } catch (error) {
@@ -58,7 +69,7 @@ export class LLMService {
         error: error as string
       };
 
-      debugLog('LLM generation error:', error);
+      debugLog('❌ [LLMService] LLM generation error:', error);
       throw new Error('Content generation failed');
     }
 

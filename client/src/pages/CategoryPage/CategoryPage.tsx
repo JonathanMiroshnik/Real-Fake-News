@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { articlesByCategory, CATEGORIES } from '../../services/articleService';
 // import CategoryArticleList from '../../components/CategoryArticleList/CategoryArticleList';
-import './CategoryPage.css'
 import ArticleList from '../../components/ArticleList/ArticleList';
 import { useContext } from 'react';
 import { ArticleContext } from '../../contexts/ArticlesContext';

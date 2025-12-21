@@ -2,35 +2,55 @@ import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from "../config/constants.js";
 import { createPost } from "../lib/database/sqliteOperations.js";
 import { newsDatabaseConfig } from "../lib/database/databaseConfigurations.js";
 import { NewsItem, remainingTokens, fetchNews } from "../services/newsService.js";
+import { debugLog, debugError } from "../utils/debugLogger.js";
 
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.
 export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem[]> {
+  debugLog('📰 [addNewsToTotal] Starting news fetch for', numArticles, 'articles');
+  debugLog('📰 [addNewsToTotal] Remaining tokens:', remainingTokens);
+  
   // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
   // If there are no more tokens remaining, this function cannot be used.
   if (remainingTokens <= 0) {
+    debugError('❌ [addNewsToTotal] No more tokens remaining');
     throw new Error("No more tokens remaining.");
   }
+  
   if (remainingTokens * NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
+    debugError('❌ [addNewsToTotal] Not enough tokens remaining for', numArticles, 'articles');
     throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
   }
 
   let neededApiRequests = Math.ceil(numArticles / NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
   let nextPage: string = "";
+  debugLog('📰 [addNewsToTotal] Needed API requests:', neededApiRequests);
 
   let retArticles: NewsItem[] = [];
   let gatherPage: string;
+  
   for (let i = 0; i < neededApiRequests; i++) {
+    debugLog('📰 [addNewsToTotal] Making API request', i + 1, 'of', neededApiRequests);
     [retArticles, gatherPage] = await fetchNews(nextPage);
     
-    // console.log(`Fetched ${retArticles.length} recent real news articles`);
+    debugLog('📰 [addNewsToTotal] Fetched', retArticles.length, 'recent real news articles');
+    
+    if (retArticles.length === 0) {
+      debugLog('⚠️ [addNewsToTotal] No articles returned from fetchNews');
+    } else {
+      debugLog('📰 [addNewsToTotal] First article title:', retArticles[0]?.title);
+    }
 
-    insertArticlesToDatabase(retArticles);
+    const insertedArticles = await insertArticlesToDatabase(retArticles);
+    debugLog('📰 [addNewsToTotal] Inserted', insertedArticles.length, 'articles to database');
+    
     nextPage = gatherPage;
     if (nextPage === "") {
-      return [];
+      debugLog('📰 [addNewsToTotal] No next page available, stopping');
+      break;
     }
   }
   
+  debugLog('✅ [addNewsToTotal] Completed, total fetched articles:', retArticles.length);
   return retArticles;
 }
 

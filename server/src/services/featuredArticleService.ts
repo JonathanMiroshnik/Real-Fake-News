@@ -13,6 +13,7 @@ import { ChatDeepSeek } from "@langchain/deepseek";
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
+import { normalizeParagraphFormatting } from '../utils/contentNormalizer.js';
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
@@ -105,7 +106,8 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
 
     Please parse this request to a json output. I will give examples after. \n
     Make sure the content of the article is longer than that of the examples given.\n
-    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n
+    IMPORTANT: Use proper paragraph formatting with TWO newlines (blank line) between paragraphs for markdown rendering.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
@@ -199,7 +201,8 @@ function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsIte
 
     Please parse this request to a json output. I will give examples after. \n
     Make sure the content of the article is longer than that of the examples given.\n
-    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
+    Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n
+    IMPORTANT: Use proper paragraph formatting with TWO newlines (blank line) between paragraphs for markdown rendering.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n

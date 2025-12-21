@@ -1,4 +1,4 @@
-.theme-toggle-container {
+/* .theme-toggle-container {
   display: flex;
   align-items: center;
   margin-left: auto;
@@ -87,10 +87,10 @@
 
 .theme-toggle.light:active .theme-toggle-thumb {
   transform: translateX(0) scale(0.95);
-}
+} */
 
 /* Responsive adjustments */
-@media (max-width: 37.5em) {
+/* @media (max-width: 37.5em) {
   .theme-toggle-container {
     padding: 0 0.5rem;
   }
@@ -112,4 +112,4 @@
   .theme-icon {
     font-size: 10px;
   }
-}
+} */
