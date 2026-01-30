@@ -93,6 +93,122 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml restart client
 
 ---
 
+## Hot-Reload Development (Without Docker)
+
+For the fastest development experience with instant hot-reload, run the services directly on your host machine:
+
+### Prerequisites
+
+1. **Node.js 20+** and **npm** installed
+2. **Environment variables** set up in each directory:
+   ```bash
+   # Copy example environment files
+   cp server/.env.example server/.env
+   cp client/.env.example client/.env
+   cp admin/.env.example admin/.env
+   
+   # Edit each .env file with your configuration
+   ```
+
+### Running Services with Hot-Reload
+
+#### Terminal 1: Backend Server
+```bash
+cd server
+npm install
+npm run dev
+```
+- **Port**: 5001
+- **Hot-reload**: Uses nodemon to restart on TypeScript changes
+- **Access**: http://localhost:5001/api/health
+
+#### Terminal 2: React Client
+```bash
+cd client
+npm install
+npm run dev
+```
+- **Port**: 5173
+- **Hot-reload**: Vite provides instant updates
+- **Access**: http://localhost:5173
+
+#### Terminal 3: Svelte Admin
+```bash
+cd admin
+npm install
+npm run dev
+```
+- **Port**: 5174
+- **Hot-reload**: Vite provides instant updates
+- **Access**: http://localhost:5174
+
+### Hot-Reload Features
+
+- **Instant Updates**: Code changes appear in the browser within milliseconds
+- **State Preservation**: React/Svelte component state is preserved during updates
+- **TypeScript Support**: Automatic compilation and error reporting
+- **CSS Updates**: Styles update without page refresh
+
+### Environment Configuration for Local Development
+
+Update these environment variables for local development:
+
+**In `client/.env`:**
+```env
+VITE_BACKEND_DEV_MODE=true
+VITE_API_BASE_DEV=http://localhost:5001
+VITE_USE_RELATIVE_API=false
+VITE_DEBUG_LOGS=true
+```
+
+**In `admin/.env`:**
+```env
+VITE_BACKEND_DEV_MODE=true
+VITE_API_BASE_DEV=http://localhost:5001
+VITE_USE_RELATIVE_API=false
+VITE_FRONTEND_DEV_MODE=true
+VITE_CLIENT_URL_DEV=http://localhost:5173
+```
+
+**In `server/.env`:**
+```env
+NODE_ENV=development
+DEBUG_LOGS=true
+LOCAL_DEV_BACKEND=true
+```
+
+### Development Workflow
+
+1. **Start all services** in separate terminals as shown above
+2. **Make code changes** in any service
+3. **See instant updates** in the browser
+4. **Debug** using browser developer tools and server logs
+
+### Advantages Over Docker Development
+
+- **Faster**: No Docker build/rebuild time
+- **Instant**: Changes appear immediately
+- **Lighter**: Uses host resources directly
+- **Debugging**: Easier to attach debuggers and profilers
+
+### Switching Between Docker and Local Development
+
+When switching from Docker to local development:
+
+1. **Stop Docker containers**:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+   ```
+
+2. **Clear port bindings** (if needed):
+   ```bash
+   fuser -k 5173/tcp 5174/tcp 5001/tcp 2>/dev/null || echo "Ports freed"
+   ```
+
+3. **Start local services** as described above
+
+---
+
 ## Production Mode
 
 **Use this for production deployments.**
