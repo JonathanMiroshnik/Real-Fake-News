@@ -197,6 +197,56 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 docker compose down
 ```
 
+### Generate Mock Data
+
+To populate the database with sample data for testing and development:
+
+**Using Docker Compose:**
+```bash
+docker compose exec server npm run generate-mock-data
+```
+
+**Or with custom options:**
+```bash
+docker compose exec server npm run generate-mock-data --writers 3 --articles 10 --recipes 5 --no-foods
+```
+
+**Available options:**
+- `--writers <number>`: Number of writers to generate (default: 5)
+- `--articles <number>`: Number of articles to generate (default: 20)
+- `--news-items <number>`: Number of news items to generate (default: 15)
+- `--featured <number>`: Number of featured articles to generate (default: 5)
+- `--recipes <number>`: Number of recipes to generate (default: 10)
+- `--horoscopes <number>`: Number of horoscopes to generate (default: 24)
+- `--no-foods`: Skip inserting food names (default: insert foods)
+- `--help, -h`: Show help message
+
+**Examples:**
+```bash
+# Generate default amount of data
+docker compose exec server npm run generate-mock-data
+
+# Generate minimal data
+docker compose exec server npm run generate-mock-data --writers 2 --articles 5
+
+# Generate data without food entries
+docker compose exec server npm run generate-mock-data --no-foods
+
+# Show help
+docker compose exec server npm run generate-mock-data --help
+```
+
+The mock data generator creates realistic sample data including:
+- Writers with profiles and system prompts
+- Articles with different categories (Technology, Travel, Food, Science, etc.)
+- News items with breaking news
+- Featured articles with multiple authors and sub-articles
+- Recipes with ingredients and instructions
+- Horoscopes with astrological data
+- Basic food names for recipe generation
+
+All data is inserted into the SQLite database and includes realistic Lorem Ipsum content, dates within the past year, and proper relationships between entities.
+
 ## Troubleshooting
 
 ### Services Won't Start

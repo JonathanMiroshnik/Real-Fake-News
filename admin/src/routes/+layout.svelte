@@ -17,7 +17,6 @@
 	// Navigation items
 	const navItems = [
 		{ path: '/', label: 'Dashboard', icon: '📊' },
-		{ path: '/articles', label: 'Articles', icon: '📰' },
 		{ path: '/settings', label: 'Settings', icon: '⚙️' }
 	];
 
