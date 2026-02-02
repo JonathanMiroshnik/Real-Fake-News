@@ -11,7 +11,8 @@
     "prestart": "npm run build",
     "seed": "node data/seed-data.js",
     "migrate": "tsx src/scripts/migrateToSqlite.ts",
-    "compress-images": "tsx src/scripts/compressExistingImages.ts"
+    "compress-images": "tsx src/scripts/compressExistingImages.ts",
+    "generate-mock-data": "tsx src/scripts/generateMockData.ts"
   },
   "keywords": [],
   "author": "",
