@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+server/dist/
+client/dist/
+admin/build/
+
+# Environment files
+.env
+.env.*
+
+# Database files
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files
+package-lock.json
+
+# Images (handled by git-lfs or not formatted)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+
+# Media mount
+media/
+server/data/

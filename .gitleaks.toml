@@ -1,0 +1,32 @@
+# Gitleaks config for Real-Fake-News
+# Extends the default config with project-specific allowlists
+
+title = "Real-Fake-News Gitleaks Config"
+
+# Use the default rules as a base
+[extend]
+useDefault = true
+
+# Allowlist for false positives
+[allowlist]
+description = "Global allowlist for known safe values"
+paths = [
+    # These are Docker environment examples with placeholder values
+    ".env.example",
+    "admin/.env.example",
+    "server/.env.example",
+    "client/.env.example",
+    "docker-compose.env.example",
+    # Lock files aren't secrets
+    "package-lock.json",
+    # Configuration files
+    ".gitignore",
+    ".dockerignore",
+    ".prettierignore",
+    # Readme files
+    "README.md",
+]
+regexes = [
+    # UUIDs used as React keys (not secrets)
+    "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+]
