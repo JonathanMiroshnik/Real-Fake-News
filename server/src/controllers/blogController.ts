@@ -6,7 +6,7 @@ import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
 import { debugLog } from '../utils/debugLogger.js';
-import { isFakeDataEnabled, generateFakeArticle, generateFakeArticles, generateFakeFeaturedArticle, getFakeBlogResponse } from '../services/fakeDataService.js';
+import { isFakeDataEnabled, generateFakeArticle, generateFakeFeaturedArticle, getFakeBlogResponse } from '../services/fakeDataService.js';
 
 // TODO: some functions need to be combined here
 // Currently set up to pull only the DAILY blog posts, the request does not matter
@@ -18,7 +18,7 @@ export const pullBlogs = async (req: Request, res: Response) => {
         
         if (result.articles.length === 0 && isFakeDataEnabled()) {
             debugLog('📰 [Fallback] No daily articles found, generating fake articles');
-            const fakeResponse = getFakeBlogResponse(8);
+            const fakeResponse = await getFakeBlogResponse(8);
             res.json(fakeResponse);
             return;
         }
@@ -37,7 +37,7 @@ export async function pullHourlyBlogs(req: Request, res: Response) {
         
         if (result.articles.length === 0 && isFakeDataEnabled()) {
             debugLog('📰 [Fallback] No hourly articles found, generating fake articles');
-            const fakeResponse = getFakeBlogResponse(8);
+            const fakeResponse = await getFakeBlogResponse(8);
             res.json(fakeResponse);
             return;
         }
@@ -71,7 +71,7 @@ export async function pullBlogsByMinute(req: Request, res: Response) {
         
         if (result.articles.length === 0 && isFakeDataEnabled()) {
             debugLog('📰 [Fallback] No articles found in last', minutes, 'minutes, generating fake articles');
-            const fakeResponse = getFakeBlogResponse(8);
+            const fakeResponse = await getFakeBlogResponse(8);
             res.json(fakeResponse);
             return;
         }
@@ -93,7 +93,7 @@ export async function getRelevantArticlesController(req: Request, res: Response)
         // Fallback: if no articles found and fake data is enabled, return generated articles
         if (result.articles.length === 0 && isFakeDataEnabled()) {
             debugLog('📰 [Fallback] No articles found, generating fake articles');
-            const fakeResponse = getFakeBlogResponse(8);
+            const fakeResponse = await getFakeBlogResponse(8);
             res.json(fakeResponse);
             return;
         }
@@ -128,7 +128,7 @@ export async function getArticleByKeyController(req: Request, res: Response) {
             const totalCount = await getPostsCount(blogDatabaseConfig);
             if (totalCount === 0) {
                 debugLog('📰 [Fallback] Database empty, returning fake article for key:', key);
-                const fakeArticle = generateFakeArticle();
+                const fakeArticle = await generateFakeArticle();
                 // Preserve the requested key so the frontend can match it
                 fakeArticle.key = key;
                 res.json({
@@ -175,7 +175,7 @@ export async function getFeaturedArticleController(req: Request, res: Response) 
         } else if (isFakeDataEnabled()) {
             // Fallback: no featured article found, generate a fake one
             debugLog('📰 [Fallback] No featured article found, generating fake featured article');
-            const fakeArticle = generateFakeFeaturedArticle();
+            const fakeArticle = await generateFakeFeaturedArticle();
             res.json({
                 success: true,
                 article: fakeArticle,

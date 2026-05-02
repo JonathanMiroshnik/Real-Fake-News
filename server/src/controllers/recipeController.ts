@@ -17,7 +17,7 @@ export async function getRelevantRecipesController(req: Request, res: Response) 
         // Fallback: if no recipes found and fake data is enabled, return generated recipes
         if (recipes.length === 0 && isFakeDataEnabled()) {
             debugLog('🍳 [Fallback] No recipes found, generating fake recipes');
-            const fakeRecipes = generateFakeRecipes(4);
+            const fakeRecipes = await generateFakeRecipes(4);
             res.json({
                 success: true,
                 recipes: fakeRecipes,
@@ -49,7 +49,7 @@ export async function getDailyRecipesController(req: Request, res: Response) {
         // Fallback: if no recent recipes found and fake data is enabled, return generated recipes
         if (recipes.length === 0 && isFakeDataEnabled()) {
             debugLog('🍳 [Fallback] No daily recipes found, generating fake recipes');
-            const fakeRecipes = generateFakeRecipes(4);
+            const fakeRecipes = await generateFakeRecipes(4);
             res.json({
                 success: true,
                 recipes: fakeRecipes,
@@ -97,7 +97,7 @@ export async function getRecipeByKeyController(req: Request, res: Response) {
             const totalCount = await getPostsCount(recipeDatabaseConfig);
             if (totalCount === 0) {
                 debugLog('🍳 [Fallback] Database empty, returning fake recipe for key:', key);
-                const fakeRecipe = generateFakeRecipe();
+                const fakeRecipe = await generateFakeRecipe();
                 fakeRecipe.key = key;
                 res.json({
                     success: true,

@@ -5,11 +5,15 @@ import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
 import { NewsItem } from './newsService.js';
 import { getUniqueKey } from '../utils/general.js';
 import { debugLog } from '../utils/debugLogger.js';
+import { Jimp } from 'jimp';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
+import { getImagesDirectory } from '../utils/imageCompression.js';
 
 /**
  * Whether fake data fallback is enabled.
  * Controlled via the ENABLE_FAKE_DATA environment variable.
- * Set to "true" to enable, anything else (or unset) to disable.
  */
 export function isFakeDataEnabled(): boolean {
     return process.env.ENABLE_FAKE_DATA === 'true';
@@ -65,6 +69,154 @@ function pickUniqueRandomElements<T>(array: T[], count: number): T[] {
     return shuffled.slice(0, count);
 }
 
+function clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+}
+
+// ---------------------------------------------------------------------------
+// Tiled placeholder image generator
+// ---------------------------------------------------------------------------
+
+/**
+ * Configuration for the tiled placeholder image generation.
+ *
+ * Can be overridden via environment variables:
+ * - FAKE_IMAGE_WIDTH        (default: 896)  Actual image width in pixels
+ * - FAKE_IMAGE_HEIGHT       (default: 512)  Actual image height in pixels
+ * - FAKE_IMAGE_TILES_X      (default: 8)    Number of tiles horizontally
+ * - FAKE_IMAGE_TILES_Y      (default: 6)    Number of tiles vertically
+ * - FAKE_IMAGE_COLOR_MIN_R  (default: 30)   Minimum red value (0-255)
+ * - FAKE_IMAGE_COLOR_MAX_R  (default: 225)  Maximum red value (0-255)
+ * - FAKE_IMAGE_COLOR_MIN_G  (default: 30)   Minimum green value (0-255)
+ * - FAKE_IMAGE_COLOR_MAX_G  (default: 225)  Maximum green value (0-255)
+ * - FAKE_IMAGE_COLOR_MIN_B  (default: 30)   Minimum blue value (0-255)
+ * - FAKE_IMAGE_COLOR_MAX_B  (default: 225)  Maximum blue value (0-255)
+ */
+export interface PlaceholderImageConfig {
+    /** Image width in pixels */
+    width: number;
+    /** Image height in pixels */
+    height: number;
+    /** Number of tiles horizontally */
+    tilesX: number;
+    /** Number of tiles vertically */
+    tilesY: number;
+    /** Minimum RGB channel values (inclusive) */
+    colorMin: { r: number; g: number; b: number };
+    /** Maximum RGB channel values (inclusive) */
+    colorMax: { r: number; g: number; b: number };
+}
+
+/**
+ * Reads PlaceholderImageConfig from environment variables,
+ * falling back to defaults for any missing values.
+ */
+export function getPlaceholderImageConfig(): PlaceholderImageConfig {
+    return {
+        width: parseInt(process.env.FAKE_IMAGE_WIDTH || '896', 10),
+        height: parseInt(process.env.FAKE_IMAGE_HEIGHT || '512', 10),
+        tilesX: parseInt(process.env.FAKE_IMAGE_TILES_X || '8', 10),
+        tilesY: parseInt(process.env.FAKE_IMAGE_TILES_Y || '6', 10),
+        colorMin: {
+            r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_R || '30', 10), 0, 255),
+            g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_G || '30', 10), 0, 255),
+            b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_B || '30', 10), 0, 255),
+        },
+        colorMax: {
+            r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_R || '225', 10), 0, 255),
+            g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_G || '225', 10), 0, 255),
+            b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_B || '225', 10), 0, 255),
+        },
+    };
+}
+
+/**
+ * Generates a random integer in [min, max] inclusive.
+ */
+function randomChannel(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Generates a tiled-color placeholder image and saves it to the images
+ * directory alongside real generated images.
+ *
+ * The image is divided into an N x M grid of tiles, each filled with
+ * a random color sampled from the configurable RGB range.
+ *
+ * @param config   Optional override config. Uses env vars / defaults if omitted.
+ * @returns        The saved image filename (e.g. "placeholder-abc123.png"),
+ *                 or empty string on failure.
+ */
+export async function generatePlaceholderImage(
+    config?: Partial<PlaceholderImageConfig>
+): Promise<string> {
+    if (!isFakeDataEnabled()) {
+        return '';
+    }
+
+    const cfg: PlaceholderImageConfig = { ...getPlaceholderImageConfig(), ...config };
+
+    // Validate dimensions
+    if (cfg.tilesX < 1 || cfg.tilesY < 1 || cfg.width < 1 || cfg.height < 1) {
+        debugLog('⚠️ [PlaceholderImage] Invalid dimensions, skipping image generation');
+        return '';
+    }
+
+    const tileWidth = Math.floor(cfg.width / cfg.tilesX);
+    const tileHeight = Math.floor(cfg.height / cfg.tilesY);
+
+    try {
+        const image = new Jimp({ width: cfg.width, height: cfg.height, color: 0x000000 });
+
+        for (let ty = 0; ty < cfg.tilesY; ty++) {
+            for (let tx = 0; tx < cfg.tilesX; tx++) {
+                const r = randomChannel(cfg.colorMin.r, cfg.colorMax.r);
+                const g = randomChannel(cfg.colorMin.g, cfg.colorMax.g);
+                const b = randomChannel(cfg.colorMin.b, cfg.colorMax.b);
+
+                // Pack into 32-bit RGBA (alpha = 0xFF)
+                const hexColor = (r << 24) | (g << 16) | (b << 8) | 0xff;
+
+                const x = tx * tileWidth;
+                const y = ty * tileHeight;
+
+                // Draw the tile as a filled rectangle
+                for (let py = 0; py < tileHeight; py++) {
+                    for (let px = 0; px < tileWidth; px++) {
+                        const pixelX = x + px;
+                        const pixelY = y + py;
+                        if (pixelX < cfg.width && pixelY < cfg.height) {
+                            image.setPixelColor(hexColor, pixelX, pixelY);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Ensure images directory exists
+        const imagesDir = getImagesDirectory();
+        fs.mkdirSync(imagesDir, { recursive: true });
+
+        const filename = `placeholder-${uuidv4()}.png`;
+        const filePath = path.join(imagesDir, filename);
+
+        const buffer = await image.getBuffer('image/png');
+        await fs.promises.writeFile(filePath, buffer);
+
+        debugLog('🖼️ [PlaceholderImage] Generated:', filename);
+
+        return filename;
+    } catch (error) {
+        console.error('❌ [PlaceholderImage] Failed to generate:', error);
+        return '';
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Writer generator
+// ---------------------------------------------------------------------------
+
 function generateFakeWriter(): Writer {
     const now = new Date().toISOString();
     const name = getRandomElement(FAKE_WRITER_NAMES);
@@ -86,13 +238,14 @@ function generateFakeWriter(): Writer {
 // ---------------------------------------------------------------------------
 
 /**
- * Generates a single fake blog article.
- * Created in-memory only — never persisted to the database.
+ * Generates a single fake blog article with a placeholder image.
  */
-export function generateFakeArticle(): ArticleScheme {
+export async function generateFakeArticle(): Promise<ArticleScheme> {
     const now = new Date();
     const title = getRandomElement(FAKE_HEADLINES);
     const category = getRandomElement(FAKE_CATEGORIES);
+
+    const imageName = await generatePlaceholderImage();
 
     return {
         key: getUniqueKey(),
@@ -107,7 +260,7 @@ export function generateFakeArticle(): ArticleScheme {
         author: generateFakeWriter(),
         timestamp: now.toISOString(),
         category,
-        headImage: '',
+        headImage: imageName,
         shortDescription: `An in-depth look at how ${category.toLowerCase()} is changing — and why a goose may have all the answers.`,
         writerType: 'Synthesis',
         originalNewsItem: {
@@ -125,15 +278,19 @@ export function generateFakeArticle(): ArticleScheme {
 /**
  * Generates an array of fake blog articles with unique headlines.
  */
-export function generateFakeArticles(count: number = 8): ArticleScheme[] {
+export async function generateFakeArticles(count: number = 8): Promise<ArticleScheme[]> {
     const headlines = pickUniqueRandomElements(FAKE_HEADLINES, Math.min(count, FAKE_HEADLINES.length));
     const categories = pickUniqueRandomElements(FAKE_CATEGORIES, Math.min(count, FAKE_CATEGORIES.length));
 
-    return headlines.map((title, index) => {
+    const articles: ArticleScheme[] = [];
+    for (let index = 0; index < headlines.length; index++) {
+        const title = headlines[index];
         const now = new Date();
         now.setMinutes(now.getMinutes() - index);
 
-        return {
+        const imageName = await generatePlaceholderImage();
+
+        articles.push({
             key: getUniqueKey(),
             title,
             content: [
@@ -146,7 +303,7 @@ export function generateFakeArticles(count: number = 8): ArticleScheme[] {
             author: generateFakeWriter(),
             timestamp: now.toISOString(),
             category: categories[index % categories.length],
-            headImage: '',
+            headImage: imageName,
             shortDescription: `How ${categories[index % categories.length].toLowerCase()} is changing — and why a goose may have all the answers.`,
             writerType: 'Synthesis',
             originalNewsItem: {
@@ -158,15 +315,16 @@ export function generateFakeArticles(count: number = 8): ArticleScheme[] {
             },
             isFeatured: false,
             featuredDate: undefined,
-        } as ArticleScheme;
-    });
+        });
+    }
+    return articles;
 }
 
 /**
  * Returns a fake BlogResponse with generated articles,
  * or an empty response if fake data is disabled.
  */
-export function getFakeBlogResponse(articleCount: number = 8): BlogResponse {
+export async function getFakeBlogResponse(articleCount: number = 8): Promise<BlogResponse> {
     if (!isFakeDataEnabled()) {
         return { success: true, articles: [], error: '' };
     }
@@ -174,7 +332,7 @@ export function getFakeBlogResponse(articleCount: number = 8): BlogResponse {
     debugLog('📰 [FakeDataService] Generating fake blog articles');
     return {
         success: true,
-        articles: generateFakeArticles(articleCount),
+        articles: await generateFakeArticles(articleCount),
         error: '',
     };
 }
@@ -184,11 +342,12 @@ export function getFakeBlogResponse(articleCount: number = 8): BlogResponse {
 // ---------------------------------------------------------------------------
 
 /**
- * Generates a single fake featured article.
+ * Generates a single fake featured article with a placeholder image.
  */
-export function generateFakeFeaturedArticle(): ArticleScheme {
+export async function generateFakeFeaturedArticle(): Promise<ArticleScheme> {
     const now = new Date();
     const title = `Special Report: ${getRandomElement(FAKE_HEADLINES)}`;
+    const imageName = await generatePlaceholderImage();
 
     return {
         key: getUniqueKey(),
@@ -201,7 +360,7 @@ export function generateFakeFeaturedArticle(): ArticleScheme {
         author: generateFakeWriter(),
         timestamp: now.toISOString(),
         category: getRandomElement(FAKE_CATEGORIES),
-        headImage: '',
+        headImage: imageName,
         shortDescription: `A deep dive into the news that has everyone talking — plus commentary from a squirrel.`,
         writerType: 'Synthesis',
         originalNewsItem: {
@@ -221,12 +380,13 @@ export function generateFakeFeaturedArticle(): ArticleScheme {
 // ---------------------------------------------------------------------------
 
 /**
- * Generates a single fake recipe.
+ * Generates a single fake recipe with a placeholder image.
  */
-export function generateFakeRecipe(): RecipeScheme {
+export async function generateFakeRecipe(): Promise<RecipeScheme> {
     const now = new Date();
     const title = getRandomElement(FAKE_RECIPE_NAMES);
     const writer = generateFakeWriter();
+    const imageName = await generatePlaceholderImage();
 
     return {
         key: getUniqueKey(),
@@ -242,7 +402,7 @@ export function generateFakeRecipe(): RecipeScheme {
         author: writer,
         timestamp: now.toISOString(),
         category: 'Food',
-        headImage: '',
+        headImage: imageName,
         images: [],
         shortDescription: `A forgiving recipe that works with whatever you have on hand — and a healthy dose of self-deprecation.`,
         writerType: 'Synthesis',
@@ -252,16 +412,18 @@ export function generateFakeRecipe(): RecipeScheme {
 /**
  * Generates an array of fake recipes with unique titles.
  */
-export function generateFakeRecipes(count: number = 4): RecipeScheme[] {
+export async function generateFakeRecipes(count: number = 4): Promise<RecipeScheme[]> {
     const names = pickUniqueRandomElements(FAKE_RECIPE_NAMES, Math.min(count, FAKE_RECIPE_NAMES.length));
 
-    return names.map((title, index) => {
+    const recipes: RecipeScheme[] = [];
+    for (let index = 0; index < names.length; index++) {
         const now = new Date();
         now.setMinutes(now.getMinutes() - index);
+        const imageName = await generatePlaceholderImage();
 
-        return {
+        recipes.push({
             key: getUniqueKey(),
-            title,
+            title: names[index],
             paragraphs: [
                 `Welcome, brave culinary explorer. Today we embark on a journey that will test your pantry and your patience.`,
                 `## Ingredients\n- Whatever you have in the fridge\n- A dash of hope\n- 2 tablespoons of improvisation\n- Salt (to taste)`,
@@ -272,12 +434,13 @@ export function generateFakeRecipes(count: number = 4): RecipeScheme[] {
             author: generateFakeWriter(),
             timestamp: now.toISOString(),
             category: 'Food',
-            headImage: '',
+            headImage: imageName,
             images: [],
             shortDescription: `A forgiving recipe that works with whatever you have on hand.`,
             writerType: 'Synthesis',
-        } as RecipeScheme;
-    });
+        });
+    }
+    return recipes;
 }
 
 // ---------------------------------------------------------------------------
