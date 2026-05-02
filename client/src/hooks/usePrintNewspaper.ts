@@ -26,7 +26,7 @@ export function usePrintNewspaper() {
 
     // Method 2: Use media query listener (more reliable for print preview)
     const mediaQuery = window.matchMedia('print');
-    
+
     const handleMediaChange = (e: MediaQueryListEvent | MediaQueryList) => {
       const isPrint = e.matches;
       debugLog('🖨️ [Print] Media query changed:', isPrint);
@@ -50,10 +50,10 @@ export function usePrintNewspaper() {
     // Add event listeners
     window.addEventListener('beforeprint', handleBeforePrint);
     window.addEventListener('afterprint', handleAfterPrint);
-    
+
     // Check initial state
     handleMediaChange(mediaQuery);
-    
+
     // Listen for media query changes (modern browsers)
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleMediaChange);
@@ -61,7 +61,7 @@ export function usePrintNewspaper() {
       // Fallback for older browsers
       mediaQuery.addListener(handleMediaChange);
     }
-    
+
     // Start polling as additional fallback
     startPolling();
 
@@ -82,4 +82,3 @@ export function usePrintNewspaper() {
 
   return isPrintMode;
 }
-

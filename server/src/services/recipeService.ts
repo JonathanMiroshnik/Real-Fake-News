@@ -1,14 +1,12 @@
 import 'dotenv/config';
 import { RecipeScheme } from '../types/article.js';
 import { Writer } from '../types/writer.js';
-import { Food } from '../types/food.js';
 import { generateTextFromString } from './llmService.js';
 import { generateAndSaveImage } from './imageService.js';
 import { getUniqueKey } from '../utils/general.js';
 import { getDatabase } from '../lib/database/database.js';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
-import { getRandomWriter } from './writerService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
 /**
@@ -17,10 +15,10 @@ import { debugLog } from '../utils/debugLogger.js';
  * @returns Array of food names
  */
 export async function getRandomFoods(count: number = 3): Promise<string[]> {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT name FROM foods ORDER BY RANDOM() LIMIT ?');
-    const rows = stmt.all(count) as { name: string }[];
-    return rows.map(row => row.name);
+  const db = getDatabase();
+  const stmt = db.prepare('SELECT name FROM foods ORDER BY RANDOM() LIMIT ?');
+  const rows = stmt.all(count) as { name: string }[];
+  return rows.map((row) => row.name);
 }
 
 /**
@@ -30,74 +28,81 @@ export async function getRandomFoods(count: number = 3): Promise<string[]> {
  * @param saveRecipe Whether to save the recipe to the database
  * @returns The generated recipe or undefined if generation fails
  */
-export async function generateRecipe(writer: Writer, foods: string[], saveRecipe: boolean = true): Promise<RecipeScheme | undefined> {
-    try {
-        const prompt = createRecipePrompt(writer, foods);
-        
-        debugLog('🍳 [generateRecipe] Generating recipe with foods:', foods.join(', '));
-        const result = await generateTextFromString(prompt, 'json_object');
-        
-        if (result === undefined || !result?.success) {
-            console.error('❌ [generateRecipe] Recipe generation failed - invalid response');
-            return undefined;
-        }
+export async function generateRecipe(
+  writer: Writer,
+  foods: string[],
+  saveRecipe: boolean = true,
+): Promise<RecipeScheme | undefined> {
+  try {
+    const prompt = createRecipePrompt(writer, foods);
 
-        let parsedData: any;
-        try {
-            parsedData = JSON.parse(result.generatedText);
-        } catch (error) {
-            console.error('❌ [generateRecipe] Failed to parse LLM JSON response:', error);
-            console.error('❌ [generateRecipe] Raw response:', result.generatedText?.substring(0, 500));
-            return undefined;
-        }
+    debugLog('🍳 [generateRecipe] Generating recipe with foods:', foods.join(', '));
+    const result = await generateTextFromString(prompt, 'json_object');
 
-        // Generate head image
-        const headImagePrompt = parsedData.headImagePrompt || parsedData.prompt || `A beautiful photo of ${parsedData.title || 'a recipe'}`;
-        const headImageName = await generateAndSaveImage(headImagePrompt);
-
-        // Generate additional images for the recipe
-        const imagePrompts = parsedData.imagePrompts || [];
-        const images: string[] = [];
-        
-        for (const imgPrompt of imagePrompts) {
-            const imgName = await generateAndSaveImage(imgPrompt);
-            if (imgName) {
-                images.push(imgName);
-            }
-        }
-
-        const newRecipe: RecipeScheme = {
-            key: getUniqueKey(),
-            title: parsedData.title,
-            paragraphs: parsedData.paragraphs || [],
-            author: writer,
-            timestamp: new Date().toISOString(),
-            category: 'Food',
-            headImage: headImageName,
-            images: images,
-            shortDescription: parsedData.shortDescription,
-            writerType: 'AI'
-        };
-
-        if (saveRecipe) {
-            await createPost<RecipeScheme>(newRecipe, recipeDatabaseConfig);
-            debugLog('✅ [generateRecipe] Recipe saved:', newRecipe.key);
-        }
-
-        return newRecipe;
-    } catch (error) {
-        console.error('❌ [generateRecipe] Error generating recipe:', error);
-        return undefined;
+    if (result === undefined || !result?.success) {
+      console.error('❌ [generateRecipe] Recipe generation failed - invalid response');
+      return undefined;
     }
+
+    let parsedData: any;
+    try {
+      parsedData = JSON.parse(result.generatedText);
+    } catch (error) {
+      console.error('❌ [generateRecipe] Failed to parse LLM JSON response:', error);
+      console.error('❌ [generateRecipe] Raw response:', result.generatedText?.substring(0, 500));
+      return undefined;
+    }
+
+    // Generate head image
+    const headImagePrompt =
+      parsedData.headImagePrompt ||
+      parsedData.prompt ||
+      `A beautiful photo of ${parsedData.title || 'a recipe'}`;
+    const headImageName = await generateAndSaveImage(headImagePrompt);
+
+    // Generate additional images for the recipe
+    const imagePrompts = parsedData.imagePrompts || [];
+    const images: string[] = [];
+
+    for (const imgPrompt of imagePrompts) {
+      const imgName = await generateAndSaveImage(imgPrompt);
+      if (imgName) {
+        images.push(imgName);
+      }
+    }
+
+    const newRecipe: RecipeScheme = {
+      key: getUniqueKey(),
+      title: parsedData.title,
+      paragraphs: parsedData.paragraphs || [],
+      author: writer,
+      timestamp: new Date().toISOString(),
+      category: 'Food',
+      headImage: headImageName,
+      images: images,
+      shortDescription: parsedData.shortDescription,
+      writerType: 'AI',
+    };
+
+    if (saveRecipe) {
+      await createPost<RecipeScheme>(newRecipe, recipeDatabaseConfig);
+      debugLog('✅ [generateRecipe] Recipe saved:', newRecipe.key);
+    }
+
+    return newRecipe;
+  } catch (error) {
+    console.error('❌ [generateRecipe] Error generating recipe:', error);
+    return undefined;
+  }
 }
 
 /**
  * Creates the prompt for recipe generation
  */
 function createRecipePrompt(writer: Writer, foods: string[]): string {
-    const foodsList = foods.join(', ');
-    
-    return `
+  const foodsList = foods.join(', ');
+
+  return `
 Roleplay as a chef and food writer. When writing your response, do not comment on it, instead just write a recipe article about the given foods and make it professional and engaging.
 
 Please parse this request to a JSON output. I will give examples after.
@@ -106,9 +111,9 @@ The recipe should be structured as a series of paragraphs that will be interleav
 
 Make sure the content of the recipe is detailed and engaging. The paragraphs should be in markdown format, meaning that you should emphasize words and phrases as you see fit in accordance to markdown rules.
 
-${writer.name !== "" ? "Your name is " + writer.name + "." : ""}
-${writer.description !== "" ? "Your description is " + writer.description + "." : ""}
-${writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : ""}
+${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}
+${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}
+${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}
 
 I want you to create a recipe using the following foods: ${foodsList}
 
@@ -162,11 +167,13 @@ Now generate a recipe using the foods: ${foodsList}
  * Gets all recipes after a certain date
  */
 export async function getAllRecipesAfterDate(startDate: Date): Promise<RecipeScheme[]> {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM recipes WHERE timestamp > ? ORDER BY timestamp DESC');
-    const rows = stmt.all(startDate.toISOString()) as any[];
-    
-    return rows.map(row => ({
+  const db = getDatabase();
+  const stmt = db.prepare('SELECT * FROM recipes WHERE timestamp > ? ORDER BY timestamp DESC');
+  const rows = stmt.all(startDate.toISOString()) as any[];
+
+  return rows.map(
+    (row) =>
+      ({
         key: row.key,
         title: row.title,
         paragraphs: row.paragraphs ? JSON.parse(row.paragraphs) : undefined,
@@ -176,19 +183,22 @@ export async function getAllRecipesAfterDate(startDate: Date): Promise<RecipeSch
         headImage: row.headImage,
         images: row.images ? JSON.parse(row.images) : undefined,
         shortDescription: row.shortDescription,
-        writerType: row.writerType || 'AI'
-    } as RecipeScheme));
+        writerType: row.writerType || 'AI',
+      }) as RecipeScheme,
+  );
 }
 
 /**
  * Gets all recipes
  */
 export async function getAllRecipes(): Promise<RecipeScheme[]> {
-    const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM recipes ORDER BY timestamp DESC');
-    const rows = stmt.all() as any[];
-    
-    return rows.map(row => ({
+  const db = getDatabase();
+  const stmt = db.prepare('SELECT * FROM recipes ORDER BY timestamp DESC');
+  const rows = stmt.all() as any[];
+
+  return rows.map(
+    (row) =>
+      ({
         key: row.key,
         title: row.title,
         paragraphs: row.paragraphs ? JSON.parse(row.paragraphs) : undefined,
@@ -198,7 +208,7 @@ export async function getAllRecipes(): Promise<RecipeScheme[]> {
         headImage: row.headImage,
         images: row.images ? JSON.parse(row.images) : undefined,
         shortDescription: row.shortDescription,
-        writerType: row.writerType || 'AI'
-    } as RecipeScheme));
+        writerType: row.writerType || 'AI',
+      }) as RecipeScheme,
+  );
 }
-

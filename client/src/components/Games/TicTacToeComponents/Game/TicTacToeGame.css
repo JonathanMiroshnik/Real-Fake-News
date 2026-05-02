@@ -1,9 +1,9 @@
 .tictac-game-screen {
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
 
-    border: 5px aquamarine dashed;
+  border: 5px aquamarine dashed;
 }
 
 .tictac-game-title {
@@ -11,13 +11,13 @@
 }
 
 .information-display-div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .information-display-div button {
-    height: 4em;
-    width: 4em;
-    border: 1px var(--title-color) solid;
+  height: 4em;
+  width: 4em;
+  border: 1px var(--title-color) solid;
 }

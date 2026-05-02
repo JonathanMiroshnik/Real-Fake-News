@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import { fetchAstrologicalData, AstrologicalData } from './astrologyService.js';
 import { generateTextFromString } from './llmService.js';
 import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
@@ -10,14 +10,15 @@ import { debugLog } from '../utils/debugLogger.js';
  */
 async function generateHoroscopeForSign(
   zodiacSign: string,
-  astrologicalData: AstrologicalData
+  astrologicalData: AstrologicalData,
 ): Promise<string> {
-  const retrogradeInfo = astrologicalData.retrogrades.length > 0
-    ? `Currently in retrograde: ${astrologicalData.retrogrades.join(', ')}. `
-    : 'No planets are currently in retrograde. ';
+  const retrogradeInfo =
+    astrologicalData.retrogrades.length > 0
+      ? `Currently in retrograde: ${astrologicalData.retrogrades.join(', ')}. `
+      : 'No planets are currently in retrograde. ';
 
   const planetaryPositions = astrologicalData.planets
-    .map(p => `${p.name} is in ${p.sign}${p.isRetrograde ? ' (retrograde)' : ''}`)
+    .map((p) => `${p.name} is in ${p.sign}${p.isRetrograde ? ' (retrograde)' : ''}`)
     .join(', ');
 
   const prompt = `You are a witty, entertaining horoscope writer for a satirical fake news website. Write a daily horoscope for ${zodiacSign} that is:
@@ -61,18 +62,18 @@ export async function generateHoroscopesForDate(date?: Date): Promise<Horoscope[
   for (const sign of ZODIAC_SIGNS) {
     try {
       const content = await generateHoroscopeForSign(sign, astrologicalData);
-      
+
       const horoscope: Horoscope = {
         date: dateString,
         zodiacSign: sign,
         content,
-        astrologicalData
+        astrologicalData,
       };
 
       horoscopes.push(horoscope);
-      
+
       // Small delay to avoid overwhelming the LLM API
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } catch (error) {
       console.error(`Error generating horoscope for ${sign}:`, error);
       // Continue with other signs even if one fails
@@ -100,7 +101,7 @@ export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> 
         horoscope.zodiacSign,
         horoscope.content,
         JSON.stringify(horoscope.astrologicalData),
-        horoscope.createdAt || new Date().toISOString()
+        horoscope.createdAt || new Date().toISOString(),
       );
     }
 
@@ -127,13 +128,13 @@ export async function getHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
 
   const rows = stmt.all(dateString) as any[];
 
-  return rows.map(row => ({
+  return rows.map((row) => ({
     id: row.id,
     date: row.date,
     zodiacSign: row.zodiacSign,
     content: row.content,
     astrologicalData: JSON.parse(row.astrologicalData),
-    createdAt: row.createdAt
+    createdAt: row.createdAt,
   }));
 }
 
@@ -142,7 +143,7 @@ export async function getHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
  */
 export async function getHoroscopeForSign(
   zodiacSign: string,
-  date?: Date
+  date?: Date,
 ): Promise<Horoscope | null> {
   const targetDate = date || new Date();
   const dateString = targetDate.toISOString().split('T')[0];
@@ -165,7 +166,7 @@ export async function getHoroscopeForSign(
     zodiacSign: row.zodiacSign,
     content: row.content,
     astrologicalData: JSON.parse(row.astrologicalData),
-    createdAt: row.createdAt
+    createdAt: row.createdAt,
   };
 }
 
@@ -189,4 +190,3 @@ export async function ensureHoroscopesForToday(): Promise<Horoscope[]> {
 
   return horoscopes;
 }
-

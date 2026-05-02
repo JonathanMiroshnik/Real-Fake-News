@@ -8,8 +8,8 @@ export interface Question {
 }
 
 export interface GenerateTriviaQuestionsRequest {
-    amount: number; 
-    type: string;
+  amount: number;
+  type: string;
 }
 
 export interface GenerateTriviaQuestionsResponse {

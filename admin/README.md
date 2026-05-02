@@ -56,6 +56,7 @@ npm run dev
 The admin panel will be available at `http://localhost:5174` (or the next available port).
 
 **Note**: If your backend server runs on a different port, create a `.env` file in the `admin` folder with:
+
 ```
 VITE_API_BASE=http://localhost:YOUR_PORT/api
 ```
@@ -71,6 +72,7 @@ http://localhost:5174/?pwd=your-secure-password-here
 ```
 
 **Important Security Notes:**
+
 - The password is validated on the server side for all API calls
 - Without the correct password, the panel shows "Access Denied"
 - Even if someone discovers the admin panel URL structure, they cannot access it without the password
@@ -83,7 +85,7 @@ http://localhost:5174/?pwd=your-secure-password-here
    - Category
    - Delete button
 
-2. **Delete Article**: 
+2. **Delete Article**:
    - Click the "Delete" button next to any article
    - Confirm the deletion
    - The article will be permanently removed from the database
@@ -140,6 +142,7 @@ VITE_CLIENT_URL_PROD=https://real.sensorcensor.xyz
 ```
 
 **Key Points:**
+
 - `VITE_USE_RELATIVE_API=true` (RECOMMENDED for production) - Uses relative URLs (`/api`) for nginx proxy
 - `VITE_BACKEND_DEV_MODE` controls which backend API to connect to (local dev vs production) - Ignored if `VITE_USE_RELATIVE_API=true`
 - `VITE_FRONTEND_DEV_MODE` controls frontend-specific behavior (like default passwords)
@@ -149,12 +152,14 @@ VITE_CLIENT_URL_PROD=https://real.sensorcensor.xyz
 ### Backend API URL
 
 The backend API URL is determined by `VITE_BACKEND_DEV_MODE`:
+
 - `VITE_BACKEND_DEV_MODE=true` → `http://localhost:5001/api`
 - `VITE_BACKEND_DEV_MODE=false` or undefined → `https://real.sensorcensor.xyz/api`
 
 ### Client Article URLs
 
 The client URL for article links is determined by `VITE_FRONTEND_DEV_MODE`:
+
 - `VITE_FRONTEND_DEV_MODE=true` → `http://localhost:5173` (or `VITE_CLIENT_URL_DEV`)
 - `VITE_FRONTEND_DEV_MODE=false` or undefined → `https://real.sensorcensor.xyz` (or `VITE_CLIENT_URL_PROD`)
 
@@ -177,11 +182,13 @@ The built files will be in the `build` directory. Deploy these files to your web
 ## Troubleshooting
 
 ### "Access Denied" shows even with correct password
+
 - Check that the password in your `.env` file matches what you're using in the URL
 - Ensure the server has been restarted after setting the environment variable
 - Check server logs for authentication errors
 
 ### Articles not loading
+
 - **Most common issue**: Make sure the backend server is running! Start it with `cd server && npm run dev`
 - Verify the server is running on the correct port (default is 5001, check `server/src/index.ts`)
 - Check `VITE_BACKEND_DEV_MODE` in your `.env` file - if set to `false` or not set, it will try to connect to production backend
@@ -191,6 +198,7 @@ The built files will be in the `build` directory. Deploy these files to your web
 - Verify the `ADMIN_PASSWORD` in your server's `.env` file matches the password in your URL
 
 ### Cannot delete articles
+
 - Check server logs for errors
 - Verify the article key exists
 - Ensure the delete function in `lowdbOperations.ts` is working correctly

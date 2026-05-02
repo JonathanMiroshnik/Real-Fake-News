@@ -1,4 +1,4 @@
-import { Post } from "../lib/database/sqliteOperations.js";
+import { Post } from '../lib/database/sqliteOperations.js';
 
 export interface Writer extends Post {
   name: string;

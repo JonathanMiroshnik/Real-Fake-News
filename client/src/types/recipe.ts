@@ -16,4 +16,3 @@ export interface RecipeProps {
   images?: string[];
   shortDescription?: string;
 }
-

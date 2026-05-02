@@ -22,18 +22,20 @@ getDatabase(); // Establish connection
 initializeScheduledJobs();
 
 // Middleware pipeline
-app.use(cors({
-  origin: [
-    "https://real.sensorcensor.xyz", 
-    "http://localhost:5173", 
-    "http://localhost:5174", // Admin panel (dev)
-    "http://162.0.237.138:5174", // Admin panel (production - IP access)
-    "http://localhost:3000"
-  ],
-  credentials: true,
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: [
+      'https://real.sensorcensor.xyz',
+      'http://localhost:5173',
+      'http://localhost:5174', // Admin panel (dev)
+      'http://162.0.237.138:5174', // Admin panel (production - IP access)
+      'http://localhost:3000',
+    ],
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,7 +44,7 @@ app.use(morgan('dev'));
 // Main backend routes
 // Always use /api prefix for consistency across dev and production
 // This ensures all clients (admin, client, etc.) can use the same API paths
-app.use("/api", apiRoutes);
+app.use('/api', apiRoutes);
 
 // 404 Handler
 
@@ -52,31 +54,31 @@ app.use(/(.*)/, (req: Request, res: Response) => {
   // Ensure CORS headers are set even for 404 responses
   const origin = req.headers.origin;
   const allowedOrigins = [
-    "https://real.sensorcensor.xyz", 
-    "http://localhost:5173", 
-    "http://localhost:5174",
-    "http://162.0.237.138:5174", // Admin panel (production - IP access)
-    "http://localhost:3000"
+    'https://real.sensorcensor.xyz',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://162.0.237.138:5174', // Admin panel (production - IP access)
+    'http://localhost:3000',
   ];
-  
+
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  
+
   res.status(404).json({
     error: 'Endpoint not found',
     path: req.path,
-    method: req.method
+    method: req.method,
   });
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error(`💥 Critical error: ${err.message}`);
   res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 

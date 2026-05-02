@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { pullBlogs, pullHourlyBlogs, pullBlogsByMinute, getRelevantArticlesController, getArticleByKeyController, getFeaturedArticleController } from '../controllers/blogController.js';
+import {
+  pullBlogs,
+  pullHourlyBlogs,
+  pullBlogsByMinute,
+  getRelevantArticlesController,
+  getArticleByKeyController,
+  getFeaturedArticleController,
+} from '../controllers/blogController.js';
 
 const router = Router();
 
@@ -9,6 +16,5 @@ router.get('/by-minute', pullBlogsByMinute);
 router.get('/relevant', getRelevantArticlesController);
 router.get('/featured', getFeaturedArticleController);
 router.get('/:key', getArticleByKeyController);
-
 
 export default router;

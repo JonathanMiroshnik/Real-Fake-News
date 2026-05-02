@@ -2,14 +2,37 @@
   "name": "realfakenewsmern",
   "version": "1.0.0",
   "description": "**REAL FAKE NEWS**",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "vite": "^6.2.5"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3"
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "client/src/**/*.{ts,tsx,js,jsx}": [
+      "client/node_modules/.bin/eslint --fix --no-warn-ignored --config client/eslint.config.js"
+    ],
+    "server/src/**/*.{ts,tsx,js,jsx}": [
+      "server/node_modules/.bin/eslint --fix --no-warn-ignored --config server/eslint.config.js"
+    ],
+    "admin/src/**/*.{ts,tsx,js,jsx}": [
+      "admin/node_modules/.bin/eslint --fix --no-warn-ignored --config admin/eslint.config.js"
+    ]
   }
 }

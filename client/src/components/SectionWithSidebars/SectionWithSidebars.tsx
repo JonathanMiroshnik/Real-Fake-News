@@ -16,10 +16,10 @@ interface SectionWithSidebarsProps {
 /**
  * Flexible layout wrapper that allows constraining main content to a percentage width
  * and placing content on the left and right sides.
- * 
+ *
  * The main content (children) will be constrained to the specified percentage,
  * and left/right content will fill the remaining space equally.
- * 
+ *
  * Example:
  * <SectionWithSidebars mainWidthPercent={70} left={<Ad />} right={<Ad />}>
  *   <SectionHeader ... />
@@ -50,10 +50,7 @@ function SectionWithSidebars({
     <div className="w-full flex" style={{ gap: `${gap}px` }}>
       {/* Left sidebar */}
       {left && (
-        <div
-          className="shrink-0"
-          style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}
-        >
+        <div className="shrink-0" style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}>
           {left}
         </div>
       )}
@@ -72,10 +69,7 @@ function SectionWithSidebars({
 
       {/* Right sidebar */}
       {right && (
-        <div
-          className="shrink-0"
-          style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}
-        >
+        <div className="shrink-0" style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}>
           {right}
         </div>
       )}
@@ -84,4 +78,3 @@ function SectionWithSidebars({
 }
 
 export default SectionWithSidebars;
-

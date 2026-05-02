@@ -7,11 +7,11 @@ import { debugLog, debugWarn } from '../../utils/debugLogger.js';
  * Safe to call multiple times - won't modify existing tables or data.
  */
 export function initializeSchema(): void {
-    const db = getDatabase();
+  const db = getDatabase();
 
-    // Blog Posts Table
-    // Stores regular blog articles (ArticleScheme)
-    db.exec(`
+  // Blog Posts Table
+  // Stores regular blog articles (ArticleScheme)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS blog_posts (
             key TEXT PRIMARY KEY,
             title TEXT,
@@ -27,62 +27,74 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Migration: Add writerType column to existing blog_posts table if it doesn't exist
-    try {
-        db.exec(`
+  // Migration: Add writerType column to existing blog_posts table if it doesn't exist
+  try {
+    db.exec(`
             ALTER TABLE blog_posts 
             ADD COLUMN writerType TEXT DEFAULT 'AI'
         `);
-        // If column was just added, update existing rows to have 'AI' as default
-        db.exec(`
+    // If column was just added, update existing rows to have 'AI' as default
+    db.exec(`
             UPDATE blog_posts 
             SET writerType = 'AI' 
             WHERE writerType IS NULL
         `);
-    } catch (error: any) {
-        // Column already exists, ignore error
-        // SQLite error codes: SQLITE_ERROR (1) for duplicate column
-        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
-            debugWarn('Warning: Could not add writerType column:', error.message);
-        } else {
-            // Column exists, just ensure all rows have a value
-            db.exec(`
+  } catch (error: any) {
+    // Column already exists, ignore error
+    // SQLite error codes: SQLITE_ERROR (1) for duplicate column
+    if (
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
+    ) {
+      debugWarn('Warning: Could not add writerType column:', error.message);
+    } else {
+      // Column exists, just ensure all rows have a value
+      db.exec(`
                 UPDATE blog_posts 
                 SET writerType = 'AI' 
                 WHERE writerType IS NULL
             `);
-        }
     }
+  }
 
-    // Migration: Add isFeatured column to existing blog_posts table if it doesn't exist
-    try {
-        db.exec(`
+  // Migration: Add isFeatured column to existing blog_posts table if it doesn't exist
+  try {
+    db.exec(`
             ALTER TABLE blog_posts 
             ADD COLUMN isFeatured INTEGER DEFAULT 0
         `);
-    } catch (error: any) {
-        // Column already exists, ignore error
-        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
-            debugWarn('Warning: Could not add isFeatured column:', error.message);
-        }
+  } catch (error: any) {
+    // Column already exists, ignore error
+    if (
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
+    ) {
+      debugWarn('Warning: Could not add isFeatured column:', error.message);
     }
+  }
 
-    // Migration: Add featuredDate column to existing blog_posts table if it doesn't exist
-    try {
-        db.exec(`
+  // Migration: Add featuredDate column to existing blog_posts table if it doesn't exist
+  try {
+    db.exec(`
             ALTER TABLE blog_posts 
             ADD COLUMN featuredDate TEXT
         `);
-    } catch (error: any) {
-        // Column already exists, ignore error
-        if (error.code !== 'SQLITE_ERROR' && !error.message?.includes('duplicate column name') && !error.message?.includes('duplicate column')) {
-            debugWarn('Warning: Could not add featuredDate column:', error.message);
-        }
+  } catch (error: any) {
+    // Column already exists, ignore error
+    if (
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
+    ) {
+      debugWarn('Warning: Could not add featuredDate column:', error.message);
     }
+  }
 
-    // News Items Table
-    // Stores news articles fetched from external APIs (NewsItem)
-    db.exec(`
+  // News Items Table
+  // Stores news articles fetched from external APIs (NewsItem)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS news_items (
             article_id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
@@ -93,9 +105,9 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Writers Table
-    // Stores writer profiles (Writer)
-    db.exec(`
+  // Writers Table
+  // Stores writer profiles (Writer)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS writers (
             key TEXT PRIMARY KEY,
             name TEXT NOT NULL,
@@ -107,9 +119,9 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Featured Blog Posts Table
-    // Stores featured articles with multiple authors and sub-articles (FeaturedArticleScheme)
-    db.exec(`
+  // Featured Blog Posts Table
+  // Stores featured articles with multiple authors and sub-articles (FeaturedArticleScheme)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS featured_blog_posts (
             key TEXT PRIMARY KEY,
             title TEXT,
@@ -124,42 +136,42 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Create indexes for frequently queried columns
-    // Index on timestamp for date-based queries (getAllPostsAfterDate)
-    db.exec(`
+  // Create indexes for frequently queried columns
+  // Index on timestamp for date-based queries (getAllPostsAfterDate)
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_blog_posts_timestamp 
         ON blog_posts(timestamp)
     `);
 
-    // Index on pubDate for news item date filtering
-    db.exec(`
+  // Index on pubDate for news item date filtering
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_news_items_pubDate 
         ON news_items(pubDate)
     `);
 
-    // Index on category for potential category-based queries
-    db.exec(`
+  // Index on category for potential category-based queries
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_blog_posts_category 
         ON blog_posts(category)
     `);
 
-    // Index on featured posts timestamp
-    db.exec(`
+  // Index on featured posts timestamp
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_featured_blog_posts_timestamp 
         ON featured_blog_posts(timestamp)
     `);
 
-    // Foods Table
-    // Stores random food names for recipe generation
-    db.exec(`
+  // Foods Table
+  // Stores random food names for recipe generation
+  db.exec(`
         CREATE TABLE IF NOT EXISTS foods (
             name TEXT PRIMARY KEY
         )
     `);
 
-    // Recipes Table
-    // Stores recipe articles (RecipeScheme)
-    db.exec(`
+  // Recipes Table
+  // Stores recipe articles (RecipeScheme)
+  db.exec(`
         CREATE TABLE IF NOT EXISTS recipes (
             key TEXT PRIMARY KEY,
             title TEXT,
@@ -175,15 +187,15 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Index on recipes timestamp
-    db.exec(`
+  // Index on recipes timestamp
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_recipes_timestamp 
         ON recipes(timestamp)
     `);
 
-    // Horoscopes Table
-    // Stores daily horoscopes for each zodiac sign
-    db.exec(`
+  // Horoscopes Table
+  // Stores daily horoscopes for each zodiac sign
+  db.exec(`
         CREATE TABLE IF NOT EXISTS horoscopes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
@@ -195,12 +207,11 @@ export function initializeSchema(): void {
         )
     `);
 
-    // Index on horoscope date for date-based queries
-    db.exec(`
+  // Index on horoscope date for date-based queries
+  db.exec(`
         CREATE INDEX IF NOT EXISTS idx_horoscopes_date 
         ON horoscopes(date)
     `);
 
-    debugLog('SQLite schema initialized successfully');
+  debugLog('SQLite schema initialized successfully');
 }
-

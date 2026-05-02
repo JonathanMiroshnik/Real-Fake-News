@@ -7,10 +7,10 @@ import { debugLog, debugError } from '../utils/debugLogger';
  */
 export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
   debugLog('🔮 [getHoroscopes] Fetching horoscopes...');
-  
+
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes`;
-  
+
   if (date) {
     const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
@@ -21,7 +21,7 @@ export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
 
     if (!response.ok) {
@@ -30,7 +30,7 @@ export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
     }
 
     const data: HoroscopeResponse = await response.json();
-    
+
     if (data.success && data.horoscopes) {
       debugLog(`✅ [getHoroscopes] Fetched ${data.horoscopes.length} horoscopes`);
       return data.horoscopes;
@@ -49,10 +49,10 @@ export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
  */
 export async function getHoroscopeBySign(sign: string, date?: Date): Promise<Horoscope | null> {
   debugLog(`🔮 [getHoroscopeBySign] Fetching horoscope for ${sign}...`);
-  
+
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes/${sign}`;
-  
+
   if (date) {
     const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
@@ -63,7 +63,7 @@ export async function getHoroscopeBySign(sign: string, date?: Date): Promise<Hor
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
 
     if (!response.ok) {
@@ -72,7 +72,7 @@ export async function getHoroscopeBySign(sign: string, date?: Date): Promise<Hor
     }
 
     const data: HoroscopeResponse = await response.json();
-    
+
     if (data.success && data.horoscope) {
       debugLog(`✅ [getHoroscopeBySign] Fetched horoscope for ${sign}`);
       return data.horoscope;
@@ -91,10 +91,10 @@ export async function getHoroscopeBySign(sign: string, date?: Date): Promise<Hor
  */
 export async function getAstrologicalData(date?: Date): Promise<AstrologicalData | null> {
   debugLog('🔮 [getAstrologicalData] Fetching astrological data...');
-  
+
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes/astrological-data`;
-  
+
   if (date) {
     const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
@@ -105,16 +105,18 @@ export async function getAstrologicalData(date?: Date): Promise<AstrologicalData
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
 
     if (!response.ok) {
-      debugError(`❌ [getAstrologicalData] Fetch failed: ${response.status} ${response.statusText}`);
+      debugError(
+        `❌ [getAstrologicalData] Fetch failed: ${response.status} ${response.statusText}`,
+      );
       return null;
     }
 
     const data = await response.json();
-    
+
     if (data.success && data.data) {
       debugLog('✅ [getAstrologicalData] Fetched astrological data');
       return data.data;
@@ -127,4 +129,3 @@ export async function getAstrologicalData(date?: Date): Promise<AstrologicalData
     return null;
   }
 }
-

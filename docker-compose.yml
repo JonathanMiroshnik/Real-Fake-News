@@ -92,4 +92,3 @@ services:
 networks:
   devops_shared:
     external: true
-

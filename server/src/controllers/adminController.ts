@@ -2,15 +2,25 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from "url";
+// import { dirname } from "path";
 import { v4 as uuidv4 } from 'uuid';
-import { getAllPosts, getPostByKey, updatePost, getPostsCount, getPostsPaginated } from '../lib/database/sqliteOperations.js';
+import {
+  getAllPosts,
+  getPostByKey,
+  updatePost,
+  getPostsCount,
+  getPostsPaginated,
+} from '../lib/database/sqliteOperations.js';
 import { deletePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { getDatabase } from '../lib/database/database.js';
 import { ArticleScheme } from '../types/article.js';
-import { compressImageForWeb, getCompressedImagePath, getImagesDirectory } from '../utils/imageCompression.js';
+import {
+  compressImageForWeb,
+  getCompressedImagePath,
+  getImagesDirectory,
+} from '../utils/imageCompression.js';
 import { writeBlogPost } from '../services/blogService.js';
 import { getRandomWriter } from '../services/writerService.js';
 import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
@@ -18,25 +28,25 @@ import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // Simple password validation (in production, use proper authentication)
 function validatePassword(req: Request): boolean {
   const password = req.query.password as string;
   const expectedPassword = process.env.ADMIN_PASSWORD || 'changeme123';
   const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-  
+
   // In development, also accept 'debug' for easier testing
   if (isDevelopment && password === 'debug') {
     return true;
   }
-  
+
   return password === expectedPassword;
 }
 
 // In-memory storage for texts (in production, use database)
-let texts: string[] = [];
+const texts: string[] = [];
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -50,13 +60,13 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname);
     const filename = `img-${uuidv4()}${ext}`;
     cb(null, filename);
-  }
+  },
 });
 
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     // Accept only image files
@@ -66,7 +76,7 @@ const upload = multer({
     } else {
       cb(new Error('Invalid file type. Only image files are allowed.'));
     }
-  }
+  },
 });
 
 // Export multer middleware for use in routes
@@ -83,8 +93,15 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
 
     // Check if pagination parameters are provided
     const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
-    const itemsPerPage = req.query.itemsPerPage ? parseInt(req.query.itemsPerPage as string, 10) : undefined;
-    const pages = req.query.pages ? (req.query.pages as string).split(',').map(p => parseInt(p.trim(), 10)).filter(p => !isNaN(p) && p > 0) : undefined;
+    const itemsPerPage = req.query.itemsPerPage
+      ? parseInt(req.query.itemsPerPage as string, 10)
+      : undefined;
+    const pages = req.query.pages
+      ? (req.query.pages as string)
+          .split(',')
+          .map((p) => parseInt(p.trim(), 10))
+          .filter((p) => !isNaN(p) && p > 0)
+      : undefined;
 
     if (pages && pages.length > 0 && itemsPerPage !== undefined) {
       // Fetch multiple pages at once
@@ -97,15 +114,15 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
           pageNum,
           itemsPerPage,
           'timestamp',
-          'DESC'
+          'DESC',
         );
         allArticles.push(...pageArticles);
       }
-      
+
       res.json({
         success: true,
         articles: allArticles,
-        error: ''
+        error: '',
       });
     } else if (page !== undefined && itemsPerPage !== undefined) {
       // Single page request
@@ -114,22 +131,22 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
         page,
         itemsPerPage,
         'timestamp',
-        'DESC'
+        'DESC',
       );
-      
+
       res.json({
         success: true,
         articles: articles,
-        error: ''
+        error: '',
       });
     } else {
       // Non-paginated request (backward compatibility)
       const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
-      
+
       res.json({
         success: true,
         articles: allArticles,
-        error: ''
+        error: '',
       });
     }
   } catch (error) {
@@ -137,7 +154,7 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
     res.status(500).json({
       success: false,
       articles: [],
-      error: 'Failed to fetch articles'
+      error: 'Failed to fetch articles',
     });
   }
 };
@@ -151,18 +168,18 @@ export const getAdminArticlesCount = async (req: Request, res: Response): Promis
     }
 
     const totalCount = await getPostsCount<ArticleScheme>(blogDatabaseConfig);
-    
+
     res.json({
       success: true,
       totalCount: totalCount,
-      error: ''
+      error: '',
     });
   } catch (error) {
     console.error('Error fetching admin articles count:', error);
     res.status(500).json({
       success: false,
       totalCount: 0,
-      error: 'Failed to fetch articles count'
+      error: 'Failed to fetch articles count',
     });
   }
 };
@@ -182,11 +199,11 @@ export const getAdminArticle = async (req: Request, res: Response): Promise<void
     }
 
     const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
-    
+
     if (article) {
       res.json({
         success: true,
-        article: article
+        article: article,
       });
     } else {
       res.status(404).json({ error: 'Article not found' });
@@ -223,20 +240,28 @@ export const updateAdminArticle = async (req: Request, res: Response): Promise<v
       ...existingArticle,
       ...(req.body.title !== undefined && { title: req.body.title }),
       ...(req.body.content !== undefined && { content: req.body.content }),
-      ...(req.body.headImage !== undefined && { headImage: req.body.headImage }),
+      ...(req.body.headImage !== undefined && {
+        headImage: req.body.headImage,
+      }),
       ...(req.body.category !== undefined && { category: req.body.category }),
-      ...(req.body.shortDescription !== undefined && { shortDescription: req.body.shortDescription }),
-      ...(req.body.writerType !== undefined && { writerType: req.body.writerType }),
-      ...(req.body.timestamp !== undefined && { timestamp: req.body.timestamp }),
+      ...(req.body.shortDescription !== undefined && {
+        shortDescription: req.body.shortDescription,
+      }),
+      ...(req.body.writerType !== undefined && {
+        writerType: req.body.writerType,
+      }),
+      ...(req.body.timestamp !== undefined && {
+        timestamp: req.body.timestamp,
+      }),
     };
 
     const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
-    
+
     if (success) {
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: 'Article updated successfully',
-        article: updatedArticle
+        article: updatedArticle,
       });
     } else {
       res.status(500).json({ error: 'Failed to update article' });
@@ -262,7 +287,7 @@ export const deleteAdminArticle = async (req: Request, res: Response): Promise<v
     }
 
     const deleted = await deletePost<ArticleScheme>(key, blogDatabaseConfig);
-    
+
     if (deleted) {
       res.json({ success: true, message: 'Article deleted successfully' });
     } else {
@@ -310,17 +335,17 @@ export const setFeaturedArticle = async (req: Request, res: Response): Promise<v
     const updatedArticle: ArticleScheme = {
       ...article,
       isFeatured: true,
-      featuredDate: today
+      featuredDate: today,
     };
 
     const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
-    
+
     if (success) {
       debugLog('✅ [setFeaturedArticle] Article set as featured:', key, 'for date:', today);
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: 'Article set as featured successfully',
-        article: updatedArticle
+        article: updatedArticle,
       });
     } else {
       res.status(500).json({ error: 'Failed to set article as featured' });
@@ -341,14 +366,14 @@ export const getAdminTexts = async (req: Request, res: Response): Promise<void> 
 
     res.json({
       success: true,
-      texts: texts
+      texts: texts,
     });
   } catch (error) {
     console.error('Error fetching texts:', error);
     res.status(500).json({
       success: false,
       texts: [],
-      error: 'Failed to fetch texts'
+      error: 'Failed to fetch texts',
     });
   }
 };
@@ -370,7 +395,7 @@ export const uploadAdminImage = async (req: Request, res: Response): Promise<voi
     // Original is kept in the main images directory
     const originalPath = req.file.path;
     const compressedPath = getCompressedImagePath(req.file.filename);
-    
+
     try {
       await compressImageForWeb(originalPath, compressedPath);
       debugLog(`Compressed uploaded image: ${req.file.filename}`);
@@ -383,7 +408,7 @@ export const uploadAdminImage = async (req: Request, res: Response): Promise<voi
     res.json({
       success: true,
       filename: req.file.filename,
-      message: 'Image uploaded successfully'
+      message: 'Image uploaded successfully',
     });
   } catch (error) {
     console.error('Error uploading image:', error);
@@ -406,10 +431,10 @@ export const addAdminText = async (req: Request, res: Response): Promise<void> =
     }
 
     texts.push(text.trim());
-    
+
     res.json({
       success: true,
-      texts: texts
+      texts: texts,
     });
   } catch (error) {
     console.error('Error adding text:', error);
@@ -432,12 +457,14 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
     debugLog('📝 [generateAdminArticle] Selected writer:', writer.name);
 
     // Get a random news item from recent news
-    const recentNews = await getAllNewsArticlesAfterDate(new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD));
-    
+    const recentNews = await getAllNewsArticlesAfterDate(
+      new Date(Date.now() - RECENT_NEWS_ARTICLES_TIME_THRESHOLD),
+    );
+
     if (recentNews.length === 0) {
-      res.status(400).json({ 
+      res.status(400).json({
         success: false,
-        error: 'No recent news articles available. Please ensure news fetching is working.' 
+        error: 'No recent news articles available. Please ensure news fetching is working.',
       });
       return;
     }
@@ -451,9 +478,9 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
     const article = await writeBlogPost(writer, newsItem, true);
 
     if (!article) {
-      res.status(500).json({ 
+      res.status(500).json({
         success: false,
-        error: 'Failed to generate article. Check server logs for details.' 
+        error: 'Failed to generate article. Check server logs for details.',
       });
       return;
     }
@@ -463,13 +490,13 @@ export const generateAdminArticle = async (req: Request, res: Response): Promise
     res.json({
       success: true,
       message: 'Article generated successfully',
-      article: article
+      article: article,
     });
   } catch (error) {
     console.error('❌ [generateAdminArticle] Error generating article:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate article' 
+      error: error instanceof Error ? error.message : 'Failed to generate article',
     });
   }
 };
@@ -491,11 +518,11 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
     // Get random foods (2-3 foods)
     const numFoods = 2 + Math.floor(Math.random() * 2); // 2 or 3 foods
     const foods = await getRandomFoods(numFoods);
-    
+
     if (foods.length === 0) {
-      res.status(400).json({ 
+      res.status(400).json({
         success: false,
-        error: 'No foods available in database. Please add foods to the foods table.' 
+        error: 'No foods available in database. Please add foods to the foods table.',
       });
       return;
     }
@@ -506,9 +533,9 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
     const recipe = await generateRecipe(writer, foods, true);
 
     if (!recipe) {
-      res.status(500).json({ 
+      res.status(500).json({
         success: false,
-        error: 'Failed to generate recipe. Check server logs for details.' 
+        error: 'Failed to generate recipe. Check server logs for details.',
       });
       return;
     }
@@ -518,13 +545,13 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
     res.json({
       success: true,
       message: 'Recipe generated successfully',
-      recipe: recipe
+      recipe: recipe,
     });
   } catch (error) {
     console.error('❌ [generateAdminRecipe] Error generating recipe:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate recipe' 
+      error: error instanceof Error ? error.message : 'Failed to generate recipe',
     });
   }
 };

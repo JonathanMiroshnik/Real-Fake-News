@@ -7,9 +7,10 @@ import { Writer } from '../types/writer.js';
 import { NewsItem } from './newsService.js';
 import { generateAndSaveImage } from './imageService.js';
 import { generateTextFromString } from './llmService.js';
-import { getNRandom, getUniqueKey } from '../utils/general.js';
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { ChatDeepSeek } from "@langchain/deepseek";
+import { getUniqueKey } from '../utils/general.js';
+// import { getNRandom } from "../utils/general.js";
+// import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { ChatDeepSeek } from '@langchain/deepseek';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
@@ -18,50 +19,60 @@ import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: choose random assortment of writers?
 // TODO: make special featured article prompt
-async function createFeaturedArticle(writers: Writer[], currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, prompt: string) {
-    const currentArticles : ArticleScheme[] = [];
+async function createFeaturedArticle(
+  writers: Writer[],
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+  prompt: string,
+) {
+  const currentArticles: ArticleScheme[] = [];
 
-    for (let w of writers) {
-        const currentArticle = await writeBlogPost(w, currentNewsItem, false);
-        if (currentArticle === undefined) {
-            return;
-        }
-
-        currentArticles.push(currentArticle);
+  for (const w of writers) {
+    const currentArticle = await writeBlogPost(w, currentNewsItem, false);
+    if (currentArticle === undefined) {
+      return;
     }
-    debugLog("Generating new article");
-    const result = await generateTextFromString(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("Meta prompt output invalid!");    
-        return;
-    } 
 
-    const parsedData = JSON.parse(result.generatedText);
-    const imgName = await generateAndSaveImage(parsedData.prompt);
+    currentArticles.push(currentArticle);
+  }
+  debugLog('Generating new article');
+  const result = await generateTextFromString(prompt, 'json_object');
+  if (result === undefined || !result?.success) {
+    console.error('Meta prompt output invalid!');
+    return;
+  }
 
-    const newFeaturedArticle: FeaturedArticleScheme =  {
-        key: getUniqueKey(),
-        content: currentArticles,
-        author: writers,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    }; 
+  const parsedData = JSON.parse(result.generatedText);
+  const imgName = await generateAndSaveImage(parsedData.prompt);
 
-    await createPost<FeaturedArticleScheme>(newFeaturedArticle, featuredBlogDatabaseConfig);
-    
-    return newFeaturedArticle;
+  const newFeaturedArticle: FeaturedArticleScheme = {
+    key: getUniqueKey(),
+    content: currentArticles,
+    author: writers,
+    title: parsedData.title,
+    timestamp: new Date().toUTCString(),
+    category: parsedData.category,
+    originalNewsItem: currentNewsItem,
+    shortDescription: parsedData.shortDescription,
+    headImage: imgName,
+  };
+
+  await createPost<FeaturedArticleScheme>(newFeaturedArticle, featuredBlogDatabaseConfig);
+
+  return newFeaturedArticle;
 }
 
 // LangChain chat models for each writer
 const writerModel = new ChatDeepSeek({
-  model: "deepseek-chat",
+  model: 'deepseek-chat',
   temperature: 0.9, // higher temperature more creative
   apiKey: process.env.DEEPSEEK_API_KEY,
-  maxTokens: 200
+  maxTokens: 200,
 });
 
 // // Debate loop
@@ -84,22 +95,30 @@ const writerModel = new ChatDeepSeek({
 // }
 
 /**
- * @param editor The editor of the newspaper, 
+ * @param editor The editor of the newspaper,
  * responsible for the top portion of any featured article.
  * @param currentNewsItem The news item that becomes the basis for the featured article.
- * 
+ *
  * @returns Prompt for the top portion of a daily Featured article
  *
- * @explanation Featured articles have a roundtable approach, 
+ * @explanation Featured articles have a roundtable approach,
  * the top portion explains the theme broadly and each sub-article
  * goes into the opinion of the expert on the matter.
- * 
+ *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    // TODO: fix description might be null in currentNewsItem!
-    const META_PROMPT: string =
-    `
+function writeFeaturedBlogTopPostPrompt(
+  editor: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  // TODO: fix description might be null in currentNewsItem!
+  const META_PROMPT: string = `
     Roleplay as a newspaper editor. When writing the portion, do not comment on it, instead just write the portion about the
     given topic and make it professional.\n\n
 
@@ -110,14 +129,24 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
     
-    ${(editor.name !== "" ? "Your name is " + editor.name + "." : "")}\n
-    ${(editor.description !== "" ? "Your description is " + editor.description + "." : "")}\n
-    ${(editor.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + editor.systemPrompt : "")}\n
+    ${editor.name !== '' ? 'Your name is ' + editor.name + '.' : ''}\n
+    ${editor.description !== '' ? 'Your description is ' + editor.description + '.' : ''}\n
+    ${editor.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + editor.systemPrompt : ''}\n
     
-    ${currentNewsItem.title !== "" ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
-        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title : ""}\n
-    ${(currentNewsItem.description !== null && currentNewsItem.description !== "" ? `Additionally, take the following description of the news item, 
-        and do the same, adding it to your context:` + "\n DESCRIPTION: \n" + currentNewsItem.description: "")}\n
+    ${
+      currentNewsItem.title !== ''
+        ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
+        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title
+        : ''
+    }\n
+    ${
+      currentNewsItem.description !== null && currentNewsItem.description !== ''
+        ? `Additionally, take the following description of the news item, 
+        and do the same, adding it to your context:` +
+          '\n DESCRIPTION: \n' +
+          currentNewsItem.description
+        : ''
+    }\n
     
     In the prompt section of the output, I want you to write an image prompt for an image generation model 
     that will make an image related and illustrative of the article.\n
@@ -176,7 +205,7 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
     }\n
     `;
 
-    return META_PROMPT;
+  return META_PROMPT;
 }
 
 // TODO: this function should be in the blogService?
@@ -184,16 +213,24 @@ function writeFeaturedBlogTopPostPrompt(editor: Writer, currentNewsItem: NewsIte
 /**
  * @returns Prompt for a sub-subsection of a daily Featured article
  *
- * @explanation Featured articles have a roundtable approach, 
+ * @explanation Featured articles have a roundtable approach,
  * the top portion explains the theme broadly and each sub-subsection
  * goes into the opinion of the expert on the matter.
- * 
+ *
  * @see {@link http://example.com/@internal | the @internal tag}
  */
-function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    // TODO: fix description might be null in currentNewsItem!
-    const META_PROMPT: string =
-    `
+function writeFeaturedBlogSubPostPrompt(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  // TODO: fix description might be null in currentNewsItem!
+  const META_PROMPT: string = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the
     given topic and make it professional.\n\n
 
@@ -204,14 +241,24 @@ function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsIte
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
     
-    ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
-    ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
-    ${(writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : "")}\n
+    ${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}\n
+    ${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}\n
+    ${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}\n
     
-    ${currentNewsItem.title !== "" ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
-        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title : ""}\n
-    ${(currentNewsItem.description !== null && currentNewsItem.description !== "" ? `Additionally, take the following description of the news item, 
-        and do the same, adding it to your context:` + "\n DESCRIPTION: \n" + currentNewsItem.description: "")}\n
+    ${
+      currentNewsItem.title !== ''
+        ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
+        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title
+        : ''
+    }\n
+    ${
+      currentNewsItem.description !== null && currentNewsItem.description !== ''
+        ? `Additionally, take the following description of the news item, 
+        and do the same, adding it to your context:` +
+          '\n DESCRIPTION: \n' +
+          currentNewsItem.description
+        : ''
+    }\n
     
     In the prompt section of the output, I want you to write an image prompt for an image generation model 
     that will make an image related and illustrative of the article.\n
@@ -270,5 +317,5 @@ function writeFeaturedBlogSubPostPrompt(writer: Writer, currentNewsItem: NewsIte
     }\n
     `;
 
-    return META_PROMPT;
+  return META_PROMPT;
 }

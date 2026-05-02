@@ -34,14 +34,14 @@
   footer:not(.newspaper-footer) {
     display: none !important;
   }
-  
+
   /* Show newspaper view when printing */
   .newspaper-view-wrapper {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
   }
-  
+
   /* Ensure newspaper container is visible when printing */
   .newspaper-container {
     display: block !important;
@@ -203,16 +203,16 @@
   /* Show URLs for links in print (for any links in article content) */
   .newspaper-article-content a[href]:after,
   .featured-article-content a[href]:after {
-    content: " (" attr(href) ")";
+    content: ' (' attr(href) ')';
     font-size: 0.8em;
     color: #666;
     word-break: break-all;
   }
 
   /* Don't show URLs for anchor links or javascript links */
-  a[href^="#"]:after,
-  a[href^="javascript:"]:after {
-    content: "";
+  a[href^='#']:after,
+  a[href^='javascript:']:after {
+    content: '';
   }
 
   /* Ensure links are readable in print */
@@ -222,7 +222,8 @@
   }
 
   /* Optimize lists for print */
-  ul, ol {
+  ul,
+  ol {
     page-break-inside: avoid;
   }
 
@@ -237,7 +238,8 @@
   }
 
   /* Code blocks and preformatted text */
-  pre, code {
+  pre,
+  code {
     white-space: pre-wrap;
     word-wrap: break-word;
     page-break-inside: avoid;
@@ -248,4 +250,3 @@
     display: none !important;
   }
 }
-

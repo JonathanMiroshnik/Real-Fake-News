@@ -6,13 +6,13 @@ import { sanitizeWriterName } from '../../services/writerService';
 import { getRecipeByKey } from '../../services/recipeService';
 import { RecipeProps } from '../../types/recipe';
 import Image from '../../components/Image/Image';
-import './RecipePage.css'
+import './RecipePage.css';
 
 function RecipePage() {
   const { key } = useParams();
   const [foundRecipe, setFoundRecipe] = useState<RecipeProps | null | undefined>(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     if (!key) {
       setFoundRecipe(undefined);
@@ -38,14 +38,14 @@ function RecipePage() {
     return <div>RECIPE NOT FOUND</div>;
   }
 
-  let headImageURL = getImageURLFromRecipe(foundRecipe, DEFAULT_IMAGE);
+  const headImageURL = getImageURLFromRecipe(foundRecipe, DEFAULT_IMAGE);
   const paragraphs = foundRecipe.paragraphs || [];
   const images = foundRecipe.images || [];
 
   // Interleave paragraphs and images
   // First paragraph, then image, then paragraph, then image, etc.
   const content: Array<{ type: 'paragraph' | 'image'; content: string }> = [];
-  
+
   for (let i = 0; i < paragraphs.length; i++) {
     content.push({ type: 'paragraph', content: paragraphs[i] });
     if (i < images.length) {
@@ -56,23 +56,28 @@ function RecipePage() {
   return (
     <article className="recipe-article">
       <div className="recipe-header">
-        <h2 className="recipe-title-header">{ foundRecipe?.title }</h2>
+        <h2 className="recipe-title-header">{foundRecipe?.title}</h2>
         <div className="recipe-meta">
           <div>
-            {"By \t"}
-            {foundRecipe.author?.name ? 
-              <Link className="recipe-writer" to={`/writer/${sanitizeWriterName(foundRecipe.author?.name)}`}> 
-                  <span className="author">{ foundRecipe?.author?.name }</span>
-              </Link>: null
-            }
+            {'By \t'}
+            {foundRecipe.author?.name ? (
+              <Link
+                className="recipe-writer"
+                to={`/writer/${sanitizeWriterName(foundRecipe.author?.name)}`}
+              >
+                <span className="author">{foundRecipe?.author?.name}</span>
+              </Link>
+            ) : null}
           </div>
-            <span className="timestamp">{ foundRecipe.timestamp ? new Date(foundRecipe.timestamp).toLocaleDateString() : null }</span>
-            <span className="category">{ foundRecipe?.category }</span>
+          <span className="timestamp">
+            {foundRecipe.timestamp ? new Date(foundRecipe.timestamp).toLocaleDateString() : null}
+          </span>
+          <span className="category">{foundRecipe?.category}</span>
         </div>
       </div>
-      
-      {headImageURL !== "" && (
-        <div className='recipe-page-head-image'>
+
+      {headImageURL !== '' && (
+        <div className="recipe-page-head-image">
           <Image
             src={headImageURL}
             alt={foundRecipe.title ?? 'Recipe'}
@@ -113,4 +118,3 @@ function RecipePage() {
 }
 
 export default RecipePage;
-

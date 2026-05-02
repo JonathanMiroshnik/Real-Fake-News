@@ -8,12 +8,15 @@ import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/Horosc
 import RecipeSection from '../../components/RecipeSection/RecipeSection';
 // import SectionWithSidebars from '../../components/SectionWithSidebars/SectionWithSidebars';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
-import { ArticleContext } from '../../contexts/ArticlesContext';
-import { groupArticlesByCategories, CATEGORIES, getFeaturedArticle } from '../../services/articleService';
+import { ArticleContext } from '../../contexts/ArticleContext';
+import {
+  groupArticlesByCategories,
+  CATEGORIES,
+  getFeaturedArticle,
+} from '../../services/articleService';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { debugLog, debugWarn } from '../../utils/debugLogger';
 import { ArticleProps } from '../ArticlePage/ArticlePage';
-
 
 // Temporary feature flag - remove when no longer needed
 const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === 'true';
@@ -34,8 +37,8 @@ function HomePage() {
 
   // Get delay from environment variable, default to 3000ms (3 seconds)
   const noArticlesMessageDelay = parseInt(
-    import.meta.env.VITE_NO_ARTICLES_MESSAGE_DELAY || "3000",
-    10
+    import.meta.env.VITE_NO_ARTICLES_MESSAGE_DELAY || '3000',
+    10,
   );
 
   // Timer to delay showing "No articles loaded" message
@@ -53,7 +56,7 @@ function HomePage() {
     }
 
     return () => clearTimeout(timer);
-  }, [articles.length]);
+  }, [articles.length, noArticlesMessageDelay]);
 
   // Debug: Show article count
   debugLog('🏠 [HomePage] Articles count:', articles.length);
@@ -61,16 +64,22 @@ function HomePage() {
     debugWarn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
   }
 
-  debugLog('🏠 [HomePage] All articles:', articles.map(a => a.title));
-  
+  debugLog(
+    '🏠 [HomePage] All articles:',
+    articles.map((a) => a.title),
+  );
+
   // Debug: Show category distribution
-  debugLog('🏠 [HomePage] Category articles:', categoryArticles.map((cat, idx) => ({
-    category: CATEGORIES[idx]?.name || 'Unknown',
-    count: cat.length
-  })));
-  
+  debugLog(
+    '🏠 [HomePage] Category articles:',
+    categoryArticles.map((cat, idx) => ({
+      category: CATEGORIES[idx]?.name || 'Unknown',
+      count: cat.length,
+    })),
+  );
+
   // Debug: Show all article categories
-  const allCategories = [...new Set(articles.map(a => a.category).filter(Boolean))];
+  const allCategories = [...new Set(articles.map((a) => a.category).filter(Boolean))];
   debugLog('🏠 [HomePage] All article categories in data:', allCategories);
 
   // Fetch featured article on mount
@@ -88,11 +97,13 @@ function HomePage() {
       const imageUrl = getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE);
       if (imageUrl) {
         // Remove any existing preload link
-        const existingLink = document.querySelector('link[rel="preload"][as="image"][data-featured-image]');
+        const existingLink = document.querySelector(
+          'link[rel="preload"][as="image"][data-featured-image]',
+        );
         if (existingLink) {
           existingLink.remove();
         }
-        
+
         // Create and add preload link
         const link = document.createElement('link');
         link.rel = 'preload';
@@ -101,10 +112,12 @@ function HomePage() {
         link.setAttribute('fetchpriority', 'high');
         link.setAttribute('data-featured-image', 'true');
         document.head.appendChild(link);
-        
+
         return () => {
           // Cleanup on unmount
-          const linkToRemove = document.querySelector('link[rel="preload"][as="image"][data-featured-image]');
+          const linkToRemove = document.querySelector(
+            'link[rel="preload"][as="image"][data-featured-image]',
+          );
           if (linkToRemove) {
             linkToRemove.remove();
           }
@@ -117,43 +130,58 @@ function HomePage() {
     <div className="max-w-[1200px]">
       {articles.length === 0 && showNoArticlesMessage && (
         <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
-          <p><strong>No articles loaded.</strong></p>
+          <p>
+            <strong>No articles loaded.</strong>
+          </p>
           <p>Check the browser console (F12) for errors.</p>
           <p>Make sure the server is running at http://localhost:5001 (development port)</p>
         </div>
       )}
       {/* TODO: magic number 4 */}
-      <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />    
+      <NewsCarousel maxItems={articlesPerSection >= 4 ? -1 : 0} />
       <div className="w-full mt-16 mb-16 last:mb-0">
         <SectionHeader topLine="Featured Article" bottomLine="Interest" />
-        <div className='flex gap-4 pb-4 mb-12'>
+        <div className="flex gap-4 pb-4 mb-12">
           <div className="flex-1" style={{ minWidth: 0 }}>
             {featuredArticle && <FeaturedArticle article={featuredArticle} />}
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
             {/* Show Politics articles, or fallback to all articles if no category matches */}
             {categoryArticles[0] && categoryArticles[0].length > 0 ? (
-              <div style={{display:"flex", justifyContent: "center"}}>
-                <ArticleList articles={categoryArticles[0]} maxItems={articlesPerSection}/>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ArticleList articles={categoryArticles[0]} maxItems={articlesPerSection} />
               </div>
             ) : articles.length > 0 ? (
-              <div style={{display:"flex", justifyContent: "center"}}>
-                <ArticleList articles={articles.slice(0, articlesPerSection)} maxItems={articlesPerSection}/>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ArticleList
+                  articles={articles.slice(0, articlesPerSection)}
+                  maxItems={articlesPerSection}
+                />
               </div>
             ) : null}
           </div>
           {/* TODO: 4 magic number */}
-          { articlesPerSection >= 4 && (
+          {articlesPerSection >= 4 && (
             <div className="shrink-0" style={{ width: '280px', flexShrink: 0 }}>
               {categoryArticles[0] && categoryArticles[0].length > 0 ? (
-                <ArticleList articles={categoryArticles[0]} maxItems={3} showImages={false} vertical={true}/>
+                <ArticleList
+                  articles={categoryArticles[0]}
+                  maxItems={3}
+                  showImages={false}
+                  vertical={true}
+                />
               ) : articles.length > 0 ? (
-                <ArticleList articles={articles.slice(0, 3)} maxItems={3} showImages={false} vertical={true}/>
+                <ArticleList
+                  articles={articles.slice(0, 3)}
+                  maxItems={3}
+                  showImages={false}
+                  vertical={true}
+                />
               ) : null}
             </div>
           )}
         </div>
       </div>
-      
+
       {/* TODO: want to add titles to different sections of the home page */}
       {/* TODO: make CategoryArticleList pure, get articles from this level for it instead of inside the component */}
 
@@ -186,19 +214,23 @@ function HomePage() {
                   </a>
                 }
               > */}
-                <SectionHeader topLine={category.text} bottomLine={category.name} />
-                <div className='flex gap-4 pb-4 mb-12'>
-                  <ArticleList articles={categoryArticleList} vertical={false} maxItems={articlesPerSection} />
-                </div>
+              <SectionHeader topLine={category.text} bottomLine={category.name} />
+              <div className="flex gap-4 pb-4 mb-12">
+                <ArticleList
+                  articles={categoryArticleList}
+                  vertical={false}
+                  maxItems={articlesPerSection}
+                />
+              </div>
               {/* </SectionWithSidebars> */}
             </div>
           );
         }
         return null;
       })}
-      
+
       {/* Fallback: If no articles in any category, show all articles */}
-      {articles.length > 0 && categoryArticles.every(cat => cat.length === 0) && (
+      {articles.length > 0 && categoryArticles.every((cat) => cat.length === 0) && (
         <div className="w-full mb-16 last:mb-0">
           {/* <SectionWithSidebars
             mainWidthPercent={70}
@@ -214,17 +246,17 @@ function HomePage() {
               </a>
             }
           > */}
-            <SectionHeader topLine="All Articles" bottomLine="Latest News" />
-            <div className='flex gap-4 pb-4 mb-12'>
-              <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
-            </div>
+          <SectionHeader topLine="All Articles" bottomLine="Latest News" />
+          <div className="flex gap-4 pb-4 mb-12">
+            <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
+          </div>
           {/* </SectionWithSidebars> */}
         </div>
       )}
-      
+
       <div className="w-full mb-16 last:mb-0">
         <SectionHeader topLine="Interactive" bottomLine="Games" />
-        <div className='flex gap-4 pb-4 mb-8 justify-center'>
+        <div className="flex gap-4 pb-4 mb-8 justify-center">
           <GamesList />
         </div>
       </div>
@@ -242,6 +274,6 @@ function HomePage() {
       )}
     </div>
   );
-};
+}
 
 export default HomePage;

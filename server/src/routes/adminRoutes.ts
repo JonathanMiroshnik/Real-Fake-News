@@ -1,5 +1,18 @@
 import { Router } from 'express';
-import { getAdminArticles, getAdminArticlesCount, getAdminArticle, updateAdminArticle, deleteAdminArticle, setFeaturedArticle, uploadAdminImage, uploadMiddleware, getAdminTexts, addAdminText, generateAdminArticle, generateAdminRecipe } from '../controllers/adminController.js';
+import {
+  getAdminArticles,
+  getAdminArticlesCount,
+  getAdminArticle,
+  updateAdminArticle,
+  deleteAdminArticle,
+  setFeaturedArticle,
+  uploadAdminImage,
+  uploadMiddleware,
+  getAdminTexts,
+  addAdminText,
+  generateAdminArticle,
+  generateAdminRecipe,
+} from '../controllers/adminController.js';
 
 const router = Router();
 

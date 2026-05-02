@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { 
-  getHoroscopesForDate, 
-  getHoroscopeForSign, 
-  ensureHoroscopesForToday 
+import {
+  getHoroscopesForDate,
+  getHoroscopeForSign,
+  ensureHoroscopesForToday,
 } from '../services/horoscopeService.js';
 import { HoroscopeResponse } from '../types/horoscope.js';
 import { fetchAstrologicalData } from '../services/astrologyService.js';
@@ -25,7 +25,7 @@ export const getHoroscopes = async (req: Request, res: Response): Promise<void> 
       const horoscopes = await ensureHoroscopesForToday();
       const response: HoroscopeResponse = {
         success: true,
-        horoscopes
+        horoscopes,
       };
       res.json(response);
       return;
@@ -34,14 +34,14 @@ export const getHoroscopes = async (req: Request, res: Response): Promise<void> 
     const horoscopes = await getHoroscopesForDate(date);
     const response: HoroscopeResponse = {
       success: true,
-      horoscopes
+      horoscopes,
     };
     res.json(response);
   } catch (error) {
     console.error('Error fetching horoscopes:', error);
     const response: HoroscopeResponse = {
       success: false,
-      error: 'Failed to fetch horoscopes'
+      error: 'Failed to fetch horoscopes',
     };
     res.status(500).json(response);
   }
@@ -63,23 +63,25 @@ export const getHoroscopeBySign = async (req: Request, res: Response): Promise<v
     }
 
     const horoscope = await getHoroscopeForSign(sign, date);
-    
+
     if (!horoscope) {
       if (isFakeDataEnabled()) {
         debugLog('🔮 [Fallback] Horoscope not found, generating fake horoscope for:', sign);
         const fakeHoroscopes = generateFakeHoroscopes();
-        const fakeHoroscope = fakeHoroscopes.find(h => h.zodiacSign.toLowerCase() === sign.toLowerCase()) || fakeHoroscopes[0];
+        const fakeHoroscope =
+          fakeHoroscopes.find((h) => h.zodiacSign.toLowerCase() === sign.toLowerCase()) ||
+          fakeHoroscopes[0];
         const response: HoroscopeResponse = {
           success: true,
-          horoscope: fakeHoroscope
+          horoscope: fakeHoroscope,
         };
         res.json(response);
         return;
       }
-      
+
       const response: HoroscopeResponse = {
         success: false,
-        error: `Horoscope not found for ${sign}`
+        error: `Horoscope not found for ${sign}`,
       };
       res.status(404).json(response);
       return;
@@ -87,14 +89,14 @@ export const getHoroscopeBySign = async (req: Request, res: Response): Promise<v
 
     const response: HoroscopeResponse = {
       success: true,
-      horoscope
+      horoscope,
     };
     res.json(response);
   } catch (error) {
     console.error('Error fetching horoscope:', error);
     const response: HoroscopeResponse = {
       success: false,
-      error: 'Failed to fetch horoscope'
+      error: 'Failed to fetch horoscope',
     };
     res.status(500).json(response);
   }
@@ -112,16 +114,15 @@ export const getAstrologicalData = async (req: Request, res: Response): Promise<
     const astrologicalData = await fetchAstrologicalData(date);
     res.json({
       success: true,
-      data: astrologicalData
+      data: astrologicalData,
     });
     return;
   } catch (error) {
     console.error('Error fetching astrological data:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch astrological data'
+      error: 'Failed to fetch astrological data',
     });
     return;
   }
 };
-

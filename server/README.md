@@ -30,6 +30,7 @@ client (nginx proxy) → server:5001
 When the database is empty, the API can return auto-generated placeholder content instead of empty responses. See the main [README](../../README.md#fake-data-fallback) for details.
 
 ### Key files:
+
 - **`src/services/fakeDataService.ts`** — Generators for fake articles, recipes, horoscopes, and tiled placeholder images
 - **`src/scripts/generateFakeImage.ts`** — CLI tool for generating single placeholder images
 - **`src/controllers/blogController.ts`** — All blog endpoints check `isFakeDataEnabled()` when empty
@@ -53,6 +54,7 @@ npm run generate-mock-data
 **This project requires Node.js version 20 or higher.** The production server must be running Node.js 20.x, 22.x, 23.x, or 24.x.
 
 **Check your Node.js version:**
+
 ```bash
 node --version
 ```
@@ -106,21 +108,25 @@ node --version
 ### Deployment Steps
 
 1. **Verify Node.js version** (must be 20+):
+
    ```bash
    node --version
    ```
 
 2. **On your production server**, navigate to the server directory:
+
    ```bash
    cd /var/www/otherProjects/Real-Fake-News/server
    ```
 
 3. **Remove existing node_modules** (if copied from another machine or after Node.js upgrade):
+
    ```bash
    rm -rf node_modules package-lock.json
    ```
 
 4. **Install dependencies directly on the production server**:
+
    ```bash
    npm install --include=optional --legacy-peer-deps
    ```
@@ -130,6 +136,7 @@ node --version
    - `--legacy-peer-deps`: Resolves peer dependency conflicts with `langchain` packages (safe for optional peer deps)
 
 5. **Build the TypeScript code**:
+
    ```bash
    npm run build
    ```
@@ -142,18 +149,21 @@ node --version
 ### Common Errors and Solutions
 
 #### Error: "Unsupported engine" warnings
+
 - **Cause**: Node.js version is too old (v18 or lower)
 - **Solution**: Upgrade to Node.js 20+ using one of the methods above
 
 #### Error: "Could not load the sharp module"
+
 - **Cause**: Wrong platform binaries or Node.js version mismatch
-- **Solution**: 
+- **Solution**:
   1. Ensure Node.js is version 20+
   2. Remove `node_modules` and reinstall: `rm -rf node_modules && npm install --include=optional`
 
 #### Error: "better-sqlite3" build errors
+
 - **Cause**: Node.js version mismatch or missing build tools
-- **Solution**: 
+- **Solution**:
   1. Upgrade to Node.js 20+
   2. Install build essentials: `sudo apt-get install build-essential python3`
 
