@@ -1,36 +1,36 @@
 .tictac-cell {
-   position: relative;
+  position: relative;
 
-   width: 7rem;
-   aspect-ratio: 1 / 1;
+  width: 7rem;
+  aspect-ratio: 1 / 1;
 
-   /* text-overflow: ellipsis;
+  /* text-overflow: ellipsis;
    white-space: nowrap;
    overflow: hidden; */
 
-   /* don't shrink */
-   /* flex-shrink: 0; */
-   /* don't grow */
-   /* flex-grow: 0; */
+  /* don't shrink */
+  /* flex-shrink: 0; */
+  /* don't grow */
+  /* flex-grow: 0; */
 
-   vertical-align: middle;
+  vertical-align: middle;
 
-   border: 2px;
-   border-color: aqua;
-   border-style: solid;
+  border: 2px;
+  border-color: aqua;
+  border-style: solid;
 
-   /* ensures the circle doesn’t spill out */
-   overflow: hidden;
+  /* ensures the circle doesn’t spill out */
+  overflow: hidden;
 }
 
 .tictac-cell:disabled {
-   cursor: not-allowed; /* or use default */
-   pointer-events: none;
-   opacity: 0.6; /* Optional for visual feedback */
+  cursor: not-allowed; /* or use default */
+  pointer-events: none;
+  opacity: 0.6; /* Optional for visual feedback */
 }
 
 .tictac-cell-marked::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -49,27 +49,26 @@
 }
 
 .tictac-cell-symbol {
-   /* display: inline-block; */
-   display: inline;
-   font-size: 30px;
+  /* display: inline-block; */
+  display: inline;
+  font-size: 30px;
 }
 
 .tictac-cell-text {
-   align-content: center;
-   align-items: center;
-   font-size: 20px;
+  align-content: center;
+  align-items: center;
+  font-size: 20px;
 }
 
 @media (max-width: 37.5em) {
-   .tictac-cell {
-      width: 5rem;
-   }
+  .tictac-cell {
+    width: 5rem;
+  }
 
-   .tictac-cell-symbol {
-      font-size: 23px;
-   }
-   .tictac-cell-text {
-      font-size: 15px;
-   }
+  .tictac-cell-symbol {
+    font-size: 23px;
+  }
+  .tictac-cell-text {
+    font-size: 15px;
+  }
 }
- 

@@ -1,69 +1,88 @@
-import 'dotenv/config'
+import 'dotenv/config';
 
-import { VALID_CATEGORIES, MIN_MINUTES_BEFORE_TO_CHECK, MAX_MINUTES_BEFORE_TO_CHECK, FALLBACK_MINUTES_BEFORE_TO_CHECK, MIN_ACCEPTABLE_ARTICLES } from '../config/constants.js';
+import {
+  VALID_CATEGORIES,
+  MIN_MINUTES_BEFORE_TO_CHECK,
+  MAX_MINUTES_BEFORE_TO_CHECK,
+  FALLBACK_MINUTES_BEFORE_TO_CHECK,
+  MIN_ACCEPTABLE_ARTICLES,
+} from '../config/constants.js';
 import { ArticleScheme, FeaturedArticleScheme, BlogResponse } from '../types/article.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
-import { Writer } from "../types/writer.js";
+import { Writer } from '../types/writer.js';
 import { generateTextFromString } from './llmService.js';
-import { getAllPosts, createPost, getPostByKey } from "../lib/database/sqliteOperations.js";
-import { getDatabase } from "../lib/database/database.js";
+import { getAllPosts, createPost, getPostByKey } from '../lib/database/sqliteOperations.js';
+import { getDatabase } from '../lib/database/database.js';
 import { getUniqueKey } from '../utils/general.js';
-import { NewsItem } from "../services/newsService.js";
-import { generateAndSaveImage } from "../services/imageService.js";
+import { NewsItem } from '../services/newsService.js';
+import { generateAndSaveImage } from '../services/imageService.js';
 import { debugLog, debugWarn, debugError } from '../utils/debugLogger.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
-    debugLog('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
-    debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
-    
-    const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
-    debugLog('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
+  debugLog('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
+  debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
 
-    const retArticles = allArticles.filter(article => {
-        if (!article.timestamp) {
-            debugWarn('⚠️ [getAllPostsAfterDate] Article', article.key, 'has no timestamp');
-            return false;
-        }
-        
-        try {
-            const articleDate = new Date(article.timestamp);
-            const startTime = startDate.getTime();
-            const articleTime = articleDate.getTime();
-            const isAfter = articleTime > startTime;
-            
-            if (!isAfter) {
-                debugLog('⏰ [getAllPostsAfterDate] Article', article.key, 'timestamp', article.timestamp, 'is before start date');
-            }
-            
-            return isAfter;
-        } catch (e) {
-            console.error('❌ [getAllPostsAfterDate] Invalid date format:', article.timestamp, 'Error:', e);
-            return false;
-        }
-    });
+  const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+  debugLog('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
 
-    debugLog('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
-    if (retArticles.length > 0) {
-        debugLog('📰 [getAllPostsAfterDate] Sample article timestamps:', 
-            retArticles.slice(0, 3).map(a => ({ key: a.key, timestamp: a.timestamp })));
+  const retArticles = allArticles.filter((article) => {
+    if (!article.timestamp) {
+      debugWarn('⚠️ [getAllPostsAfterDate] Article', article.key, 'has no timestamp');
+      return false;
     }
 
-    return {
-        success: true,
-        articles: retArticles,
-        error: ""
-    };
+    try {
+      const articleDate = new Date(article.timestamp);
+      const startTime = startDate.getTime();
+      const articleTime = articleDate.getTime();
+      const isAfter = articleTime > startTime;
+
+      if (!isAfter) {
+        debugLog(
+          '⏰ [getAllPostsAfterDate] Article',
+          article.key,
+          'timestamp',
+          article.timestamp,
+          'is before start date',
+        );
+      }
+
+      return isAfter;
+    } catch (e) {
+      console.error(
+        '❌ [getAllPostsAfterDate] Invalid date format:',
+        article.timestamp,
+        'Error:',
+        e,
+      );
+      return false;
+    }
+  });
+
+  debugLog('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
+  if (retArticles.length > 0) {
+    debugLog(
+      '📰 [getAllPostsAfterDate] Sample article timestamps:',
+      retArticles.slice(0, 3).map((a) => ({ key: a.key, timestamp: a.timestamp })),
+    );
+  }
+
+  return {
+    success: true,
+    articles: retArticles,
+    error: '',
+  };
 }
 
 /**
  * Sorts articles by timestamp (most recent first)
  */
 function sortArticlesByDate(articles: ArticleScheme[]): ArticleScheme[] {
-    return [...articles].sort((a, b) => {
-        const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-        const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-        return dateB - dateA; // Most recent first
-    });
+  return [...articles].sort((a, b) => {
+    const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+    const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    return dateB - dateA; // Most recent first
+  });
 }
 
 /**
@@ -74,68 +93,88 @@ function sortArticlesByDate(articles: ArticleScheme[]): ArticleScheme[] {
  * @returns BlogResponse with articles sorted by date (most recent first)
  */
 export async function getRelevantArticles(): Promise<BlogResponse> {
-    debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
-    
-    try {
-        // Step 1: Try to get articles from the last 24 hours
-        debugLog('📡 [getRelevantArticles] Step 1: Fetching articles from last 24 hours...');
-        const startDate1 = new Date(Date.now() - MIN_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
-        let result = await getAllPostsAfterDate(startDate1);
-        let finalArticles = result.articles;
+  debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
 
-        // Step 2: If we have no articles, try the 4-day window
-        // If we have some but not enough, also try the 4-day window to get more
-        if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
-            if (finalArticles.length === 0) {
-                debugLog('📡 [getRelevantArticles] No articles found in last 24 hours, fetching from last 4 days...');
-            } else {
-                debugLog('📡 [getRelevantArticles] Not enough articles (' + finalArticles.length + ' < ' + MIN_ACCEPTABLE_ARTICLES + '), fetching from last 4 days...');
-            }
-            
-            const startDate2 = new Date(Date.now() - MAX_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
-            const extendedResult = await getAllPostsAfterDate(startDate2);
-            
-            // If we got articles from the extended window, use them
-            // This ensures we show something even if there are no recent articles
-            if (extendedResult.articles.length > 0) {
-                finalArticles = extendedResult.articles;
-            }
-        }
+  try {
+    // Step 1: Try to get articles from the last 24 hours
+    debugLog('📡 [getRelevantArticles] Step 1: Fetching articles from last 24 hours...');
+    const startDate1 = new Date(Date.now() - MIN_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+    const result = await getAllPostsAfterDate(startDate1);
+    let finalArticles = result.articles;
 
-        // Step 3: If we still have no articles, fetch all articles and return the most recent ones
-        if (finalArticles.length === 0) {
-            debugLog('📡 [getRelevantArticles] Still no articles found, fetching all available articles...');
-            const startDate3 = new Date(Date.now() - FALLBACK_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
-            const allResult = await getAllPostsAfterDate(startDate3);
-            
-            if (allResult.articles.length > 0) {
-                // Sort by date and return the most recent ones
-                const sortedArticles = sortArticlesByDate(allResult.articles);
-                finalArticles = sortedArticles;
-                debugLog('📦 [getRelevantArticles] Found', sortedArticles.length, 'total articles, returning most recent');
-            }
-        } else {
-            // Sort the articles by date to ensure most recent first
-            finalArticles = sortArticlesByDate(finalArticles);
-        }
+    // Step 2: If we have no articles, try the 4-day window
+    // If we have some but not enough, also try the 4-day window to get more
+    if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
+      if (finalArticles.length === 0) {
+        debugLog(
+          '📡 [getRelevantArticles] No articles found in last 24 hours, fetching from last 4 days...',
+        );
+      } else {
+        debugLog(
+          '📡 [getRelevantArticles] Not enough articles (' +
+            finalArticles.length +
+            ' < ' +
+            MIN_ACCEPTABLE_ARTICLES +
+            '), fetching from last 4 days...',
+        );
+      }
 
-        debugLog('✅ [getRelevantArticles] Returning', finalArticles.length, 'articles');
-        return {
-            success: true,
-            articles: finalArticles,
-            error: ""
-        };
-    } catch (error) {
-        console.error('❌ [getRelevantArticles] Error caught:', error);
-        console.error('❌ [getRelevantArticles] Error type:', error?.constructor?.name);
-        console.error('❌ [getRelevantArticles] Error message:', error instanceof Error ? error.message : String(error));
-        console.error('❌ [getRelevantArticles] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-        return {
-            success: false,
-            articles: [],
-            error: error instanceof Error ? error.message : 'Unknown error occurred'
-        };
+      const startDate2 = new Date(Date.now() - MAX_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+      const extendedResult = await getAllPostsAfterDate(startDate2);
+
+      // If we got articles from the extended window, use them
+      // This ensures we show something even if there are no recent articles
+      if (extendedResult.articles.length > 0) {
+        finalArticles = extendedResult.articles;
+      }
     }
+
+    // Step 3: If we still have no articles, fetch all articles and return the most recent ones
+    if (finalArticles.length === 0) {
+      debugLog(
+        '📡 [getRelevantArticles] Still no articles found, fetching all available articles...',
+      );
+      const startDate3 = new Date(Date.now() - FALLBACK_MINUTES_BEFORE_TO_CHECK * 60 * 1000);
+      const allResult = await getAllPostsAfterDate(startDate3);
+
+      if (allResult.articles.length > 0) {
+        // Sort by date and return the most recent ones
+        const sortedArticles = sortArticlesByDate(allResult.articles);
+        finalArticles = sortedArticles;
+        debugLog(
+          '📦 [getRelevantArticles] Found',
+          sortedArticles.length,
+          'total articles, returning most recent',
+        );
+      }
+    } else {
+      // Sort the articles by date to ensure most recent first
+      finalArticles = sortArticlesByDate(finalArticles);
+    }
+
+    debugLog('✅ [getRelevantArticles] Returning', finalArticles.length, 'articles');
+    return {
+      success: true,
+      articles: finalArticles,
+      error: '',
+    };
+  } catch (error) {
+    console.error('❌ [getRelevantArticles] Error caught:', error);
+    console.error('❌ [getRelevantArticles] Error type:', error?.constructor?.name);
+    console.error(
+      '❌ [getRelevantArticles] Error message:',
+      error instanceof Error ? error.message : String(error),
+    );
+    console.error(
+      '❌ [getRelevantArticles] Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace',
+    );
+    return {
+      success: false,
+      articles: [],
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
 }
 
 /**
@@ -144,97 +183,126 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
  * @returns Featured article if found, undefined otherwise
  */
 export async function getFeaturedArticleForDate(date?: string): Promise<ArticleScheme | undefined> {
-    const db = getDatabase();
-    const targetDate = date || new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    
-    debugLog('🔍 [getFeaturedArticleForDate] Looking for featured article for date:', targetDate);
-    
-    try {
-        const stmt = db.prepare(`
+  const db = getDatabase();
+  const targetDate = date || new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+  debugLog('🔍 [getFeaturedArticleForDate] Looking for featured article for date:', targetDate);
+
+  try {
+    const stmt = db.prepare(`
             SELECT key FROM blog_posts 
             WHERE isFeatured = 1 AND featuredDate = ?
             LIMIT 1
         `);
-        const result = stmt.get(targetDate) as any;
-        
-        if (!result || !result.key) {
-            debugLog('📰 [getFeaturedArticleForDate] No featured article found for date:', targetDate);
-            return undefined;
-        }
-        
-        const article = await getPostByKey<ArticleScheme>(result.key, blogDatabaseConfig);
-        debugLog('✅ [getFeaturedArticleForDate] Found featured article:', article?.key, article?.title);
-        return article;
-    } catch (error) {
-        debugError('❌ [getFeaturedArticleForDate] Error fetching featured article:', error);
-        return undefined;
+    const result = stmt.get(targetDate) as any;
+
+    if (!result || !result.key) {
+      debugLog('📰 [getFeaturedArticleForDate] No featured article found for date:', targetDate);
+      return undefined;
     }
+
+    const article = await getPostByKey<ArticleScheme>(result.key, blogDatabaseConfig);
+    debugLog(
+      '✅ [getFeaturedArticleForDate] Found featured article:',
+      article?.key,
+      article?.title,
+    );
+    return article;
+  } catch (error) {
+    debugError('❌ [getFeaturedArticleForDate] Error fetching featured article:', error);
+    return undefined;
+  }
 }
 
-// TODO: add content filter step that will check for violence/bigotry in the original articles 
+// TODO: add content filter step that will check for violence/bigotry in the original articles
 //  and will eliminate them as useful thus.
 
-export async function writeBlogPost(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true) {    
-    // const newArticle = await createArticle(writer, currentNewsItem);
-    // Pass saveArticle=false to generateNewsArticleWithExplanation so we can control when to save
-    // This prevents saving invalid articles if generation fails partway through
-    const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem, false);
-    if (newArticle === undefined) {
-        console.error('❌ [writeBlogPost] Article generation failed, not saving');
-        return;
-    }
+export async function writeBlogPost(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+  saveArticle: boolean = true,
+) {
+  // const newArticle = await createArticle(writer, currentNewsItem);
+  // Pass saveArticle=false to generateNewsArticleWithExplanation so we can control when to save
+  // This prevents saving invalid articles if generation fails partway through
+  const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem, false);
+  if (newArticle === undefined) {
+    console.error('❌ [writeBlogPost] Article generation failed, not saving');
+    return;
+  }
 
-    // Only save if saveArticle is true and we have a valid article
-    if (saveArticle) {
-        await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
-    }
-    return newArticle;
+  // Only save if saveArticle is true and we have a valid article
+  if (saveArticle) {
+    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+  }
+  return newArticle;
 }
 
-async function createArticle(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
+async function createArticle(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  const prompt: string = writeBlogPostPrompt(writer, currentNewsItem);
 
-    debugLog("Generating new article");
-    const result = await generateTextFromString(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("Meta prompt output invalid!");    
-        return;
-    } 
+  debugLog('Generating new article');
+  const result = await generateTextFromString(prompt, 'json_object');
+  if (result === undefined || !result?.success) {
+    console.error('Meta prompt output invalid!');
+    return;
+  }
 
-    // Parse JSON response - if it fails, don't create article
-    let parsedData: any;
-    try {
-        parsedData = JSON.parse(result.generatedText);
-    } catch (error) {
-        console.error('❌ [createArticle] Failed to parse LLM JSON response:', error);
-        console.error('❌ [createArticle] Raw response:', result.generatedText?.substring(0, 500));
-        return undefined;
-    }
-    const imgName = await generateAndSaveImage(parsedData.prompt);
+  // Parse JSON response - if it fails, don't create article
+  let parsedData: any;
+  try {
+    parsedData = JSON.parse(result.generatedText);
+  } catch (error) {
+    console.error('❌ [createArticle] Failed to parse LLM JSON response:', error);
+    console.error('❌ [createArticle] Raw response:', result.generatedText?.substring(0, 500));
+    return undefined;
+  }
+  const imgName = await generateAndSaveImage(parsedData.prompt);
 
-    const newArticle: ArticleScheme =  {
-        key: getUniqueKey(),
-        content: parsedData.content,
-        author: writer,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    };     
+  const newArticle: ArticleScheme = {
+    key: getUniqueKey(),
+    content: parsedData.content,
+    author: writer,
+    title: parsedData.title,
+    timestamp: new Date().toUTCString(),
+    category: parsedData.category,
+    originalNewsItem: currentNewsItem,
+    shortDescription: parsedData.shortDescription,
+    headImage: imgName,
+  };
 
-    return newArticle;
+  return newArticle;
 }
 
 // ----------------------------------------------- PROMPT MAKING FUNCTIONS -----------------------------------------------
 
-
-
-function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    // TODO: fix description might be null in currentNewsItem!
-    const META_PROMPT: string =
-    `
+function writeBlogPostPrompt(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  // TODO: fix description might be null in currentNewsItem!
+  const META_PROMPT: string = `
     Roleplay as a journalist. When writing your response, do not comment on it, instead just write an article about the
     given topic and make it professional.\n\n
 
@@ -245,14 +313,24 @@ function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { artic
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
     ${VALID_CATEGORIES.join(', ')}\n\n
     
-    ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
-    ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
-    ${(writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : "")}\n
+    ${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}\n
+    ${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}\n
+    ${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}\n
     
-    ${currentNewsItem.title !== "" ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
-        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title : ""}\n
-    ${(currentNewsItem.description !== null && currentNewsItem.description !== "" ? `Additionally, take the following description of the news item, 
-        and do the same, adding it to your context:` + "\n DESCRIPTION: \n" + currentNewsItem.description: "")}\n
+    ${
+      currentNewsItem.title !== ''
+        ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
+        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title
+        : ''
+    }\n
+    ${
+      currentNewsItem.description !== null && currentNewsItem.description !== ''
+        ? `Additionally, take the following description of the news item, 
+        and do the same, adding it to your context:` +
+          '\n DESCRIPTION: \n' +
+          currentNewsItem.description
+        : ''
+    }\n
     
     In the prompt section of the output, I want you to write an image prompt for an image generation model 
     that will make an image related and illustrative of the article.\n
@@ -311,22 +389,30 @@ function writeBlogPostPrompt(writer: Writer, currentNewsItem: NewsItem = { artic
     }\n
     `;
 
-    return META_PROMPT;
+  return META_PROMPT;
 }
 
 // New article generation functions 20 October 2025
 
-function writeNewsExplanationPrompt(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    const EXPLANATION_PROMPT: string =
-    `
+function writeNewsExplanationPrompt(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  const EXPLANATION_PROMPT: string = `
     Roleplay as a journalist. Analyze the given news story and provide a clear, concise explanation.\n\n
 
-    ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
-    ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
-    ${(writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : "")}\n
+    ${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}\n
+    ${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}\n
+    ${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}\n
     
-    ${currentNewsItem.title !== "" ? `Analyze the following news story:\n\n TITLE: \n` + currentNewsItem.title : ""}\n
-    ${(currentNewsItem.description !== null && currentNewsItem.description !== "" ? `DESCRIPTION: \n` + currentNewsItem.description: "")}\n
+    ${currentNewsItem.title !== '' ? `Analyze the following news story:\n\n TITLE: \n` + currentNewsItem.title : ''}\n
+    ${currentNewsItem.description !== null && currentNewsItem.description !== '' ? `DESCRIPTION: \n` + currentNewsItem.description : ''}\n
     
     Based on this news story, provide a 3 to 5 point explanation that covers the key aspects of what happened. 
     Each point should be a clear, concise statement that explains a different aspect of the story.
@@ -341,20 +427,29 @@ function writeNewsExplanationPrompt(writer: Writer, currentNewsItem: NewsItem = 
     Format your response as a simple numbered list with no additional commentary or explanation beyond the points themselves.
     `;
 
-    return EXPLANATION_PROMPT;
+  return EXPLANATION_PROMPT;
 }
 
-function writeNewsArticleFromExplanationPrompt(writer: Writer, explanationPoints: string[], currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }) {
-    const EXPANSION_PROMPT: string =
-    `
+function writeNewsArticleFromExplanationPrompt(
+  writer: Writer,
+  explanationPoints: string[],
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+) {
+  const EXPANSION_PROMPT: string = `
     Roleplay as a journalist. Expand the given explanation points into a full news article.\n\n
 
-    ${(writer.name !== "" ? "Your name is " + writer.name + "." : "")}\n
-    ${(writer.description !== "" ? "Your description is " + writer.description + "." : "")}\n
-    ${(writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : "")}\n
+    ${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}\n
+    ${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}\n
+    ${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}\n
     
-    ${currentNewsItem.title !== "" ? `Original news story:\n\n TITLE: \n` + currentNewsItem.title : ""}\n
-    ${(currentNewsItem.description !== null && currentNewsItem.description !== "" ? `DESCRIPTION: \n` + currentNewsItem.description: "")}\n
+    ${currentNewsItem.title !== '' ? `Original news story:\n\n TITLE: \n` + currentNewsItem.title : ''}\n
+    ${currentNewsItem.description !== null && currentNewsItem.description !== '' ? `DESCRIPTION: \n` + currentNewsItem.description : ''}\n
     
     Please parse this request to a json output. I will give examples after.\n
     Make sure the content of the article is longer than that of the examples given.\n
@@ -401,103 +496,152 @@ function writeNewsArticleFromExplanationPrompt(writer: Writer, explanationPoints
     }\n
     `;
 
-    return EXPANSION_PROMPT;
+  return EXPANSION_PROMPT;
 }
 
 // ----------------------------------------------- NEW FUNCTIONS FOR EXPLANATION AND EXPANSION -----------------------------------------------
 
-export async function generateNewsExplanation(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }): Promise<string[] | undefined> {
-    const prompt: string = writeNewsExplanationPrompt(writer, currentNewsItem);
+export async function generateNewsExplanation(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+): Promise<string[] | undefined> {
+  const prompt: string = writeNewsExplanationPrompt(writer, currentNewsItem);
 
-    debugLog("Generating news explanation");
-    const result = await generateTextFromString(prompt, 'text');
-    if (result === undefined || !result?.success) {
-        console.error("News explanation generation failed!");    
-        return undefined;
-    } 
+  debugLog('Generating news explanation');
+  const result = await generateTextFromString(prompt, 'text');
+  if (result === undefined || !result?.success) {
+    console.error('News explanation generation failed!');
+    return undefined;
+  }
 
-    // Parse the numbered list response into an array of explanation points
-    const explanationText = result.generatedText.trim();
-    const explanationPoints = explanationText
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => {
-            // Remove numbering (e.g., "1. ", "2. ", etc.)
-            return line.replace(/^\d+\.\s*/, '');
-        });
+  // Parse the numbered list response into an array of explanation points
+  const explanationText = result.generatedText.trim();
+  const explanationPoints = explanationText
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      // Remove numbering (e.g., "1. ", "2. ", etc.)
+      return line.replace(/^\d+\.\s*/, '');
+    });
 
-    return explanationPoints;
+  return explanationPoints;
 }
 
-export async function generateNewsArticleFromExplanation(writer: Writer, explanationPoints: string[], currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true): Promise<ArticleScheme | undefined> {
-    const prompt: string = writeNewsArticleFromExplanationPrompt(writer, explanationPoints, currentNewsItem);
+export async function generateNewsArticleFromExplanation(
+  writer: Writer,
+  explanationPoints: string[],
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+  saveArticle: boolean = true,
+): Promise<ArticleScheme | undefined> {
+  const prompt: string = writeNewsArticleFromExplanationPrompt(
+    writer,
+    explanationPoints,
+    currentNewsItem,
+  );
 
-    debugLog("Generating news article from explanation");
-    const result = await generateTextFromString(prompt, 'json_object');
-    if (result === undefined || !result?.success) {
-        console.error("News article generation from explanation failed!");    
-        return undefined;
-    } 
+  debugLog('Generating news article from explanation');
+  const result = await generateTextFromString(prompt, 'json_object');
+  if (result === undefined || !result?.success) {
+    console.error('News article generation from explanation failed!');
+    return undefined;
+  }
 
-    // Parse JSON response - if it fails, don't create article
-    let parsedData: any;
-    try {
-        parsedData = JSON.parse(result.generatedText);
-    } catch (error) {
-        console.error('❌ [generateNewsArticleFromExplanation] Failed to parse LLM JSON response:', error);
-        console.error('❌ [generateNewsArticleFromExplanation] Raw response:', result.generatedText?.substring(0, 500));
-        return undefined;
+  // Parse JSON response - if it fails, don't create article
+  let parsedData: any;
+  try {
+    parsedData = JSON.parse(result.generatedText);
+  } catch (error) {
+    console.error(
+      '❌ [generateNewsArticleFromExplanation] Failed to parse LLM JSON response:',
+      error,
+    );
+    console.error(
+      '❌ [generateNewsArticleFromExplanation] Raw response:',
+      result.generatedText?.substring(0, 500),
+    );
+    return undefined;
+  }
+
+  // Validate that we have a prompt for image generation
+  if (!parsedData.prompt) {
+    console.error(
+      '❌ [generateNewsArticleFromExplanation] Missing prompt in LLM response, cannot generate image',
+    );
+    return undefined;
+  }
+
+  // Generate image - if it fails, don't create the article
+  let imgName: string;
+  try {
+    imgName = await generateAndSaveImage(parsedData.prompt);
+    if (!imgName || imgName === '') {
+      console.error(
+        '❌ [generateNewsArticleFromExplanation] Image generation returned empty string',
+      );
+      return undefined;
     }
-    
-    // Validate that we have a prompt for image generation
-    if (!parsedData.prompt) {
-        console.error('❌ [generateNewsArticleFromExplanation] Missing prompt in LLM response, cannot generate image');
-        return undefined;
-    }
-    
-    // Generate image - if it fails, don't create the article
-    let imgName: string;
-    try {
-        imgName = await generateAndSaveImage(parsedData.prompt);
-        if (!imgName || imgName === '') {
-            console.error('❌ [generateNewsArticleFromExplanation] Image generation returned empty string');
-            return undefined;
-        }
-    } catch (error) {
-        console.error('❌ [generateNewsArticleFromExplanation] Image generation failed:', error);
-        return undefined;
-    }
+  } catch (error) {
+    console.error('❌ [generateNewsArticleFromExplanation] Image generation failed:', error);
+    return undefined;
+  }
 
-    const newArticle: ArticleScheme = {
-        key: getUniqueKey(),
-        content: parsedData.content,
-        author: writer,
-        title: parsedData.title,
-        timestamp: (new Date()).toUTCString(),
-        category: parsedData.category,
-        originalNewsItem: currentNewsItem,
-        shortDescription: parsedData.shortDescription,
-        headImage: imgName
-    };
+  const newArticle: ArticleScheme = {
+    key: getUniqueKey(),
+    content: parsedData.content,
+    author: writer,
+    title: parsedData.title,
+    timestamp: new Date().toUTCString(),
+    category: parsedData.category,
+    originalNewsItem: currentNewsItem,
+    shortDescription: parsedData.shortDescription,
+    headImage: imgName,
+  };
 
-    if (saveArticle) {
-        // Add new AI news article to AI news article database
-        await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
-    }
+  if (saveArticle) {
+    // Add new AI news article to AI news article database
+    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+  }
 
-    return newArticle;
+  return newArticle;
 }
 
-export async function generateNewsArticleWithExplanation(writer: Writer, currentNewsItem: NewsItem = { article_id: "", title: "", description: "", pubDate: "", pubDateTZ: "" }, saveArticle: boolean = true): Promise<ArticleScheme | undefined> {
-    // First generate the explanation points
-    const explanationPoints = await generateNewsExplanation(writer, currentNewsItem);
-    if (explanationPoints === undefined) {
-        console.error("Failed to generate explanation points");
-        return undefined;
-    }
+export async function generateNewsArticleWithExplanation(
+  writer: Writer,
+  currentNewsItem: NewsItem = {
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
+  },
+  saveArticle: boolean = true,
+): Promise<ArticleScheme | undefined> {
+  // First generate the explanation points
+  const explanationPoints = await generateNewsExplanation(writer, currentNewsItem);
+  if (explanationPoints === undefined) {
+    console.error('Failed to generate explanation points');
+    return undefined;
+  }
 
-    // Then expand them into a full article
-    const article = await generateNewsArticleFromExplanation(writer, explanationPoints, currentNewsItem, saveArticle);
-    return article;
+  // Then expand them into a full article
+  const article = await generateNewsArticleFromExplanation(
+    writer,
+    explanationPoints,
+    currentNewsItem,
+    saveArticle,
+  );
+  return article;
 }

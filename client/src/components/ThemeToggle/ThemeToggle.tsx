@@ -7,7 +7,7 @@ function ThemeToggle() {
 
   return (
     <div className="theme-toggle-container">
-      <button 
+      <button
         className={`theme-toggle ${dark ? 'dark' : 'light'}`}
         onClick={toggleDarkMode}
         aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`}
@@ -15,9 +15,7 @@ function ThemeToggle() {
       >
         <div className="theme-toggle-track">
           <div className="theme-toggle-thumb">
-            <span className="theme-icon">
-              {dark ? '🌙' : '☀️'}
-            </span>
+            <span className="theme-icon">{dark ? '🌙' : '☀️'}</span>
           </div>
         </div>
       </button>

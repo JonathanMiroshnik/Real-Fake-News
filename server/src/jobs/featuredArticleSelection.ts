@@ -20,7 +20,11 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     // Check if featured article already exists for today
     const existingFeatured = await getFeaturedArticleForDate(today);
     if (existingFeatured) {
-      debugLog('⭐ [selectDailyFeaturedArticle] Featured article already exists for today:', existingFeatured.key, existingFeatured.title);
+      debugLog(
+        '⭐ [selectDailyFeaturedArticle] Featured article already exists for today:',
+        existingFeatured.key,
+        existingFeatured.title,
+      );
       return;
     }
 
@@ -31,7 +35,9 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     const todayArticles = result.articles;
 
     if (todayArticles.length === 0) {
-      debugWarn('⭐ [selectDailyFeaturedArticle] No articles found for today, cannot select featured article');
+      debugWarn(
+        '⭐ [selectDailyFeaturedArticle] No articles found for today, cannot select featured article',
+      );
       return;
     }
 
@@ -43,13 +49,15 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     const featuredArticle: ArticleScheme = {
       ...selectedArticle,
       isFeatured: true,
-      featuredDate: today
+      featuredDate: today,
     };
 
     const success = await updatePost<ArticleScheme>(featuredArticle, blogDatabaseConfig);
 
     if (success) {
-      debugLog(`✅ [selectDailyFeaturedArticle] Successfully set article as featured: ${selectedArticle.key} - ${selectedArticle.title}`);
+      debugLog(
+        `✅ [selectDailyFeaturedArticle] Successfully set article as featured: ${selectedArticle.key} - ${selectedArticle.title}`,
+      );
     } else {
       debugWarn('⚠️ [selectDailyFeaturedArticle] Failed to set article as featured');
     }
@@ -73,4 +81,3 @@ export function scheduleFeaturedArticleSelection(): void {
   // Also run immediately if no featured article exists for today
   selectDailyFeaturedArticle();
 }
-

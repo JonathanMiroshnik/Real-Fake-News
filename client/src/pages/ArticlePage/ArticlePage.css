@@ -1,7 +1,7 @@
 .news-article {
   max-width: 50%;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 1rem 0 0 0;
   padding: 2rem;
 }
@@ -58,7 +58,6 @@
   color: #cc0000;
 }
 
-
 /* .article-list-item-title-header {
   color: var(--title-color);
   font-size: 18px;
@@ -76,7 +75,6 @@
     font-size: 12px;
     text-align: center;
 } */
-
 
 @media (max-width: 600px) {
   .news-article {

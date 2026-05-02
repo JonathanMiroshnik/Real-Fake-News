@@ -29,31 +29,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            if (user?.token) {
-            try {
-                // Verify token expiration
-                const decoded = jwt.decode(user.token);
-                if (decoded === null || typeof decoded === "string") {
-                    return;
-                }
-                if (decoded?.exp === undefined) {
-                    return;
-                }
-                
-                if (decoded.exp * 1000 < Date.now()) {
-                logout();
-                }
-            } catch (error) {
-                logout();
-            }
-            }
-        };
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (user?.token) {
+        try {
+          // Verify token expiration
+          const decoded = jwt.decode(user.token);
+          if (decoded === null || typeof decoded === 'string') {
+            return;
+          }
+          if (decoded?.exp === undefined) {
+            return;
+          }
+
+          if (decoded.exp * 1000 < Date.now()) {
+            logout();
+          }
+        } catch (error) {
+          logout();
+        }
+      }
+    };
 
     const interval = setInterval(checkAuth, 60000);
     return () => clearInterval(interval);
-    }, [user]);
+  }, [user]);
 
   const login = (userData: User, token: string) => {
     const userWithToken = { ...userData, token };
@@ -66,11 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('user');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

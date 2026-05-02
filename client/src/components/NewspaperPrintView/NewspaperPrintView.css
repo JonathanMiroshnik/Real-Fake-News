@@ -375,7 +375,7 @@
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
   }
-  
+
   /* Ensure all text is visible */
   .newspaper-masthead,
   .newspaper-title,
@@ -429,4 +429,3 @@
     font-size: 2rem;
   }
 }
-

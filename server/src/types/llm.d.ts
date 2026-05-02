@@ -3,11 +3,11 @@ export interface GenerateContentRequest {
   prompt: string;
   maxTokens?: number;
   temperature?: number;
-  type: any = 'text';
+  type: any;
 }
 
 export interface GenerateContentResponse {
   success: boolean;
   generatedText: string;
-  error?: string;  
+  error?: string;
 }

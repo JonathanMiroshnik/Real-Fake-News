@@ -63,7 +63,7 @@
 // async function generateConversationFormat(speechTypes: string[]): Promise<ConversationFormat | undefined> {
 //     const prompt = `
 //     Create a conversation format specification based on these speech types: ${speechTypes.join(', ')}.
-    
+
 //     Generate a JSON response with the following structure:
 //     {
 //         "title": "Creative title for this conversation",
@@ -75,7 +75,7 @@
 //         "imagePrompt": "Prompt for generating an illustrative image",
 //         "shortDescription": "Brief 1-2 line description"
 //     }
-    
+
 //     Make it creative and engaging. The conversation should be between multiple AI participants.
 //     `;
 
@@ -102,18 +102,18 @@
 // async function generateConversationContent(format: ConversationFormat, participants: Writer[]): Promise<string | undefined> {
 //     const prompt = `
 //     Generate a conversation article based on this format:
-    
+
 //     Title: ${format.title}
 //     Category: ${format.category}
 //     Format: ${format.format}
 //     Participants: ${format.participants}
 //     Rules: ${format.rules.join(', ')}
-    
+
 //     Create a conversation between ${format.participants} AI participants. Each participant should have a distinct personality and perspective.
-    
+
 //     The conversation should be written in markdown format with clear speaker identification and engaging dialogue.
 //     Make it entertaining, informative, and follow the specified format and rules.
-    
+
 //     Return the content as a markdown-formatted conversation.
 //     `;
 
@@ -175,7 +175,7 @@
 
 //         // TODO: Save to database - you'll need to create a database configuration for special articles
 //         // await createPost<SpecialArticleScheme>(specialArticle, specialArticleDatabaseConfig);
-        
+
 //         console.log("Created special article:", specialArticle.title);
 //         return specialArticle;
 

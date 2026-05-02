@@ -76,9 +76,8 @@
   .alice-carousel__next-btn {
     display: none;
   }
-  
+
   .alice-carousel__stage-item {
     width: 100% !important;
   }
 }
-

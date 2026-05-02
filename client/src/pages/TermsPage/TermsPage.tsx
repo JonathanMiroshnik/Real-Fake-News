@@ -14,7 +14,7 @@ export default function TermsPage() {
             <li>Use our content in academic papers</li>
           </ul>
         </section>
-        
+
         <section className="clauses">
           <h2>Mandatory Provisions</h2>
           <ol>
@@ -23,10 +23,8 @@ export default function TermsPage() {
             <li>Blink normally while reading (winking optional)</li>
           </ol>
         </section>
-        
-        <div className="footnote">
-          *These terms are binding in 13 imaginary jurisdictions
-        </div>
+
+        <div className="footnote">*These terms are binding in 13 imaginary jurisdictions</div>
       </div>
     </div>
   );

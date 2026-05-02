@@ -46,7 +46,6 @@ const startServer = async () => {
       console.error('🔥 Unhandled Rejection at:', promise, 'Reason:', reason);
       shutdown('unhandledRejection');
     });
-
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);

@@ -17,9 +17,9 @@ services:
         # In Docker, use relative API URLs with nginx proxy (recommended)
         # OR use Docker service name 'server' instead of localhost
         - VITE_USE_RELATIVE_API=true
-        - VITE_BACKEND_DEV_MODE=false  # Set to false to use PROD URL (which will be server:5001)
-        - VITE_API_BASE_DEV=http://localhost:5001  # Not used when USE_RELATIVE_API=true
-        - VITE_API_BASE_PROD=http://server:5001  # Docker service name for inter-container communication
+        - VITE_BACKEND_DEV_MODE=false # Set to false to use PROD URL (which will be server:5001)
+        - VITE_API_BASE_DEV=http://localhost:5001 # Not used when USE_RELATIVE_API=true
+        - VITE_API_BASE_PROD=http://server:5001 # Docker service name for inter-container communication
         - VITE_DEBUG_LOGS=true
         - VITE_SHOW_HOROSCOPES=${VITE_SHOW_HOROSCOPES:-true}
         - VITE_SHOW_RECIPES=${VITE_SHOW_RECIPES:-true}
@@ -28,12 +28,12 @@ services:
     build:
       args:
         # Default to dev mode (localhost:5001) - can be overridden in .env for production backend
-        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true}  # true = use localhost:5001, false = use PROD URL
-        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}  # Dev backend URL
-        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://162.0.237.138:5001}  # Production backend IP:port (override in .env)
+        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true} # true = use localhost:5001, false = use PROD URL
+        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001} # Dev backend URL
+        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://162.0.237.138:5001} # Production backend IP:port (override in .env)
         - VITE_USE_RELATIVE_API=false
         - VITE_FRONTEND_DEV_MODE=true
         - VITE_CLIENT_URL_DEV=http://localhost:5173
-        - VITE_CLIENT_URL_PROD=http://client:80  # Docker service name
-        - SVELTEKIT_BASE_PATH=  # Empty for dev mode - serve from root instead of /admin
+        - VITE_CLIENT_URL_PROD=http://client:80 # Docker service name
+        - SVELTEKIT_BASE_PATH= # Empty for dev mode - serve from root instead of /admin
 

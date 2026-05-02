@@ -9,7 +9,7 @@
 //       headers: { 'Content-Type': 'application/json' },
 //       body: JSON.stringify({ username, password })
 //     });
-    
+
 //     if (response.ok) {
 //       setIsAuthenticated(true);
 //       return true;
@@ -25,7 +25,7 @@
 //   useEffect(() => {
 //     const checkAuth = async () => {
 //       try {
-//         const response = await fetch('/api/admin/validate', { 
+//         const response = await fetch('/api/admin/validate', {
 //           credentials: 'include'
 //         });
 //         setIsAuthenticated(response.ok);
