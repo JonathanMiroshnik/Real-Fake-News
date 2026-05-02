@@ -1,12 +1,12 @@
 export type TicTacToeGameMove = {
-    positionX: number;
-    positionY: number;
-}
+  positionX: number;
+  positionY: number;
+};
 
 export interface GenerateGameMoveRequest {
-    boardState: string; 
-    dice: string;
-    symbol: 'X'|'O';
+  boardState: string;
+  dice: string;
+  symbol: "X" | "O";
 }
 
 export interface GenerateGameMoveResponse {

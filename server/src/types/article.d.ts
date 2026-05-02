@@ -1,4 +1,11 @@
-import { Post, createPost, getAllPosts, getPostByKey, updatePost, deletePost } from "../lib/database/sqliteOperations.js"
+import {
+  Post,
+  // createPost,
+  // getAllPosts,
+  // getPostByKey,
+  // updatePost,
+  // deletePost,
+} from "../lib/database/sqliteOperations.js";
 import { NewsItem } from "../services/newsService.js";
 import { Writer } from "./writer";
 
@@ -28,7 +35,7 @@ export interface FeaturedArticleScheme extends ArticleScheme {
 }
 
 export interface BlogRequest {
-  writer: string = "";
+  writer?: string;
   afterDate: Date;
 }
 
@@ -49,7 +56,6 @@ export interface RecipeScheme extends Post {
   shortDescription?: string;
   writerType?: "AI" | "Human" | "Synthesis";
 }
-
 
 // FOR TESTING PURPOSRS ----------------------------------------------------------------------------------
 

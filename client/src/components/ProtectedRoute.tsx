@@ -4,7 +4,7 @@
 
 // function ProtectedRoute({ children }: { children: JSX.Element }) {
 //   const { isAuthenticated } = useAuth();
-  
+
 //   if (!isAuthenticated) {
 //     return <Navigate to="/admin/login" replace />;
 //   }

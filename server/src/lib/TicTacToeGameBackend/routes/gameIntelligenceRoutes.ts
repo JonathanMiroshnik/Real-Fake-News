@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { textToGameAnalysis } from '../controllers/gameIntelligenceController.js';
+import { Router } from "express";
+import { textToGameAnalysis } from "../controllers/gameIntelligenceController.js";
 
 const router = Router();
 
-router.post('/', textToGameAnalysis);
+router.post("/", textToGameAnalysis);
 
 export default router;

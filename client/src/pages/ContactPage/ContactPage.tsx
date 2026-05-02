@@ -1,4 +1,4 @@
-import './ContactPage.css';
+import "./ContactPage.css";
 
 export default function ContactPage() {
   return (
@@ -7,7 +7,10 @@ export default function ContactPage() {
       <div className="contact-methods">
         <div className="method email">
           <h2>E-mail</h2>
-          <p>Send an electronic telegram to your's truly: jonathanmiroshnik@gmail.com</p>
+          <p>
+            Send an electronic telegram to your's truly:
+            jonathanmiroshnik@gmail.com
+          </p>
           <small>Response time: I'll try my best.</small>
         </div>
 

@@ -1,13 +1,17 @@
 import { LLMService } from "../../../services/llmService.js";
-import { GenerateGameMoveRequest, GenerateGameMoveResponse, TicTacToeGameMove } from "../types/gameIntelligence.js";
+import {
+  GenerateGameMoveRequest,
+  GenerateGameMoveResponse,
+} from "../types/gameIntelligence.js";
 import { GenerateContentRequest } from "../../../types/llm.js";
 
-export async function chooseNextAction( serviceReq: GenerateGameMoveRequest ): Promise<GenerateGameMoveResponse> {
-    // console.log(serviceReq.boardState, serviceReq.dice, serviceReq.symbol);
-    
-    // TODO: create request from current game state with proper prompt
-    const prompt = 
-    `
+export async function chooseNextAction(
+  serviceReq: GenerateGameMoveRequest,
+): Promise<GenerateGameMoveResponse> {
+  // console.log(serviceReq.boardState, serviceReq.dice, serviceReq.symbol);
+
+  // TODO: create request from current game state with proper prompt
+  const prompt = `
     You and a player are playing a board game.
     \n\n
     GAME RULES:\n
@@ -103,20 +107,20 @@ export async function chooseNextAction( serviceReq: GenerateGameMoveRequest ): P
     }\n
     `;
 
-    const request: GenerateContentRequest = {
-        provider: 'deepseek',
-        prompt: prompt,
-        type: 'json_object',
-    };
-    
-    const llmServiceInst = new LLMService();
-    const llmResponse = await llmServiceInst.generateContent(request);
+  const request: GenerateContentRequest = {
+    provider: "deepseek",
+    prompt: prompt,
+    type: "json_object",
+  };
 
-    const gameMoveRep: GenerateGameMoveResponse = {
-      success: llmResponse.success,
-      proposedMove: JSON.parse(llmResponse.generatedText),
-      error: llmResponse.error
-    }
-    
-    return gameMoveRep;
+  const llmServiceInst = new LLMService();
+  const llmResponse = await llmServiceInst.generateContent(request);
+
+  const gameMoveRep: GenerateGameMoveResponse = {
+    success: llmResponse.success,
+    proposedMove: JSON.parse(llmResponse.generatedText),
+    error: llmResponse.error,
+  };
+
+  return gameMoveRep;
 }

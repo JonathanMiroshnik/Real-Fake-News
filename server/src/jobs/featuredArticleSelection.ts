@@ -1,12 +1,11 @@
-import cron from 'node-cron';
-import { randomInt } from 'crypto';
-import { getFeaturedArticleForDate } from '../services/blogService.js';
-import { getAllPostsAfterDate } from '../services/blogService.js';
-import { updatePost } from '../lib/database/sqliteOperations.js';
-import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
-import { ArticleScheme } from '../types/article.js';
-import { debugLog, debugWarn } from '../utils/debugLogger.js';
-import { DAY_MILLISECS } from '../config/constants.js';
+import cron from "node-cron";
+import { randomInt } from "crypto";
+import { getFeaturedArticleForDate } from "../services/blogService.js";
+import { getAllPostsAfterDate } from "../services/blogService.js";
+import { updatePost } from "../lib/database/sqliteOperations.js";
+import { blogDatabaseConfig } from "../lib/database/databaseConfigurations.js";
+import { ArticleScheme } from "../types/article.js";
+import { debugLog, debugWarn } from "../utils/debugLogger.js";
 
 /**
  * Selects a random article from today's articles and sets it as featured
@@ -14,13 +13,20 @@ import { DAY_MILLISECS } from '../config/constants.js';
  */
 export async function selectDailyFeaturedArticle(): Promise<void> {
   try {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    debugLog('⭐ [selectDailyFeaturedArticle] Checking for featured article for date:', today);
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+    debugLog(
+      "⭐ [selectDailyFeaturedArticle] Checking for featured article for date:",
+      today,
+    );
 
     // Check if featured article already exists for today
     const existingFeatured = await getFeaturedArticleForDate(today);
     if (existingFeatured) {
-      debugLog('⭐ [selectDailyFeaturedArticle] Featured article already exists for today:', existingFeatured.key, existingFeatured.title);
+      debugLog(
+        "⭐ [selectDailyFeaturedArticle] Featured article already exists for today:",
+        existingFeatured.key,
+        existingFeatured.title,
+      );
       return;
     }
 
@@ -31,7 +37,9 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     const todayArticles = result.articles;
 
     if (todayArticles.length === 0) {
-      debugWarn('⭐ [selectDailyFeaturedArticle] No articles found for today, cannot select featured article');
+      debugWarn(
+        "⭐ [selectDailyFeaturedArticle] No articles found for today, cannot select featured article",
+      );
       return;
     }
 
@@ -43,18 +51,28 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     const featuredArticle: ArticleScheme = {
       ...selectedArticle,
       isFeatured: true,
-      featuredDate: today
+      featuredDate: today,
     };
 
-    const success = await updatePost<ArticleScheme>(featuredArticle, blogDatabaseConfig);
+    const success = await updatePost<ArticleScheme>(
+      featuredArticle,
+      blogDatabaseConfig,
+    );
 
     if (success) {
-      debugLog(`✅ [selectDailyFeaturedArticle] Successfully set article as featured: ${selectedArticle.key} - ${selectedArticle.title}`);
+      debugLog(
+        `✅ [selectDailyFeaturedArticle] Successfully set article as featured: ${selectedArticle.key} - ${selectedArticle.title}`,
+      );
     } else {
-      debugWarn('⚠️ [selectDailyFeaturedArticle] Failed to set article as featured');
+      debugWarn(
+        "⚠️ [selectDailyFeaturedArticle] Failed to set article as featured",
+      );
     }
   } catch (error) {
-    console.error('❌ [selectDailyFeaturedArticle] Error selecting featured article:', error);
+    console.error(
+      "❌ [selectDailyFeaturedArticle] Error selecting featured article:",
+      error,
+    );
   }
 }
 
@@ -64,13 +82,12 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
  */
 export function scheduleFeaturedArticleSelection(): void {
   // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
+  cron.schedule("0 0 * * *", async () => {
     await selectDailyFeaturedArticle();
   });
 
-  debugLog('📅 Scheduled daily featured article selection at midnight');
+  debugLog("📅 Scheduled daily featured article selection at midnight");
 
   // Also run immediately if no featured article exists for today
   selectDailyFeaturedArticle();
 }
-

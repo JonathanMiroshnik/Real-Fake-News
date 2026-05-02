@@ -27,10 +27,10 @@ For information about configuring environment variables (backend connection, deb
 
 ### Key Environment Variables
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `VITE_BACKEND_DEV_MODE` | Use `localhost:5001` for dev | `false` |
-| `VITE_USE_RELATIVE_API` | Use relative `/api` URLs (for nginx proxy) | `true` |
-| `VITE_API_BASE_PROD` | Production backend URL | `http://server:5001` |
-| `VITE_SHOW_HOROSCOPES` | Show/hide horoscope section | `true` |
-| `VITE_DEBUG_LOGS` | Enable console debug logging | `false` |
+| Variable                | Purpose                                    | Default              |
+| ----------------------- | ------------------------------------------ | -------------------- |
+| `VITE_BACKEND_DEV_MODE` | Use `localhost:5001` for dev               | `false`              |
+| `VITE_USE_RELATIVE_API` | Use relative `/api` URLs (for nginx proxy) | `true`               |
+| `VITE_API_BASE_PROD`    | Production backend URL                     | `http://server:5001` |
+| `VITE_SHOW_HOROSCOPES`  | Show/hide horoscope section                | `true`               |
+| `VITE_DEBUG_LOGS`       | Enable console debug logging               | `false`              |

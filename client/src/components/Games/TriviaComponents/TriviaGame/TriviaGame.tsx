@@ -1,25 +1,16 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import PlayerConfiguration from '../PlayerConfiguration/PlayerConfiguration'
-import WinnerOverlay from '../WinnerOverlay/WinnerOverlay'
-import ScoreBoard from '../ScoreBoard/ScoreBoard'
-import QuestionCard from '../Question/QuestionCard'
-import { Question } from '../Question/QuestionCard'
-import { getApiBaseUrlWithPrefix } from '../../../../config/apiConfig'
-import { debugError } from '../../../../utils/debugLogger'
+import PlayerConfiguration from "../PlayerConfiguration/PlayerConfiguration";
+import WinnerOverlay from "../WinnerOverlay/WinnerOverlay";
+import ScoreBoard from "../ScoreBoard/ScoreBoard";
+import QuestionCard from "../Question/QuestionCard";
+import { Question } from "../Question/QuestionCard";
+import { getApiBaseUrlWithPrefix } from "../../../../config/apiConfig";
+import { debugError } from "../../../../utils/debugLogger";
 
-import './TriviaGame.css'
+import { Player } from "./types";
 
-// TODO: add unique ID for each player?
-export interface Player {
-  name: string;
-  score: number;
-}
-
-export enum QuestionOrigins {
-  PublicDatabase,
-  LLM
-}
+import "./TriviaGame.css";
 
 const QUESTIONS_PER_PLAYER = 3;
 const MIN_NUMBER_PLAYERS = 1;
@@ -34,10 +25,11 @@ const START_PLAYERS: Player[] = [
   },
 ];
 
-
 function TriviaGame() {
-  const [players, setPlayers] = useState<Player[]>([...START_PLAYERS.map((p)=>({...p}))]);
-  const [currentPlayerInd, setCurrentPlayerInd] = useState<number>(0); 
+  const [players, setPlayers] = useState<Player[]>([
+    ...START_PLAYERS.map((p) => ({ ...p })),
+  ]);
+  const [currentPlayerInd, setCurrentPlayerInd] = useState<number>(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionInd, setCurrentQuestionInd] = useState<number>(0);
 
@@ -51,37 +43,39 @@ function TriviaGame() {
   // useEffect(() => {
   //   preGameSetup();
   // }, []);
-  
+
   async function fetchQuestions(amount: number): Promise<Question[]> {
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
     const VITE_API_BASE = getApiBaseUrlWithPrefix();
 
-    const response = await fetch(VITE_API_BASE + '/trivia', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            amount: amount,
-            type: "PublicDatabase" // TODO: see about enum QuestionOrigins, llm or database
-        }),
+    const response = await fetch(VITE_API_BASE + "/trivia", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: amount,
+        type: "PublicDatabase", // TODO: see about enum QuestionOrigins, llm or database
+      }),
     });
-    
+
     const results = await response.json();
     return results;
   }
 
   const handleGameStart = async (players: Player[]) => {
     try {
-      const questions: Question[] = await fetchQuestions(players.length * QUESTIONS_PER_PLAYER);
-      setQuestions(() => [...questions]);      
+      const questions: Question[] = await fetchQuestions(
+        players.length * QUESTIONS_PER_PLAYER,
+      );
+      setQuestions(() => [...questions]);
     } catch (error) {
       debugError(error);
     }
   };
 
   function nextPlayer() {
-    setCurrentPlayerInd(prevInd => (prevInd + 1) % players.length);
+    setCurrentPlayerInd((prevInd) => (prevInd + 1) % players.length);
   }
 
   function onPlayerChange(playerInd: number, playerToChangeTo: Player) {
@@ -89,7 +83,7 @@ function TriviaGame() {
       return;
     }
 
-    setPlayers(prevPlayers => {
+    setPlayers((prevPlayers) => {
       return prevPlayers.map((player, index) => {
         if (index === playerInd) {
           return { name: playerToChangeTo.name, score: playerToChangeTo.score };
@@ -102,7 +96,7 @@ function TriviaGame() {
   function determineCorrect(answer: boolean) {
     // TODO: maybe this if statement is redundant and confusing.
     if (answer) {
-      setPlayers(prevPlayers => {
+      setPlayers((prevPlayers) => {
         return prevPlayers.map((player, index) => {
           if (index === currentPlayerInd) {
             return { ...player, score: player.score + 1 };
@@ -131,15 +125,13 @@ function TriviaGame() {
 
   function nextQuestion() {
     if (questions.length > currentQuestionInd + 1) {
-      setCurrentQuestionInd(prevInd => prevInd + 1);
-    }
-    else {
+      setCurrentQuestionInd((prevInd) => prevInd + 1);
+    } else {
       determineWinner();
       setOpenWinnerOverlay(() => true);
       setGameStarted(() => false);
     }
   }
-
 
   async function startGame() {
     // TODO: do I need this if statement if the button is disabled through this anyways?
@@ -155,36 +147,58 @@ function TriviaGame() {
     setQuestions([]);
     setCurrentPlayerInd(0);
     setCurrentQuestionInd(0);
-    setPlayers(prevPlayers => {
+    setPlayers((prevPlayers) => {
       return prevPlayers.map((player) => {
         return { ...player, score: 0 };
       });
     });
   }
 
-
   return (
     <div>
-      { openWinnerOverlay && 
-        <WinnerOverlay winner={winner} setIsOpen={setOpenWinnerOverlay} onClose={preGameSetup} /> 
-      }
-      {!gameStarted && 
-        <PlayerConfiguration players={players} 
-        addPlayer={() => setPlayers(prevPlayers => [...prevPlayers, { name: 'Player ' + (players.length+1).toString(), score: 0 }])} 
-        removePlayer={() => setPlayers(prevPlayers => [...prevPlayers].slice(0, -1))} 
-        onPlayerChange={onPlayerChange} />
-      }
-      {!gameStarted &&
-        <button className="trivia-start-button" onClick={startGame} disabled={gameStarted || players.length < MIN_NUMBER_PLAYERS}> Start Game </button>
-      }
-      {gameStarted && 
+      {openWinnerOverlay && (
+        <WinnerOverlay
+          winner={winner}
+          setIsOpen={setOpenWinnerOverlay}
+          onClose={preGameSetup}
+        />
+      )}
+      {!gameStarted && (
+        <PlayerConfiguration
+          players={players}
+          addPlayer={() =>
+            setPlayers((prevPlayers) => [
+              ...prevPlayers,
+              { name: "Player " + (players.length + 1).toString(), score: 0 },
+            ])
+          }
+          removePlayer={() =>
+            setPlayers((prevPlayers) => [...prevPlayers].slice(0, -1))
+          }
+          onPlayerChange={onPlayerChange}
+        />
+      )}
+      {!gameStarted && (
+        <button
+          className="trivia-start-button"
+          onClick={startGame}
+          disabled={gameStarted || players.length < MIN_NUMBER_PLAYERS}
+        >
+          {" "}
+          Start Game{" "}
+        </button>
+      )}
+      {gameStarted && (
         <ScoreBoard players={players} currentPlayerInd={currentPlayerInd} />
-      }
-      {gameStarted && questions?.length > 0 && 
-        <QuestionCard questionAPIStructure={questions[currentQuestionInd]} onAnswer={determineCorrect} /> 
-      }
+      )}
+      {gameStarted && questions?.length > 0 && (
+        <QuestionCard
+          questionAPIStructure={questions[currentQuestionInd]}
+          onAnswer={determineCorrect}
+        />
+      )}
     </div>
-  )
+  );
 }
 
 export default TriviaGame;

@@ -34,14 +34,14 @@
   footer:not(.newspaper-footer) {
     display: none !important;
   }
-  
+
   /* Show newspaper view when printing */
   .newspaper-view-wrapper {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
   }
-  
+
   /* Ensure newspaper container is visible when printing */
   .newspaper-container {
     display: block !important;
@@ -153,7 +153,7 @@
 
   /* Use a pseudo-element to create minimum space requirement before articles */
   .newspaper-article::before {
-    content: '' !important;
+    content: "" !important;
     display: block !important;
     height: 0 !important;
     page-break-before: avoid !important;
@@ -222,7 +222,8 @@
   }
 
   /* Optimize lists for print */
-  ul, ol {
+  ul,
+  ol {
     page-break-inside: avoid;
   }
 
@@ -237,7 +238,8 @@
   }
 
   /* Code blocks and preformatted text */
-  pre, code {
+  pre,
+  code {
     white-space: pre-wrap;
     word-wrap: break-word;
     page-break-inside: avoid;
@@ -248,4 +250,3 @@
     display: none !important;
   }
 }
-

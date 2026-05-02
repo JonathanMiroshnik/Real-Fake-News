@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 interface SectionWithSidebarsProps {
   /** Main content to be constrained to a percentage width */
@@ -16,10 +16,10 @@ interface SectionWithSidebarsProps {
 /**
  * Flexible layout wrapper that allows constraining main content to a percentage width
  * and placing content on the left and right sides.
- * 
+ *
  * The main content (children) will be constrained to the specified percentage,
  * and left/right content will fill the remaining space equally.
- * 
+ *
  * Example:
  * <SectionWithSidebars mainWidthPercent={70} left={<Ad />} right={<Ad />}>
  *   <SectionHeader ... />
@@ -64,7 +64,7 @@ function SectionWithSidebars({
         style={{
           width: `${mainWidthPercent}%`,
           minWidth: 0,
-          overflow: 'hidden', // Prevent children from overflowing
+          overflow: "hidden", // Prevent children from overflowing
         }}
       >
         {children}
@@ -84,4 +84,3 @@ function SectionWithSidebars({
 }
 
 export default SectionWithSidebars;
-

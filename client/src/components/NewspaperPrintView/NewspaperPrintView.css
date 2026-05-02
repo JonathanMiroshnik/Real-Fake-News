@@ -6,7 +6,7 @@
   padding: 0;
   background: white;
   color: black;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Masthead */
@@ -32,7 +32,7 @@
   margin: 0;
   padding: 0;
   letter-spacing: 2px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .newspaper-date {
@@ -87,7 +87,7 @@
   font-weight: bold;
   margin: 0 0 0.5rem 0;
   line-height: 1.2;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .featured-article-meta {
@@ -172,7 +172,7 @@
   font-weight: bold;
   margin: 0 0 0.5rem 0;
   line-height: 1.3;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .newspaper-article-meta {
@@ -299,7 +299,7 @@
 
   /* Prevent articles from starting too close to page bottom */
   .newspaper-article::before {
-    content: '';
+    content: "";
     display: block;
     height: 0;
     page-break-before: avoid;
@@ -375,7 +375,7 @@
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
   }
-  
+
   /* Ensure all text is visible */
   .newspaper-masthead,
   .newspaper-title,
@@ -429,4 +429,3 @@
     font-size: 2rem;
   }
 }
-

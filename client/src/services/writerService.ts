@@ -8,7 +8,7 @@
  * @example
  * sanitizeWriterName("Neon Dusk") // Returns "Neon_Dusk"
  */
-export const sanitizeWriterName = (name: string) => name.replace(/ /g, '_');
+export const sanitizeWriterName = (name: string) => name.replace(/ /g, "_");
 
 /**
  * Reverses name sanitization by converting underscores back to spaces
@@ -17,4 +17,4 @@ export const sanitizeWriterName = (name: string) => name.replace(/ /g, '_');
  * @example
  * desanitizeWriterName("Mothman_Mark") // Returns "Mothman Mark"
  */
-export const desanitizeWriterName = (name: string) => name.replace(/_/g, ' ');
+export const desanitizeWriterName = (name: string) => name.replace(/_/g, " ");

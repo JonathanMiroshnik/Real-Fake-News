@@ -1,13 +1,13 @@
 /**
  * Debug Logger Utility
- * 
+ *
  * Provides conditional logging functions that only print when VITE_DEBUG_LOGS is enabled.
  * This is separate from VITE_BACKEND_DEV_MODE, allowing you to control debug output
  * independently from backend connection settings.
- * 
+ *
  * Environment Variable:
  * - VITE_DEBUG_LOGS: Set to "true" to enable debug logging, "false" or undefined to disable
- * 
+ *
  * Usage:
  *   import { debugLog, debugWarn, debugError } from './utils/debugLogger';
  *   debugLog('This will only print if VITE_DEBUG_LOGS=true');
@@ -50,4 +50,3 @@ export function debugError(...args: unknown[]): void {
     console.error(...args);
   }
 }
-

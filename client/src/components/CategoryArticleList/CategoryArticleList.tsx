@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ArticleContext } from "../../contexts/ArticlesContext";
+import { ArticleContext } from "../../contexts/ArticleContext";
 import { NewsCategory } from "../../services/articleService";
 import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
 import ArticleList from "../ArticleList/ArticleList";
@@ -14,25 +14,26 @@ import ArticleList from "../ArticleList/ArticleList";
  * - Matches styling with ArticleList
  */
 interface CategoryArticleListProps {
-    /** Category filter configuration */
-    category: NewsCategory;
+  /** Category filter configuration */
+  category: NewsCategory;
 
-    vertical?: boolean; // TODO: delete
+  vertical?: boolean; // TODO: delete
 }
 
 function CategoryArticleList(props: CategoryArticleListProps) {
-    const articles = useContext(ArticleContext).articles;
-    const articlesbyCategory: ArticleProps[] = articles.filter((article) => {
-        return article.category === props.category.name
-    });    
+  const articles = useContext(ArticleContext).articles;
+  const articlesbyCategory: ArticleProps[] = articles.filter((article) => {
+    return article.category === props.category.name;
+  });
 
-    return (
-        articlesbyCategory.length > 0 &&
-        <div>
-            <h2>{ props.category.text }</h2>
-            <ArticleList vertical={props?.vertical} articles={articlesbyCategory}/>
-        </div>
-    );
+  return (
+    articlesbyCategory.length > 0 && (
+      <div>
+        <h2>{props.category.text}</h2>
+        <ArticleList vertical={props?.vertical} articles={articlesbyCategory} />
+      </div>
+    )
+  );
 }
 
 export default CategoryArticleList;

@@ -1,12 +1,15 @@
-import { useContext, useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { ArticleContext } from '../../contexts/ArticlesContext';
-import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
-import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
-import { getRelevantArticles } from '../../services/articleService';
-import Image from '../Image/Image';
-import { debugLog, debugError } from '../../utils/debugLogger';
-import './NewspaperPrintView.css';
+import { useContext, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { ArticleContext } from "../../contexts/ArticleContext";
+import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
+import {
+  getImageURLFromArticle,
+  DEFAULT_IMAGE,
+} from "../../services/imageService";
+import { getRelevantArticles } from "../../services/articleService";
+import Image from "../Image/Image";
+import { debugLog, debugError } from "../../utils/debugLogger";
+import "./NewspaperPrintView.css";
 
 /**
  * Newspaper print view component
@@ -16,34 +19,45 @@ function NewspaperPrintView() {
   const contextArticles = useContext(ArticleContext).articles;
   const [articles, setArticles] = useState<ArticleProps[]>(contextArticles);
   const [isLoading, setIsLoading] = useState(contextArticles.length === 0);
-  
-  debugLog('🖨️ [NewspaperPrintView] Context articles:', contextArticles.length);
-  debugLog('🖨️ [NewspaperPrintView] State articles:', articles.length);
-  
+
+  debugLog("🖨️ [NewspaperPrintView] Context articles:", contextArticles.length);
+  debugLog("🖨️ [NewspaperPrintView] State articles:", articles.length);
+
   // Fetch articles if context is empty or update when context changes
   useEffect(() => {
     if (contextArticles.length > 0) {
-      debugLog('🖨️ [NewspaperPrintView] Using articles from context');
+      debugLog("🖨️ [NewspaperPrintView] Using articles from context");
       setArticles(contextArticles);
       setIsLoading(false);
     } else {
-      debugLog('🖨️ [NewspaperPrintView] Context empty, fetching articles directly...');
+      debugLog(
+        "🖨️ [NewspaperPrintView] Context empty, fetching articles directly...",
+      );
       setIsLoading(true);
       getRelevantArticles()
         .then((fetchedArticles) => {
-          debugLog('🖨️ [NewspaperPrintView] Fetched', fetchedArticles.length, 'articles');
-          debugLog('🖨️ [NewspaperPrintView] Sample article:', fetchedArticles[0] ? {
-            key: fetchedArticles[0].key,
-            title: fetchedArticles[0].title,
-            hasContent: !!fetchedArticles[0].content,
-            hasShortDescription: !!fetchedArticles[0].shortDescription,
-            contentLength: fetchedArticles[0].content?.length || 0
-          } : 'No articles');
+          debugLog(
+            "🖨️ [NewspaperPrintView] Fetched",
+            fetchedArticles.length,
+            "articles",
+          );
+          debugLog(
+            "🖨️ [NewspaperPrintView] Sample article:",
+            fetchedArticles[0]
+              ? {
+                  key: fetchedArticles[0].key,
+                  title: fetchedArticles[0].title,
+                  hasContent: !!fetchedArticles[0].content,
+                  hasShortDescription: !!fetchedArticles[0].shortDescription,
+                  contentLength: fetchedArticles[0].content?.length || 0,
+                }
+              : "No articles",
+          );
           setArticles(fetchedArticles);
           setIsLoading(false);
         })
         .catch((error) => {
-          debugError('🖨️ [NewspaperPrintView] Error fetching articles:', error);
+          debugError("🖨️ [NewspaperPrintView] Error fetching articles:", error);
           setArticles([]);
           setIsLoading(false);
         });
@@ -55,11 +69,11 @@ function NewspaperPrintView() {
     if (articles.length === 0) return;
 
     const imageUrls: string[] = [];
-    
+
     // Collect all image URLs from articles
     articles.forEach((article) => {
       const imageURL = getImageURLFromArticle(article, DEFAULT_IMAGE);
-      if (imageURL && imageURL !== '') {
+      if (imageURL && imageURL !== "") {
         imageUrls.push(imageURL);
       }
     });
@@ -68,11 +82,11 @@ function NewspaperPrintView() {
     imageUrls.forEach((url) => {
       const img = new window.Image();
       img.src = url;
-      img.loading = 'eager';
-      debugLog('🖨️ [NewspaperPrintView] Preloading image:', url);
+      img.loading = "eager";
+      debugLog("🖨️ [NewspaperPrintView] Preloading image:", url);
     });
   }, [articles]);
-  
+
   // Sort articles by date (most recent first)
   const sortedArticles = [...articles].sort((a, b) => {
     const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
@@ -84,11 +98,11 @@ function NewspaperPrintView() {
   const featuredArticle = sortedArticles[0];
   const otherArticles = sortedArticles.slice(1);
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
@@ -97,17 +111,19 @@ function NewspaperPrintView() {
       <header className="newspaper-masthead">
         <h1 className="newspaper-title">Real Fake News</h1>
         <div className="newspaper-date">{currentDate}</div>
-        <div className="newspaper-tagline">Satirical AI-generated content for the modern age</div>
+        <div className="newspaper-tagline">
+          Satirical AI-generated content for the modern age
+        </div>
       </header>
-      
+
       {isLoading && (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <div style={{ padding: "2rem", textAlign: "center" }}>
           <p>Loading articles...</p>
         </div>
       )}
-      
+
       {!isLoading && articles.length === 0 && (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <div style={{ padding: "2rem", textAlign: "center" }}>
           <p>No articles available to display.</p>
         </div>
       )}
@@ -119,13 +135,17 @@ function NewspaperPrintView() {
             <h2 className="featured-article-title">{featuredArticle.title}</h2>
             <div className="featured-article-meta">
               <span className="article-author">
-                By {featuredArticle.author?.name || 'Anonymous'}
+                By {featuredArticle.author?.name || "Anonymous"}
               </span>
               <span className="article-date">
-                {featuredArticle.timestamp ? new Date(featuredArticle.timestamp).toLocaleDateString() : ''}
+                {featuredArticle.timestamp
+                  ? new Date(featuredArticle.timestamp).toLocaleDateString()
+                  : ""}
               </span>
               {featuredArticle.category && (
-                <span className="article-category">{featuredArticle.category}</span>
+                <span className="article-category">
+                  {featuredArticle.category}
+                </span>
               )}
             </div>
           </div>
@@ -133,7 +153,7 @@ function NewspaperPrintView() {
             <div className="featured-article-image-container">
               <Image
                 src={getImageURLFromArticle(featuredArticle, DEFAULT_IMAGE)}
-                alt={featuredArticle.title ?? 'Featured Article'}
+                alt={featuredArticle.title ?? "Featured Article"}
                 className="featured-article-image"
                 aspectRatio="16/9"
                 placeholder={false}
@@ -176,10 +196,12 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
       <h3 className="newspaper-article-title">{article.title}</h3>
       <div className="newspaper-article-meta">
         <span className="article-author">
-          By {article.author?.name || 'Anonymous'}
+          By {article.author?.name || "Anonymous"}
         </span>
         <span className="article-date">
-          {article.timestamp ? new Date(article.timestamp).toLocaleDateString() : ''}
+          {article.timestamp
+            ? new Date(article.timestamp).toLocaleDateString()
+            : ""}
         </span>
         {article.category && (
           <span className="article-category">{article.category}</span>
@@ -189,7 +211,7 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
         <div className="newspaper-article-image-container">
           <Image
             src={imageURL}
-            alt={article.title ?? 'Article'}
+            alt={article.title ?? "Article"}
             className="newspaper-article-image"
             aspectRatio="4/3"
             placeholder={false}
@@ -211,4 +233,3 @@ function NewspaperArticle({ article }: { article: ArticleProps }) {
 }
 
 export default NewspaperPrintView;
-

@@ -30,7 +30,7 @@
 .legal-text ul {
   margin: 1.5rem 0;
   padding-left: 2rem;
-  list-style-type: '🤥 ';
+  list-style-type: "🤥 ";
 }
 
 .legal-text li {
@@ -40,7 +40,7 @@
 
 .warning {
   color: #ff4757;
-  font-family: 'Comic Neue', cursive;
+  font-family: "Comic Neue", cursive;
   font-size: 1.1rem;
   padding: 1rem;
   background: rgba(255, 71, 87, 0.1);

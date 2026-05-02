@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface ImageProps {
   src: string;
@@ -6,9 +6,9 @@ interface ImageProps {
   className?: string;
   aspectRatio?: string; // e.g., "16/9", "4/3", "1/1"
   placeholder?: boolean;
-  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
-  loading?: 'lazy' | 'eager';
-  fetchPriority?: 'high' | 'low' | 'auto';
+  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+  loading?: "lazy" | "eager";
+  fetchPriority?: "high" | "low" | "auto";
 }
 
 /**
@@ -20,52 +20,58 @@ interface ImageProps {
  * @param placeholder - Show placeholder while loading
  * @param objectFit - CSS object-fit property
  */
-function Image({ 
-  src, 
-  alt, 
-  className = '', 
-  aspectRatio = '16/9',
+function Image({
+  src,
+  alt,
+  className = "",
+  aspectRatio = "16/9",
   placeholder = true,
-  objectFit = 'cover',
-  loading = 'lazy',
-  fetchPriority = 'auto'
+  objectFit = "cover",
+  loading = "lazy",
+  fetchPriority = "auto",
 }: ImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   // Handle empty src
-  if (!src || src === '') {
+  if (!src || src === "") {
     return placeholder ? (
-      <div 
+      <div
         className={`relative w-full overflow-hidden ${className}`}
-        style={{ 
+        style={{
           aspectRatio: aspectRatio,
-          backgroundColor: 'var(--global-background-color, #f0f0f0)'
+          backgroundColor: "var(--global-background-color, #f0f0f0)",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r 
+        <div
+          className="absolute inset-0 bg-gradient-to-r 
                         from-[var(--global-background-color,#f0f0f0)] 
                         via-[var(--image-placeholder-shimmer,#e0e0e0)] 
                         to-[var(--global-background-color,#f0f0f0)] 
-                        bg-[length:200%_100%] animate-shimmer" />
+                        bg-[length:200%_100%] animate-shimmer"
+        />
       </div>
     ) : null;
   }
 
   return (
-    <div 
+    <div
       className={`relative w-full overflow-hidden ${className}`}
-      style={{ 
+      style={{
         aspectRatio: aspectRatio,
-        backgroundColor: placeholder ? 'var(--global-background-color, #f0f0f0)' : 'transparent'
+        backgroundColor: placeholder
+          ? "var(--global-background-color, #f0f0f0)"
+          : "transparent",
       }}
     >
       {(isLoading || hasError) && placeholder && (
-        <div className="absolute inset-0 bg-gradient-to-r 
+        <div
+          className="absolute inset-0 bg-gradient-to-r 
                         from-[var(--global-background-color,#f0f0f0)] 
                         via-[var(--image-placeholder-shimmer,#e0e0e0)] 
                         to-[var(--global-background-color,#f0f0f0)] 
-                        bg-[length:200%_100%] animate-shimmer" />
+                        bg-[length:200%_100%] animate-shimmer"
+        />
       )}
       {!hasError && (
         <img
@@ -73,7 +79,7 @@ function Image({
           alt={alt}
           className={`absolute inset-0 w-full h-full 
                       transition-opacity duration-300 ease-in-out 
-                      ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                      ${isLoading ? "opacity-0" : "opacity-100"}`}
           style={{ objectFit }}
           onLoad={() => setIsLoading(false)}
           onError={() => {
@@ -85,9 +91,11 @@ function Image({
         />
       )}
       {hasError && placeholder && (
-        <div className="absolute inset-0 flex items-center justify-center 
+        <div
+          className="absolute inset-0 flex items-center justify-center 
                         bg-[var(--global-background-color,#f0f0f0)] 
-                        text-[var(--description-color,#666)] text-[0.9rem]">
+                        text-[var(--description-color,#666)] text-[0.9rem]"
+        >
           <span>Image unavailable</span>
         </div>
       )}
@@ -96,4 +104,3 @@ function Image({
 }
 
 export default Image;
-

@@ -1,13 +1,13 @@
 export interface GenerateContentRequest {
-  provider: 'openai' | 'deepseek';
+  provider: "openai" | "deepseek";
   prompt: string;
   maxTokens?: number;
   temperature?: number;
-  type: any = 'text';
+  type?: any;
 }
 
 export interface GenerateContentResponse {
   success: boolean;
   generatedText: string;
-  error?: string;  
+  error?: string;
 }

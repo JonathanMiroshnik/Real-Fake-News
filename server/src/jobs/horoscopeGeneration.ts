@@ -1,6 +1,9 @@
-import cron from 'node-cron';
-import { generateHoroscopesForDate, saveHoroscopes } from '../services/horoscopeService.js';
-import { debugLog, debugWarn } from '../utils/debugLogger.js';
+import cron from "node-cron";
+import {
+  generateHoroscopesForDate,
+  saveHoroscopes,
+} from "../services/horoscopeService.js";
+import { debugLog, debugWarn } from "../utils/debugLogger.js";
 
 /**
  * Generates horoscopes for today
@@ -8,22 +11,24 @@ import { debugLog, debugWarn } from '../utils/debugLogger.js';
  */
 export async function generateDailyHoroscopes(): Promise<void> {
   try {
-    debugLog('🔮 Starting daily horoscope generation...');
+    debugLog("🔮 Starting daily horoscope generation...");
     const today = new Date();
     const horoscopes = await generateHoroscopesForDate(today);
-    
+
     if (horoscopes.length > 0) {
       const saved = await saveHoroscopes(horoscopes);
       if (saved) {
-        debugLog(`✅ Successfully generated and saved ${horoscopes.length} horoscopes for ${today.toISOString().split('T')[0]}`);
+        debugLog(
+          `✅ Successfully generated and saved ${horoscopes.length} horoscopes for ${today.toISOString().split("T")[0]}`,
+        );
       } else {
-        console.error('❌ Failed to save horoscopes to database');
+        console.error("❌ Failed to save horoscopes to database");
       }
     } else {
-      debugWarn('⚠️ No horoscopes were generated');
+      debugWarn("⚠️ No horoscopes were generated");
     }
   } catch (error) {
-    console.error('❌ Error generating daily horoscopes:', error);
+    console.error("❌ Error generating daily horoscopes:", error);
   }
 }
 
@@ -33,13 +38,12 @@ export async function generateDailyHoroscopes(): Promise<void> {
  */
 export function scheduleHoroscopeGeneration(): void {
   // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
+  cron.schedule("0 0 * * *", async () => {
     await generateDailyHoroscopes();
   });
-  
-  debugLog('📅 Scheduled daily horoscope generation at midnight');
-  
+
+  debugLog("📅 Scheduled daily horoscope generation at midnight");
+
   // Also generate horoscopes immediately if they don't exist for today
   generateDailyHoroscopes();
 }
-
