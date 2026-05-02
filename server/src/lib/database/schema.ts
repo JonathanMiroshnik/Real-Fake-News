@@ -181,6 +181,26 @@ export function initializeSchema(): void {
         ON recipes(timestamp)
     `);
 
+    // Horoscopes Table
+    // Stores daily horoscopes for each zodiac sign
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS horoscopes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            zodiacSign TEXT NOT NULL,
+            content TEXT NOT NULL,
+            astrologicalData TEXT NOT NULL,
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(date, zodiacSign)
+        )
+    `);
+
+    // Index on horoscope date for date-based queries
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_horoscopes_date 
+        ON horoscopes(date)
+    `);
+
     debugLog('SQLite schema initialized successfully');
 }
 

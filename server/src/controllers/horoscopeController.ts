@@ -7,6 +7,7 @@ import {
 import { HoroscopeResponse } from '../types/horoscope.js';
 import { fetchAstrologicalData } from '../services/astrologyService.js';
 import { debugLog } from '../utils/debugLogger.js';
+import { isFakeDataEnabled, generateFakeHoroscopes } from '../services/fakeDataService.js';
 
 /**
  * GET /api/horoscopes
@@ -64,6 +65,18 @@ export const getHoroscopeBySign = async (req: Request, res: Response): Promise<v
     const horoscope = await getHoroscopeForSign(sign, date);
     
     if (!horoscope) {
+      if (isFakeDataEnabled()) {
+        debugLog('🔮 [Fallback] Horoscope not found, generating fake horoscope for:', sign);
+        const fakeHoroscopes = generateFakeHoroscopes();
+        const fakeHoroscope = fakeHoroscopes.find(h => h.zodiacSign.toLowerCase() === sign.toLowerCase()) || fakeHoroscopes[0];
+        const response: HoroscopeResponse = {
+          success: true,
+          horoscope: fakeHoroscope
+        };
+        res.json(response);
+        return;
+      }
+      
       const response: HoroscopeResponse = {
         success: false,
         error: `Horoscope not found for ${sign}`

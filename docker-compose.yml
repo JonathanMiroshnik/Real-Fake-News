@@ -37,6 +37,7 @@ services:
       - GMAIL_USER=${GMAIL_USER}
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
       - ENABLE_SCHEDULED_JOBS=${ENABLE_SCHEDULED_JOBS:-true}
+      - ENABLE_FAKE_DATA=${ENABLE_FAKE_DATA:-true}
       - LOCAL_DEV_BACKEND=${LOCAL_DEV_BACKEND:-false}
     volumes:
       - ${SQLITE_DATA_PATH:-./database}:/data:rw
