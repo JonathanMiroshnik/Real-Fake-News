@@ -1,63 +1,36 @@
-# React + TypeScript + Vite
+# Client — React SPA Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The main frontend for Real-Fake-News. Built with React, TypeScript, and Vite.
+
+## Architecture
+
+The client runs inside an nginx container that serves static files and proxies API requests:
+
+```
+real.sensorcensor.xyz → (shared nginx) → client:80
+                                    ├── /              → serves React SPA
+                                    ├── /api/*         → proxy_pass to server:5001
+                                    └── /admin/*       → proxy_pass to admin:80
+```
+
+See `nginx.conf` for the exact routing rules.
 
 ## Changes for VPS Deployment
 
-- **`nginx.conf`**: Added `location /admin` block proxying to `admin:80` (the admin SvelteKit container). This handles routing of `/admin/*` requests through the client entry point.
-- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow where the shared nginx handles failures gracefully.
+- **`nginx.conf`**: Added `location /admin` block proxying to `admin:80` (the admin SvelteKit container).
+- **`nginx.conf`**: Static file caching regex excludes `/api` paths to prevent API image requests from being treated as static files. Fix: `location ~* ^(?!/api)/.*\.(js|css|png|...)`
+- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow.
 
 ## Environment Configuration
 
 For information about configuring environment variables (backend connection, debug logging, etc.), see [ENV_CONFIG.example](../../ENV_CONFIG.example) in the root directory.
 
-Currently, two official plugins are available:
+### Key Environment Variables
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+| Variable | Purpose | Default |
+|---|---|---|
+| `VITE_BACKEND_DEV_MODE` | Use `localhost:5001` for dev | `false` |
+| `VITE_USE_RELATIVE_API` | Use relative `/api` URLs (for nginx proxy) | `true` |
+| `VITE_API_BASE_PROD` | Production backend URL | `http://server:5001` |
+| `VITE_SHOW_HOROSCOPES` | Show/hide horoscope section | `true` |
+| `VITE_DEBUG_LOGS` | Enable console debug logging | `false` |

@@ -1,29 +1,50 @@
-## Changes for VPS Deployment
+# Server — Express/TypeScript Backend
 
-- **`Dockerfile`**: Removed `HEALTHCHECK` and debug `RUN echo`/`RUN test` blocks. Production image is leaner and faster to build.
-- **Container name**: Changed from `real-fake-news-server` to `server` in `docker-compose.yml`.
+The backend for Real-Fake-News. Built with Node.js, Express, TypeScript, and SQLite (via better-sqlite3).
 
-The server directory follows a common Node.js/TypeScript backend structure with clear separation of concerns:
+## Architecture
 
-1. Root files:
-- .env: Environment variables
-- .gitignore: Git ignore rules
-- package*.json: Project dependencies and config
-- tsconfig.json: TypeScript configuration
+```
+client (nginx proxy) → server:5001
+                     ├── /api/blogs/*      → blogController.ts → blogService.ts → SQLite
+                     ├── /api/recipes/*    → recipeController.ts → recipeService.ts → SQLite
+                     ├── /api/horoscopes/* → horoscopeController.ts → horoscopeService.ts → SQLite
+                     ├── /api/images/*     → apiRoutes.ts → filesystem (image compression)
+                     ├── /api/trivia/*     → trivia routes
+                     └── /api/health       → health check
+```
 
-2. src/ directory (main application code):
-- app.ts: Likely the main Express app configuration
-- index.ts: Entry point that starts the server
-- controllers/: Business logic handlers (currently only userController.ts)
-- routes/: API route definitions (currently only userRoutes.ts)
-- services/: Business logic/services (currently only userServices.ts)
-- types/: Type definitions (currently only user.d.ts)
+### Structure
 
-3. The structure suggests a clean MVC-like pattern where:
-- Routes define endpoints and call controllers
-- Controllers handle requests/responses and call services
-- Services contain core business logic
-- Types define shared interfaces
+- **`routes/`** — Express Router definitions (blogRoutes, recipeRoutes, horoscopeRoutes, apiRoutes)
+- **`controllers/`** — Request/response handlers; interface between HTTP and services
+- **`services/`** — Business logic (blogService, recipeService, horoscopeService, newsService, llmService, imageService, fakeDataService)
+- **`lib/database/`** — SQLite database layer (schema.ts, database.ts, sqliteOperations.ts, databaseConfigurations.ts)
+- **`jobs/`** — Cron/scheduled tasks (news fetching, article generation, horoscope generation)
+- **`scripts/`** — CLI utilities (generateMockData, generateFakeImage, migrateToSqlite)
+- **`types/`** — TypeScript interfaces (ArticleScheme, RecipeScheme, Writer, Horoscope)
+- **`utils/`** — Shared utilities (imageCompression, debugLogger, general)
+
+## Fake Data Fallback
+
+When the database is empty, the API can return auto-generated placeholder content instead of empty responses. See the main [README](../../README.md#fake-data-fallback) for details.
+
+### Key files:
+- **`src/services/fakeDataService.ts`** — Generators for fake articles, recipes, horoscopes, and tiled placeholder images
+- **`src/scripts/generateFakeImage.ts`** — CLI tool for generating single placeholder images
+- **`src/controllers/blogController.ts`** — All blog endpoints check `isFakeDataEnabled()` when empty
+- **`src/controllers/recipeController.ts`** — All recipe endpoints check `isFakeDataEnabled()` when empty
+- **`src/controllers/horoscopeController.ts`** — Horoscope-by-sign endpoint falls back to fake data
+
+### CLI
+
+```bash
+# Generate a placeholder image
+npm run generate-fake-image -- --width 896 --height 512 --tiles-x 8 --tiles-y 6
+
+# Generate mock database data
+npm run generate-mock-data
+```
 
 ## Production Deployment
 
