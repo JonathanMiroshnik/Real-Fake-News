@@ -1,4 +1,4 @@
-import { Player } from '../../TriviaGame/TriviaGame';
+import { Player } from '../../TriviaGame/types';
 import './ScoreCard.css';
 
 interface ScoreCardProps {

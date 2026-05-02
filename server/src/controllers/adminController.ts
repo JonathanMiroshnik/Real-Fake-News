@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from "url";
+// import { dirname } from "path";
 import { v4 as uuidv4 } from 'uuid';
 import {
   getAllPosts,
@@ -28,8 +28,8 @@ import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // Simple password validation (in production, use proper authentication)
 function validatePassword(req: Request): boolean {
@@ -240,13 +240,19 @@ export const updateAdminArticle = async (req: Request, res: Response): Promise<v
       ...existingArticle,
       ...(req.body.title !== undefined && { title: req.body.title }),
       ...(req.body.content !== undefined && { content: req.body.content }),
-      ...(req.body.headImage !== undefined && { headImage: req.body.headImage }),
+      ...(req.body.headImage !== undefined && {
+        headImage: req.body.headImage,
+      }),
       ...(req.body.category !== undefined && { category: req.body.category }),
       ...(req.body.shortDescription !== undefined && {
         shortDescription: req.body.shortDescription,
       }),
-      ...(req.body.writerType !== undefined && { writerType: req.body.writerType }),
-      ...(req.body.timestamp !== undefined && { timestamp: req.body.timestamp }),
+      ...(req.body.writerType !== undefined && {
+        writerType: req.body.writerType,
+      }),
+      ...(req.body.timestamp !== undefined && {
+        timestamp: req.body.timestamp,
+      }),
     };
 
     const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);

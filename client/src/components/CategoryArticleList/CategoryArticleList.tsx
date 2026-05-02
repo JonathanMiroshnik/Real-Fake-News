@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import { NewsCategory } from '../../services/articleService';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import ArticleList from '../ArticleList/ArticleList';

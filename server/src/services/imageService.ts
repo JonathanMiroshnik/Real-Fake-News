@@ -2,11 +2,11 @@ import 'dotenv/config';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from "url";
+// import { dirname } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
 import { Jimp } from 'jimp';
@@ -148,6 +148,7 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
   } catch (error) {
     throw new Error(
       `Failed to save WebP image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { cause: error },
     );
   }
 };

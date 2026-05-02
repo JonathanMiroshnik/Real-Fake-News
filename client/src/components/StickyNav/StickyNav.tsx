@@ -96,7 +96,7 @@ function StickyNav({ sections }: StickyNavProps) {
         manualCheck();
         setTimeout(manualCheck, 100);
         setTimeout(manualCheck, 500);
-      } catch (error) {
+      } catch {
         // Silently handle errors
       }
     };

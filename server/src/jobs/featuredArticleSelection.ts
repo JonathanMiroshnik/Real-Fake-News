@@ -6,7 +6,6 @@ import { updatePost } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
-import { DAY_MILLISECS } from '../config/constants.js';
 
 /**
  * Selects a random article from today's articles and sets it as featured

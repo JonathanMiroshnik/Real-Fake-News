@@ -1,9 +1,5 @@
 import { LLMService } from '../../../services/llmService.js';
-import {
-  GenerateGameMoveRequest,
-  GenerateGameMoveResponse,
-  TicTacToeGameMove,
-} from '../types/gameIntelligence.js';
+import { GenerateGameMoveRequest, GenerateGameMoveResponse } from '../types/gameIntelligence.js';
 import { GenerateContentRequest } from '../../../types/llm.js';
 
 export async function chooseNextAction(

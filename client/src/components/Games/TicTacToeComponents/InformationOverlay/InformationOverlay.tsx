@@ -1,6 +1,6 @@
 import './InformationOverlay.css';
 import Board from '../Board/Board';
-import { CellState, Symbols } from '../Game/TicTacToeGame';
+import { CellState, Symbols } from '../Game/types';
 import { useState } from 'react';
 import MovePresentation from '../MovePresentation/MovePresentation';
 
@@ -677,7 +677,11 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
       {/* TODO: add "How to play:" on the top left of the information overlay */}
       <div className="information-content">
         <div className="text-center">
-          <div style={{ visibility: BOARDS[index]?.currentMove ? 'visible' : 'hidden' }}>
+          <div
+            style={{
+              visibility: BOARDS[index]?.currentMove ? 'visible' : 'hidden',
+            }}
+          >
             <MovePresentation
               currentPlayer={
                 BOARDS[index]?.currentMove
@@ -696,7 +700,9 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
           <div>
             <button
               onClick={nextPage}
-              style={{ visibility: index + 1 < BOARDS.length ? 'visible' : 'hidden' }}
+              style={{
+                visibility: index + 1 < BOARDS.length ? 'visible' : 'hidden',
+              }}
               className="information-page-move-button"
             >
               Next

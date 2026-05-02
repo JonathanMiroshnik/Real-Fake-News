@@ -1,10 +1,11 @@
 // TODO: create another state for the Featured Article that will be kept separate and chosen from the other articles.
 
-import { useEffect, createContext, useState, useRef, useCallback, ReactNode } from 'react';
+import { useEffect, useState, useRef, useCallback, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getRelevantArticles } from '../services/articleService';
 import { ArticleProps, WriterProps } from '../pages/ArticlePage/ArticlePage';
 import { debugLog, debugWarn, debugError } from '../utils/debugLogger';
+import { ArticleContext } from './ArticleContext';
 
 // Session storage keys
 const ARTICLES_STORAGE_KEY = 'articles_cache';
@@ -15,19 +16,6 @@ const CACHE_EXPIRATION_MS = parseInt(
   import.meta.env.VITE_ARTICLES_CACHE_EXPIRATION_MS || '600000',
   10,
 ); // 10 minutes default
-
-/**
- * Provides article data and writer information to consuming components
- * @property {ArticleProps[]} articles - List of available articles
- * @property {WriterProps[]} writers - Derived list of unique article authors
- */
-interface ArticleContextType {
-  articles: ArticleProps[];
-  writers: WriterProps[];
-}
-
-// Context initialization with empty default values
-export const ArticleContext = createContext<ArticleContextType>({ articles: [], writers: [] });
 
 /**
  * ArticleProvider component
@@ -238,6 +226,7 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     debugLog('🎯 [ArticlesContext] No cached articles found, fetching from server...');
 
     fetchArticlesFromServer(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - only run once on mount
 
   // Set up periodic background refresh when on pages that need articles
@@ -282,10 +271,10 @@ function ArticleProvider({ children }: { children: ReactNode }) {
         return article.author !== undefined;
       }),
     ];
-    let currentWriters: WriterProps[] = [];
+    const currentWriters: WriterProps[] = [];
 
     // Deduplicate authors while preserving object references
-    for (let article of articlesWithWriters) {
+    for (const article of articlesWithWriters) {
       if (article.author !== undefined) {
         currentWriters.push(article.author);
       }

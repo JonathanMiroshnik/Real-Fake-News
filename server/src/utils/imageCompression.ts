@@ -29,7 +29,7 @@ async function getSharp(): Promise<any> {
     debugLog('✅ Sharp loaded - WebP compression enabled');
     return sharp;
   } catch (error) {
-    debugLog('⚠️ Sharp not available - WebP images will be converted to JPEG');
+    debugLog('⚠️ Sharp not available - WebP images will be converted to JPEG:', error);
     return null;
   }
 }
@@ -182,7 +182,7 @@ async function getImageWidth(imagePath: string): Promise<number> {
     // Fallback to Jimp
     const image = await Jimp.read(imagePath);
     return image.width;
-  } catch (error) {
+  } catch {
     // If we can't determine, assume it's a regular image (not small)
     return 1000;
   }

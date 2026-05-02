@@ -29,7 +29,11 @@ import { PlaceholderImageConfig, generatePlaceholderImage } from '../services/fa
 import path from 'path';
 import fs from 'fs';
 
-function parseArgs(): { config: Partial<PlaceholderImageConfig>; output?: string; help: boolean } {
+function parseArgs(): {
+  config: Partial<PlaceholderImageConfig>;
+  output?: string;
+  help: boolean;
+} {
   const args = process.argv.slice(2);
   const result: ReturnType<typeof parseArgs> = { config: {}, help: false };
 

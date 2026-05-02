@@ -74,7 +74,7 @@ app.use(/(.*)/, (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error(`💥 Critical error: ${err.message}`);
   res.status(500).json({
     error: 'Internal server error',

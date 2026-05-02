@@ -3,7 +3,7 @@ export interface GenerateContentRequest {
   prompt: string;
   maxTokens?: number;
   temperature?: number;
-  type: any;
+  type?: any;
 }
 
 export interface GenerateContentResponse {

@@ -1,16 +1,16 @@
 import path from 'path';
 import fs from 'fs';
 import { Router, Request, Response } from 'express';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from "url";
+// import { dirname } from "path";
 import {
   compressImageInBackground,
   getCompressedImagePath,
   getOriginalImagePath,
 } from '../utils/imageCompression.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // Import sub-routes
 // import gameIntelligenceRoutes from '../lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js'

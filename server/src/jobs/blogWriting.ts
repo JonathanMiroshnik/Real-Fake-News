@@ -8,7 +8,7 @@ import { getAllPostsAfterDate, writeBlogPost } from '../services/blogService.js'
 import { getAllNewsArticlesAfterDate } from '../services/newsService.js';
 import { NewsItem } from '../services/newsService.js';
 import { getRandomWriter } from '../services/writerService.js';
-import { ONE_HOUR_MILLISECS } from '../config/constants.js';
+// import { ONE_HOUR_MILLISECS } from "../config/constants.js";
 
 // Responsible for the state machine of the blog writers
 

@@ -8,7 +8,7 @@ import { debugLog } from '../utils/debugLogger.js';
 const SERVICE_ACTIVATED: boolean = true;
 
 // TODO: unused
-type LLMProvider = 'openai' | 'deepseek';
+// type LLMProvider = "openai" | "deepseek";
 
 export class LLMService {
   private openai: OpenAI;
@@ -52,14 +52,14 @@ export class LLMService {
       // return completion?.choices[0]?.message.content as string;
     } catch (error) {
       // TODO: no point not returning this?
-      contentRes = {
-        success: false,
-        generatedText: '',
-        error: error as string,
-      };
+      // contentRes = {
+      //   success: false,
+      //   generatedText: "",
+      //   error: error as string,
+      // };
 
       debugLog('LLM generation error:', error);
-      throw new Error('Content generation failed');
+      throw new Error('Content generation failed', { cause: error });
     }
 
     return contentRes;
@@ -85,7 +85,7 @@ export async function generateTextFromString(
     return result;
   } catch (error) {
     debugLog('Text Generation error: ', error);
-    throw new Error('Text generation from string failed');
+    throw new Error('Text generation from string failed', { cause: error });
   }
 }
 
@@ -121,6 +121,7 @@ export async function getBooleanResponse(
     console.error('Boolean response generation failed:', error);
     throw new Error(
       `Could not determine boolean answer: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 }

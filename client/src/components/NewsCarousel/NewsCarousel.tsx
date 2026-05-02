@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import AliceCarousel from 'react-alice-carousel';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import ArticleListItem from '../ArticleListItem/ArticleListItem';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { HOUR_MILLISECS } from '../../services/timeService';

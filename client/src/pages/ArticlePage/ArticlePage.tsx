@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
 import { sanitizeWriterName } from '../../services/writerService';
 import { getArticleByKey } from '../../services/articleService';
@@ -67,7 +67,7 @@ function ArticlePage() {
     return <div>ARTICLE NOT FOUND</div>;
   }
 
-  let imageURL = getImageURLFromArticle(foundArticle, DEFAULT_IMAGE);
+  const imageURL = getImageURLFromArticle(foundArticle, DEFAULT_IMAGE);
 
   return (
     <article className="news-article">

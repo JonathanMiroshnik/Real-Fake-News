@@ -12,6 +12,7 @@ export const textToTriviaQuestions = async (req: Request, res: Response) => {
     const results = await fetchTriviaQuestions(serviceReq);
     res.json(results);
   } catch (error) {
+    console.error('❌ Trivia game analysis failed:', error);
     res.status(500).json({ error: 'Game Intelligence Analysis failed' });
   }
 };

@@ -38,7 +38,7 @@ function RecipePage() {
     return <div>RECIPE NOT FOUND</div>;
   }
 
-  let headImageURL = getImageURLFromRecipe(foundRecipe, DEFAULT_IMAGE);
+  const headImageURL = getImageURLFromRecipe(foundRecipe, DEFAULT_IMAGE);
   const paragraphs = foundRecipe.paragraphs || [];
   const images = foundRecipe.images || [];
 

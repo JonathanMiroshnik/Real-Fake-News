@@ -8,7 +8,7 @@ import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/Horosc
 import RecipeSection from '../../components/RecipeSection/RecipeSection';
 // import SectionWithSidebars from '../../components/SectionWithSidebars/SectionWithSidebars';
 import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import {
   groupArticlesByCategories,
   CATEGORIES,
@@ -56,7 +56,7 @@ function HomePage() {
     }
 
     return () => clearTimeout(timer);
-  }, [articles.length]);
+  }, [articles.length, noArticlesMessageDelay]);
 
   // Debug: Show article count
   debugLog('🏠 [HomePage] Articles count:', articles.length);

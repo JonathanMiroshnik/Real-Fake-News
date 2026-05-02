@@ -1,16 +1,6 @@
-import { createContext, ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
-
-interface DarkModeContextType {
-  dark: boolean;
-  toggleDarkMode: () => void;
-}
-
-// Context initialization with empty default values
-export const DarkModeContext = createContext<DarkModeContextType>({
-  dark: true,
-  toggleDarkMode: () => {},
-});
+import { DarkModeContext } from './DarkModeContext';
 
 function DarkModeProvider({ children }: { children: ReactNode }) {
   const systemPrefersDark = useMediaQuery({

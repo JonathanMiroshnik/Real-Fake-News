@@ -1,5 +1,5 @@
 import { randomInt } from 'crypto';
-import { MINIMAL_NUM_DAILY_RECIPES, DAY_MILLISECS } from '../config/constants.js';
+import { MINIMAL_NUM_DAILY_RECIPES } from '../config/constants.js';
 import {
   getAllRecipesAfterDate,
   generateRecipe,

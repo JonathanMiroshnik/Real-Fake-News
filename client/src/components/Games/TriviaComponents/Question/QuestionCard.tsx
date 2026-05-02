@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 import './QuestionCard.css';
@@ -20,10 +20,8 @@ export interface QuestionProps {
 function QuestionCard(questionProps: QuestionProps) {
   const [answers, setAnswers] = useState<string[]>([]);
 
-  // Effect to trigger on question change
-  useEffect(() => {
-    randomizeAnswers();
-  }, [questionProps]);
+  // Initialize answers when question changes
+  randomizeAnswers();
 
   function checkCorrect(answer: string) {
     if (answer === questionProps.questionAPIStructure.correct_answer) {

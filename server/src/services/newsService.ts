@@ -11,7 +11,7 @@ import { debugLog } from '../utils/debugLogger.js';
 /**
  * Number of remaining daily News API tokens
  */
-export var remainingTokens: number = NEWS_API_DAILY_TOKENS;
+export let remainingTokens: number = NEWS_API_DAILY_TOKENS;
 
 // Every day at midnight
 cron.schedule('0 0 * * *', () => {
@@ -74,7 +74,7 @@ export async function getAllNewsArticlesAfterDate(startDate: Date): Promise<News
       const articleDate = new Date(timestamp);
       const startTime = startDate.getTime();
       return articleDate.getTime() > startTime;
-    } catch (e) {
+    } catch {
       console.error('Invalid date format:', timestamp);
       return false;
     }

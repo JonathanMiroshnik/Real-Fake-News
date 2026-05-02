@@ -8,18 +8,9 @@ import { Question } from '../Question/QuestionCard';
 import { getApiBaseUrlWithPrefix } from '../../../../config/apiConfig';
 import { debugError } from '../../../../utils/debugLogger';
 
+import { Player } from './types';
+
 import './TriviaGame.css';
-
-// TODO: add unique ID for each player?
-export interface Player {
-  name: string;
-  score: number;
-}
-
-export enum QuestionOrigins {
-  PublicDatabase,
-  LLM,
-}
 
 const QUESTIONS_PER_PLAYER = 3;
 const MIN_NUMBER_PLAYERS = 1;

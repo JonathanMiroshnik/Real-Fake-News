@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
 import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
 import { getRelevantArticles } from '../../services/articleService';

@@ -9,7 +9,7 @@ import { getPostByKey, getPostsCount } from '../lib/database/sqliteOperations.js
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
-import { debugLog } from '../utils/debugLogger.js';
+import { debugLog, debugError } from '../utils/debugLogger.js';
 import {
   isFakeDataEnabled,
   generateFakeArticle,
@@ -34,6 +34,7 @@ export const pullBlogs = async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (error) {
+    debugError('❌ Analysis failed:', error);
     res.status(500).json({ error: 'Analysis failed' });
   }
 };
@@ -55,6 +56,7 @@ export async function pullHourlyBlogs(req: Request, res: Response) {
 
     res.json(result);
   } catch (error) {
+    debugError('❌ Analysis failed:', error);
     res.status(500).json({ error: 'Analysis failed' });
   }
 }

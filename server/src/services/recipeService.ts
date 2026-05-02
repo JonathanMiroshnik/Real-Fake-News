@@ -1,14 +1,12 @@
 import 'dotenv/config';
 import { RecipeScheme } from '../types/article.js';
 import { Writer } from '../types/writer.js';
-import { Food } from '../types/food.js';
 import { generateTextFromString } from './llmService.js';
 import { generateAndSaveImage } from './imageService.js';
 import { getUniqueKey } from '../utils/general.js';
 import { getDatabase } from '../lib/database/database.js';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
-import { getRandomWriter } from './writerService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
 /**

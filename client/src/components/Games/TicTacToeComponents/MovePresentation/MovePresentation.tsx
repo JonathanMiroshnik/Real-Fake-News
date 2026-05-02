@@ -1,5 +1,5 @@
 import Dice from '../Dice/Dice';
-import { CellState, Symbols } from '../Game/TicTacToeGame';
+import { CellState, Symbols } from '../Game/types';
 
 import './MovePresentation.css';
 

@@ -128,16 +128,76 @@ function getSignFromLongitude(longitude: number): string {
  */
 function createFallbackAstrologicalData(dateString: string): AstrologicalData {
   const planets: PlanetaryPosition[] = [
-    { name: 'Sun', longitude: 0, latitude: 0, sign: 'Aries', isRetrograde: false },
-    { name: 'Moon', longitude: 60, latitude: 0, sign: 'Gemini', isRetrograde: false },
-    { name: 'Mercury', longitude: 30, latitude: 0, sign: 'Taurus', isRetrograde: false },
-    { name: 'Venus', longitude: 90, latitude: 0, sign: 'Cancer', isRetrograde: false },
-    { name: 'Mars', longitude: 120, latitude: 0, sign: 'Leo', isRetrograde: false },
-    { name: 'Jupiter', longitude: 150, latitude: 0, sign: 'Virgo', isRetrograde: false },
-    { name: 'Saturn', longitude: 180, latitude: 0, sign: 'Libra', isRetrograde: false },
-    { name: 'Uranus', longitude: 210, latitude: 0, sign: 'Scorpio', isRetrograde: false },
-    { name: 'Neptune', longitude: 240, latitude: 0, sign: 'Sagittarius', isRetrograde: false },
-    { name: 'Pluto', longitude: 270, latitude: 0, sign: 'Capricorn', isRetrograde: false },
+    {
+      name: 'Sun',
+      longitude: 0,
+      latitude: 0,
+      sign: 'Aries',
+      isRetrograde: false,
+    },
+    {
+      name: 'Moon',
+      longitude: 60,
+      latitude: 0,
+      sign: 'Gemini',
+      isRetrograde: false,
+    },
+    {
+      name: 'Mercury',
+      longitude: 30,
+      latitude: 0,
+      sign: 'Taurus',
+      isRetrograde: false,
+    },
+    {
+      name: 'Venus',
+      longitude: 90,
+      latitude: 0,
+      sign: 'Cancer',
+      isRetrograde: false,
+    },
+    {
+      name: 'Mars',
+      longitude: 120,
+      latitude: 0,
+      sign: 'Leo',
+      isRetrograde: false,
+    },
+    {
+      name: 'Jupiter',
+      longitude: 150,
+      latitude: 0,
+      sign: 'Virgo',
+      isRetrograde: false,
+    },
+    {
+      name: 'Saturn',
+      longitude: 180,
+      latitude: 0,
+      sign: 'Libra',
+      isRetrograde: false,
+    },
+    {
+      name: 'Uranus',
+      longitude: 210,
+      latitude: 0,
+      sign: 'Scorpio',
+      isRetrograde: false,
+    },
+    {
+      name: 'Neptune',
+      longitude: 240,
+      latitude: 0,
+      sign: 'Sagittarius',
+      isRetrograde: false,
+    },
+    {
+      name: 'Pluto',
+      longitude: 270,
+      latitude: 0,
+      sign: 'Capricorn',
+      isRetrograde: false,
+    },
   ];
 
   return {

@@ -490,7 +490,7 @@ export function groupArticlesByCategories(
   categories: NewsCategory[] = CATEGORIES,
 ) {
   const totalArticles: ArticleProps[][] = [];
-  for (let ca of categories) {
+  for (const ca of categories) {
     totalArticles.push(articlesByCategory(articles, ca.name));
   }
 

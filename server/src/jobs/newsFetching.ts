@@ -39,12 +39,12 @@ async function insertArticlesToDatabase(articles: any[]): Promise<NewsItem[]> {
 
   for (const article of articles) {
     // TODO: add topics filter list in .env or outside in general
-    const questionPrompt = `
-        Is the following article title and/or description related to the following topics?\n
-        Topics: Israel, Gaza, IDF\n
-        Article Title: ${article.title}\n
-        Article Description: ${article.description}\n
-        `;
+    // const questionPrompt = `
+    //     Is the following article title and/or description related to the following topics?\n
+    //     Topics: Israel, Gaza, IDF\n
+    //     Article Title: ${article.title}\n
+    //     Article Description: ${article.description}\n
+    //     `;
 
     // TODO: perhaps 10 articles at once and remove the ones that dont work out and basically return a 10 long json boolean check?
     // const boolResponse: boolean = await getBooleanResponse(questionPrompt);

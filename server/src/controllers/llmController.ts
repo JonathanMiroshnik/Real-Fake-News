@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { LLMService } from '../services/llmService.js';
-import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.d.js';
+import { GenerateContentRequest } from '../types/llm.d.js';
 
 export const promptText = async (req: Request, res: Response) => {
   try {
@@ -14,6 +14,7 @@ export const promptText = async (req: Request, res: Response) => {
     const result = await llmServiceInst.generateContent(request);
     res.json(result);
   } catch (error) {
+    console.error('❌ LLM analysis failed:', error);
     res.status(500).json({ error: 'Analysis failed' });
   }
 };

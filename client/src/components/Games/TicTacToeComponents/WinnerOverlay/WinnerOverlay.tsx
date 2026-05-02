@@ -1,4 +1,4 @@
-import { Symbols } from '../Game/TicTacToeGame';
+import { Symbols } from '../Game/types';
 import './WinnerOverlay.css';
 
 /**

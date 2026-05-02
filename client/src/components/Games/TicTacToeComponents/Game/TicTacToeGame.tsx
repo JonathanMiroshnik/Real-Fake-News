@@ -6,31 +6,9 @@ import { SIDES_TO_DICE } from '../Dice/Dice';
 import WinnerOverlay from '../WinnerOverlay/WinnerOverlay';
 import InformationOverlay from '../InformationOverlay/InformationOverlay';
 
+import { Symbols, CellState, TicTacToeGameMove } from './types';
+
 import './TicTacToeGame.css';
-
-export enum Symbols {
-  // The two game symbols
-  X,
-  O,
-  // A symbol indicating an empty cell
-  _,
-  // A symbol indicating a draw
-  $,
-}
-
-// TODO: add CellState to this?
-export type TicTacToeGameMove = {
-  positionX: number;
-  positionY: number;
-  explanation: string;
-};
-
-// Holds a state of a cell or a move.
-export interface CellState {
-  symbol: Symbols;
-  totalDice: number;
-  marked?: boolean;
-}
 
 // Indicates whether a victory was gotten, and if yes, also holds an indicator for the winner's symbol
 type VictoryStatus = {
@@ -61,7 +39,9 @@ const INITIAL_BOARD = Array.from({ length: BOARD_SIDE_LENGTH }, () =>
 
 function TicTacToeGame() {
   // Indicates the current Player by his symbol and Dice number he got, to be added to the board
-  const [currentPlayer, setCurrentPlayer] = useState<CellState>({ ...START_PLAYER });
+  const [currentPlayer, setCurrentPlayer] = useState<CellState>({
+    ...START_PLAYER,
+  });
   // The active game board
   const [boardCells, setBoardCells] = useState<CellState[][]>(INITIAL_BOARD);
   // Each move in the game gets a unique index
@@ -77,14 +57,17 @@ function TicTacToeGame() {
   // Indicates whether the current move is the AI's
   const [aiMove, setAIMove] = useState(false);
   // The explanation of the AI for its move
-  const [, setAIExplanation] = useState<string>(''); // aiExplanation
+  const setAIExplanation = useState<string>('')[1];
 
   // Happens only once! creates board of certain sizes X and Y.
   useEffect(() => {
     resetGame();
     setCurrentPlayer((prev) => nextPlayer(prev));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Intentionally triggers on currentPlayer changes for turn-based game logic.
+  // Adding all inner function/variable deps would cause infinite re-render loops.
   useEffect(() => {
     // AI Mode
     if (aiActivated && aiMove) {
@@ -100,24 +83,15 @@ function TicTacToeGame() {
         setTimeout(() => setCurrentPlayer((prev) => nextPlayer(prev)), 1000);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPlayer]);
 
   // After each change of the board, moves to the next round
+  // runGameRound is an inner function; adding it to deps would cause re-render loops.
   useEffect(() => {
-    function runGameRound() {
-      // If there is a victory, we end the competition
-      const victoryStatus: VictoryStatus = checkVictory(boardCells);
-      if (victoryStatus.victory) {
-        setVictor(victoryStatus.symbol);
-        return;
-      }
-
-      // Changing to next Player with new values
-      setCurrentPlayer((prev) => nextPlayer(prev));
-    }
-
     runGameRound();
-  }, [boardCells, nextPlayer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardCells]);
 
   /**
    * Resets the board cells
@@ -252,7 +226,10 @@ function TicTacToeGame() {
         updatedTotalDice = SIDES_TO_DICE;
       }
 
-      setSpecificBoardCell(row, col, { symbol: newCellState.symbol, totalDice: updatedTotalDice });
+      setSpecificBoardCell(row, col, {
+        symbol: newCellState.symbol,
+        totalDice: updatedTotalDice,
+      });
     } else {
       // If the new value is not greater than the previous value of the cell with an opposing symbol,
       //  we do not change the symbol.
@@ -280,7 +257,10 @@ function TicTacToeGame() {
           ? [
               ...currentRow.map((cell, colIndex) =>
                 colIndex === col
-                  ? { symbol: newCellState.symbol, totalDice: newCellState.totalDice }
+                  ? {
+                      symbol: newCellState.symbol,
+                      totalDice: newCellState.totalDice,
+                    }
                   : { ...cell },
               ),
             ]
@@ -384,6 +364,22 @@ function TicTacToeGame() {
     //  because the useEffect will be triggered only after the end of this function anyways.
     setAIMove(false);
     setAIExplanation(currentMove.explanation);
+  }
+
+  /**
+   * Activated after a move is registered, checks for a victory and if not,
+   *  continues to the next move.
+   */
+  function runGameRound() {
+    // If there is a victory, we end the competition
+    const victoryStatus: VictoryStatus = checkVictory(boardCells);
+    if (victoryStatus.victory) {
+      setVictor(victoryStatus.symbol);
+      return;
+    }
+
+    // Changing to next Player with new values
+    setCurrentPlayer((prev) => nextPlayer(prev));
   }
 
   // TODO: timer to next move if this is false, somehwere

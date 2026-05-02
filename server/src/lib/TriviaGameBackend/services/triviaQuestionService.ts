@@ -4,7 +4,6 @@ import { Question, GenerateTriviaQuestionsRequest } from '../types/triviaGame.js
 
 export async function fetchTriviaQuestions({
   amount,
-  type,
 }: GenerateTriviaQuestionsRequest): Promise<Question[]> {
   const url = new URL('https://opentdb.com/api.php');
   url.searchParams.set('amount', amount.toString());

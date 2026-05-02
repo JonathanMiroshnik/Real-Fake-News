@@ -1,4 +1,4 @@
-import { CellState } from '../Game/TicTacToeGame';
+import { CellState } from '../Game/types';
 import Cell from '../Cell/Cell';
 
 import './Board.css';

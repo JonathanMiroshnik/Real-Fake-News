@@ -41,13 +41,14 @@ export function standardizeDate(
         return utcDt.toLocaleString(DateTime.DATETIME_FULL);
       case 'sql':
         return utcDt.toSQL() ?? '';
-      case 'http':
+      case 'http': {
         const httpRet = utcDt.toHTTP();
         if (httpRet) {
           return httpRet;
         }
 
         throw new Error('HTTP Time Format null');
+      }
       default:
         return utcDt.toISO() ?? '';
     }
@@ -58,7 +59,7 @@ export function standardizeDate(
     // Fallback to simple JS Date conversion
     const date = new Date(pubDate);
     if (isNaN(date.getTime())) {
-      throw new Error(`Unable to parse date: ${pubDate}`);
+      throw new Error(`Unable to parse date: ${pubDate}`, { cause: error });
     }
     return date.toISOString();
   }

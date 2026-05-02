@@ -1,19 +1,13 @@
 import 'dotenv/config';
-import {
-  ArticleScheme,
-  FeaturedArticleScheme,
-  RecipeScheme,
-  BlogResponse,
-} from '../types/article.js';
-import { Writer } from '../types/writer.js';
-import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
-import { NewsItem } from './newsService.js';
-import { getUniqueKey } from '../utils/general.js';
-import { debugLog } from '../utils/debugLogger.js';
-import { Jimp, rgbaToInt } from 'jimp';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
+import { Jimp, rgbaToInt } from 'jimp';
+import { getUniqueKey } from '../utils/general.js';
+import { debugLog } from '../utils/debugLogger.js';
+import { ArticleScheme, RecipeScheme, BlogResponse } from '../types/article.js';
+import { Writer } from '../types/writer.js';
+import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
 import { getImagesDirectory } from '../utils/imageCompression.js';
 
 /**
@@ -176,7 +170,10 @@ export async function generatePlaceholderImage(
     return '';
   }
 
-  const cfg: PlaceholderImageConfig = { ...getPlaceholderImageConfig(), ...config };
+  const cfg: PlaceholderImageConfig = {
+    ...getPlaceholderImageConfig(),
+    ...config,
+  };
 
   // Validate dimensions
   if (cfg.tilesX < 1 || cfg.tilesY < 1 || cfg.width < 1 || cfg.height < 1) {
@@ -188,7 +185,11 @@ export async function generatePlaceholderImage(
   const tileHeight = Math.floor(cfg.height / cfg.tilesY);
 
   try {
-    const image = new Jimp({ width: cfg.width, height: cfg.height, color: 0x000000 });
+    const image = new Jimp({
+      width: cfg.width,
+      height: cfg.height,
+      color: 0x000000,
+    });
 
     for (let ty = 0; ty < cfg.tilesY; ty++) {
       for (let tx = 0; tx < cfg.tilesX; tx++) {
@@ -496,9 +497,27 @@ export function generateFakeHoroscopes(): Horoscope[] {
     astrologicalData: {
       date: today,
       planets: [
-        { name: 'Sun', longitude: 0, latitude: 0, sign: sign, isRetrograde: false },
-        { name: 'Moon', longitude: 60, latitude: 0, sign: 'Gemini', isRetrograde: false },
-        { name: 'Mercury', longitude: 30, latitude: 0, sign: 'Taurus', isRetrograde: false },
+        {
+          name: 'Sun',
+          longitude: 0,
+          latitude: 0,
+          sign: sign,
+          isRetrograde: false,
+        },
+        {
+          name: 'Moon',
+          longitude: 60,
+          latitude: 0,
+          sign: 'Gemini',
+          isRetrograde: false,
+        },
+        {
+          name: 'Mercury',
+          longitude: 30,
+          latitude: 0,
+          sign: 'Taurus',
+          isRetrograde: false,
+        },
       ],
       retrogrades: [],
       notableAspects: ['Sun trine Your Sense of Humor'],

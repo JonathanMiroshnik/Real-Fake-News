@@ -1,22 +1,7 @@
 // src/contexts/AuthContext.tsx
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import jwt from 'jsonwebtoken';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture: string;
-  token: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (userData: User, token: string) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType>(null!);
+import { AuthContext, User } from './AuthContext';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (decoded.exp * 1000 < Date.now()) {
             logout();
           }
-        } catch (error) {
+        } catch {
           logout();
         }
       }
@@ -67,8 +52,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

@@ -13,6 +13,7 @@ export const textToGameAnalysis = async (req: Request, res: Response) => {
     const result = await chooseNextAction(serviceReq);
     res.json(result);
   } catch (error) {
+    console.error('❌ Game intelligence analysis failed:', error);
     res.status(500).json({ error: 'Game Intelligence Analysis failed' });
   }
 };

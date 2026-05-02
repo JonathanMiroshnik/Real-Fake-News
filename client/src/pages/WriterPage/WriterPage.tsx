@@ -1,10 +1,9 @@
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { ArticleContext } from '../../contexts/ArticlesContext';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import ArticleList from '../../components/ArticleList/ArticleList';
 import { desanitizeWriterName } from '../../services/writerService';
-import { getImageURLFromWriter } from '../../services/imageService';
-import { DEFAULT_IMAGE } from '../../services/imageService';
+import { DEFAULT_IMAGE, getImageURLFromWriter } from '../../services/imageService';
 import Image from '../../components/Image/Image';
 import './WriterPage.css';
 
@@ -16,15 +15,16 @@ import './WriterPage.css';
 function WriterPage() {
   // Route parameter handling
   const { key } = useParams();
+
+  // Context data access
+  const { writers, articles } = useContext(ArticleContext);
+
   if (key === null || key === undefined) {
     return <div>WRITER INVALID</div>;
   }
 
   // Name desanitization using service utility
   const desenitizedKey = desanitizeWriterName(key || '');
-
-  // Context data access
-  const { writers, articles } = useContext(ArticleContext);
 
   // const currentWriters = useContext(ArticleContext).writers;
   // Find matching writer
