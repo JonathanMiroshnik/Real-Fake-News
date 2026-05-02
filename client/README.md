@@ -9,15 +9,17 @@ The client runs inside an nginx container that serves static files and proxies A
 ```
 real.sensorcensor.xyz → (shared nginx) → client:80
                                     ├── /              → serves React SPA
-                                    ├── /api/*         → proxy_pass to server:5001
-                                    └── /admin/*       → proxy_pass to admin:80
+                                    └── /api/*         → proxy_pass to server:5001
+
+admin.real.sensorcensor.xyz → (shared nginx) → admin:80
+                                    └── serves React admin SPA
 ```
 
 See `nginx.conf` for the exact routing rules.
 
 ## Changes for VPS Deployment
 
-- **`nginx.conf`**: Added `location /admin` block proxying to `admin:80` (the admin SvelteKit container).
+- **`nginx.conf`**: Removed `location /admin` block — admin now serves on its own subdomain (e.g. `admin.real.sensorcensor.xyz`) via the shared nginx.
 - **`nginx.conf`**: Static file caching regex excludes `/api` paths to prevent API image requests from being treated as static files. Fix: `location ~* ^(?!/api)/.*\.(js|css|png|...)`
 - **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow.
 
