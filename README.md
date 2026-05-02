@@ -11,6 +11,42 @@ for the reader as well as backend interactions between the different "writers" a
 The tech stack will be MERN(MongoDB, Express, React, Node).
 As of 22.10.25, MongoDB is not used, instead, I am using LowDB as it is a simpler approach and MongoDB is not currently needed, a possible move to SQLite is in order.
 
+# VPS Production Deployment (real.sensorcensor.xyz)
+
+This repo is deployed on a VPS alongside the PersonalDevOps infrastructure. The shared nginx reverse proxy (`devops-nginx`) handles SSL termination and routes `real.sensorcensor.xyz` to the `client` container. See `docker-compose.yml` for the exact service definitions.
+
+### Architecture
+
+```
+real.sensorcensor.xyz → (shared nginx) → client:80
+                                  ├── /        → serves static React SPA
+                                  ├── /api/*   → reverse-proxy to server:5001
+                                  └── /admin/* → reverse-proxy to admin:80
+```
+
+### Container Names (for PersonalDevOps sites.yaml)
+
+```yaml
+- name: "real"
+  subdomain: "real.sensorcensor.xyz"
+  internal_port: 80
+  container_name: "client"
+  backend_repo: "https://github.com/JonathanMiroshnik/RealWebsite.git"
+  backend_tech: "multi"
+  enabled: true
+```
+
+### Key Changes from Previous Version
+
+| Change | Before | After |
+|--------|--------|-------|
+| Container names | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin` |
+| Port exposure | Each service exposed host ports | **No ports exposed** — all communication over `devops_shared` Docker network |
+| Docker network | Internal `app-network` (bridge) | External `devops_shared` (shared VPS network) |
+| Health checks | Present in all Dockerfiles | Removed — shared nginx handles failures gracefully |
+| Server debug blocks | Present in Dockerfile | Removed — production image is leaner |
+| Admin proxying | Not handled by client nginx | Added `location /admin` → `proxy_pass http://admin:80` in `client/nginx.conf` |
+
 # Environment Configuration
 
 All environment variables, config files, and constants used across the project are documented in **`ENV_CONFIG.example`** in the root directory.
@@ -38,114 +74,46 @@ See `ENV_CONFIG.example` for complete documentation of all environment variables
 ## Prerequisites
 
 1. **Docker and Docker Compose** installed on your system
-2. **Root `.env` file** created from `docker-compose.env.example`:
+2. **Root `.env` file** created:
    ```bash
-   cp docker-compose.env.example .env
+   # Copy from example (create one from ENV_CONFIG.example if missing)
    # Edit .env and fill in your API keys and paths
    ```
-3. **Required directories** created (as specified in `.env`):
+3. **Docker network** (for local testing):
    ```bash
-   mkdir -p /path/to/your/SQLITE_DATA_PATH
-   mkdir -p /path/to/your/IMAGES_DATA_PATH
+   docker network create devops_shared
    ```
 
-## Development Mode
+## Local Development
 
-**Use this for local development and testing.**
-
-### Start Development Environment
+**Use the override file for testing on your dev machine.** The override adds port mappings so you can access services from your browser.
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
-```
+# Build and start all services with port mappings
+docker compose up --build -d
 
-### Development Mode Features
-
-- **Server**: Runs with `NODE_ENV=development`
-- **Client**: Debug logs enabled (`VITE_DEBUG_LOGS=true`)
-- **Admin**: Frontend dev mode enabled
-- **Hot Reload**: Not enabled by default (see below for enabling)
-
-### Development Commands
-
-```bash
-# Start in detached mode (background)
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-
-# View logs
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
-
-# Rebuild specific service
-docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
-
-# Stop services
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-
-# Restart a service
-docker compose -f docker-compose.yml -f docker-compose.dev.yml restart client
-```
-
-### Access Development Services
-
-- **Client**: http://localhost:5173
-- **Admin**: http://localhost:5174
-- **Server API**: http://localhost:5001/api
-
----
-
-## Production Mode
-
-**Use this for production deployments.**
-
-### Start Production Environment
-
-```bash
-docker compose up --build
-```
-
-### Production Mode Features
-
-- **Server**: Runs with `NODE_ENV=production`
-- **Client**: Debug logs disabled (`VITE_DEBUG_LOGS=false`)
-- **Admin**: Frontend dev mode disabled
-- **Optimized**: Production-optimized builds
-
-### Production Commands
-
-```bash
-# Start in detached mode (background)
-docker compose up -d
+# Access:
+#   Client SPA:    http://localhost:5173
+#   Admin panel:   http://localhost:5174/admin
+#   API directly:  http://localhost:5001/api/health
 
 # View logs
 docker compose logs -f
 
-# Rebuild all services
-docker compose build --no-cache
-
 # Stop services
 docker compose down
-
-# Restart services
-docker compose restart
 ```
 
-### Access Production Services
+The `docker-compose.override.yml` file is auto-merged by Docker Compose — no `-f` flag needed. On the VPS, this file is absent so only the production config applies (no port exposure).
 
-- **Client**: http://localhost:5173 (or your configured port)
-- **Admin**: http://localhost:5174 (or your configured port)
-- **Server API**: http://localhost:5001/api (or your configured port)
+## Production VPS Deployment
 
----
+```bash
+# The DevOps pipeline runs:
+docker compose up --build -d
 
-## Key Differences
-
-| Feature | Development Mode | Production Mode |
-|---------|-----------------|-----------------|
-| **Command** | `docker compose -f docker-compose.yml -f docker-compose.dev.yml up` | `docker compose up` |
-| **NODE_ENV** | `development` | `production` |
-| **Debug Logs** | Enabled | Disabled |
-| **Error Messages** | Detailed | Generic |
-| **Build Optimization** | Standard | Optimized |
+# No ports exposed — only the shared nginx serves traffic on 80/443
+```
 
 ## Common Tasks
 

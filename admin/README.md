@@ -2,6 +2,12 @@
 
 A secure Svelte-based admin panel for managing articles and text items.
 
+## Changes for VPS Deployment
+
+- **`nginx.conf`**: No changes needed — the `/admin` base path and API proxy to `server:5001` remain the same (the container name is now just `server` instead of the old `real-fake-news-server`, but the nginx proxy targets use `server` which matches the new container name).
+- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow.
+- **Access path**: The admin panel is now served at `/admin/*` behind the client nginx entry point, not on a separate port. The URL is `https://real.sensorcensor.xyz/admin`.
+
 ## Features
 
 1. **Password Protection**: The admin panel is protected by a URL query parameter. Without the correct password, the panel won't display any content.

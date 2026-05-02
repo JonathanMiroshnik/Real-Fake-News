@@ -1,30 +1,29 @@
 # Dependencies
 node_modules/
-server/node_modules/
-client/node_modules/
 
-# Also add SQLite database files (from your migration)
-*.sqlite
-*.sqlite-wal
-*.sqlite-shm
-server/data/
-server/data/database.db
-server/data/database.db-*
-
-# Server data images
-server/data/images/
-
-# Build outputs
-dist/
-server/dist/
-client/dist/
-build/
-*.log
-
-# Environment files (already have these)
+# Environment files (never committed)
 .env
 admin/.env
 server/.env
 client/.env
 
-server/src/data/
+# Build outputs
+dist/
+build/
+server/dist/
+client/dist/
+admin/build/
+*.log
+
+# Database files (generated at runtime, mounted as Docker volume)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+database/                         # Default SQLITE_DATA_PATH mount directory
+
+# Server data images (stored inside database volume)
+server/data/
+
+# OS files
+.DS_Store
+Thumbs.db

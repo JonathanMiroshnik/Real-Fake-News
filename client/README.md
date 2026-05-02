@@ -2,6 +2,11 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Changes for VPS Deployment
+
+- **`nginx.conf`**: Added `location /admin` block proxying to `admin:80` (the admin SvelteKit container). This handles routing of `/admin/*` requests through the client entry point.
+- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow where the shared nginx handles failures gracefully.
+
 ## Environment Configuration
 
 For information about configuring environment variables (backend connection, debug logging, etc.), see [ENV_CONFIG.example](../../ENV_CONFIG.example) in the root directory.
