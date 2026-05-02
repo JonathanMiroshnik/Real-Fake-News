@@ -5,7 +5,7 @@ import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
 import { NewsItem } from './newsService.js';
 import { getUniqueKey } from '../utils/general.js';
 import { debugLog } from '../utils/debugLogger.js';
-import { Jimp } from 'jimp';
+import { Jimp, rgbaToInt } from 'jimp';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
@@ -175,8 +175,8 @@ export async function generatePlaceholderImage(
                 const g = randomChannel(cfg.colorMin.g, cfg.colorMax.g);
                 const b = randomChannel(cfg.colorMin.b, cfg.colorMax.b);
 
-                // Pack into 32-bit RGBA (alpha = 0xFF)
-                const hexColor = (r << 24) | (g << 16) | (b << 8) | 0xff;
+                // Pack into 32-bit RGBA using Jimp's utility
+                const hexColor = rgbaToInt(r, g, b, 255);
 
                 const x = tx * tileWidth;
                 const y = ty * tileHeight;
