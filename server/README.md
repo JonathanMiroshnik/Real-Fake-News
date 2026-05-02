@@ -1,3 +1,8 @@
+## Changes for VPS Deployment
+
+- **`Dockerfile`**: Removed `HEALTHCHECK` and debug `RUN echo`/`RUN test` blocks. Production image is leaner and faster to build.
+- **Container name**: Changed from `real-fake-news-server` to `server` in `docker-compose.yml`.
+
 The server directory follows a common Node.js/TypeScript backend structure with clear separation of concerns:
 
 1. Root files:

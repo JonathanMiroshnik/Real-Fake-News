@@ -1,25 +1,34 @@
+# ============================================================
+# docker-compose.yml — real.sensorcensor.xyz (production VPS)
+# ============================================================
+# This repo is deployed alongside PersonalDevOps on the same VPS.
+# The shared nginx (devops-nginx) routes real.sensorcensor.xyz
+# to container "client" on port 80. That container's own nginx
+# handles internal routing to server (API) and admin (panel).
+#
+# ⚠️ No ports are exposed to the host — all inter-container
+#    communication is over the devops_shared Docker network.
+# ⚠️ No version: field (deprecated since docker-compose v2).
+# ⚠️ No HEALTHCHECK — the shared nginx handles failures gracefully.
+# ============================================================
+
 services:
-  # Backend Server
+  # -----------------------------
+  # Backend API — Express/TypeScript
+  # Listens on internal port 5001
+  # -----------------------------
   server:
     build:
       context: .
       dockerfile: server/Dockerfile
-    container_name: real-fake-news-server
-    ports:
-      - "${SERVER_PORT:-5001}:5001"
+    container_name: server
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=5001
-      # Database path inside container (mounted from SQLITE_DATA_PATH on host)
       - DATABASE_PATH=/data/database.db
-      # Container paths for SQLITE_DATA_PATH and IMAGES_DATA_PATH
-      # SQLITE_DATA_PATH host directory is mounted to /data in container
       - SQLITE_DATA_PATH=/data
-      # IMAGES_DATA_PATH: images directory inside container
-      # Defaults to /data/images (same directory as database)
-      # If you want images in a separate location, you can override this
       - IMAGES_DATA_PATH=/data/images
-      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - CLIENT_URL=${CLIENT_URL:-https://real.sensorcensor.xyz}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme123}
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - NEWSDATA_API_KEY=${NEWSDATA_API_KEY}
@@ -30,57 +39,43 @@ services:
       - ENABLE_SCHEDULED_JOBS=${ENABLE_SCHEDULED_JOBS:-true}
       - LOCAL_DEV_BACKEND=${LOCAL_DEV_BACKEND:-false}
     volumes:
-      # Mount database directory from host (outside repository)
-      # Set SQLITE_DATA_PATH in .env to specify location
-      # Database file will be at /data/database.db inside container
       - ${SQLITE_DATA_PATH:-./database}:/data:rw
-      # Images are stored in the same directory as the database
-      # If IMAGES_DATA_PATH is set, it will be used directly by the application
-      # Otherwise, images will be in /data/images (same directory as database)
-      # Note: We still mount SQLITE_DATA_PATH to /data, and the app will use /data/images
-      # If you want images in a separate location, set IMAGES_DATA_PATH in .env
-    # Server accesses database file directly via volume mount at /data/database.db
     restart: unless-stopped
     networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
+      - devops_shared
 
-  # Client Frontend (React)
+  # -----------------------------
+  # Client Frontend — React SPA
+  # Entry point for shared nginx
+  # Listens on internal port 80
+  # Routes: / → static files, /api/* → server:5001, /admin/* → admin:80
+  # -----------------------------
   client:
     build:
       context: .
       dockerfile: client/Dockerfile
       args:
-        # Production defaults: use relative API URLs with nginx proxy
-        # Override in root .env file or docker-compose.dev.yml for development
         - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-false}
         - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
         - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
         - VITE_USE_RELATIVE_API=${VITE_USE_RELATIVE_API:-true}
         - VITE_DEBUG_LOGS=${VITE_DEBUG_LOGS:-false}
         - VITE_SHOW_HOROSCOPES=${VITE_SHOW_HOROSCOPES:-true}
-    container_name: real-fake-news-client
-    ports:
-      - "${CLIENT_PORT:-5173}:80"
-    depends_on:
-      - server
+    container_name: client
     restart: unless-stopped
     networks:
-      - app-network
+      - devops_shared
 
-  # Admin Frontend (SvelteKit)
+  # -----------------------------
+  # Admin Panel — SvelteKit SPA
+  # Serves static files at /admin base path
+  # Listens on internal port 80
+  # -----------------------------
   admin:
     build:
       context: .
       dockerfile: admin/Dockerfile
       args:
-        # Production defaults: use relative API URLs with nginx proxy
-        # Override in root .env file or docker-compose.dev.yml for development
         - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-false}
         - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001}
         - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://server:5001}
@@ -89,20 +84,12 @@ services:
         - VITE_CLIENT_URL_DEV=${VITE_CLIENT_URL_DEV:-http://localhost:5173}
         - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-https://real.sensorcensor.xyz}
         - SVELTEKIT_BASE_PATH=${SVELTEKIT_BASE_PATH:-/admin}
-    container_name: real-fake-news-admin
-    ports:
-      - "${ADMIN_PORT:-5174}:80"
-    depends_on:
-      - server
+    container_name: admin
     restart: unless-stopped
     networks:
-      - app-network
+      - devops_shared
 
 networks:
-  app-network:
-    driver: bridge
-
-# Note: We use host-mounted volumes (bind mounts) instead of named volumes
-# This allows the database and images to persist outside Docker
-# Volumes are defined inline in each service's volumes: section
+  devops_shared:
+    external: true
 
