@@ -49,7 +49,7 @@ services:
   # Client Frontend — React SPA
   # Entry point for shared nginx
   # Listens on internal port 80
-  # Routes: / → static files, /api/* → server:5001, /admin/* → admin:80
+  # Routes: / → static files, /api/* → server:5001
   # -----------------------------
   client:
     build:
@@ -68,8 +68,8 @@ services:
       - devops_shared
 
   # -----------------------------
-  # Admin Panel — SvelteKit SPA
-  # Serves static files at /admin base path
+  # Admin Panel — React SPA
+  # Serves on its own subdomain (e.g. admin.real.sensorcensor.xyz)
   # Listens on internal port 80
   # -----------------------------
   admin:
@@ -84,7 +84,6 @@ services:
         - VITE_FRONTEND_DEV_MODE=${VITE_FRONTEND_DEV_MODE:-false}
         - VITE_CLIENT_URL_DEV=${VITE_CLIENT_URL_DEV:-http://localhost:5173}
         - VITE_CLIENT_URL_PROD=${VITE_CLIENT_URL_PROD:-https://real.sensorcensor.xyz}
-        - SVELTEKIT_BASE_PATH=${SVELTEKIT_BASE_PATH:-/admin}
     container_name: admin
     restart: unless-stopped
     networks:

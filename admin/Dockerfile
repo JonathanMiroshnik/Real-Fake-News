@@ -11,7 +11,6 @@ ARG VITE_USE_RELATIVE_API=false
 ARG VITE_FRONTEND_DEV_MODE=true
 ARG VITE_CLIENT_URL_DEV=http://localhost:5173
 ARG VITE_CLIENT_URL_PROD=http://localhost:5173
-ARG SVELTEKIT_BASE_PATH=/admin
 
 # Set as environment variables for Vite build
 ENV VITE_BACKEND_DEV_MODE=$VITE_BACKEND_DEV_MODE
@@ -21,25 +20,25 @@ ENV VITE_USE_RELATIVE_API=$VITE_USE_RELATIVE_API
 ENV VITE_FRONTEND_DEV_MODE=$VITE_FRONTEND_DEV_MODE
 ENV VITE_CLIENT_URL_DEV=$VITE_CLIENT_URL_DEV
 ENV VITE_CLIENT_URL_PROD=$VITE_CLIENT_URL_PROD
-ENV SVELTEKIT_BASE_PATH=$SVELTEKIT_BASE_PATH
 
 # Copy package files
 COPY admin/package*.json ./
 RUN npm ci
 
 # Copy source code and config
+COPY admin/index.html ./
 COPY admin/src ./src
-COPY admin/svelte.config.js ./
+COPY admin/public ./public
 COPY admin/vite.config.ts ./
 COPY admin/tsconfig.json ./
 
-# Build SvelteKit app (environment variables are baked into the bundle)
+# Build React app (environment variables are baked into the bundle)
 RUN npm run build
 
 # Stage 2: Production - Serve with Nginx
 FROM nginx:alpine
 
-# Copy built files from builder (SvelteKit outputs to build/)
+# Copy built files from builder (Vite outputs to build/ for React)
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy nginx configuration
