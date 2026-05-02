@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
 interface SectionWithSidebarsProps {
   /** Main content to be constrained to a percentage width */
@@ -50,10 +50,7 @@ function SectionWithSidebars({
     <div className="w-full flex" style={{ gap: `${gap}px` }}>
       {/* Left sidebar */}
       {left && (
-        <div
-          className="shrink-0"
-          style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}
-        >
+        <div className="shrink-0" style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}>
           {left}
         </div>
       )}
@@ -64,7 +61,7 @@ function SectionWithSidebars({
         style={{
           width: `${mainWidthPercent}%`,
           minWidth: 0,
-          overflow: "hidden", // Prevent children from overflowing
+          overflow: 'hidden', // Prevent children from overflowing
         }}
       >
         {children}
@@ -72,10 +69,7 @@ function SectionWithSidebars({
 
       {/* Right sidebar */}
       {right && (
-        <div
-          className="shrink-0"
-          style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}
-        >
+        <div className="shrink-0" style={{ width: `${sidebarWidthPercent}%`, minWidth: 0 }}>
           {right}
         </div>
       )}

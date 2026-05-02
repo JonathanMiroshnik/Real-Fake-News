@@ -1,4 +1,4 @@
-import GameItem from "./GameItem/GameItem";
+import GameItem from './GameItem/GameItem';
 
 /**
  * Component to show the Games
@@ -13,16 +13,16 @@ function GamesList() {
   // TODO: should add vertical support
   const GAMES = [
     {
-      title: "Tic Tac Toe",
-      headImageName: "logoTicTacToe.png",
-      shortDescription: "Classic strategy game for two players",
-      linkName: "tictactoe",
+      title: 'Tic Tac Toe',
+      headImageName: 'logoTicTacToe.png',
+      shortDescription: 'Classic strategy game for two players',
+      linkName: 'tictactoe',
     },
     {
-      title: "Trivia Challenge",
-      headImageName: "triviaGameLogo.png",
-      shortDescription: "Test your knowledge with fun questions",
-      linkName: "trivia",
+      title: 'Trivia Challenge',
+      headImageName: 'triviaGameLogo.png',
+      shortDescription: 'Test your knowledge with fun questions',
+      linkName: 'trivia',
     },
   ];
 
@@ -35,7 +35,7 @@ function GamesList() {
                             max-[480px]:gap-4"
       >
         {GAMES.map((game, ind) => (
-          <GameItem key={"game_" + ind.toString()} {...game} />
+          <GameItem key={'game_' + ind.toString()} {...game} />
         ))}
       </div>
     </div>

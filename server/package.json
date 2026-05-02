@@ -13,7 +13,9 @@
     "migrate": "tsx src/scripts/migrateToSqlite.ts",
     "compress-images": "tsx src/scripts/compressExistingImages.ts",
     "generate-mock-data": "tsx src/scripts/generateMockData.ts",
-    "generate-fake-image": "tsx src/scripts/generateFakeImage.ts"
+    "generate-fake-image": "tsx src/scripts/generateFakeImage.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

@@ -1,11 +1,11 @@
-import { useContext } from "react";
-import AliceCarousel from "react-alice-carousel";
-import { ArticleContext } from "../../contexts/ArticleContext";
-import ArticleListItem from "../ArticleListItem/ArticleListItem";
-import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
-import { HOUR_MILLISECS } from "../../services/timeService";
-import "react-alice-carousel/lib/alice-carousel.css";
-import "./NewsCarousel.css";
+import { useContext } from 'react';
+import AliceCarousel from 'react-alice-carousel';
+import { ArticleContext } from '../../contexts/ArticleContext';
+import ArticleListItem from '../ArticleListItem/ArticleListItem';
+import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
+import { HOUR_MILLISECS } from '../../services/timeService';
+import 'react-alice-carousel/lib/alice-carousel.css';
+import './NewsCarousel.css';
 
 // The news ticker should present news from the last 4 hours~
 const RECENT_ARTICLE_CUTOFF = HOUR_MILLISECS * 4;
@@ -30,17 +30,13 @@ function NewsCarousel({ maxItems = -1 }: NewsCarouselProps) {
 
     const millisecondsSincePublishing =
       new Date().getTime() - new Date(article.timestamp).getTime();
-    const recentArticle: boolean =
-      millisecondsSincePublishing <= RECENT_ARTICLE_CUTOFF;
+    const recentArticle: boolean = millisecondsSincePublishing <= RECENT_ARTICLE_CUTOFF;
     return recentArticle;
   });
 
   let items = [
     ...articlesbyCategory.map((ar) => (
-      <div
-        key={"carousel_" + ar.key}
-        style={{ width: "300px", minHeight: "120px" }}
-      >
+      <div key={'carousel_' + ar.key} style={{ width: '300px', minHeight: '120px' }}>
         <ArticleListItem article={ar} showUnderText={false} showImage={false} />
       </div>
     )),

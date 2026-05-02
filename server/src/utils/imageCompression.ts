@@ -1,10 +1,10 @@
-import { Jimp } from "jimp";
-import { JimpMime } from "jimp";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import { debugLog } from "./debugLogger.js";
+import { Jimp } from 'jimp';
+import { JimpMime } from 'jimp';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { debugLog } from './debugLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,15 +24,12 @@ async function getSharp(): Promise<any> {
 
   sharpLoaded = true;
   try {
-    const sharpModule = await import("sharp");
+    const sharpModule = await import('sharp');
     sharp = sharpModule.default;
-    debugLog("✅ Sharp loaded - WebP compression enabled");
+    debugLog('✅ Sharp loaded - WebP compression enabled');
     return sharp;
   } catch (error) {
-    debugLog(
-      "⚠️ Sharp not available - WebP images will be converted to JPEG:",
-      error,
-    );
+    debugLog('⚠️ Sharp not available - WebP images will be converted to JPEG:', error);
     return null;
   }
 }
@@ -57,18 +54,18 @@ export function getImagesDirectory(): string {
 
   // Priority 2: Use SQLITE_DATA_PATH/images if SQLITE_DATA_PATH is set
   if (process.env.SQLITE_DATA_PATH) {
-    return path.join(process.env.SQLITE_DATA_PATH, "images");
+    return path.join(process.env.SQLITE_DATA_PATH, 'images');
   }
 
   // Priority 3: Use DATABASE_PATH to determine directory (for Docker containers)
   if (process.env.DATABASE_PATH) {
     const dbDir = path.dirname(process.env.DATABASE_PATH);
-    return path.join(dbDir, "images");
+    return path.join(dbDir, 'images');
   }
 
   // Priority 4: Default fallback - relative to server root
-  const serverRoot = path.resolve(__dirname, "../..");
-  return path.join(serverRoot, "data/images");
+  const serverRoot = path.resolve(__dirname, '../..');
+  return path.join(serverRoot, 'data/images');
 }
 
 /**
@@ -88,17 +85,14 @@ export function getImagesDirectory(): string {
  * @param outputPath - Path where compressed image should be saved
  * @returns Promise that resolves when compression is complete
  */
-export async function compressImageForWeb(
-  inputPath: string,
-  outputPath: string,
-): Promise<void> {
+export async function compressImageForWeb(inputPath: string, outputPath: string): Promise<void> {
   try {
     // Ensure output directory exists
     const outputDir = path.dirname(outputPath);
     fs.mkdirSync(outputDir, { recursive: true });
 
     const inputExt = path.extname(inputPath).toLowerCase();
-    const isWebP = inputExt === ".webp";
+    const isWebP = inputExt === '.webp';
     const isSmallImage = (await getImageWidth(inputPath)) < 500;
 
     // Use different settings for small images (likely profile images)
@@ -117,7 +111,7 @@ export async function compressImageForWeb(
       if (metadata.width && metadata.width > maxWidth) {
         pipeline = pipeline.resize(maxWidth, null, {
           withoutEnlargement: true,
-          fit: "inside",
+          fit: 'inside',
         });
       }
 
@@ -157,7 +151,7 @@ export async function compressImageForWeb(
     const compressedSize = fs.statSync(outputPath).size;
     const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
 
-    const formatNote = isWebP ? " (WebP→JPEG, Sharp not available)" : "";
+    const formatNote = isWebP ? ' (WebP→JPEG, Sharp not available)' : '';
     debugLog(
       `Compressed ${path.basename(inputPath)}${formatNote}: ` +
         `${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB ` +
@@ -201,14 +195,14 @@ async function getImageWidth(imagePath: string): Promise<number> {
  */
 export function getCompressedImagePath(filename: string): string {
   const imagesDir = getImagesDirectory();
-  const compressedDir = path.join(imagesDir, "compressed");
+  const compressedDir = path.join(imagesDir, 'compressed');
   const ext = path.extname(filename).toLowerCase();
   const basename = path.basename(filename, ext);
 
   // Preserve WebP extension if input is WebP
   // Note: Actual format depends on Sharp availability at compression time
   // This function just determines the filename - the compression function handles format
-  const outputExt = ext === ".webp" ? ".webp" : ".jpg";
+  const outputExt = ext === '.webp' ? '.webp' : '.jpg';
 
   return path.join(compressedDir, `${basename}${outputExt}`);
 }
@@ -251,10 +245,7 @@ const COMPRESSION_TIMEOUT_MS = 30000;
  * @param filename - Image filename to compress
  * @param originalPath - Full path to the original image file
  */
-export function compressImageInBackground(
-  filename: string,
-  originalPath: string,
-): void {
+export function compressImageInBackground(filename: string, originalPath: string): void {
   // Check if already compressing this image
   if (compressingImages.has(filename)) {
     debugLog(`Skipping compression of ${filename} - already in progress`);
@@ -264,9 +255,7 @@ export function compressImageInBackground(
   // Check if compressed version already exists
   const compressedPath = getCompressedImagePath(filename);
   if (fs.existsSync(compressedPath)) {
-    debugLog(
-      `Skipping compression of ${filename} - compressed version already exists`,
-    );
+    debugLog(`Skipping compression of ${filename} - compressed version already exists`);
     return;
   }
 
@@ -296,9 +285,7 @@ export function compressImageInBackground(
   const timeoutPromise = new Promise<void>((resolve) => {
     setTimeout(() => {
       if (compressingImages.has(filename)) {
-        console.error(
-          `⏱️ Compression timeout for ${filename} after ${COMPRESSION_TIMEOUT_MS}ms`,
-        );
+        console.error(`⏱️ Compression timeout for ${filename} after ${COMPRESSION_TIMEOUT_MS}ms`);
         compressingImages.delete(filename);
         resolve();
       }
@@ -307,10 +294,7 @@ export function compressImageInBackground(
 
   // Race between compression and timeout
   Promise.race([compressionPromise, timeoutPromise]).catch((error) => {
-    console.error(
-      `Unexpected error in background compression for ${filename}:`,
-      error,
-    );
+    console.error(`Unexpected error in background compression for ${filename}:`, error);
     compressingImages.delete(filename);
   });
 }

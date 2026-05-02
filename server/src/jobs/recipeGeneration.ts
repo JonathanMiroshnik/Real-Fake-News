@@ -1,12 +1,12 @@
-import { randomInt } from "crypto";
-import { MINIMAL_NUM_DAILY_RECIPES } from "../config/constants.js";
+import { randomInt } from 'crypto';
+import { MINIMAL_NUM_DAILY_RECIPES } from '../config/constants.js';
 import {
   getAllRecipesAfterDate,
   generateRecipe,
   getRandomFoods,
-} from "../services/recipeService.js";
-import { getRandomWriter } from "../services/writerService.js";
-import { debugLog, debugWarn } from "../utils/debugLogger.js";
+} from '../services/recipeService.js';
+import { getRandomWriter } from '../services/writerService.js';
+import { debugLog, debugWarn } from '../utils/debugLogger.js';
 
 /**
  * Generates scheduled recipes based on daily quota
@@ -14,9 +14,7 @@ import { debugLog, debugWarn } from "../utils/debugLogger.js";
  */
 export async function generateScheduledRecipes(writingInterval: number) {
   try {
-    const result = await getAllRecipesAfterDate(
-      new Date(Date.now() - writingInterval),
-    );
+    const result = await getAllRecipesAfterDate(new Date(Date.now() - writingInterval));
     const newRecipesNeeded: number = MINIMAL_NUM_DAILY_RECIPES - result.length;
 
     debugLog(
@@ -24,9 +22,7 @@ export async function generateScheduledRecipes(writingInterval: number) {
     );
 
     if (newRecipesNeeded <= 0) {
-      debugLog(
-        "🍳 [generateScheduledRecipes] Sufficient recipes already exist",
-      );
+      debugLog('🍳 [generateScheduledRecipes] Sufficient recipes already exist');
       return;
     }
 
@@ -34,14 +30,12 @@ export async function generateScheduledRecipes(writingInterval: number) {
     const foods = await getRandomFoods(3); // Get 3 random foods
     if (foods.length === 0) {
       console.error(
-        "❌ [generateScheduledRecipes] No foods found in database! Please add foods to the foods table.",
+        '❌ [generateScheduledRecipes] No foods found in database! Please add foods to the foods table.',
       );
       return;
     }
 
-    debugLog(
-      `🍳 [generateScheduledRecipes] Selected foods: ${foods.join(", ")}`,
-    );
+    debugLog(`🍳 [generateScheduledRecipes] Selected foods: ${foods.join(', ')}`);
 
     for (let i = 0; i < newRecipesNeeded; i++) {
       try {
@@ -49,31 +43,23 @@ export async function generateScheduledRecipes(writingInterval: number) {
         const recipeFoods = await getRandomFoods(2 + randomInt(2)); // 2-3 foods per recipe
 
         if (recipeFoods.length === 0) {
-          debugWarn(
-            "⚠️ [generateScheduledRecipes] No foods available for recipe generation",
-          );
+          debugWarn('⚠️ [generateScheduledRecipes] No foods available for recipe generation');
           break;
         }
 
         debugLog(
-          `🍳 [generateScheduledRecipes] Generating recipe ${i + 1}/${newRecipesNeeded} with writer: ${writer.name}, foods: ${recipeFoods.join(", ")}`,
+          `🍳 [generateScheduledRecipes] Generating recipe ${i + 1}/${newRecipesNeeded} with writer: ${writer.name}, foods: ${recipeFoods.join(', ')}`,
         );
         await generateRecipe(writer, recipeFoods, true);
       } catch (error) {
-        console.error(
-          `❌ [generateScheduledRecipes] Error generating recipe ${i + 1}:`,
-          error,
-        );
+        console.error(`❌ [generateScheduledRecipes] Error generating recipe ${i + 1}:`, error);
         // Continue with next recipe even if one fails
       }
     }
 
-    debugLog("✅ [generateScheduledRecipes] Recipe generation cycle completed");
+    debugLog('✅ [generateScheduledRecipes] Recipe generation cycle completed');
   } catch (error) {
-    console.error(
-      "❌ [generateScheduledRecipes] Error in generateScheduledRecipes:",
-      error,
-    );
+    console.error('❌ [generateScheduledRecipes] Error in generateScheduledRecipes:', error);
     // Don't throw - allow the scheduler to continue running
   }
 }

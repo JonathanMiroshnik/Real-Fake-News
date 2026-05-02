@@ -1,13 +1,6 @@
-import { useEffect, useState } from "react";
-import {
-  DiceOne,
-  DiceTwo,
-  DiceThree,
-  DiceFour,
-  DiceFive,
-  DiceSix,
-} from "phosphor-react";
-import "./Dice.css";
+import { useEffect, useState } from 'react';
+import { DiceOne, DiceTwo, DiceThree, DiceFour, DiceFive, DiceSix } from 'phosphor-react';
+import './Dice.css';
 
 export const SIDES_TO_DICE: number = 6;
 const DICE_SIZE = 96;
@@ -40,15 +33,7 @@ function Dice({ result, rollId }: DiceProps) {
   function numberToDiceImage(num: number, diceSize: number) {
     if (num < 1 || num > SIDES_TO_DICE) return null;
 
-    const icons = [
-      null,
-      DiceOne,
-      DiceTwo,
-      DiceThree,
-      DiceFour,
-      DiceFive,
-      DiceSix,
-    ];
+    const icons = [null, DiceOne, DiceTwo, DiceThree, DiceFour, DiceFive, DiceSix];
     const DiceIcon = icons[num];
     return DiceIcon ? <DiceIcon size={diceSize} /> : null;
   }
@@ -59,7 +44,7 @@ function Dice({ result, rollId }: DiceProps) {
             The "Ghost Die" is an exact equivalent die behind the functional die 
             that is used to create the animation about a change in the rollId.
             */}
-      <div key={"dice-roll-id-" + animationKey} className="dice-ghost grow">
+      <div key={'dice-roll-id-' + animationKey} className="dice-ghost grow">
         {numberToDiceImage(result, DICE_SIZE)}
       </div>
       <div className="dice-main">{numberToDiceImage(result, DICE_SIZE)}</div>

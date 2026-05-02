@@ -6,7 +6,7 @@ export type TicTacToeGameMove = {
 export interface GenerateGameMoveRequest {
   boardState: string;
   dice: string;
-  symbol: "X" | "O";
+  symbol: 'X' | 'O';
 }
 
 export interface GenerateGameMoveResponse {

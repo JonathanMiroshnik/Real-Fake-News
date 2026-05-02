@@ -1,9 +1,9 @@
-import "./NewsCarouselItem.css";
+import './NewsCarouselItem.css';
 
-import { Link } from "react-router";
-import { ArticleProps } from "../../../pages/ArticlePage/ArticlePage";
+import { Link } from 'react-router';
+import { ArticleProps } from '../../../pages/ArticlePage/ArticlePage';
 // import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
-import { getLatestTime } from "../../../services/timeService";
+import { getLatestTime } from '../../../services/timeService';
 
 /**
  * Individual article list item component
@@ -24,14 +24,12 @@ function NewsCarouselItem({ article }: NewsCarouselItemProps) {
         <h3 className="news-carousel-item-title">{article.title}</h3>
         <div className="news-carousel-item-undertext">
           {article.author?.name +
-            " " +
-            "|" +
-            " " +
+            ' ' +
+            '|' +
+            ' ' +
             (article.timestamp
-              ? getLatestTime(
-                  new Date().getTime() - new Date(article?.timestamp).getTime(),
-                )
-              : "")}
+              ? getLatestTime(new Date().getTime() - new Date(article?.timestamp).getTime())
+              : '')}
         </div>
       </div>
     </Link>

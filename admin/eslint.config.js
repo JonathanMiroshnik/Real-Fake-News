@@ -1,12 +1,12 @@
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import globals from "globals";
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ["build"] },
+  { ignores: ['build'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,js}"],
+    files: ['**/*.{ts,js}'],
     languageOptions: {
       ecmaVersion: 2022,
       globals: {
@@ -14,13 +14,10 @@ export default tseslint.config(
       },
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
-      "@typescript-eslint/no-explicit-any": "warn",
-      "no-unused-expressions": "error",
-      "prefer-const": "error",
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'no-unused-expressions': 'error',
+      'prefer-const': 'error',
     },
   },
 );

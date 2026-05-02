@@ -1,13 +1,10 @@
-import { Link } from "react-router";
-import { RecipeProps } from "../../types/recipe";
-import {
-  DEFAULT_IMAGE,
-  getImageURLFromRecipe,
-} from "../../services/imageService";
-import { getLatestTime } from "../../services/timeService";
-import Image from "../Image/Image";
+import { Link } from 'react-router';
+import { RecipeProps } from '../../types/recipe';
+import { DEFAULT_IMAGE, getImageURLFromRecipe } from '../../services/imageService';
+import { getLatestTime } from '../../services/timeService';
+import Image from '../Image/Image';
 
-import "./RecipeListItem.css";
+import './RecipeListItem.css';
 
 /**
  * Individual recipe list item component
@@ -39,7 +36,7 @@ function RecipeListItem({
         {showImage && (
           <Image
             src={getImageURLFromRecipe(recipe, DEFAULT_IMAGE)}
-            alt={recipe.title ?? "Recipe"}
+            alt={recipe.title ?? 'Recipe'}
             className="recipe-list-item-head-image"
             aspectRatio="16/9"
             placeholder={true}
@@ -48,19 +45,15 @@ function RecipeListItem({
         )}
         <h3 className="recipe-list-item-title-header">{recipe.title}</h3>
         {recipe.shortDescription && showDescription && (
-          <p className="recipe-list-item-description">
-            {recipe.shortDescription}
-          </p>
+          <p className="recipe-list-item-description">{recipe.shortDescription}</p>
         )}
         {showUnderText && (
           <div className="recipe-list-item-undertext">
             {recipe.author?.name +
-              " | " +
+              ' | ' +
               (recipe.timestamp
-                ? getLatestTime(
-                    new Date().getTime() - new Date(recipe.timestamp).getTime(),
-                  )
-                : "")}
+                ? getLatestTime(new Date().getTime() - new Date(recipe.timestamp).getTime())
+                : '')}
           </div>
         )}
       </div>

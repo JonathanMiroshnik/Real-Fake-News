@@ -1,8 +1,8 @@
-import { Link } from "react-router";
-import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
-import { getImageURLFromArticle } from "../../services/imageService";
-import { DEFAULT_IMAGE } from "../../services/imageService";
-import Image from "../Image/Image";
+import { Link } from 'react-router';
+import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
+import { getImageURLFromArticle } from '../../services/imageService';
+import { DEFAULT_IMAGE } from '../../services/imageService';
+import Image from '../Image/Image';
 
 /**
  * Component to show Home page Featured articles
@@ -30,19 +30,14 @@ function FeaturedArticle({ article }: FeaturedArticleProps) {
             <div className="inline-flex gap-2 text-[var(--undertext-color)] text-center text-[13px]">
               <span className="author">By {article.author?.name}</span>
               <span className="timestamp">
-                {article.timestamp
-                  ? new Date(article.timestamp).toLocaleDateString()
-                  : null}
+                {article.timestamp ? new Date(article.timestamp).toLocaleDateString() : null}
               </span>
             </div>
           </div>
-          <div
-            className="shrink-0"
-            style={{ maxWidth: "500px", width: "100%" }}
-          >
+          <div className="shrink-0" style={{ maxWidth: '500px', width: '100%' }}>
             <Image
               src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
-              alt={article.title ?? "Featured Article"}
+              alt={article.title ?? 'Featured Article'}
               className="w-full
                                        group-hover:brightness-110 transition-[filter] 
                                        max-[600px]:w-full"

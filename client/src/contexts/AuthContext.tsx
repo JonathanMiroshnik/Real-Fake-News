@@ -1,14 +1,14 @@
 // src/contexts/AuthContext.tsx
-import { useState, ReactNode, useEffect } from "react";
-import jwt from "jsonwebtoken";
-import { AuthContext, User } from "./AuthContext";
+import { useState, ReactNode, useEffect } from 'react';
+import jwt from 'jsonwebtoken';
+import { AuthContext, User } from './AuthContext';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     // Check localStorage on initial load
-    const storedUser = localStorage.getItem("user");
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           // Verify token expiration
           const decoded = jwt.decode(user.token);
-          if (decoded === null || typeof decoded === "string") {
+          if (decoded === null || typeof decoded === 'string') {
             return;
           }
           if (decoded?.exp === undefined) {
@@ -43,17 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (userData: User, token: string) => {
     const userWithToken = { ...userData, token };
     setUser(userWithToken);
-    localStorage.setItem("user", JSON.stringify(userWithToken));
+    localStorage.setItem('user', JSON.stringify(userWithToken));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
 }

@@ -1,26 +1,20 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import {
   getHoroscopesForDate,
   getHoroscopeForSign,
   ensureHoroscopesForToday,
-} from "../services/horoscopeService.js";
-import { HoroscopeResponse } from "../types/horoscope.js";
-import { fetchAstrologicalData } from "../services/astrologyService.js";
-import { debugLog } from "../utils/debugLogger.js";
-import {
-  isFakeDataEnabled,
-  generateFakeHoroscopes,
-} from "../services/fakeDataService.js";
+} from '../services/horoscopeService.js';
+import { HoroscopeResponse } from '../types/horoscope.js';
+import { fetchAstrologicalData } from '../services/astrologyService.js';
+import { debugLog } from '../utils/debugLogger.js';
+import { isFakeDataEnabled, generateFakeHoroscopes } from '../services/fakeDataService.js';
 
 /**
  * GET /api/horoscopes
  * Gets all horoscopes for today (or specified date)
  */
-export const getHoroscopes = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  debugLog("getHoroscopes");
+export const getHoroscopes = async (req: Request, res: Response): Promise<void> => {
+  debugLog('getHoroscopes');
 
   try {
     const dateParam = req.query.date as string;
@@ -44,10 +38,10 @@ export const getHoroscopes = async (
     };
     res.json(response);
   } catch (error) {
-    console.error("Error fetching horoscopes:", error);
+    console.error('Error fetching horoscopes:', error);
     const response: HoroscopeResponse = {
       success: false,
-      error: "Failed to fetch horoscopes",
+      error: 'Failed to fetch horoscopes',
     };
     res.status(500).json(response);
   }
@@ -57,10 +51,7 @@ export const getHoroscopes = async (
  * GET /api/horoscopes/:sign
  * Gets horoscope for a specific zodiac sign
  */
-export const getHoroscopeBySign = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getHoroscopeBySign = async (req: Request, res: Response): Promise<void> => {
   try {
     const sign = req.params.sign;
     const dateParam = req.query.date as string;
@@ -75,15 +66,11 @@ export const getHoroscopeBySign = async (
 
     if (!horoscope) {
       if (isFakeDataEnabled()) {
-        debugLog(
-          "🔮 [Fallback] Horoscope not found, generating fake horoscope for:",
-          sign,
-        );
+        debugLog('🔮 [Fallback] Horoscope not found, generating fake horoscope for:', sign);
         const fakeHoroscopes = generateFakeHoroscopes();
         const fakeHoroscope =
-          fakeHoroscopes.find(
-            (h) => h.zodiacSign.toLowerCase() === sign.toLowerCase(),
-          ) || fakeHoroscopes[0];
+          fakeHoroscopes.find((h) => h.zodiacSign.toLowerCase() === sign.toLowerCase()) ||
+          fakeHoroscopes[0];
         const response: HoroscopeResponse = {
           success: true,
           horoscope: fakeHoroscope,
@@ -106,10 +93,10 @@ export const getHoroscopeBySign = async (
     };
     res.json(response);
   } catch (error) {
-    console.error("Error fetching horoscope:", error);
+    console.error('Error fetching horoscope:', error);
     const response: HoroscopeResponse = {
       success: false,
-      error: "Failed to fetch horoscope",
+      error: 'Failed to fetch horoscope',
     };
     res.status(500).json(response);
   }
@@ -119,10 +106,7 @@ export const getHoroscopeBySign = async (
  * GET /api/horoscopes/astrological-data
  * Gets raw astrological data (planetary positions, retrogrades)
  */
-export const getAstrologicalData = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getAstrologicalData = async (req: Request, res: Response): Promise<void> => {
   try {
     const dateParam = req.query.date as string;
     const date = dateParam ? new Date(dateParam) : undefined;
@@ -134,10 +118,10 @@ export const getAstrologicalData = async (
     });
     return;
   } catch (error) {
-    console.error("Error fetching astrological data:", error);
+    console.error('Error fetching astrological data:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch astrological data",
+      error: 'Failed to fetch astrological data',
     });
     return;
   }

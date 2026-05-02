@@ -1,29 +1,21 @@
-import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from "../config/constants.js";
-import { createPost } from "../lib/database/sqliteOperations.js";
-import { newsDatabaseConfig } from "../lib/database/databaseConfigurations.js";
-import {
-  NewsItem,
-  remainingTokens,
-  fetchNews,
-} from "../services/newsService.js";
+import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants.js';
+import { createPost } from '../lib/database/sqliteOperations.js';
+import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { NewsItem, remainingTokens, fetchNews } from '../services/newsService.js';
 
 // TODO: I want to get an arbitrary number of daily articles to use in any given moment.
-export async function addNewsToTotal(
-  numArticles: number = 10,
-): Promise<NewsItem[]> {
+export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem[]> {
   // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
   // If there are no more tokens remaining, this function cannot be used.
   if (remainingTokens <= 0) {
-    throw new Error("No more tokens remaining.");
+    throw new Error('No more tokens remaining.');
   }
   if (remainingTokens * NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
     throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
   }
 
-  const neededApiRequests = Math.ceil(
-    numArticles / NEWS_API_NUM_OF_ARTICLES_PER_TOKEN,
-  );
-  let nextPage: string = "";
+  const neededApiRequests = Math.ceil(numArticles / NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
+  let nextPage: string = '';
 
   let retArticles: NewsItem[] = [];
   let gatherPage: string;
@@ -34,7 +26,7 @@ export async function addNewsToTotal(
 
     insertArticlesToDatabase(retArticles);
     nextPage = gatherPage;
-    if (nextPage === "") {
+    if (nextPage === '') {
       return [];
     }
   }

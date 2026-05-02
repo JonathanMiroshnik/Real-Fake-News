@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
 /**
  * Standardizes dates to a single output date format
@@ -10,16 +10,16 @@ import { DateTime } from "luxon";
 export function standardizeDate(
   pubDate: string,
   pubDateTZ: string,
-  outputFormat: "iso" | "utc" | "locale" | "sql" | "http" = "iso",
+  outputFormat: 'iso' | 'utc' | 'locale' | 'sql' | 'http' = 'iso',
 ): string {
   try {
     // Create a Luxon DateTime object with the original timezone
     let dt: DateTime;
-    const dateFormat = "yyyy-MM-dd HH:mm:ss";
+    const dateFormat = 'yyyy-MM-dd HH:mm:ss';
 
-    if (pubDateTZ.toUpperCase() === "UTC" || pubDateTZ === "Z") {
-      dt = DateTime.fromFormat(pubDate, dateFormat, { zone: "utc" });
-    } else if (pubDateTZ.startsWith("GMT") || pubDateTZ.startsWith("Etc/GMT")) {
+    if (pubDateTZ.toUpperCase() === 'UTC' || pubDateTZ === 'Z') {
+      dt = DateTime.fromFormat(pubDate, dateFormat, { zone: 'utc' });
+    } else if (pubDateTZ.startsWith('GMT') || pubDateTZ.startsWith('Etc/GMT')) {
       dt = DateTime.fromFormat(pubDate, dateFormat, { zone: pubDateTZ });
     } else {
       dt = DateTime.fromFormat(pubDate, dateFormat, { zone: pubDateTZ });
@@ -33,28 +33,27 @@ export function standardizeDate(
     const utcDt = dt.toUTC();
 
     switch (outputFormat) {
-      case "iso":
-        return utcDt.toISO() ?? "";
-      case "utc":
+      case 'iso':
+        return utcDt.toISO() ?? '';
+      case 'utc':
         return utcDt.toString();
-      case "locale":
+      case 'locale':
         return utcDt.toLocaleString(DateTime.DATETIME_FULL);
-      case "sql":
-        return utcDt.toSQL() ?? "";
-      case "http": {
+      case 'sql':
+        return utcDt.toSQL() ?? '';
+      case 'http': {
         const httpRet = utcDt.toHTTP();
         if (httpRet) {
           return httpRet;
         }
 
-        throw new Error("HTTP Time Format null");
+        throw new Error('HTTP Time Format null');
       }
       default:
-        return utcDt.toISO() ?? "";
+        return utcDt.toISO() ?? '';
     }
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error(`Error standardizing date: ${errorMessage}`);
 
     // Fallback to simple JS Date conversion

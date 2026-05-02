@@ -1,7 +1,7 @@
 // import { useState } from "react";
-import { Player } from "../TriviaGame/types";
+import { Player } from '../TriviaGame/types';
 
-import "./WinnerOverlay.css";
+import './WinnerOverlay.css';
 
 // components/AlertOverlay.tsx
 interface WinnerOverlayProps {

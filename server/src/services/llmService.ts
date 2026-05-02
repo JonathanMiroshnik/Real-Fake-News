@@ -1,11 +1,8 @@
-import "dotenv/config";
-import { OpenAI } from "openai";
+import 'dotenv/config';
+import { OpenAI } from 'openai';
 
-import {
-  GenerateContentRequest,
-  GenerateContentResponse,
-} from "../types/llm.js";
-import { debugLog } from "../utils/debugLogger.js";
+import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
@@ -19,18 +16,16 @@ export class LLMService {
   constructor() {
     // TODO: magic strings
     this.openai = new OpenAI({
-      baseURL: "https://api.deepseek.com",
+      baseURL: 'https://api.deepseek.com',
       apiKey: process.env.DEEPSEEK_API_KEY,
     });
   }
 
-  public async generateContent(
-    options: GenerateContentRequest,
-  ): Promise<GenerateContentResponse> {
+  public async generateContent(options: GenerateContentRequest): Promise<GenerateContentResponse> {
     let contentRes: GenerateContentResponse = {
       success: false,
-      generatedText: "",
-      error: "",
+      generatedText: '',
+      error: '',
     };
 
     if (!SERVICE_ACTIVATED) {
@@ -40,8 +35,8 @@ export class LLMService {
     try {
       // TODO: fix model and make it in .env as a dictionary?
       const completion = await this.openai.chat.completions.create({
-        messages: [{ role: "system", content: options.prompt }],
-        model: "deepseek-reasoner",
+        messages: [{ role: 'system', content: options.prompt }],
+        model: 'deepseek-reasoner',
         response_format: {
           type: options.type,
         },
@@ -51,7 +46,7 @@ export class LLMService {
       contentRes = {
         success: true,
         generatedText: completion?.choices[0]?.message.content as string,
-        error: "",
+        error: '',
       };
 
       // return completion?.choices[0]?.message.content as string;
@@ -63,8 +58,8 @@ export class LLMService {
       //   error: error as string,
       // };
 
-      debugLog("LLM generation error:", error);
-      throw new Error("Content generation failed", { cause: error });
+      debugLog('LLM generation error:', error);
+      throw new Error('Content generation failed', { cause: error });
     }
 
     return contentRes;
@@ -73,12 +68,12 @@ export class LLMService {
 
 export async function generateTextFromString(
   prompt: string,
-  type: string = "text",
+  type: string = 'text',
   temperature: number = 0.8,
 ): Promise<GenerateContentResponse | undefined> {
   try {
     const request: GenerateContentRequest = {
-      provider: "deepseek",
+      provider: 'deepseek',
       prompt: prompt,
       type: type,
       temperature: temperature,
@@ -89,8 +84,8 @@ export async function generateTextFromString(
 
     return result;
   } catch (error) {
-    debugLog("Text Generation error: ", error);
-    throw new Error("Text generation from string failed", { cause: error });
+    debugLog('Text Generation error: ', error);
+    throw new Error('Text generation from string failed', { cause: error });
   }
 }
 
@@ -106,27 +101,24 @@ export async function getBooleanResponse(
       Question: ${prompt}
     `;
 
-    const response: GenerateContentResponse | undefined =
-      await generateTextFromString(
-        strictPrompt,
-        "text", // text or 'json_object' if DeepSeek supports it
-        temperature,
-      );
+    const response: GenerateContentResponse | undefined = await generateTextFromString(
+      strictPrompt,
+      'text', // text or 'json_object' if DeepSeek supports it
+      temperature,
+    );
 
     if (!response?.success || !response.generatedText) {
-      throw new Error("Failed to get a valid response from the model.");
+      throw new Error('Failed to get a valid response from the model.');
     }
 
     const normalizedAnswer = response.generatedText.trim().toLowerCase();
 
-    if (normalizedAnswer === "true") return true;
-    if (normalizedAnswer === "false") return false;
+    if (normalizedAnswer === 'true') return true;
+    if (normalizedAnswer === 'false') return false;
 
-    throw new Error(
-      `Model returned an invalid boolean response: "${response.generatedText}"`,
-    );
+    throw new Error(`Model returned an invalid boolean response: "${response.generatedText}"`);
   } catch (error) {
-    console.error("Boolean response generation failed:", error);
+    console.error('Boolean response generation failed:', error);
     throw new Error(
       `Could not determine boolean answer: ${error instanceof Error ? error.message : String(error)}`,
       { cause: error },

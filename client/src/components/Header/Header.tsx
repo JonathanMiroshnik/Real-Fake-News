@@ -1,7 +1,7 @@
-import { Link, NavLink } from "react-router";
-import { useContext } from "react";
-import { DarkModeContext } from "../../contexts/DarkModeContext";
-import ThemeToggle from "../ThemeToggle/ThemeToggle";
+import { Link, NavLink } from 'react-router';
+import { useContext } from 'react';
+import { DarkModeContext } from '../../contexts/DarkModeContext';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
 // import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
@@ -43,7 +43,7 @@ function Header({ sections }: HeaderProps) {
           >
             <Link to="/">
               <img
-                src={darkMode ? "/mainWhiteLogo.png" : "/mainBlackLogo.png"}
+                src={darkMode ? '/mainWhiteLogo.png' : '/mainBlackLogo.png'}
                 className="w-[15rem]"
                 alt="Logo"
               />
@@ -62,16 +62,14 @@ function Header({ sections }: HeaderProps) {
           >
             {sections.map((section) => (
               <NavLink
-                key={"header_link_" + section}
+                key={'header_link_' + section}
                 to={`/category/${section.toLowerCase()}`}
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
-                }
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               >
                 {({ isActive }) => (
                   <div
                     className={`text-[var(--title-color)] px-6 py-4 font-medium min-w-[120px] text-center
-                                    ${isActive ? "border-b-2 border-[var(--title-color)]" : "border-b-2 border-transparent"}`}
+                                    ${isActive ? 'border-b-2 border-[var(--title-color)]' : 'border-b-2 border-transparent'}`}
                   >
                     {section}
                   </div>

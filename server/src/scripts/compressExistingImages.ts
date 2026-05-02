@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 import {
   compressImageForWeb,
   getCompressedImagePath,
   getImagesDirectory,
-} from "../utils/imageCompression.js";
+} from '../utils/imageCompression.js';
 
 /**
  * Script to compress all existing images in the images directory
@@ -12,7 +12,7 @@ import {
  */
 async function compressAllImages() {
   const imagesDir = getImagesDirectory();
-  const compressedDir = path.join(imagesDir, "compressed");
+  const compressedDir = path.join(imagesDir, 'compressed');
 
   // Create compressed directory if it doesn't exist
   fs.mkdirSync(compressedDir, { recursive: true });

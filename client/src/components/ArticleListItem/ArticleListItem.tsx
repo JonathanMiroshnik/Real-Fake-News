@@ -1,11 +1,8 @@
-import { Link } from "react-router";
-import { ArticleProps } from "../../pages/ArticlePage/ArticlePage";
-import {
-  DEFAULT_IMAGE,
-  getImageURLFromArticle,
-} from "../../services/imageService";
-import { getLatestTime } from "../../services/timeService";
-import Image from "../Image/Image";
+import { Link } from 'react-router';
+import { ArticleProps } from '../../pages/ArticlePage/ArticlePage';
+import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
+import { getLatestTime } from '../../services/timeService';
+import Image from '../Image/Image';
 
 /**
  * Individual article list item component
@@ -37,7 +34,7 @@ function ArticleListItem({
         {showImage && (
           <Image
             src={getImageURLFromArticle(article, DEFAULT_IMAGE)}
-            alt={article.title ?? "Article"}
+            alt={article.title ?? 'Article'}
             className="w-full mb-2 group-hover:brightness-110 transition-[filter]"
             aspectRatio="16/9"
             placeholder={true}
@@ -51,20 +48,15 @@ function ArticleListItem({
           {article.title}
         </h3>
         {article.shortDescription && showDescription && (
-          <p className="text-[var(--description-color)] text-[14px]">
-            {article.shortDescription}
-          </p>
+          <p className="text-[var(--description-color)] text-[14px]">{article.shortDescription}</p>
         )}
         {showUnderText && (
           <div className="text-[var(--undertext-color)] text-[12px] text-center">
             {article.author?.name +
-              " | " +
+              ' | ' +
               (article.timestamp
-                ? getLatestTime(
-                    new Date().getTime() -
-                      new Date(article.timestamp).getTime(),
-                  )
-                : "")}
+                ? getLatestTime(new Date().getTime() - new Date(article.timestamp).getTime())
+                : '')}
           </div>
         )}
       </div>

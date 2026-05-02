@@ -1,4 +1,4 @@
-import "./DisclaimerPage.css";
+import './DisclaimerPage.css';
 
 export default function DisclaimerPage() {
   return (
@@ -6,8 +6,8 @@ export default function DisclaimerPage() {
       <h1>Official Disclaimer (Not Really)</h1>
       <div className="legal-text">
         <p>
-          All content on this website is 100% fabricated, 40% recycled, and 10%
-          inspired by actual events (the boring ones).
+          All content on this website is 100% fabricated, 40% recycled, and 10% inspired by actual
+          events (the boring ones).
         </p>
 
         <p>By reading our articles, you agree to:</p>
@@ -18,8 +18,8 @@ export default function DisclaimerPage() {
         </ul>
 
         <p className="warning">
-          ⚠️ May cause side effects including uncontrollable giggles, raised
-          eyebrows, and sudden urges to share with colleagues.
+          ⚠️ May cause side effects including uncontrollable giggles, raised eyebrows, and sudden
+          urges to share with colleagues.
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import "./TermsPage.css";
+import './TermsPage.css';
 
 export default function TermsPage() {
   return (
@@ -24,9 +24,7 @@ export default function TermsPage() {
           </ol>
         </section>
 
-        <div className="footnote">
-          *These terms are binding in 13 imaginary jurisdictions
-        </div>
+        <div className="footnote">*These terms are binding in 13 imaginary jurisdictions</div>
       </div>
     </div>
   );

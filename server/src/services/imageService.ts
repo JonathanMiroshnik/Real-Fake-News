@@ -1,7 +1,7 @@
-import "dotenv/config";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import path from "path";
+import 'dotenv/config';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
 // import { fileURLToPath } from "url";
 // import { dirname } from "path";
 
@@ -9,31 +9,30 @@ import path from "path";
 // const __dirname = dirname(__filename);
 
 // import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
-import { Jimp } from "jimp";
-import { JimpMime } from "jimp";
+import { Jimp } from 'jimp';
+import { JimpMime } from 'jimp';
 
 // For WEBP support: https://github.com/jhuckaby/webp-wasm
 // import webp from 'wasm-webp';
 
-import { Runware } from "@runware/sdk-js";
+import { Runware } from '@runware/sdk-js';
 import {
   compressImageForWeb,
   getCompressedImagePath,
   getImagesDirectory,
-} from "../utils/imageCompression.js";
-import { debugLog } from "../utils/debugLogger.js";
+} from '../utils/imageCompression.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
 
-const DEFAULT_IMAGE_NAME: string = "planet.jpg";
+const DEFAULT_IMAGE_NAME: string = 'planet.jpg';
 
 const ASPECT_RATIO: number = 1.75;
 const DEFAULT_IMAGE_HEIGHT: number = 512;
 const DEFAULT_IMAGE_WIDTH: number = DEFAULT_IMAGE_HEIGHT * ASPECT_RATIO;
 
-const RUNWARE_IMAGE_MODEL: string =
-  process.env.RUNWARE_IMAGE_MODEL || "runware:z-image@turbo";
+const RUNWARE_IMAGE_MODEL: string = process.env.RUNWARE_IMAGE_MODEL || 'runware:z-image@turbo';
 
 let runware: any = undefined;
 
@@ -49,7 +48,7 @@ export async function initializeRunware(): Promise<boolean> {
 
 export async function generateImage(
   positivePrompt: string,
-  format: "PNG" | "JPG" | "WEBP" = "WEBP",
+  format: 'PNG' | 'JPG' | 'WEBP' = 'WEBP',
 ): Promise<string> {
   if (!SERVICE_ACTIVATED) {
     return DEFAULT_IMAGE_NAME;
@@ -57,7 +56,7 @@ export async function generateImage(
 
   if (runware === undefined) {
     if (!(await initializeRunware())) {
-      return "";
+      return '';
     }
   }
 
@@ -67,7 +66,7 @@ export async function generateImage(
     height: DEFAULT_IMAGE_HEIGHT,
     model: RUNWARE_IMAGE_MODEL,
     numberResults: 1,
-    outputType: "dataURI", //"URL" | "base64Data";
+    outputType: 'dataURI', //"URL" | "base64Data";
     outputFormat: format, //"JPG" "WEBP"; // TODO: use webp?
     checkNSFW: true,
     // strength
@@ -77,7 +76,7 @@ export async function generateImage(
   });
 
   if (images === undefined) {
-    return "";
+    return '';
   }
 
   return images[0].imageDataURI;
@@ -85,13 +84,11 @@ export async function generateImage(
 
 export async function saveDataURIToPNG(dataURI: string): Promise<string> {
   // Extract base64 data from Data URI
-  const matchGroups = dataURI.match(
-    /^data:image\/(?<type>\w+);base64,(?<data>.+)$/,
-  )?.groups;
-  if (!matchGroups?.data) throw new Error("Invalid data URI format");
+  const matchGroups = dataURI.match(/^data:image\/(?<type>\w+);base64,(?<data>.+)$/)?.groups;
+  if (!matchGroups?.data) throw new Error('Invalid data URI format');
 
   // Convert to PNG buffer
-  const buffer = Buffer.from(matchGroups.data, "base64");
+  const buffer = Buffer.from(matchGroups.data, 'base64');
 
   // const pngBuffer = await sharp(buffer).png().toBuffer(); // Replaced with JIMP
   const image = await Jimp.read(buffer);
@@ -113,10 +110,7 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
     debugLog(`Compressed AI-generated image: ${filename}`);
   } catch (compressError) {
     // Log error but don't fail - original is still saved
-    console.error(
-      `Error compressing AI-generated image ${filename}:`,
-      compressError,
-    );
+    console.error(`Error compressing AI-generated image ${filename}:`, compressError);
   }
 
   return filename;
@@ -125,8 +119,8 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
 export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
   // Verify data URI format
   const matches = dataUri.match(/^data:(image\/\w+);base64,(.+)$/);
-  if (!matches || matches[1] !== "image/webp") {
-    throw new Error("Invalid WebP data URI format");
+  if (!matches || matches[1] !== 'image/webp') {
+    throw new Error('Invalid WebP data URI format');
   }
 
   // Generate unique filename
@@ -137,7 +131,7 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
 
   try {
     // Convert base64 to buffer and write to file
-    const buffer = Buffer.from(matches[2], "base64");
+    const buffer = Buffer.from(matches[2], 'base64');
     await fs.promises.writeFile(imagePath, buffer);
 
     // Compress and save compressed version
@@ -147,16 +141,13 @@ export const saveDataUriAsWebp = async (dataUri: string): Promise<string> => {
       debugLog(`Compressed AI-generated image: ${filename}`);
     } catch (compressError) {
       // Log error but don't fail - original is still saved
-      console.error(
-        `Error compressing AI-generated image ${filename}:`,
-        compressError,
-      );
+      console.error(`Error compressing AI-generated image ${filename}:`, compressError);
     }
 
     return filename;
   } catch (error) {
     throw new Error(
-      `Failed to save WebP image: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `Failed to save WebP image: ${error instanceof Error ? error.message : 'Unknown error'}`,
       { cause: error },
     );
   }
@@ -167,10 +158,10 @@ export async function generateAndSaveImage(positivePrompt: string) {
     return DEFAULT_IMAGE_NAME;
   }
 
-  const format: "PNG" | "JPG" | "WEBP" = "WEBP";
+  const format: 'PNG' | 'JPG' | 'WEBP' = 'WEBP';
   const dataURI = await generateImage(positivePrompt, format);
 
-  if (format === "WEBP") {
+  if (format === 'WEBP') {
     return await saveDataUriAsWebp(dataURI);
   } else {
     return await saveDataURIToPNG(dataURI);

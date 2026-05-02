@@ -1,34 +1,32 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import PlayerConfiguration from "../PlayerConfiguration/PlayerConfiguration";
-import WinnerOverlay from "../WinnerOverlay/WinnerOverlay";
-import ScoreBoard from "../ScoreBoard/ScoreBoard";
-import QuestionCard from "../Question/QuestionCard";
-import { Question } from "../Question/QuestionCard";
-import { getApiBaseUrlWithPrefix } from "../../../../config/apiConfig";
-import { debugError } from "../../../../utils/debugLogger";
+import PlayerConfiguration from '../PlayerConfiguration/PlayerConfiguration';
+import WinnerOverlay from '../WinnerOverlay/WinnerOverlay';
+import ScoreBoard from '../ScoreBoard/ScoreBoard';
+import QuestionCard from '../Question/QuestionCard';
+import { Question } from '../Question/QuestionCard';
+import { getApiBaseUrlWithPrefix } from '../../../../config/apiConfig';
+import { debugError } from '../../../../utils/debugLogger';
 
-import { Player } from "./types";
+import { Player } from './types';
 
-import "./TriviaGame.css";
+import './TriviaGame.css';
 
 const QUESTIONS_PER_PLAYER = 3;
 const MIN_NUMBER_PLAYERS = 1;
 const START_PLAYERS: Player[] = [
   {
-    name: "Player 1",
+    name: 'Player 1',
     score: 0,
   },
   {
-    name: "Player 2",
+    name: 'Player 2',
     score: 0,
   },
 ];
 
 function TriviaGame() {
-  const [players, setPlayers] = useState<Player[]>([
-    ...START_PLAYERS.map((p) => ({ ...p })),
-  ]);
+  const [players, setPlayers] = useState<Player[]>([...START_PLAYERS.map((p) => ({ ...p }))]);
   const [currentPlayerInd, setCurrentPlayerInd] = useState<number>(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionInd, setCurrentQuestionInd] = useState<number>(0);
@@ -48,14 +46,14 @@ function TriviaGame() {
     // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
     const VITE_API_BASE = getApiBaseUrlWithPrefix();
 
-    const response = await fetch(VITE_API_BASE + "/trivia", {
-      method: "POST",
+    const response = await fetch(VITE_API_BASE + '/trivia', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         amount: amount,
-        type: "PublicDatabase", // TODO: see about enum QuestionOrigins, llm or database
+        type: 'PublicDatabase', // TODO: see about enum QuestionOrigins, llm or database
       }),
     });
 
@@ -65,9 +63,7 @@ function TriviaGame() {
 
   const handleGameStart = async (players: Player[]) => {
     try {
-      const questions: Question[] = await fetchQuestions(
-        players.length * QUESTIONS_PER_PLAYER,
-      );
+      const questions: Question[] = await fetchQuestions(players.length * QUESTIONS_PER_PLAYER);
       setQuestions(() => [...questions]);
     } catch (error) {
       debugError(error);
@@ -157,11 +153,7 @@ function TriviaGame() {
   return (
     <div>
       {openWinnerOverlay && (
-        <WinnerOverlay
-          winner={winner}
-          setIsOpen={setOpenWinnerOverlay}
-          onClose={preGameSetup}
-        />
+        <WinnerOverlay winner={winner} setIsOpen={setOpenWinnerOverlay} onClose={preGameSetup} />
       )}
       {!gameStarted && (
         <PlayerConfiguration
@@ -169,12 +161,10 @@ function TriviaGame() {
           addPlayer={() =>
             setPlayers((prevPlayers) => [
               ...prevPlayers,
-              { name: "Player " + (players.length + 1).toString(), score: 0 },
+              { name: 'Player ' + (players.length + 1).toString(), score: 0 },
             ])
           }
-          removePlayer={() =>
-            setPlayers((prevPlayers) => [...prevPlayers].slice(0, -1))
-          }
+          removePlayer={() => setPlayers((prevPlayers) => [...prevPlayers].slice(0, -1))}
           onPlayerChange={onPlayerChange}
         />
       )}
@@ -184,13 +174,11 @@ function TriviaGame() {
           onClick={startGame}
           disabled={gameStarted || players.length < MIN_NUMBER_PLAYERS}
         >
-          {" "}
-          Start Game{" "}
+          {' '}
+          Start Game{' '}
         </button>
       )}
-      {gameStarted && (
-        <ScoreBoard players={players} currentPlayerInd={currentPlayerInd} />
-      )}
+      {gameStarted && <ScoreBoard players={players} currentPlayerInd={currentPlayerInd} />}
       {gameStarted && questions?.length > 0 && (
         <QuestionCard
           questionAPIStructure={questions[currentQuestionInd]}

@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-import { debugLog } from "./debugLogger.js";
+import { v4 as uuidv4 } from 'uuid';
+import { debugLog } from './debugLogger.js';
 
 export function getUniqueKey(): string {
   return uuidv4();
@@ -23,9 +23,7 @@ export function startRandomInterval(
 
   function scheduleNext() {
     const delayMs =
-      Math.floor(
-        Math.random() * (maxDelaySec - minDelaySec + 1) + minDelaySec,
-      ) * 1000;
+      Math.floor(Math.random() * (maxDelaySec - minDelaySec + 1) + minDelaySec) * 1000;
 
     setTimeout(() => {
       const now = Date.now();
@@ -38,8 +36,7 @@ export function startRandomInterval(
 
       // Log average interval
       if (logAvgInterval) {
-        const average =
-          intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+        const average = intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
         debugLog(`Average interval: ${average.toFixed(2)}s`);
       }
 

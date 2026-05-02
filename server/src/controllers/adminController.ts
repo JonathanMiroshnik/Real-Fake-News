@@ -1,35 +1,32 @@
-import { Request, Response } from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { Request, Response } from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 // import { fileURLToPath } from "url";
 // import { dirname } from "path";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 import {
   getAllPosts,
   getPostByKey,
   updatePost,
   getPostsCount,
   getPostsPaginated,
-} from "../lib/database/sqliteOperations.js";
-import { deletePost } from "../lib/database/sqliteOperations.js";
-import { blogDatabaseConfig } from "../lib/database/databaseConfigurations.js";
-import { getDatabase } from "../lib/database/database.js";
-import { ArticleScheme } from "../types/article.js";
+} from '../lib/database/sqliteOperations.js';
+import { deletePost } from '../lib/database/sqliteOperations.js';
+import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { getDatabase } from '../lib/database/database.js';
+import { ArticleScheme } from '../types/article.js';
 import {
   compressImageForWeb,
   getCompressedImagePath,
   getImagesDirectory,
-} from "../utils/imageCompression.js";
-import { writeBlogPost } from "../services/blogService.js";
-import { getRandomWriter } from "../services/writerService.js";
-import {
-  getAllNewsArticlesAfterDate,
-  NewsItem,
-} from "../services/newsService.js";
-import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from "../config/constants.js";
-import { generateRecipe, getRandomFoods } from "../services/recipeService.js";
-import { debugLog } from "../utils/debugLogger.js";
+} from '../utils/imageCompression.js';
+import { writeBlogPost } from '../services/blogService.js';
+import { getRandomWriter } from '../services/writerService.js';
+import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
+import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
+import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -37,12 +34,11 @@ import { debugLog } from "../utils/debugLogger.js";
 // Simple password validation (in production, use proper authentication)
 function validatePassword(req: Request): boolean {
   const password = req.query.password as string;
-  const expectedPassword = process.env.ADMIN_PASSWORD || "changeme123";
-  const isDevelopment =
-    process.env.NODE_ENV === "development" || !process.env.NODE_ENV;
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'changeme123';
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
   // In development, also accept 'debug' for easier testing
-  if (isDevelopment && password === "debug") {
+  if (isDevelopment && password === 'debug') {
     return true;
   }
 
@@ -74,46 +70,35 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept only image files
-    const allowedMimes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ];
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Invalid file type. Only image files are allowed."));
+      cb(new Error('Invalid file type. Only image files are allowed.'));
     }
   },
 });
 
 // Export multer middleware for use in routes
-export const uploadMiddleware = upload.single("image");
+export const uploadMiddleware = upload.single('image');
 
 // Get all articles for admin panel (with optional pagination)
 // Supports fetching multiple pages at once via pages parameter (comma-separated page numbers)
-export const getAdminArticles = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getAdminArticles = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     // Check if pagination parameters are provided
-    const page = req.query.page
-      ? parseInt(req.query.page as string, 10)
-      : undefined;
+    const page = req.query.page ? parseInt(req.query.page as string, 10) : undefined;
     const itemsPerPage = req.query.itemsPerPage
       ? parseInt(req.query.itemsPerPage as string, 10)
       : undefined;
     const pages = req.query.pages
       ? (req.query.pages as string)
-          .split(",")
+          .split(',')
           .map((p) => parseInt(p.trim(), 10))
           .filter((p) => !isNaN(p) && p > 0)
       : undefined;
@@ -128,8 +113,8 @@ export const getAdminArticles = async (
           blogDatabaseConfig,
           pageNum,
           itemsPerPage,
-          "timestamp",
-          "DESC",
+          'timestamp',
+          'DESC',
         );
         allArticles.push(...pageArticles);
       }
@@ -137,7 +122,7 @@ export const getAdminArticles = async (
       res.json({
         success: true,
         articles: allArticles,
-        error: "",
+        error: '',
       });
     } else if (page !== undefined && itemsPerPage !== undefined) {
       // Single page request
@@ -145,44 +130,40 @@ export const getAdminArticles = async (
         blogDatabaseConfig,
         page,
         itemsPerPage,
-        "timestamp",
-        "DESC",
+        'timestamp',
+        'DESC',
       );
 
       res.json({
         success: true,
         articles: articles,
-        error: "",
+        error: '',
       });
     } else {
       // Non-paginated request (backward compatibility)
-      const allArticles: ArticleScheme[] =
-        await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+      const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
 
       res.json({
         success: true,
         articles: allArticles,
-        error: "",
+        error: '',
       });
     }
   } catch (error) {
-    console.error("Error fetching admin articles:", error);
+    console.error('Error fetching admin articles:', error);
     res.status(500).json({
       success: false,
       articles: [],
-      error: "Failed to fetch articles",
+      error: 'Failed to fetch articles',
     });
   }
 };
 
 // Get total count of articles for admin panel
-export const getAdminArticlesCount = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getAdminArticlesCount = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
@@ -191,32 +172,29 @@ export const getAdminArticlesCount = async (
     res.json({
       success: true,
       totalCount: totalCount,
-      error: "",
+      error: '',
     });
   } catch (error) {
-    console.error("Error fetching admin articles count:", error);
+    console.error('Error fetching admin articles count:', error);
     res.status(500).json({
       success: false,
       totalCount: 0,
-      error: "Failed to fetch articles count",
+      error: 'Failed to fetch articles count',
     });
   }
 };
 
 // Get a single article by key
-export const getAdminArticle = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     const { key } = req.params;
     if (!key) {
-      res.status(400).json({ error: "Article key is required" });
+      res.status(400).json({ error: 'Article key is required' });
       return;
     }
 
@@ -228,38 +206,32 @@ export const getAdminArticle = async (
         article: article,
       });
     } else {
-      res.status(404).json({ error: "Article not found" });
+      res.status(404).json({ error: 'Article not found' });
     }
   } catch (error) {
-    console.error("Error fetching article:", error);
-    res.status(500).json({ error: "Failed to fetch article" });
+    console.error('Error fetching article:', error);
+    res.status(500).json({ error: 'Failed to fetch article' });
   }
 };
 
 // Update an article
-export const updateAdminArticle = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const updateAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     const { key } = req.params;
     if (!key) {
-      res.status(400).json({ error: "Article key is required" });
+      res.status(400).json({ error: 'Article key is required' });
       return;
     }
 
     // Get the existing article first
-    const existingArticle = await getPostByKey<ArticleScheme>(
-      key,
-      blogDatabaseConfig,
-    );
+    const existingArticle = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
     if (!existingArticle) {
-      res.status(404).json({ error: "Article not found" });
+      res.status(404).json({ error: 'Article not found' });
       return;
     }
 
@@ -283,82 +255,73 @@ export const updateAdminArticle = async (
       }),
     };
 
-    const success = await updatePost<ArticleScheme>(
-      updatedArticle,
-      blogDatabaseConfig,
-    );
+    const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
 
     if (success) {
       res.json({
         success: true,
-        message: "Article updated successfully",
+        message: 'Article updated successfully',
         article: updatedArticle,
       });
     } else {
-      res.status(500).json({ error: "Failed to update article" });
+      res.status(500).json({ error: 'Failed to update article' });
     }
   } catch (error) {
-    console.error("Error updating article:", error);
-    res.status(500).json({ error: "Failed to update article" });
+    console.error('Error updating article:', error);
+    res.status(500).json({ error: 'Failed to update article' });
   }
 };
 
 // Delete an article
-export const deleteAdminArticle = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const deleteAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     const { key } = req.params;
     if (!key) {
-      res.status(400).json({ error: "Article key is required" });
+      res.status(400).json({ error: 'Article key is required' });
       return;
     }
 
     const deleted = await deletePost<ArticleScheme>(key, blogDatabaseConfig);
 
     if (deleted) {
-      res.json({ success: true, message: "Article deleted successfully" });
+      res.json({ success: true, message: 'Article deleted successfully' });
     } else {
-      res.status(404).json({ error: "Article not found" });
+      res.status(404).json({ error: 'Article not found' });
     }
   } catch (error) {
-    console.error("Error deleting article:", error);
-    res.status(500).json({ error: "Failed to delete article" });
+    console.error('Error deleting article:', error);
+    res.status(500).json({ error: 'Failed to delete article' });
   }
 };
 
 // Set an article as featured for today
-export const setFeaturedArticle = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const setFeaturedArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     const { key } = req.params;
     if (!key) {
-      res.status(400).json({ error: "Article key is required" });
+      res.status(400).json({ error: 'Article key is required' });
       return;
     }
 
     // Get the article to feature
     const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
     if (!article) {
-      res.status(404).json({ error: "Article not found" });
+      res.status(404).json({ error: 'Article not found' });
       return;
     }
 
     const db = getDatabase();
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
     // Unset any existing featured article for today
     const unsetStmt = db.prepare(`
@@ -375,40 +338,29 @@ export const setFeaturedArticle = async (
       featuredDate: today,
     };
 
-    const success = await updatePost<ArticleScheme>(
-      updatedArticle,
-      blogDatabaseConfig,
-    );
+    const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
 
     if (success) {
-      debugLog(
-        "✅ [setFeaturedArticle] Article set as featured:",
-        key,
-        "for date:",
-        today,
-      );
+      debugLog('✅ [setFeaturedArticle] Article set as featured:', key, 'for date:', today);
       res.json({
         success: true,
-        message: "Article set as featured successfully",
+        message: 'Article set as featured successfully',
         article: updatedArticle,
       });
     } else {
-      res.status(500).json({ error: "Failed to set article as featured" });
+      res.status(500).json({ error: 'Failed to set article as featured' });
     }
   } catch (error) {
-    console.error("Error setting featured article:", error);
-    res.status(500).json({ error: "Failed to set article as featured" });
+    console.error('Error setting featured article:', error);
+    res.status(500).json({ error: 'Failed to set article as featured' });
   }
 };
 
 // Get all texts
-export const getAdminTexts = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getAdminTexts = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
@@ -417,28 +369,25 @@ export const getAdminTexts = async (
       texts: texts,
     });
   } catch (error) {
-    console.error("Error fetching texts:", error);
+    console.error('Error fetching texts:', error);
     res.status(500).json({
       success: false,
       texts: [],
-      error: "Failed to fetch texts",
+      error: 'Failed to fetch texts',
     });
   }
 };
 
 // Upload an image
-export const uploadAdminImage = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const uploadAdminImage = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     if (!req.file) {
-      res.status(400).json({ error: "No file uploaded" });
+      res.status(400).json({ error: 'No file uploaded' });
       return;
     }
 
@@ -452,37 +401,32 @@ export const uploadAdminImage = async (
       debugLog(`Compressed uploaded image: ${req.file.filename}`);
     } catch (compressError) {
       // Log error but don't fail the upload - original is still saved
-      console.error("Error compressing uploaded image:", compressError);
+      console.error('Error compressing uploaded image:', compressError);
     }
 
     // Return the filename so the frontend can use it
     res.json({
       success: true,
       filename: req.file.filename,
-      message: "Image uploaded successfully",
+      message: 'Image uploaded successfully',
     });
   } catch (error) {
-    console.error("Error uploading image:", error);
-    res.status(500).json({ error: "Failed to upload image" });
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
   }
 };
 
 // Add a text
-export const addAdminText = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const addAdminText = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
     const { text } = req.body;
-    if (!text || typeof text !== "string" || !text.trim()) {
-      res
-        .status(400)
-        .json({ error: "Text is required and must be a non-empty string" });
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      res.status(400).json({ error: 'Text is required and must be a non-empty string' });
       return;
     }
 
@@ -493,27 +437,24 @@ export const addAdminText = async (
       texts: texts,
     });
   } catch (error) {
-    console.error("Error adding text:", error);
-    res.status(500).json({ error: "Failed to add text" });
+    console.error('Error adding text:', error);
+    res.status(500).json({ error: 'Failed to add text' });
   }
 };
 
 // Generate a news article
-export const generateAdminArticle = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const generateAdminArticle = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
-    debugLog("📝 [generateAdminArticle] Admin requested article generation");
+    debugLog('📝 [generateAdminArticle] Admin requested article generation');
 
     // Get a random writer
     const writer = await getRandomWriter();
-    debugLog("📝 [generateAdminArticle] Selected writer:", writer.name);
+    debugLog('📝 [generateAdminArticle] Selected writer:', writer.name);
 
     // Get a random news item from recent news
     const recentNews = await getAllNewsArticlesAfterDate(
@@ -523,8 +464,7 @@ export const generateAdminArticle = async (
     if (recentNews.length === 0) {
       res.status(400).json({
         success: false,
-        error:
-          "No recent news articles available. Please ensure news fetching is working.",
+        error: 'No recent news articles available. Please ensure news fetching is working.',
       });
       return;
     }
@@ -532,7 +472,7 @@ export const generateAdminArticle = async (
     // Pick a random news item
     const randomIndex = Math.floor(Math.random() * recentNews.length);
     const newsItem: NewsItem = recentNews[randomIndex];
-    debugLog("📝 [generateAdminArticle] Selected news item:", newsItem.title);
+    debugLog('📝 [generateAdminArticle] Selected news item:', newsItem.title);
 
     // Generate the article
     const article = await writeBlogPost(writer, newsItem, true);
@@ -540,47 +480,40 @@ export const generateAdminArticle = async (
     if (!article) {
       res.status(500).json({
         success: false,
-        error: "Failed to generate article. Check server logs for details.",
+        error: 'Failed to generate article. Check server logs for details.',
       });
       return;
     }
 
-    debugLog(
-      "✅ [generateAdminArticle] Article generated successfully:",
-      article.key,
-    );
+    debugLog('✅ [generateAdminArticle] Article generated successfully:', article.key);
 
     res.json({
       success: true,
-      message: "Article generated successfully",
+      message: 'Article generated successfully',
       article: article,
     });
   } catch (error) {
-    console.error("❌ [generateAdminArticle] Error generating article:", error);
+    console.error('❌ [generateAdminArticle] Error generating article:', error);
     res.status(500).json({
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to generate article",
+      error: error instanceof Error ? error.message : 'Failed to generate article',
     });
   }
 };
 
 // Generate a recipe
-export const generateAdminRecipe = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const generateAdminRecipe = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!validatePassword(req)) {
-      res.status(401).json({ error: "Invalid password" });
+      res.status(401).json({ error: 'Invalid password' });
       return;
     }
 
-    debugLog("🍳 [generateAdminRecipe] Admin requested recipe generation");
+    debugLog('🍳 [generateAdminRecipe] Admin requested recipe generation');
 
     // Get a random writer
     const writer = await getRandomWriter();
-    debugLog("🍳 [generateAdminRecipe] Selected writer:", writer.name);
+    debugLog('🍳 [generateAdminRecipe] Selected writer:', writer.name);
 
     // Get random foods (2-3 foods)
     const numFoods = 2 + Math.floor(Math.random() * 2); // 2 or 3 foods
@@ -589,13 +522,12 @@ export const generateAdminRecipe = async (
     if (foods.length === 0) {
       res.status(400).json({
         success: false,
-        error:
-          "No foods available in database. Please add foods to the foods table.",
+        error: 'No foods available in database. Please add foods to the foods table.',
       });
       return;
     }
 
-    debugLog("🍳 [generateAdminRecipe] Selected foods:", foods.join(", "));
+    debugLog('🍳 [generateAdminRecipe] Selected foods:', foods.join(', '));
 
     // Generate the recipe
     const recipe = await generateRecipe(writer, foods, true);
@@ -603,27 +535,23 @@ export const generateAdminRecipe = async (
     if (!recipe) {
       res.status(500).json({
         success: false,
-        error: "Failed to generate recipe. Check server logs for details.",
+        error: 'Failed to generate recipe. Check server logs for details.',
       });
       return;
     }
 
-    debugLog(
-      "✅ [generateAdminRecipe] Recipe generated successfully:",
-      recipe.key,
-    );
+    debugLog('✅ [generateAdminRecipe] Recipe generated successfully:', recipe.key);
 
     res.json({
       success: true,
-      message: "Recipe generated successfully",
+      message: 'Recipe generated successfully',
       recipe: recipe,
     });
   } catch (error) {
-    console.error("❌ [generateAdminRecipe] Error generating recipe:", error);
+    console.error('❌ [generateAdminRecipe] Error generating recipe:', error);
     res.status(500).json({
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to generate recipe",
+      error: error instanceof Error ? error.message : 'Failed to generate recipe',
     });
   }
 };

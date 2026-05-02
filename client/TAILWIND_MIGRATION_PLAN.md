@@ -397,30 +397,30 @@ This document outlines the plan to migrate from raw CSS to Tailwind CSS for the 
 
 ```javascript
 module.exports = {
-  darkMode: ["class", ".dark-theme"], // Use existing class strategy
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: ['class', '.dark-theme'], // Use existing class strategy
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         // Map CSS variables to Tailwind colors
-        title: "var(--title-color)",
-        description: "var(--description-color)",
+        title: 'var(--title-color)',
+        description: 'var(--description-color)',
         // Or use fixed colors with dark: variant
       },
       screens: {
-        mobile: "600px", // Map 37.5em / 600px breakpoint
+        mobile: '600px', // Map 37.5em / 600px breakpoint
       },
       fontFamily: {
-        serif: ["Times New Roman", "Times", "serif"],
+        serif: ['Times New Roman', 'Times', 'serif'],
       },
       keyframes: {
-        "logo-spin": {
-          from: { transform: "rotate(0deg)" },
-          to: { transform: "rotate(360deg)" },
+        'logo-spin': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
         },
       },
       animation: {
-        "logo-spin": "logo-spin infinite 20s linear",
+        'logo-spin': 'logo-spin infinite 20s linear',
       },
     },
   },

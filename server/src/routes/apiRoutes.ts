@@ -1,13 +1,13 @@
-import path from "path";
-import fs from "fs";
-import { Router, Request, Response } from "express";
+import path from 'path';
+import fs from 'fs';
+import { Router, Request, Response } from 'express';
 // import { fileURLToPath } from "url";
 // import { dirname } from "path";
 import {
   compressImageInBackground,
   getCompressedImagePath,
   getOriginalImagePath,
-} from "../utils/imageCompression.js";
+} from '../utils/imageCompression.js';
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -15,55 +15,55 @@ import {
 // Import sub-routes
 // import gameIntelligenceRoutes from '../lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js'
 // import llmRoutes from './llmRoutes.js';
-import triviaRoutes from "../lib/TriviaGameBackend/routes/triviaRoutes.js";
-import blogRoutes from "./blogRoutes.js";
-import adminRoutes from "./adminRoutes.js";
-import horoscopeRoutes from "./horoscopeRoutes.js";
-import recipeRoutes from "./recipeRoutes.js";
+import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js';
+import blogRoutes from './blogRoutes.js';
+import adminRoutes from './adminRoutes.js';
+import horoscopeRoutes from './horoscopeRoutes.js';
+import recipeRoutes from './recipeRoutes.js';
 // import authRoutes from "./auth.js";
 
 const router = Router();
 
 // Mount each sub-route under its respective path
 // app.use('/intelligence', gameIntelligenceRoutes);
-router.use("/trivia", triviaRoutes);
+router.use('/trivia', triviaRoutes);
 
 // API Routes TODO: this route does not need to be open beyond the back end
 // app.use('/llm', llmRoutes);
 
 // Getting daily news
-router.use("/blogs", blogRoutes);
+router.use('/blogs', blogRoutes);
 
 // Horoscope routes
-router.use("/horoscopes", horoscopeRoutes);
+router.use('/horoscopes', horoscopeRoutes);
 
 // Recipe routes
-router.use("/recipes", recipeRoutes);
+router.use('/recipes', recipeRoutes);
 
 // Admin routes (password protected)
-router.use("/admin", adminRoutes);
+router.use('/admin', adminRoutes);
 
 // TODO: auth test
 // router.use('/auth', authRoutes);
 
 // Health check endpoint
-router.get("/health", (req: Request, res: Response) => {
+router.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
-    status: "ok",
+    status: 'ok',
     timestamp: new Date().toISOString(),
   });
 });
 
-router.get("/images/:filename", (req, res) => {
+router.get('/images/:filename', (req, res) => {
   const sanitized = path.basename(req.params.filename);
 
   // Set CORP headers
   res.set({
-    "Cross-Origin-Resource-Policy": "cross-origin",
-    "Cross-Origin-Embedder-Policy": "unsafe-none",
-    "Access-Control-Allow-Origin": process.env.CLIENT_URL,
+    'Cross-Origin-Resource-Policy': 'cross-origin',
+    'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    'Access-Control-Allow-Origin': process.env.CLIENT_URL,
     // Cache headers for better performance
-    "Cache-Control": "public, max-age=31536000, immutable",
+    'Cache-Control': 'public, max-age=31536000, immutable',
   });
 
   // Get paths for compressed and original images
@@ -83,7 +83,7 @@ router.get("/images/:filename", (req, res) => {
     compressImageInBackground(sanitized, originalPath);
   } else {
     // Neither exists - return 404
-    res.status(404).json({ error: "Image not found" });
+    res.status(404).json({ error: 'Image not found' });
   }
 });
 

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 exports.__esModule = true;
 exports.EDITOR =
   exports.VALID_CATEGORIES =
@@ -17,15 +17,15 @@ exports.EDITOR =
   exports.DB_BLOG_POST_FILE =
     void 0;
 // LowDB database locations
-const DB_BLOG_POST_FILE = "data/blogPosts.json";
+const DB_BLOG_POST_FILE = 'data/blogPosts.json';
 exports.DB_BLOG_POST_FILE = DB_BLOG_POST_FILE;
-const DB_NEWS_DATA_FILE = "data/newsData.json";
+const DB_NEWS_DATA_FILE = 'data/newsData.json';
 exports.DB_NEWS_DATA_FILE = DB_NEWS_DATA_FILE;
-const DB_FEATURED_BLOG_POST_FILE = "data/featuredBlogPosts.json";
+const DB_FEATURED_BLOG_POST_FILE = 'data/featuredBlogPosts.json';
 exports.DB_FEATURED_BLOG_POST_FILE = DB_FEATURED_BLOG_POST_FILE;
-const DB_USERS_FILE = "data/users.json";
+const DB_USERS_FILE = 'data/users.json';
 exports.DB_USERS_FILE = DB_USERS_FILE;
-const DB_WRITERS_FILE = "data/writers.json";
+const DB_WRITERS_FILE = 'data/writers.json';
 exports.DB_WRITERS_FILE = DB_WRITERS_FILE;
 // Calculated in milliseconds
 const MILLISECS_IN_SEC = 1000;
@@ -38,28 +38,21 @@ const TEN_MINUTES_MILLISECONDS = 10 * 60 * 1000;
 exports.TEN_MINUTES_MILLISECONDS = TEN_MINUTES_MILLISECONDS;
 const MINIMAL_NUM_DAILY_ARTICLES = 10;
 exports.MINIMAL_NUM_DAILY_ARTICLES = MINIMAL_NUM_DAILY_ARTICLES;
-const NEWS_API_BASE_URL = "https://newsdata.io/api/1/news";
+const NEWS_API_BASE_URL = 'https://newsdata.io/api/1/news';
 exports.NEWS_API_BASE_URL = NEWS_API_BASE_URL;
 const NEWS_API_DAILY_TOKENS = 200;
 exports.NEWS_API_DAILY_TOKENS = NEWS_API_DAILY_TOKENS;
 const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 exports.NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = NEWS_API_NUM_OF_ARTICLES_PER_TOKEN;
-const VALID_CATEGORIES = [
-  "Politics",
-  "Sports",
-  "Culture",
-  "Economics",
-  "Technology",
-  "Food",
-];
+const VALID_CATEGORIES = ['Politics', 'Sports', 'Culture', 'Economics', 'Technology', 'Food'];
 exports.VALID_CATEGORIES = VALID_CATEGORIES;
 const EDITOR = {
-  key: "EDITOR",
-  name: "The Editor",
+  key: 'EDITOR',
+  name: 'The Editor',
   description:
-    "A professional editor of a newspaper, with a good sense of laying out complex topics for a general audience.",
+    'A professional editor of a newspaper, with a good sense of laying out complex topics for a general audience.',
   systemPrompt:
-    "You are a professional editor of a newspaper, with a good sense of laying out complex topics for a general audience.",
+    'You are a professional editor of a newspaper, with a good sense of laying out complex topics for a general audience.',
   // profileImage?: string,
   createdAt: new Date(0).toString(),
   updatedAt: new Date().toString(),

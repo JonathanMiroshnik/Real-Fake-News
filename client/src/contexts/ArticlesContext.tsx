@@ -1,19 +1,19 @@
 // TODO: create another state for the Featured Article that will be kept separate and chosen from the other articles.
 
-import { useEffect, useState, useRef, useCallback, ReactNode } from "react";
-import { useLocation } from "react-router-dom";
-import { getRelevantArticles } from "../services/articleService";
-import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
-import { debugLog, debugWarn, debugError } from "../utils/debugLogger";
-import { ArticleContext } from "./ArticleContext";
+import { useEffect, useState, useRef, useCallback, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
+import { getRelevantArticles } from '../services/articleService';
+import { ArticleProps, WriterProps } from '../pages/ArticlePage/ArticlePage';
+import { debugLog, debugWarn, debugError } from '../utils/debugLogger';
+import { ArticleContext } from './ArticleContext';
 
 // Session storage keys
-const ARTICLES_STORAGE_KEY = "articles_cache";
-const ARTICLES_CACHE_TIMESTAMP_KEY = "articles_cache_timestamp";
+const ARTICLES_STORAGE_KEY = 'articles_cache';
+const ARTICLES_CACHE_TIMESTAMP_KEY = 'articles_cache_timestamp';
 
 // Cache expiration time in milliseconds (default: 10 minutes)
 const CACHE_EXPIRATION_MS = parseInt(
-  import.meta.env.VITE_ARTICLES_CACHE_EXPIRATION_MS || "600000",
+  import.meta.env.VITE_ARTICLES_CACHE_EXPIRATION_MS || '600000',
   10,
 ); // 10 minutes default
 
@@ -29,18 +29,11 @@ function ArticleProvider({ children }: { children: ReactNode }) {
       const cached = sessionStorage.getItem(ARTICLES_STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        debugLog(
-          "🎯 [ArticlesContext] Loaded",
-          parsed.length,
-          "articles from sessionStorage",
-        );
+        debugLog('🎯 [ArticlesContext] Loaded', parsed.length, 'articles from sessionStorage');
         return parsed;
       }
     } catch (error) {
-      debugError(
-        "❌ [ArticlesContext] Error loading articles from sessionStorage:",
-        error,
-      );
+      debugError('❌ [ArticlesContext] Error loading articles from sessionStorage:', error);
     }
     return [];
   });
@@ -77,68 +70,55 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     async (isBackgroundRefresh = false): Promise<void> => {
       try {
         if (isBackgroundRefresh) {
-          debugLog(
-            "🔄 [ArticlesContext] Background refresh: fetching fresh articles...",
-          );
+          debugLog('🔄 [ArticlesContext] Background refresh: fetching fresh articles...');
         } else {
-          debugLog(
-            "🎯 [ArticlesContext] fetchArticles() called at:",
-            new Date().toISOString(),
-          );
-          debugLog("🎯 [ArticlesContext] Calling getRelevantArticles()...");
+          debugLog('🎯 [ArticlesContext] fetchArticles() called at:', new Date().toISOString());
+          debugLog('🎯 [ArticlesContext] Calling getRelevantArticles()...');
         }
 
         let finalArticles = await getRelevantArticles();
 
         debugLog(
-          "🎯 [ArticlesContext] getRelevantArticles() returned:",
+          '🎯 [ArticlesContext] getRelevantArticles() returned:',
           finalArticles?.length || 0,
-          "articles",
+          'articles',
         );
 
         if (finalArticles === undefined) {
-          debugWarn(
-            "⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array",
-          );
+          debugWarn('⚠️ [ArticlesContext] finalArticles is undefined, setting to empty array');
           finalArticles = [];
         }
 
         debugLog(
-          "🎯 [ArticlesContext] Setting articles state with",
+          '🎯 [ArticlesContext] Setting articles state with',
           finalArticles.length,
-          "articles",
+          'articles',
         );
         setArticles([...finalArticles]);
 
         // Save to sessionStorage with timestamp
         try {
-          sessionStorage.setItem(
-            ARTICLES_STORAGE_KEY,
-            JSON.stringify(finalArticles),
-          );
-          sessionStorage.setItem(
-            ARTICLES_CACHE_TIMESTAMP_KEY,
-            Date.now().toString(),
-          );
+          sessionStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(finalArticles));
+          sessionStorage.setItem(ARTICLES_CACHE_TIMESTAMP_KEY, Date.now().toString());
           if (isBackgroundRefresh) {
             debugLog(
-              "✅ [ArticlesContext] Articles refreshed in background and saved to sessionStorage",
+              '✅ [ArticlesContext] Articles refreshed in background and saved to sessionStorage',
             );
           } else {
-            debugLog("✅ [ArticlesContext] Articles saved to sessionStorage");
+            debugLog('✅ [ArticlesContext] Articles saved to sessionStorage');
           }
         } catch (storageError) {
           debugWarn(
-            "⚠️ [ArticlesContext] Could not save articles to sessionStorage:",
+            '⚠️ [ArticlesContext] Could not save articles to sessionStorage:',
             storageError,
           );
         }
 
-        debugLog("✅ [ArticlesContext] Articles state updated successfully");
+        debugLog('✅ [ArticlesContext] Articles state updated successfully');
       } catch (error) {
-        debugError("❌ [ArticlesContext] Error in fetchArticles:", error);
+        debugError('❌ [ArticlesContext] Error in fetchArticles:', error);
         debugError(
-          "❌ [ArticlesContext] Error details:",
+          '❌ [ArticlesContext] Error details:',
           error instanceof Error ? error.message : String(error),
         );
         if (!isBackgroundRefresh) {
@@ -159,20 +139,20 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     }
 
     // SECOND: Skip fetching if we're on an article or recipe page (these pages fetch individual items)
-    const isArticlePage = location.pathname.startsWith("/article/");
-    const isRecipePage = location.pathname.startsWith("/recipe/");
+    const isArticlePage = location.pathname.startsWith('/article/');
+    const isRecipePage = location.pathname.startsWith('/recipe/');
 
     if (isArticlePage || isRecipePage) {
       debugLog(
-        "🎯 [ArticlesContext] Skipping fetch - on",
-        isArticlePage ? "article" : "recipe",
-        "page:",
+        '🎯 [ArticlesContext] Skipping fetch - on',
+        isArticlePage ? 'article' : 'recipe',
+        'page:',
         location.pathname,
       );
       debugLog(
-        "🎯 [ArticlesContext] Using",
+        '🎯 [ArticlesContext] Using',
         articles.length,
-        "articles from cache/context (if available)",
+        'articles from cache/context (if available)',
       );
       fetchAttemptedRef.current = true;
       return;
@@ -191,12 +171,12 @@ function ArticleProvider({ children }: { children: ReactNode }) {
           if (stale) {
             // Cache is stale - use cached articles immediately, but refresh in background
             debugLog(
-              "🔄 [ArticlesContext] Cache is stale, using cached articles and refreshing in background",
+              '🔄 [ArticlesContext] Cache is stale, using cached articles and refreshing in background',
             );
             debugLog(
-              "🎯 [ArticlesContext] Using",
+              '🎯 [ArticlesContext] Using',
               parsed.length,
-              "cached articles while fetching fresh ones...",
+              'cached articles while fetching fresh ones...',
             );
             setArticles(parsed);
 
@@ -205,9 +185,9 @@ function ArticleProvider({ children }: { children: ReactNode }) {
           } else {
             // Cache is fresh - use it and skip API call
             debugLog(
-              "🎯 [ArticlesContext] Using",
+              '🎯 [ArticlesContext] Using',
               parsed.length,
-              "fresh cached articles (skipping API call)",
+              'fresh cached articles (skipping API call)',
             );
             if (articles.length !== parsed.length) {
               setArticles(parsed);
@@ -218,25 +198,20 @@ function ArticleProvider({ children }: { children: ReactNode }) {
           return;
         }
       } catch (error) {
-        debugWarn(
-          "⚠️ [ArticlesContext] Error parsing cached articles, will fetch fresh:",
-          error,
-        );
+        debugWarn('⚠️ [ArticlesContext] Error parsing cached articles, will fetch fresh:', error);
       }
     }
 
     // THIRD: If articles are already loaded in state (from initial state), check if stale
     if (articles.length > 0) {
       if (isCacheStale()) {
-        debugLog(
-          "🔄 [ArticlesContext] Cache is stale, refreshing articles in background",
-        );
+        debugLog('🔄 [ArticlesContext] Cache is stale, refreshing articles in background');
         fetchArticlesFromServer(true);
       } else {
         debugLog(
-          "🎯 [ArticlesContext] Using",
+          '🎯 [ArticlesContext] Using',
           articles.length,
-          "articles from initial state (skipping API call)",
+          'articles from initial state (skipping API call)',
         );
       }
       fetchAttemptedRef.current = true;
@@ -247,13 +222,8 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     // Mark that we're attempting to fetch
     fetchAttemptedRef.current = true;
 
-    debugLog(
-      "🎯 [ArticlesContext] useEffect triggered at:",
-      new Date().toISOString(),
-    );
-    debugLog(
-      "🎯 [ArticlesContext] No cached articles found, fetching from server...",
-    );
+    debugLog('🎯 [ArticlesContext] useEffect triggered at:', new Date().toISOString());
+    debugLog('🎯 [ArticlesContext] No cached articles found, fetching from server...');
 
     fetchArticlesFromServer(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,8 +231,8 @@ function ArticleProvider({ children }: { children: ReactNode }) {
 
   // Set up periodic background refresh when on pages that need articles
   useEffect(() => {
-    const isArticlePage = location.pathname.startsWith("/article/");
-    const isRecipePage = location.pathname.startsWith("/recipe/");
+    const isArticlePage = location.pathname.startsWith('/article/');
+    const isRecipePage = location.pathname.startsWith('/recipe/');
 
     // Don't set up refresh on article/recipe pages
     if (isArticlePage || isRecipePage) {
@@ -278,12 +248,10 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     refreshIntervalRef.current = setInterval(
       () => {
         if (isCacheStale()) {
-          debugLog(
-            "🔄 [ArticlesContext] Periodic check: cache is stale, refreshing...",
-          );
+          debugLog('🔄 [ArticlesContext] Periodic check: cache is stale, refreshing...');
           fetchArticlesFromServer(true);
         } else {
-          debugLog("✅ [ArticlesContext] Periodic check: cache is still fresh");
+          debugLog('✅ [ArticlesContext] Periodic check: cache is still fresh');
         }
       },
       5 * 60 * 1000,

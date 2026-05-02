@@ -1,5 +1,5 @@
 export interface GenerateContentRequest {
-  provider: "openai" | "deepseek";
+  provider: 'openai' | 'deepseek';
   prompt: string;
   maxTokens?: number;
   temperature?: number;

@@ -21,11 +21,11 @@
  */
 export function getApiBaseUrl(): string {
   // Check if relative API mode is enabled (for nginx proxy)
-  const useRelativeApi = import.meta.env.VITE_USE_RELATIVE_API === "true";
+  const useRelativeApi = import.meta.env.VITE_USE_RELATIVE_API === 'true';
 
   if (useRelativeApi) {
     // Return empty string to use relative URLs (nginx will handle routing)
-    return "";
+    return '';
   }
 
   // Check if VITE_BACKEND_DEV_MODE is explicitly set
@@ -33,18 +33,16 @@ export function getApiBaseUrl(): string {
 
   if (backendDevMode === undefined) {
     // Default behavior: if not set, use production backend
-    return (
-      import.meta.env.VITE_API_BASE_PROD || "https://real.sensorcensor.xyz"
-    );
+    return import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz';
   }
 
   // If explicitly set to "true", use local dev backend
-  if (backendDevMode === "true") {
-    return import.meta.env.VITE_API_BASE_DEV || "http://localhost:5001";
+  if (backendDevMode === 'true') {
+    return import.meta.env.VITE_API_BASE_DEV || 'http://localhost:5001';
   }
 
   // Otherwise (including "false"), use production backend
-  return import.meta.env.VITE_API_BASE_PROD || "https://real.sensorcensor.xyz";
+  return import.meta.env.VITE_API_BASE_PROD || 'https://real.sensorcensor.xyz';
 }
 
 /**
@@ -55,5 +53,5 @@ export function getApiBaseUrlWithPrefix(): string {
   const baseUrl = getApiBaseUrl();
   // If baseUrl is empty (relative mode), return just "/api"
   // Otherwise, return the full URL with "/api"
-  return baseUrl ? `${baseUrl}/api` : "/api";
+  return baseUrl ? `${baseUrl}/api` : '/api';
 }

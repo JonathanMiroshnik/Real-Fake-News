@@ -1,15 +1,12 @@
-import { useContext, useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import { ArticleContext } from "../../contexts/ArticleContext";
-import {
-  DEFAULT_IMAGE,
-  getImageURLFromArticle,
-} from "../../services/imageService";
-import { sanitizeWriterName } from "../../services/writerService";
-import { getArticleByKey } from "../../services/articleService";
-import Image from "../../components/Image/Image";
-import "./ArticlePage.css";
+import { useContext, useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { ArticleContext } from '../../contexts/ArticleContext';
+import { DEFAULT_IMAGE, getImageURLFromArticle } from '../../services/imageService';
+import { sanitizeWriterName } from '../../services/writerService';
+import { getArticleByKey } from '../../services/articleService';
+import Image from '../../components/Image/Image';
+import './ArticlePage.css';
 
 export interface WriterProps {
   key: string;
@@ -32,9 +29,7 @@ export interface ArticleProps {
 function ArticlePage() {
   const { key } = useParams();
   const articles = useContext(ArticleContext).articles;
-  const [foundArticle, setFoundArticle] = useState<
-    ArticleProps | null | undefined
-  >(null);
+  const [foundArticle, setFoundArticle] = useState<ArticleProps | null | undefined>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +51,7 @@ function ArticlePage() {
     // If not found in context, fetch from server
     async function fetchArticle() {
       setLoading(true);
-      const article = await getArticleByKey(key ?? "");
+      const article = await getArticleByKey(key ?? '');
       setFoundArticle(article || undefined);
       setLoading(false);
     }
@@ -80,7 +75,7 @@ function ArticlePage() {
         <h2 className="news-article-title-header">{foundArticle?.title}</h2>
         <div className="article-meta">
           <div>
-            {"By \t"}
+            {'By \t'}
             {foundArticle.author?.name ? (
               <Link
                 className="article-list-item-writer"
@@ -91,19 +86,17 @@ function ArticlePage() {
             ) : null}
           </div>
           <span className="timestamp">
-            {foundArticle.timestamp
-              ? new Date(foundArticle.timestamp).toLocaleDateString()
-              : null}
+            {foundArticle.timestamp ? new Date(foundArticle.timestamp).toLocaleDateString() : null}
           </span>
           <span className="category">{foundArticle?.category}</span>
         </div>
       </div>
 
-      {imageURL !== "" && (
+      {imageURL !== '' && (
         <div className="article-page-head-image">
           <Image
             src={imageURL}
-            alt={foundArticle.title ?? "Article"}
+            alt={foundArticle.title ?? 'Article'}
             className="article-image"
             aspectRatio="16/9"
             placeholder={true}

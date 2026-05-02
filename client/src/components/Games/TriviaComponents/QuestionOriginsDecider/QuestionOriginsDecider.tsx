@@ -1,4 +1,4 @@
-import { QuestionOrigins } from "../TriviaGame/types";
+import { QuestionOrigins } from '../TriviaGame/types';
 
 function QuestionOriginsDecider() {
   return (

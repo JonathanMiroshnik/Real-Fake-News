@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import MovePresentation from "../MovePresentation/MovePresentation";
-import Board from "../Board/Board";
-import { SIDES_TO_DICE } from "../Dice/Dice";
-import WinnerOverlay from "../WinnerOverlay/WinnerOverlay";
-import InformationOverlay from "../InformationOverlay/InformationOverlay";
+import MovePresentation from '../MovePresentation/MovePresentation';
+import Board from '../Board/Board';
+import { SIDES_TO_DICE } from '../Dice/Dice';
+import WinnerOverlay from '../WinnerOverlay/WinnerOverlay';
+import InformationOverlay from '../InformationOverlay/InformationOverlay';
 
-import { Symbols, CellState, TicTacToeGameMove } from "./types";
+import { Symbols, CellState, TicTacToeGameMove } from './types';
 
-import "./TicTacToeGame.css";
+import './TicTacToeGame.css';
 
 // Indicates whether a victory was gotten, and if yes, also holds an indicator for the winner's symbol
 type VictoryStatus = {
@@ -19,8 +19,8 @@ type VictoryStatus = {
 // Server address for backend
 // TODO: This should use environment variables or config similar to other API calls
 const SERVER_SIDE = import.meta.env.PROD
-  ? "https://www.sensorcensor.xyz:7001"
-  : "http://localhost:7001";
+  ? 'https://www.sensorcensor.xyz:7001'
+  : 'http://localhost:7001';
 
 // The symbol the AI plays as.
 const aiSymbol: Symbols = Symbols.O;
@@ -57,7 +57,7 @@ function TicTacToeGame() {
   // Indicates whether the current move is the AI's
   const [aiMove, setAIMove] = useState(false);
   // The explanation of the AI for its move
-  const setAIExplanation = useState<string>("")[1];
+  const setAIExplanation = useState<string>('')[1];
 
   // Happens only once! creates board of certain sizes X and Y.
   useEffect(() => {
@@ -117,7 +117,7 @@ function TicTacToeGame() {
    */
   function checkVictory(currentBoard: CellState[][]): VictoryStatus {
     if (BOARD_SIDE_LENGTH < 2) {
-      throw new Error("The board must at least have 2 cells on each side");
+      throw new Error('The board must at least have 2 cells on each side');
     }
 
     let initialSymbol: Symbols = Symbols._;
@@ -145,10 +145,7 @@ function TicTacToeGame() {
     for (let i = 0; i < BOARD_SIDE_LENGTH; i++) {
       initialSymbol = currentBoard[0][i].symbol;
       for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-        if (
-          initialSymbol !== currentBoard[j][i].symbol ||
-          currentBoard[j][i].totalDice < 6
-        ) {
+        if (initialSymbol !== currentBoard[j][i].symbol || currentBoard[j][i].totalDice < 6) {
           break;
         }
 
@@ -165,10 +162,7 @@ function TicTacToeGame() {
     // Top-left to Bottom-right
     initialSymbol = currentBoard[0][0].symbol;
     for (let j = 0; j < BOARD_SIDE_LENGTH; j++) {
-      if (
-        initialSymbol !== currentBoard[j][j].symbol ||
-        currentBoard[j][j].totalDice < 6
-      ) {
+      if (initialSymbol !== currentBoard[j][j].symbol || currentBoard[j][j].totalDice < 6) {
         break;
       }
 
@@ -227,8 +221,7 @@ function TicTacToeGame() {
 
     // If the symbol of the cell is the same as the one that wants to add to it
     if (currentBoard[row][col].symbol === newCellState.symbol) {
-      let updatedTotalDice: number =
-        currentBoard[row][col].totalDice + newCellState.totalDice;
+      let updatedTotalDice: number = currentBoard[row][col].totalDice + newCellState.totalDice;
       if (updatedTotalDice > SIDES_TO_DICE) {
         updatedTotalDice = SIDES_TO_DICE;
       }
@@ -257,11 +250,7 @@ function TicTacToeGame() {
    * @param col column number.
    * @param newCellState the new CellState that is placed on the board in the row/column position.
    */
-  function setSpecificBoardCell(
-    row: number,
-    col: number,
-    newCellState: CellState,
-  ) {
+  function setSpecificBoardCell(row: number, col: number, newCellState: CellState) {
     setBoardCells((prev) =>
       prev.map((currentRow, rowIndex) =>
         rowIndex === row
@@ -289,8 +278,7 @@ function TicTacToeGame() {
     setMoveNumber((prev) => prev + 1);
 
     const newDice: number = Math.floor(Math.random() * SIDES_TO_DICE) + 1;
-    const newSymbol: Symbols =
-      currentMove.symbol === Symbols.X ? Symbols.O : Symbols.X;
+    const newSymbol: Symbols = currentMove.symbol === Symbols.X ? Symbols.O : Symbols.X;
 
     const newState: CellState = {
       symbol: newSymbol,
@@ -310,14 +298,11 @@ function TicTacToeGame() {
    * @param currentMove Avaliable move to send to the AI.
    * @param currentBoard Board to send to the AI.
    */
-  async function sendAIMoveRequest(
-    currentMove: CellState,
-    currentBoard: CellState[][],
-  ) {
-    const response = await fetch(SERVER_SIDE + "/api/intelligence", {
-      method: "POST",
+  async function sendAIMoveRequest(currentMove: CellState, currentBoard: CellState[][]) {
+    const response = await fetch(SERVER_SIDE + '/api/intelligence', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         board: boardToText(currentBoard),
@@ -340,16 +325,10 @@ function TicTacToeGame() {
    */
   function cellToText(cell: CellState): string {
     if (cell === null || cell === undefined) {
-      return "";
+      return '';
     }
 
-    return (
-      " " +
-      Symbols[cell.symbol].toString() +
-      " " +
-      cell.totalDice.toString() +
-      " "
-    );
+    return ' ' + Symbols[cell.symbol].toString() + ' ' + cell.totalDice.toString() + ' ';
   }
 
   /**
@@ -359,15 +338,15 @@ function TicTacToeGame() {
    * @returns The sum of the two numbers.
    */
   function boardToText(board: CellState[][]) {
-    let retStr: string = "";
+    let retStr: string = '';
     board.map((row) => {
-      retStr += "[";
+      retStr += '[';
 
       row.map((cell) => {
         retStr += cellToText(cell);
       });
 
-      retStr += "] ";
+      retStr += '] ';
     });
 
     return retStr;
@@ -378,12 +357,7 @@ function TicTacToeGame() {
    * @param currentMove AI move to perform on the board
    */
   function performAIMove(currentMove: TicTacToeGameMove) {
-    onCellClick(
-      currentMove.positionX,
-      currentMove.positionY,
-      currentPlayer,
-      boardCells,
-    );
+    onCellClick(currentMove.positionX, currentMove.positionY, currentPlayer, boardCells);
 
     // This will switch to false after the AI move is performed in the boardCells
     //  We can be sure it will go through before the useEffect that is triggered by the boardCells
@@ -415,10 +389,7 @@ function TicTacToeGame() {
    * @param currentBoard Board to check on.
    * @returns true if the move is possible, false otherwise.
    */
-  function possibleMoveExists(
-    currentMove: CellState,
-    currentBoard: CellState[][],
-  ): boolean {
+  function possibleMoveExists(currentMove: CellState, currentBoard: CellState[][]): boolean {
     for (let i: number = 0; i < currentBoard.length; i++) {
       for (let j: number = 0; j < currentBoard[0].length; j++) {
         if (checkMovePossible(i, j, currentMove, currentBoard)) {
@@ -484,17 +455,13 @@ function TicTacToeGame() {
 
       {/* Information overlay */}
       {/* TODO: When BOARD_SIDE_LENGTH is 2, the tictac-game-screen div changes size when I click a cell, but it works fine for BOARD_SIDE_LENGTH > 2 */}
-      {showInformation && (
-        <InformationOverlay onClose={() => setShowInformation(false)} />
-      )}
+      {showInformation && <InformationOverlay onClose={() => setShowInformation(false)} />}
       <div className="information-display-div">
         <button onClick={() => setShowInformation(true)}> ? </button>
       </div>
 
       {/* Winner overlay */}
-      {victor !== Symbols._ && (
-        <WinnerOverlay winner={victor} onClose={resetGame} />
-      )}
+      {victor !== Symbols._ && <WinnerOverlay winner={victor} onClose={resetGame} />}
 
       {/* AI mode controller */}
       {/* { <button onClick={() => setAIActivated(prevState => !prevState)} style={{color: (aiActivated ? "green": "red")}} > AI Mode </button> } */}
@@ -514,9 +481,7 @@ function TicTacToeGame() {
       {/* Current board display */}
       <Board
         boardState={boardCells}
-        onCellAction={(row, col) =>
-          onCellClick(row, col, currentPlayer, boardCells)
-        }
+        onCellAction={(row, col) => onCellClick(row, col, currentPlayer, boardCells)}
         disabled={aiMove}
       />
     </div>

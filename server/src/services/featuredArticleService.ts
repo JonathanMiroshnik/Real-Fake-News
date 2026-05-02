@@ -1,19 +1,19 @@
-import "dotenv/config";
-import { VALID_CATEGORIES } from "../config/constants.js";
-import { FeaturedArticleScheme } from "../types/article.js";
-import { ArticleScheme } from "../types/article.js";
-import { writeBlogPost } from "./blogService.js";
-import { Writer } from "../types/writer.js";
-import { NewsItem } from "./newsService.js";
-import { generateAndSaveImage } from "./imageService.js";
-import { generateTextFromString } from "./llmService.js";
-import { getUniqueKey } from "../utils/general.js";
+import 'dotenv/config';
+import { VALID_CATEGORIES } from '../config/constants.js';
+import { FeaturedArticleScheme } from '../types/article.js';
+import { ArticleScheme } from '../types/article.js';
+import { writeBlogPost } from './blogService.js';
+import { Writer } from '../types/writer.js';
+import { NewsItem } from './newsService.js';
+import { generateAndSaveImage } from './imageService.js';
+import { generateTextFromString } from './llmService.js';
+import { getUniqueKey } from '../utils/general.js';
 // import { getNRandom } from "../utils/general.js";
 // import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { ChatDeepSeek } from "@langchain/deepseek";
-import { createPost } from "../lib/database/sqliteOperations.js";
-import { featuredBlogDatabaseConfig } from "../lib/database/databaseConfigurations.js";
-import { debugLog } from "../utils/debugLogger.js";
+import { ChatDeepSeek } from '@langchain/deepseek';
+import { createPost } from '../lib/database/sqliteOperations.js';
+import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 // ----------------------------------------------- FEATURED ARTICLES LOGIC -----------------------------------------------
 
@@ -22,11 +22,11 @@ import { debugLog } from "../utils/debugLogger.js";
 async function createFeaturedArticle(
   writers: Writer[],
   currentNewsItem: NewsItem = {
-    article_id: "",
-    title: "",
-    description: "",
-    pubDate: "",
-    pubDateTZ: "",
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
   },
   prompt: string,
 ) {
@@ -40,10 +40,10 @@ async function createFeaturedArticle(
 
     currentArticles.push(currentArticle);
   }
-  debugLog("Generating new article");
-  const result = await generateTextFromString(prompt, "json_object");
+  debugLog('Generating new article');
+  const result = await generateTextFromString(prompt, 'json_object');
   if (result === undefined || !result?.success) {
-    console.error("Meta prompt output invalid!");
+    console.error('Meta prompt output invalid!');
     return;
   }
 
@@ -62,17 +62,14 @@ async function createFeaturedArticle(
     headImage: imgName,
   };
 
-  await createPost<FeaturedArticleScheme>(
-    newFeaturedArticle,
-    featuredBlogDatabaseConfig,
-  );
+  await createPost<FeaturedArticleScheme>(newFeaturedArticle, featuredBlogDatabaseConfig);
 
   return newFeaturedArticle;
 }
 
 // LangChain chat models for each writer
 const writerModel = new ChatDeepSeek({
-  model: "deepseek-chat",
+  model: 'deepseek-chat',
   temperature: 0.9, // higher temperature more creative
   apiKey: process.env.DEEPSEEK_API_KEY,
   maxTokens: 200,
@@ -113,11 +110,11 @@ const writerModel = new ChatDeepSeek({
 function writeFeaturedBlogTopPostPrompt(
   editor: Writer,
   currentNewsItem: NewsItem = {
-    article_id: "",
-    title: "",
-    description: "",
-    pubDate: "",
-    pubDateTZ: "",
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
   },
 ) {
   // TODO: fix description might be null in currentNewsItem!
@@ -130,26 +127,25 @@ function writeFeaturedBlogTopPostPrompt(
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${VALID_CATEGORIES.join(", ")}\n\n
+    ${VALID_CATEGORIES.join(', ')}\n\n
     
-    ${editor.name !== "" ? "Your name is " + editor.name + "." : ""}\n
-    ${editor.description !== "" ? "Your description is " + editor.description + "." : ""}\n
-    ${editor.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + editor.systemPrompt : ""}\n
+    ${editor.name !== '' ? 'Your name is ' + editor.name + '.' : ''}\n
+    ${editor.description !== '' ? 'Your description is ' + editor.description + '.' : ''}\n
+    ${editor.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + editor.systemPrompt : ''}\n
     
     ${
-      currentNewsItem.title !== ""
+      currentNewsItem.title !== ''
         ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
-        and rewrite it in your own words and style: \n\n TITLE: \n` +
-          currentNewsItem.title
-        : ""
+        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title
+        : ''
     }\n
     ${
-      currentNewsItem.description !== null && currentNewsItem.description !== ""
+      currentNewsItem.description !== null && currentNewsItem.description !== ''
         ? `Additionally, take the following description of the news item, 
         and do the same, adding it to your context:` +
-          "\n DESCRIPTION: \n" +
+          '\n DESCRIPTION: \n' +
           currentNewsItem.description
-        : ""
+        : ''
     }\n
     
     In the prompt section of the output, I want you to write an image prompt for an image generation model 
@@ -226,11 +222,11 @@ function writeFeaturedBlogTopPostPrompt(
 function writeFeaturedBlogSubPostPrompt(
   writer: Writer,
   currentNewsItem: NewsItem = {
-    article_id: "",
-    title: "",
-    description: "",
-    pubDate: "",
-    pubDateTZ: "",
+    article_id: '',
+    title: '',
+    description: '',
+    pubDate: '',
+    pubDateTZ: '',
   },
 ) {
   // TODO: fix description might be null in currentNewsItem!
@@ -243,26 +239,25 @@ function writeFeaturedBlogSubPostPrompt(
     Notice that the content should be in markdown format, meaning, that you should emphasize words and phrases as you see fit in accordance to markdown rules.\n\n
 
     The following categories are the only valid categories that you may use, please pick the most relevant one for the title and content of the article among these:\n
-    ${VALID_CATEGORIES.join(", ")}\n\n
+    ${VALID_CATEGORIES.join(', ')}\n\n
     
-    ${writer.name !== "" ? "Your name is " + writer.name + "." : ""}\n
-    ${writer.description !== "" ? "Your description is " + writer.description + "." : ""}\n
-    ${writer.systemPrompt !== "" ? "A further prompt that defines you and how you write: \n\n" + writer.systemPrompt : ""}\n
+    ${writer.name !== '' ? 'Your name is ' + writer.name + '.' : ''}\n
+    ${writer.description !== '' ? 'Your description is ' + writer.description + '.' : ''}\n
+    ${writer.systemPrompt !== '' ? 'A further prompt that defines you and how you write: \n\n' + writer.systemPrompt : ''}\n
     
     ${
-      currentNewsItem.title !== ""
+      currentNewsItem.title !== ''
         ? `I want you to take the following title of a news item, add several fantastical and fake elements to it, 
-        and rewrite it in your own words and style: \n\n TITLE: \n` +
-          currentNewsItem.title
-        : ""
+        and rewrite it in your own words and style: \n\n TITLE: \n` + currentNewsItem.title
+        : ''
     }\n
     ${
-      currentNewsItem.description !== null && currentNewsItem.description !== ""
+      currentNewsItem.description !== null && currentNewsItem.description !== ''
         ? `Additionally, take the following description of the news item, 
         and do the same, adding it to your context:` +
-          "\n DESCRIPTION: \n" +
+          '\n DESCRIPTION: \n' +
           currentNewsItem.description
-        : ""
+        : ''
     }\n
     
     In the prompt section of the output, I want you to write an image prompt for an image generation model 

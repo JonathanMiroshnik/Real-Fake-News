@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { chooseNextAction } from "../services/gameIntelligenceService.js";
-import { GenerateGameMoveRequest } from "../types/gameIntelligence.js";
+import { Request, Response } from 'express';
+import { chooseNextAction } from '../services/gameIntelligenceService.js';
+import { GenerateGameMoveRequest } from '../types/gameIntelligence.js';
 
 export const textToGameAnalysis = async (req: Request, res: Response) => {
   try {
@@ -13,7 +13,7 @@ export const textToGameAnalysis = async (req: Request, res: Response) => {
     const result = await chooseNextAction(serviceReq);
     res.json(result);
   } catch (error) {
-    console.error("❌ Game intelligence analysis failed:", error);
-    res.status(500).json({ error: "Game Intelligence Analysis failed" });
+    console.error('❌ Game intelligence analysis failed:', error);
+    res.status(500).json({ error: 'Game Intelligence Analysis failed' });
   }
 };

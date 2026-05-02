@@ -1,5 +1,5 @@
-import { createContext } from "react";
-import { ArticleProps, WriterProps } from "../pages/ArticlePage/ArticlePage";
+import { createContext } from 'react';
+import { ArticleProps, WriterProps } from '../pages/ArticlePage/ArticlePage';
 
 interface ArticleContextType {
   articles: ArticleProps[];

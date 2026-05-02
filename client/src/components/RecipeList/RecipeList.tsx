@@ -1,7 +1,7 @@
-import { RecipeProps } from "../../types/recipe";
-import RecipeListItem from "../RecipeListItem/RecipeListItem";
+import { RecipeProps } from '../../types/recipe';
+import RecipeListItem from '../RecipeListItem/RecipeListItem';
 
-import "./RecipeList.css";
+import './RecipeList.css';
 
 /**
  * Generic recipe list component with optional title
@@ -24,7 +24,7 @@ interface RecipeListProps {
 }
 
 function RecipeList({
-  title = "",
+  title = '',
   recipes,
   vertical = false,
   maxItems = 4,
@@ -35,11 +35,9 @@ function RecipeList({
       <div className="recipe-list-main">
         {title && <h2 className="recipe-list-title">{title}</h2>}
 
-        <ul
-          className={`recipe-list-ul recipe-list-ul-${vertical ? "vertical" : "horizontal"}`}
-        >
+        <ul className={`recipe-list-ul recipe-list-ul-${vertical ? 'vertical' : 'horizontal'}`}>
           {recipes.slice(0, maxItems).map((recipe) => (
-            <li key={"recipe_list_item_" + recipe.key}>
+            <li key={'recipe_list_item_' + recipe.key}>
               <RecipeListItem showImage={showImages} recipe={recipe} />
             </li>
           ))}

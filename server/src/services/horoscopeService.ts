@@ -1,9 +1,9 @@
-import "dotenv/config";
-import { fetchAstrologicalData, AstrologicalData } from "./astrologyService.js";
-import { generateTextFromString } from "./llmService.js";
-import { Horoscope, ZODIAC_SIGNS } from "../types/horoscope.js";
-import { getDatabase } from "../lib/database/database.js";
-import { debugLog } from "../utils/debugLogger.js";
+import 'dotenv/config';
+import { fetchAstrologicalData, AstrologicalData } from './astrologyService.js';
+import { generateTextFromString } from './llmService.js';
+import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
+import { getDatabase } from '../lib/database/database.js';
+import { debugLog } from '../utils/debugLogger.js';
 
 /**
  * Generates a horoscope for a specific zodiac sign using LLM
@@ -14,15 +14,12 @@ async function generateHoroscopeForSign(
 ): Promise<string> {
   const retrogradeInfo =
     astrologicalData.retrogrades.length > 0
-      ? `Currently in retrograde: ${astrologicalData.retrogrades.join(", ")}. `
-      : "No planets are currently in retrograde. ";
+      ? `Currently in retrograde: ${astrologicalData.retrogrades.join(', ')}. `
+      : 'No planets are currently in retrograde. ';
 
   const planetaryPositions = astrologicalData.planets
-    .map(
-      (p) =>
-        `${p.name} is in ${p.sign}${p.isRetrograde ? " (retrograde)" : ""}`,
-    )
-    .join(", ");
+    .map((p) => `${p.name} is in ${p.sign}${p.isRetrograde ? ' (retrograde)' : ''}`)
+    .join(', ');
 
   const prompt = `You are a witty, entertaining horoscope writer for a satirical fake news website. Write a daily horoscope for ${zodiacSign} that is:
 
@@ -36,11 +33,11 @@ async function generateHoroscopeForSign(
 Write the horoscope now:`;
 
   try {
-    const response = await generateTextFromString(prompt, "text", 0.8);
+    const response = await generateTextFromString(prompt, 'text', 0.8);
     if (response?.success && response.generatedText) {
       return response.generatedText.trim();
     } else {
-      throw new Error("Failed to generate horoscope text");
+      throw new Error('Failed to generate horoscope text');
     }
   } catch (error) {
     console.error(`Error generating horoscope for ${zodiacSign}:`, error);
@@ -52,11 +49,9 @@ Write the horoscope now:`;
 /**
  * Generates horoscopes for all zodiac signs for a given date
  */
-export async function generateHoroscopesForDate(
-  date?: Date,
-): Promise<Horoscope[]> {
+export async function generateHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
   const targetDate = date || new Date();
-  const dateString = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
+  const dateString = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
 
   // Fetch astrological data for the date
   const astrologicalData = await fetchAstrologicalData(targetDate);
@@ -91,9 +86,7 @@ export async function generateHoroscopesForDate(
 /**
  * Saves horoscopes to the database
  */
-export async function saveHoroscopes(
-  horoscopes: Horoscope[],
-): Promise<boolean> {
+export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> {
   const db = getDatabase();
 
   try {
@@ -114,7 +107,7 @@ export async function saveHoroscopes(
 
     return true;
   } catch (error) {
-    console.error("Error saving horoscopes:", error);
+    console.error('Error saving horoscopes:', error);
     return false;
   }
 }
@@ -124,7 +117,7 @@ export async function saveHoroscopes(
  */
 export async function getHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
   const targetDate = date || new Date();
-  const dateString = targetDate.toISOString().split("T")[0];
+  const dateString = targetDate.toISOString().split('T')[0];
 
   const db = getDatabase();
   const stmt = db.prepare(`
@@ -153,7 +146,7 @@ export async function getHoroscopeForSign(
   date?: Date,
 ): Promise<Horoscope | null> {
   const targetDate = date || new Date();
-  const dateString = targetDate.toISOString().split("T")[0];
+  const dateString = targetDate.toISOString().split('T')[0];
 
   const db = getDatabase();
   const stmt = db.prepare(`
@@ -190,7 +183,7 @@ export async function ensureHoroscopesForToday(): Promise<Horoscope[]> {
   }
 
   // Otherwise, generate new ones
-  debugLog("Generating horoscopes for today...");
+  debugLog('Generating horoscopes for today...');
   const horoscopes = await generateHoroscopesForDate(today);
   await saveHoroscopes(horoscopes);
   debugLog(`Generated and saved ${horoscopes.length} horoscopes`);

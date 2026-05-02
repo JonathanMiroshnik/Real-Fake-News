@@ -1,14 +1,11 @@
-import { useContext } from "react";
-import { useParams } from "react-router-dom";
-import { ArticleContext } from "../../contexts/ArticleContext";
-import ArticleList from "../../components/ArticleList/ArticleList";
-import { desanitizeWriterName } from "../../services/writerService";
-import {
-  DEFAULT_IMAGE,
-  getImageURLFromWriter,
-} from "../../services/imageService";
-import Image from "../../components/Image/Image";
-import "./WriterPage.css";
+import { useContext } from 'react';
+import { useParams } from 'react-router-dom';
+import { ArticleContext } from '../../contexts/ArticleContext';
+import ArticleList from '../../components/ArticleList/ArticleList';
+import { desanitizeWriterName } from '../../services/writerService';
+import { DEFAULT_IMAGE, getImageURLFromWriter } from '../../services/imageService';
+import Image from '../../components/Image/Image';
+import './WriterPage.css';
 
 /**
  * Writer profile page showing biography and articles
@@ -27,7 +24,7 @@ function WriterPage() {
   }
 
   // Name desanitization using service utility
-  const desenitizedKey = desanitizeWriterName(key || "");
+  const desenitizedKey = desanitizeWriterName(key || '');
 
   // const currentWriters = useContext(ArticleContext).writers;
   // Find matching writer
@@ -38,9 +35,7 @@ function WriterPage() {
 
   // const currentArticles = useContext(ArticleContext).articles;
   // Filter writer's articles
-  const articlesbyWriter = articles.filter(
-    (a) => a.author?.name === desenitizedKey,
-  );
+  const articlesbyWriter = articles.filter((a) => a.author?.name === desenitizedKey);
   const authorName = desenitizedKey;
   // const articlesbyWriter: ArticleProps[] = currentArticles.filter((article) => {
   //       if (article.author === undefined) {

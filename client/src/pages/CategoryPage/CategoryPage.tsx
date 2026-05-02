@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
-import { useContext } from "react";
-import { useResponsiveArticlesCount } from "../../hooks/useResponsiveArticlesCount";
-import ArticleList from "../../components/ArticleList/ArticleList";
-import { articlesByCategory, CATEGORIES } from "../../services/articleService";
-import { ArticleContext } from "../../contexts/ArticleContext";
-import { debugLog } from "../../utils/debugLogger";
-import "./CategoryPage.css";
+import { useParams } from 'react-router-dom';
+import { useContext } from 'react';
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
+import ArticleList from '../../components/ArticleList/ArticleList';
+import { articlesByCategory, CATEGORIES } from '../../services/articleService';
+import { ArticleContext } from '../../contexts/ArticleContext';
+import { debugLog } from '../../utils/debugLogger';
+import './CategoryPage.css';
 
 function CategoryPage() {
   const { key } = useParams();
@@ -18,10 +18,7 @@ function CategoryPage() {
 
   const currentCategory: string = key.toString();
   const foundCategory = CATEGORIES.find((cc) => {
-    return (
-      cc.name.toString().toLowerCase() ===
-      currentCategory.toString().toLowerCase()
-    );
+    return cc.name.toString().toLowerCase() === currentCategory.toString().toLowerCase();
   });
   if (foundCategory === null || foundCategory === undefined) {
     return <div>CATEGORY NOT FOUND</div>;

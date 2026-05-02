@@ -1,5 +1,5 @@
-import { Horoscope } from "../../../types/horoscope";
-import "./HoroscopeCard.css";
+import { Horoscope } from '../../../types/horoscope';
+import './HoroscopeCard.css';
 
 interface HoroscopeCardProps {
   horoscope: Horoscope;

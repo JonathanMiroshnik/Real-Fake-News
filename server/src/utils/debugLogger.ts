@@ -16,7 +16,7 @@
  * Checks if debug logging is enabled via environment variable
  */
 function isDebugEnabled(): boolean {
-  return process.env.DEBUG_LOGS === "true";
+  return process.env.DEBUG_LOGS === 'true';
 }
 
 /**

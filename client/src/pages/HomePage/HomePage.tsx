@@ -1,29 +1,26 @@
-import { useContext, useEffect, useState } from "react";
-import ArticleList from "../../components/ArticleList/ArticleList";
-import FeaturedArticle from "../../components/FeaturedArticle/FeaturedArticle";
-import GamesList from "../../components/GamesList/GamesList";
-import NewsCarousel from "../../components/NewsCarousel/NewsCarousel";
-import SectionHeader from "../../components/SectionHeader/SectionHeader";
-import HoroscopeSection from "../../components/Horoscope/HoroscopeSection/HoroscopeSection";
-import RecipeSection from "../../components/RecipeSection/RecipeSection";
+import { useContext, useEffect, useState } from 'react';
+import ArticleList from '../../components/ArticleList/ArticleList';
+import FeaturedArticle from '../../components/FeaturedArticle/FeaturedArticle';
+import GamesList from '../../components/GamesList/GamesList';
+import NewsCarousel from '../../components/NewsCarousel/NewsCarousel';
+import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import HoroscopeSection from '../../components/Horoscope/HoroscopeSection/HoroscopeSection';
+import RecipeSection from '../../components/RecipeSection/RecipeSection';
 // import SectionWithSidebars from '../../components/SectionWithSidebars/SectionWithSidebars';
-import { useResponsiveArticlesCount } from "../../hooks/useResponsiveArticlesCount";
-import { ArticleContext } from "../../contexts/ArticleContext";
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
+import { ArticleContext } from '../../contexts/ArticleContext';
 import {
   groupArticlesByCategories,
   CATEGORIES,
   getFeaturedArticle,
-} from "../../services/articleService";
-import {
-  getImageURLFromArticle,
-  DEFAULT_IMAGE,
-} from "../../services/imageService";
-import { debugLog, debugWarn } from "../../utils/debugLogger";
-import { ArticleProps } from "../ArticlePage/ArticlePage";
+} from '../../services/articleService';
+import { getImageURLFromArticle, DEFAULT_IMAGE } from '../../services/imageService';
+import { debugLog, debugWarn } from '../../utils/debugLogger';
+import { ArticleProps } from '../ArticlePage/ArticlePage';
 
 // Temporary feature flag - remove when no longer needed
-const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === "true";
-const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES === "true";
+const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === 'true';
+const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES === 'true';
 
 // /**
 //  * Application homepage showing all news categories
@@ -36,13 +33,11 @@ function HomePage() {
   const articlesPerSection: number = useResponsiveArticlesCount();
   const categoryArticles = groupArticlesByCategories(articles);
   const [showNoArticlesMessage, setShowNoArticlesMessage] = useState(false);
-  const [featuredArticle, setFeaturedArticle] = useState<ArticleProps | null>(
-    null,
-  );
+  const [featuredArticle, setFeaturedArticle] = useState<ArticleProps | null>(null);
 
   // Get delay from environment variable, default to 3000ms (3 seconds)
   const noArticlesMessageDelay = parseInt(
-    import.meta.env.VITE_NO_ARTICLES_MESSAGE_DELAY || "3000",
+    import.meta.env.VITE_NO_ARTICLES_MESSAGE_DELAY || '3000',
     10,
   );
 
@@ -64,32 +59,28 @@ function HomePage() {
   }, [articles.length, noArticlesMessageDelay]);
 
   // Debug: Show article count
-  debugLog("🏠 [HomePage] Articles count:", articles.length);
+  debugLog('🏠 [HomePage] Articles count:', articles.length);
   if (articles.length === 0 && showNoArticlesMessage) {
-    debugWarn(
-      "⚠️ [HomePage] No articles loaded. Check browser console for API errors.",
-    );
+    debugWarn('⚠️ [HomePage] No articles loaded. Check browser console for API errors.');
   }
 
   debugLog(
-    "🏠 [HomePage] All articles:",
+    '🏠 [HomePage] All articles:',
     articles.map((a) => a.title),
   );
 
   // Debug: Show category distribution
   debugLog(
-    "🏠 [HomePage] Category articles:",
+    '🏠 [HomePage] Category articles:',
     categoryArticles.map((cat, idx) => ({
-      category: CATEGORIES[idx]?.name || "Unknown",
+      category: CATEGORIES[idx]?.name || 'Unknown',
       count: cat.length,
     })),
   );
 
   // Debug: Show all article categories
-  const allCategories = [
-    ...new Set(articles.map((a) => a.category).filter(Boolean)),
-  ];
-  debugLog("🏠 [HomePage] All article categories in data:", allCategories);
+  const allCategories = [...new Set(articles.map((a) => a.category).filter(Boolean))];
+  debugLog('🏠 [HomePage] All article categories in data:', allCategories);
 
   // Fetch featured article on mount
   useEffect(() => {
@@ -114,12 +105,12 @@ function HomePage() {
         }
 
         // Create and add preload link
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
         link.href = imageUrl;
-        link.setAttribute("fetchpriority", "high");
-        link.setAttribute("data-featured-image", "true");
+        link.setAttribute('fetchpriority', 'high');
+        link.setAttribute('data-featured-image', 'true');
         document.head.appendChild(link);
 
         return () => {
@@ -138,15 +129,12 @@ function HomePage() {
   return (
     <div className="max-w-[1200px]">
       {articles.length === 0 && showNoArticlesMessage && (
-        <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
           <p>
             <strong>No articles loaded.</strong>
           </p>
           <p>Check the browser console (F12) for errors.</p>
-          <p>
-            Make sure the server is running at http://localhost:5001
-            (development port)
-          </p>
+          <p>Make sure the server is running at http://localhost:5001 (development port)</p>
         </div>
       )}
       {/* TODO: magic number 4 */}
@@ -159,14 +147,11 @@ function HomePage() {
             {/* <CategoryArticleList category={CATEGORIES[0]}/> */}
             {/* Show Politics articles, or fallback to all articles if no category matches */}
             {categoryArticles[0] && categoryArticles[0].length > 0 ? (
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <ArticleList
-                  articles={categoryArticles[0]}
-                  maxItems={articlesPerSection}
-                />
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ArticleList articles={categoryArticles[0]} maxItems={articlesPerSection} />
               </div>
             ) : articles.length > 0 ? (
-              <div style={{ display: "flex", justifyContent: "center" }}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ArticleList
                   articles={articles.slice(0, articlesPerSection)}
                   maxItems={articlesPerSection}
@@ -176,7 +161,7 @@ function HomePage() {
           </div>
           {/* TODO: 4 magic number */}
           {articlesPerSection >= 4 && (
-            <div className="shrink-0" style={{ width: "280px", flexShrink: 0 }}>
+            <div className="shrink-0" style={{ width: '280px', flexShrink: 0 }}>
               {categoryArticles[0] && categoryArticles[0].length > 0 ? (
                 <ArticleList
                   articles={categoryArticles[0]}
@@ -214,10 +199,7 @@ function HomePage() {
         const categoryArticleList = categoryArticles[index];
         if (categoryArticleList && categoryArticleList.length > 0) {
           return (
-            <div
-              key={`category-section-${category.name}`}
-              className="w-full mb-16 last:mb-0"
-            >
+            <div key={`category-section-${category.name}`} className="w-full mb-16 last:mb-0">
               {/* <SectionWithSidebars
                 mainWidthPercent={70}
                 right={
@@ -232,10 +214,7 @@ function HomePage() {
                   </a>
                 }
               > */}
-              <SectionHeader
-                topLine={category.text}
-                bottomLine={category.name}
-              />
+              <SectionHeader topLine={category.text} bottomLine={category.name} />
               <div className="flex gap-4 pb-4 mb-12">
                 <ArticleList
                   articles={categoryArticleList}
@@ -251,10 +230,9 @@ function HomePage() {
       })}
 
       {/* Fallback: If no articles in any category, show all articles */}
-      {articles.length > 0 &&
-        categoryArticles.every((cat) => cat.length === 0) && (
-          <div className="w-full mb-16 last:mb-0">
-            {/* <SectionWithSidebars
+      {articles.length > 0 && categoryArticles.every((cat) => cat.length === 0) && (
+        <div className="w-full mb-16 last:mb-0">
+          {/* <SectionWithSidebars
             mainWidthPercent={70}
             right={
               <a href="/print-edition" target="_blank" rel="noopener noreferrer">
@@ -268,17 +246,13 @@ function HomePage() {
               </a>
             }
           > */}
-            <SectionHeader topLine="All Articles" bottomLine="Latest News" />
-            <div className="flex gap-4 pb-4 mb-12">
-              <ArticleList
-                articles={articles}
-                vertical={false}
-                maxItems={articlesPerSection * 2}
-              />
-            </div>
-            {/* </SectionWithSidebars> */}
+          <SectionHeader topLine="All Articles" bottomLine="Latest News" />
+          <div className="flex gap-4 pb-4 mb-12">
+            <ArticleList articles={articles} vertical={false} maxItems={articlesPerSection * 2} />
           </div>
-        )}
+          {/* </SectionWithSidebars> */}
+        </div>
+      )}
 
       <div className="w-full mb-16 last:mb-0">
         <SectionHeader topLine="Interactive" bottomLine="Games" />

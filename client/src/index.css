@@ -1,5 +1,5 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss";
+@import 'tailwindcss/preflight';
+@import 'tailwindcss';
 
 @reference "tailwindcss";
 
@@ -16,7 +16,7 @@
   --breakpoint-mobile: 600px;
 
   /* Custom font families */
-  --font-serif: "Times New Roman", Times, serif;
+  --font-serif: 'Times New Roman', Times, serif;
   --font-sans: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   /* Custom animations */

@@ -21,12 +21,12 @@ real.sensorcensor.xyz → (shared nginx) → client:80
 ### Container Names (for PersonalDevOps sites.yaml)
 
 ```yaml
-- name: "real"
-  subdomain: "real.sensorcensor.xyz"
+- name: 'real'
+  subdomain: 'real.sensorcensor.xyz'
   internal_port: 80
-  container_name: "client"
-  backend_repo: "https://github.com/JonathanMiroshnik/RealWebsite.git"
-  backend_tech: "multi"
+  container_name: 'client'
+  backend_repo: 'https://github.com/JonathanMiroshnik/RealWebsite.git'
+  backend_tech: 'multi'
   enabled: true
 ```
 

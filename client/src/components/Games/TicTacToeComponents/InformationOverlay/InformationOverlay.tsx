@@ -1,8 +1,8 @@
-import "./InformationOverlay.css";
-import Board from "../Board/Board";
-import { CellState, Symbols } from "../Game/types";
-import { useState } from "react";
-import MovePresentation from "../MovePresentation/MovePresentation";
+import './InformationOverlay.css';
+import Board from '../Board/Board';
+import { CellState, Symbols } from '../Game/types';
+import { useState } from 'react';
+import MovePresentation from '../MovePresentation/MovePresentation';
 
 // RULES:
 // Like Tic-Tac-Toe, there is a 3x3 board and two players, X and O.
@@ -85,7 +85,7 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
           },
         ],
       ],
-      explanation: "Like in regular Tic-Tac-Toe, the board starts off empty",
+      explanation: 'Like in regular Tic-Tac-Toe, the board starts off empty',
     },
     // ---------------------------------------------------------- SECOND BOARD ----------------------------------------------------------
     {
@@ -134,7 +134,7 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
         ],
       ],
       explanation:
-        "When the cube is highlighted, a player has started his move,\n a player is his symbol, and a die throw number.",
+        'When the cube is highlighted, a player has started his move,\n a player is his symbol, and a die throw number.',
       currentMove: { symbol: Symbols.X, totalDice: 3 },
     },
     // ---------------------------------------------------------- THIRD BOARD ----------------------------------------------------------
@@ -679,7 +679,7 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
         <div className="text-center">
           <div
             style={{
-              visibility: BOARDS[index]?.currentMove ? "visible" : "hidden",
+              visibility: BOARDS[index]?.currentMove ? 'visible' : 'hidden',
             }}
           >
             <MovePresentation
@@ -692,22 +692,16 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
             />
           </div>
           <div>
-            <Board
-              boardState={BOARDS[index].board}
-              onCellAction={() => {}}
-              disabled={true}
-            />
+            <Board boardState={BOARDS[index].board} onCellAction={() => {}} disabled={true} />
           </div>
           <div className="information-overlay-explanation">
-            <div className="information-overlay-explanation-text">
-              {BOARDS[index].explanation}
-            </div>
+            <div className="information-overlay-explanation-text">{BOARDS[index].explanation}</div>
           </div>
           <div>
             <button
               onClick={nextPage}
               style={{
-                visibility: index + 1 < BOARDS.length ? "visible" : "hidden",
+                visibility: index + 1 < BOARDS.length ? 'visible' : 'hidden',
               }}
               className="information-page-move-button"
             >
@@ -715,7 +709,7 @@ function InformationOverlay({ onClose }: InformationOverlayProps) {
             </button>
             <button
               onClick={previousPage}
-              style={{ visibility: index > 0 ? "visible" : "hidden" }}
+              style={{ visibility: index > 0 ? 'visible' : 'hidden' }}
               className="information-page-move-button"
             >
               Previous

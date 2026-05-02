@@ -1,6 +1,6 @@
-import { useContext } from "react";
-import { DarkModeContext } from "../../contexts/DarkModeContext";
-import "./ThemeToggle.css";
+import { useContext } from 'react';
+import { DarkModeContext } from '../../contexts/DarkModeContext';
+import './ThemeToggle.css';
 
 function ThemeToggle() {
   const { dark, toggleDarkMode } = useContext(DarkModeContext);
@@ -8,14 +8,14 @@ function ThemeToggle() {
   return (
     <div className="theme-toggle-container">
       <button
-        className={`theme-toggle ${dark ? "dark" : "light"}`}
+        className={`theme-toggle ${dark ? 'dark' : 'light'}`}
         onClick={toggleDarkMode}
-        aria-label={`Switch to ${dark ? "light" : "dark"} mode`}
-        title={`Switch to ${dark ? "light" : "dark"} mode`}
+        aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`}
+        title={`Switch to ${dark ? 'light' : 'dark'} mode`}
       >
         <div className="theme-toggle-track">
           <div className="theme-toggle-thumb">
-            <span className="theme-icon">{dark ? "🌙" : "☀️"}</span>
+            <span className="theme-icon">{dark ? '🌙' : '☀️'}</span>
           </div>
         </div>
       </button>

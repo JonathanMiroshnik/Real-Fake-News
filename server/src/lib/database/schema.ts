@@ -1,5 +1,5 @@
-import { getDatabase } from "./database.js";
-import { debugLog, debugWarn } from "../../utils/debugLogger.js";
+import { getDatabase } from './database.js';
+import { debugLog, debugWarn } from '../../utils/debugLogger.js';
 
 /**
  * Initializes the SQLite database schema.
@@ -43,11 +43,11 @@ export function initializeSchema(): void {
     // Column already exists, ignore error
     // SQLite error codes: SQLITE_ERROR (1) for duplicate column
     if (
-      error.code !== "SQLITE_ERROR" &&
-      !error.message?.includes("duplicate column name") &&
-      !error.message?.includes("duplicate column")
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
     ) {
-      debugWarn("Warning: Could not add writerType column:", error.message);
+      debugWarn('Warning: Could not add writerType column:', error.message);
     } else {
       // Column exists, just ensure all rows have a value
       db.exec(`
@@ -67,11 +67,11 @@ export function initializeSchema(): void {
   } catch (error: any) {
     // Column already exists, ignore error
     if (
-      error.code !== "SQLITE_ERROR" &&
-      !error.message?.includes("duplicate column name") &&
-      !error.message?.includes("duplicate column")
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
     ) {
-      debugWarn("Warning: Could not add isFeatured column:", error.message);
+      debugWarn('Warning: Could not add isFeatured column:', error.message);
     }
   }
 
@@ -84,11 +84,11 @@ export function initializeSchema(): void {
   } catch (error: any) {
     // Column already exists, ignore error
     if (
-      error.code !== "SQLITE_ERROR" &&
-      !error.message?.includes("duplicate column name") &&
-      !error.message?.includes("duplicate column")
+      error.code !== 'SQLITE_ERROR' &&
+      !error.message?.includes('duplicate column name') &&
+      !error.message?.includes('duplicate column')
     ) {
-      debugWarn("Warning: Could not add featuredDate column:", error.message);
+      debugWarn('Warning: Could not add featuredDate column:', error.message);
     }
   }
 
@@ -213,5 +213,5 @@ export function initializeSchema(): void {
         ON horoscopes(date)
     `);
 
-  debugLog("SQLite schema initialized successfully");
+  debugLog('SQLite schema initialized successfully');
 }

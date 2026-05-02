@@ -1,9 +1,6 @@
-import { LLMService } from "../../../services/llmService.js";
-import {
-  GenerateGameMoveRequest,
-  GenerateGameMoveResponse,
-} from "../types/gameIntelligence.js";
-import { GenerateContentRequest } from "../../../types/llm.js";
+import { LLMService } from '../../../services/llmService.js';
+import { GenerateGameMoveRequest, GenerateGameMoveResponse } from '../types/gameIntelligence.js';
+import { GenerateContentRequest } from '../../../types/llm.js';
 
 export async function chooseNextAction(
   serviceReq: GenerateGameMoveRequest,
@@ -108,9 +105,9 @@ export async function chooseNextAction(
     `;
 
   const request: GenerateContentRequest = {
-    provider: "deepseek",
+    provider: 'deepseek',
     prompt: prompt,
-    type: "json_object",
+    type: 'json_object',
   };
 
   const llmServiceInst = new LLMService();

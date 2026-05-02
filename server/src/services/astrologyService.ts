@@ -1,6 +1,6 @@
-import "dotenv/config";
-import axios from "axios";
-import { debugWarn } from "../utils/debugLogger.js";
+import 'dotenv/config';
+import axios from 'axios';
+import { debugWarn } from '../utils/debugLogger.js';
 
 export interface PlanetaryPosition {
   name: string;
@@ -27,11 +27,9 @@ let cacheDate: string | null = null;
  * Uses FreeAstroAPI (freeastroapi.com) for astrological data
  * Caches data for the current day to avoid excessive API calls
  */
-export async function fetchAstrologicalData(
-  date?: Date,
-): Promise<AstrologicalData> {
+export async function fetchAstrologicalData(date?: Date): Promise<AstrologicalData> {
   const targetDate = date || new Date();
-  const dateString = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+  const dateString = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD format
 
   // Return cached data if it's for the same day
   if (cachedAstrologicalData && cacheDate === dateString) {
@@ -41,14 +39,14 @@ export async function fetchAstrologicalData(
   try {
     // FreeAstroAPI endpoint for current planetary positions
     // Using a general chart calculation endpoint
-    const apiUrl = "https://api.freeastroapi.com/planets";
+    const apiUrl = 'https://api.freeastroapi.com/planets';
 
     // For now, we'll use a simplified approach with a default location
     // In a real implementation, you might want to use a specific location
     const response = await axios.get(apiUrl, {
       params: {
         date: dateString,
-        time: "12:00", // Noon UTC
+        time: '12:00', // Noon UTC
         lat: 0, // Equator (general position)
         lon: 0, // Prime meridian
         tz: 0, // UTC
@@ -67,8 +65,7 @@ export async function fetchAstrologicalData(
           longitude: planet.longitude || 0,
           latitude: planet.latitude || 0,
           sign: getSignFromLongitude(planet.longitude || 0),
-          isRetrograde:
-            planet.retrograde === true || planet.isRetrograde === true,
+          isRetrograde: planet.retrograde === true || planet.isRetrograde === true,
         };
 
         planets.push(planetData);
@@ -80,7 +77,7 @@ export async function fetchAstrologicalData(
     } else {
       // Fallback: Create basic planetary data structure if API response is different
       // This is a fallback in case the API structure is different
-      debugWarn("Unexpected API response structure, using fallback data");
+      debugWarn('Unexpected API response structure, using fallback data');
       return createFallbackAstrologicalData(dateString);
     }
 
@@ -96,7 +93,7 @@ export async function fetchAstrologicalData(
 
     return astrologicalData;
   } catch (error) {
-    console.error("Failed to fetch astrological data:", error);
+    console.error('Failed to fetch astrological data:', error);
     // Return fallback data if API fails
     return createFallbackAstrologicalData(dateString);
   }
@@ -107,18 +104,18 @@ export async function fetchAstrologicalData(
  */
 function getSignFromLongitude(longitude: number): string {
   const signs = [
-    "Aries",
-    "Taurus",
-    "Gemini",
-    "Cancer",
-    "Leo",
-    "Virgo",
-    "Libra",
-    "Scorpio",
-    "Sagittarius",
-    "Capricorn",
-    "Aquarius",
-    "Pisces",
+    'Aries',
+    'Taurus',
+    'Gemini',
+    'Cancer',
+    'Leo',
+    'Virgo',
+    'Libra',
+    'Scorpio',
+    'Sagittarius',
+    'Capricorn',
+    'Aquarius',
+    'Pisces',
   ];
 
   const signIndex = Math.floor(longitude / 30);
@@ -132,73 +129,73 @@ function getSignFromLongitude(longitude: number): string {
 function createFallbackAstrologicalData(dateString: string): AstrologicalData {
   const planets: PlanetaryPosition[] = [
     {
-      name: "Sun",
+      name: 'Sun',
       longitude: 0,
       latitude: 0,
-      sign: "Aries",
+      sign: 'Aries',
       isRetrograde: false,
     },
     {
-      name: "Moon",
+      name: 'Moon',
       longitude: 60,
       latitude: 0,
-      sign: "Gemini",
+      sign: 'Gemini',
       isRetrograde: false,
     },
     {
-      name: "Mercury",
+      name: 'Mercury',
       longitude: 30,
       latitude: 0,
-      sign: "Taurus",
+      sign: 'Taurus',
       isRetrograde: false,
     },
     {
-      name: "Venus",
+      name: 'Venus',
       longitude: 90,
       latitude: 0,
-      sign: "Cancer",
+      sign: 'Cancer',
       isRetrograde: false,
     },
     {
-      name: "Mars",
+      name: 'Mars',
       longitude: 120,
       latitude: 0,
-      sign: "Leo",
+      sign: 'Leo',
       isRetrograde: false,
     },
     {
-      name: "Jupiter",
+      name: 'Jupiter',
       longitude: 150,
       latitude: 0,
-      sign: "Virgo",
+      sign: 'Virgo',
       isRetrograde: false,
     },
     {
-      name: "Saturn",
+      name: 'Saturn',
       longitude: 180,
       latitude: 0,
-      sign: "Libra",
+      sign: 'Libra',
       isRetrograde: false,
     },
     {
-      name: "Uranus",
+      name: 'Uranus',
       longitude: 210,
       latitude: 0,
-      sign: "Scorpio",
+      sign: 'Scorpio',
       isRetrograde: false,
     },
     {
-      name: "Neptune",
+      name: 'Neptune',
       longitude: 240,
       latitude: 0,
-      sign: "Sagittarius",
+      sign: 'Sagittarius',
       isRetrograde: false,
     },
     {
-      name: "Pluto",
+      name: 'Pluto',
       longitude: 270,
       latitude: 0,
-      sign: "Capricorn",
+      sign: 'Capricorn',
       isRetrograde: false,
     },
   ];

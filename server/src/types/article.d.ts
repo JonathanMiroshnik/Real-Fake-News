@@ -5,9 +5,9 @@ import {
   // getPostByKey,
   // updatePost,
   // deletePost,
-} from "../lib/database/sqliteOperations.js";
-import { NewsItem } from "../services/newsService.js";
-import { Writer } from "./writer";
+} from '../lib/database/sqliteOperations.js';
+import { NewsItem } from '../services/newsService.js';
+import { Writer } from './writer';
 
 export interface ArticleScheme extends Post {
   title?: string;
@@ -18,7 +18,7 @@ export interface ArticleScheme extends Post {
   headImage?: string;
   shortDescription?: string;
   originalNewsItem?: NewsItem;
-  writerType?: "AI" | "Human" | "Synthesis";
+  writerType?: 'AI' | 'Human' | 'Synthesis';
   isFeatured?: boolean;
   featuredDate?: string;
 }
@@ -54,7 +54,7 @@ export interface RecipeScheme extends Post {
   headImage?: string;
   images?: string[];
   shortDescription?: string;
-  writerType?: "AI" | "Human" | "Synthesis";
+  writerType?: 'AI' | 'Human' | 'Synthesis';
 }
 
 // FOR TESTING PURPOSRS ----------------------------------------------------------------------------------

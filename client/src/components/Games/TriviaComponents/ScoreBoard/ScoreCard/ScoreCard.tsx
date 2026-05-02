@@ -1,5 +1,5 @@
-import { Player } from "../../TriviaGame/types";
-import "./ScoreCard.css";
+import { Player } from '../../TriviaGame/types';
+import './ScoreCard.css';
 
 interface ScoreCardProps {
   player: Player;

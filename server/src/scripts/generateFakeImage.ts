@@ -25,12 +25,9 @@
  *   npx tsx src/scripts/generateFakeImage.ts --output ./my-image.png
  */
 
-import {
-  PlaceholderImageConfig,
-  generatePlaceholderImage,
-} from "../services/fakeDataService.js";
-import path from "path";
-import fs from "fs";
+import { PlaceholderImageConfig, generatePlaceholderImage } from '../services/fakeDataService.js';
+import path from 'path';
+import fs from 'fs';
 
 function parseArgs(): {
   config: Partial<PlaceholderImageConfig>;
@@ -42,7 +39,7 @@ function parseArgs(): {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === "--help" || arg === "-h") {
+    if (arg === '--help' || arg === '-h') {
       result.help = true;
       continue;
     }
@@ -50,67 +47,67 @@ function parseArgs(): {
     const next = (): number => {
       const val = parseInt(args[++i], 10);
       if (isNaN(val)) {
-        console.error("❌ Expected a number after", arg);
+        console.error('❌ Expected a number after', arg);
         process.exit(1);
       }
       return val;
     };
 
     switch (arg) {
-      case "--width":
+      case '--width':
         result.config.width = next();
         break;
-      case "--height":
+      case '--height':
         result.config.height = next();
         break;
-      case "--tiles-x":
+      case '--tiles-x':
         result.config.tilesX = next();
         break;
-      case "--tiles-y":
+      case '--tiles-y':
         result.config.tilesY = next();
         break;
-      case "--color-min-r":
+      case '--color-min-r':
         result.config.colorMin = {
           ...(result.config.colorMin || { r: 30, g: 30, b: 30 }),
           r: next(),
         };
         break;
-      case "--color-max-r":
+      case '--color-max-r':
         result.config.colorMax = {
           ...(result.config.colorMax || { r: 225, g: 225, b: 225 }),
           r: next(),
         };
         break;
-      case "--color-min-g":
+      case '--color-min-g':
         result.config.colorMin = {
           ...(result.config.colorMin || { r: 30, g: 30, b: 30 }),
           g: next(),
         };
         break;
-      case "--color-max-g":
+      case '--color-max-g':
         result.config.colorMax = {
           ...(result.config.colorMax || { r: 225, g: 225, b: 225 }),
           g: next(),
         };
         break;
-      case "--color-min-b":
+      case '--color-min-b':
         result.config.colorMin = {
           ...(result.config.colorMin || { r: 30, g: 30, b: 30 }),
           b: next(),
         };
         break;
-      case "--color-max-b":
+      case '--color-max-b':
         result.config.colorMax = {
           ...(result.config.colorMax || { r: 225, g: 225, b: 225 }),
           b: next(),
         };
         break;
-      case "--output":
+      case '--output':
         result.output = args[++i];
         break;
       default:
-        console.error("❌ Unknown option:", arg);
-        console.error("   Use --help");
+        console.error('❌ Unknown option:', arg);
+        console.error('   Use --help');
         process.exit(1);
     }
   }
@@ -155,32 +152,30 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.log("🎨 Generating placeholder image...");
-  console.log("   Config:", JSON.stringify(config));
+  console.log('🎨 Generating placeholder image...');
+  console.log('   Config:', JSON.stringify(config));
 
   const filename = await generatePlaceholderImage(config);
   if (!filename) {
-    console.error(
-      "❌ Failed to generate image. Is ENABLE_FAKE_DATA=true in .env?",
-    );
+    console.error('❌ Failed to generate image. Is ENABLE_FAKE_DATA=true in .env?');
     process.exit(1);
   }
 
   if (output) {
-    const { getImagesDirectory } = await import("../utils/imageCompression.js");
+    const { getImagesDirectory } = await import('../utils/imageCompression.js');
     const imagesDir = getImagesDirectory();
     const srcPath = path.join(imagesDir, filename);
     const destPath = path.resolve(output);
     fs.mkdirSync(path.dirname(destPath), { recursive: true });
     fs.copyFileSync(srcPath, destPath);
-    console.log("✅ Saved to:", destPath);
-    console.log("   (also in images dir:", filename + ")");
+    console.log('✅ Saved to:', destPath);
+    console.log('   (also in images dir:', filename + ')');
   } else {
-    console.log("✅ Image saved:", filename);
+    console.log('✅ Image saved:', filename);
   }
 }
 
 main().catch((error) => {
-  console.error("❌ Error:", error);
+  console.error('❌ Error:', error);
   process.exit(1);
 });

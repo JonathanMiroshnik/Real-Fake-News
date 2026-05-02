@@ -1,7 +1,7 @@
-import { Player } from "../TriviaGame/types";
-import ScoreCard from "./ScoreCard/ScoreCard";
+import { Player } from '../TriviaGame/types';
+import ScoreCard from './ScoreCard/ScoreCard';
 
-import "./ScoreBoard.css";
+import './ScoreBoard.css';
 
 interface ScoreBoardProps {
   players: Player[];
@@ -14,7 +14,7 @@ function ScoreBoard({ players, currentPlayerInd = 0 }: ScoreBoardProps) {
       {players.map((p, i) => (
         <div
           className={`player-card-wrapper 
-                                ${i === currentPlayerInd ? "current-player-highlight" : ""}`}
+                                ${i === currentPlayerInd ? 'current-player-highlight' : ''}`}
         >
           <ScoreCard player={p} />
         </div>

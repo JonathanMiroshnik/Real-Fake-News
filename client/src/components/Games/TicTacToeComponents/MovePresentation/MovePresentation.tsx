@@ -1,7 +1,7 @@
-import Dice from "../Dice/Dice";
-import { CellState, Symbols } from "../Game/types";
+import Dice from '../Dice/Dice';
+import { CellState, Symbols } from '../Game/types';
 
-import "./MovePresentation.css";
+import './MovePresentation.css';
 
 /**
  * Componet to show the current Move in the Tic-Tac-Toe game
@@ -13,16 +13,11 @@ interface MovePresentationProps {
   moveNumber: number;
 }
 
-function MovePresentation({
-  currentPlayer,
-  moveNumber,
-}: MovePresentationProps) {
+function MovePresentation({ currentPlayer, moveNumber }: MovePresentationProps) {
   return (
     <div className="current-move">
       <div className="current-player">
-        <b className="current-player-symbol">
-          {Symbols[currentPlayer.symbol].toString()}
-        </b>
+        <b className="current-player-symbol">{Symbols[currentPlayer.symbol].toString()}</b>
         {/* 's Turn */}
       </div>
       <div className="current-move-dice">

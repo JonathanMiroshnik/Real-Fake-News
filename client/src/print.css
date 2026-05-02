@@ -153,7 +153,7 @@
 
   /* Use a pseudo-element to create minimum space requirement before articles */
   .newspaper-article::before {
-    content: "" !important;
+    content: '' !important;
     display: block !important;
     height: 0 !important;
     page-break-before: avoid !important;
@@ -203,16 +203,16 @@
   /* Show URLs for links in print (for any links in article content) */
   .newspaper-article-content a[href]:after,
   .featured-article-content a[href]:after {
-    content: " (" attr(href) ")";
+    content: ' (' attr(href) ')';
     font-size: 0.8em;
     color: #666;
     word-break: break-all;
   }
 
   /* Don't show URLs for anchor links or javascript links */
-  a[href^="#"]:after,
-  a[href^="javascript:"]:after {
-    content: "";
+  a[href^='#']:after,
+  a[href^='javascript:']:after {
+    content: '';
   }
 
   /* Ensure links are readable in print */

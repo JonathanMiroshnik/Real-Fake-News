@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import RecipeList from "../RecipeList/RecipeList";
-import SectionHeader from "../SectionHeader/SectionHeader";
-import { useResponsiveArticlesCount } from "../../hooks/useResponsiveArticlesCount";
-import { getRelevantRecipes } from "../../services/recipeService";
-import { RecipeProps } from "../../types/recipe";
-import { debugLog, debugWarn } from "../../utils/debugLogger";
+import { useEffect, useState } from 'react';
+import RecipeList from '../RecipeList/RecipeList';
+import SectionHeader from '../SectionHeader/SectionHeader';
+import { useResponsiveArticlesCount } from '../../hooks/useResponsiveArticlesCount';
+import { getRelevantRecipes } from '../../services/recipeService';
+import { RecipeProps } from '../../types/recipe';
+import { debugLog, debugWarn } from '../../utils/debugLogger';
 
 function RecipeSection() {
   const [recipes, setRecipes] = useState<RecipeProps[]>([]);
@@ -16,9 +16,9 @@ function RecipeSection() {
       try {
         const fetchedRecipes = await getRelevantRecipes();
         setRecipes(fetchedRecipes);
-        debugLog("🍳 [RecipeSection] Loaded recipes:", fetchedRecipes.length);
+        debugLog('🍳 [RecipeSection] Loaded recipes:', fetchedRecipes.length);
       } catch (error) {
-        debugWarn("⚠️ [RecipeSection] Failed to load recipes:", error);
+        debugWarn('⚠️ [RecipeSection] Failed to load recipes:', error);
       } finally {
         setLoading(false);
       }
@@ -28,11 +28,7 @@ function RecipeSection() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="py-8 text-center text-(--description-color)">
-        Loading recipes...
-      </div>
-    );
+    return <div className="py-8 text-center text-(--description-color)">Loading recipes...</div>;
   }
 
   if (recipes.length === 0) {
@@ -43,11 +39,7 @@ function RecipeSection() {
     <div className="my-8">
       <SectionHeader topLine="Recipes" bottomLine="Food" />
       <div className="flex justify-center">
-        <RecipeList
-          recipes={recipes}
-          vertical={false}
-          maxItems={recipesPerSection}
-        />
+        <RecipeList recipes={recipes} vertical={false} maxItems={recipesPerSection} />
       </div>
     </div>
   );

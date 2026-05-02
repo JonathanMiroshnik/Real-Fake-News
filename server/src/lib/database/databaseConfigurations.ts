@@ -1,11 +1,7 @@
-import { getDatabase } from "./database.js";
-import {
-  ArticleScheme,
-  FeaturedArticleScheme,
-  RecipeScheme,
-} from "../../types/article.js";
-import { NewsItem } from "../../services/newsService.js";
-import { Writer } from "../../types/writer.js";
+import { getDatabase } from './database.js';
+import { ArticleScheme, FeaturedArticleScheme, RecipeScheme } from '../../types/article.js';
+import { NewsItem } from '../../services/newsService.js';
+import { Writer } from '../../types/writer.js';
 
 // Configuration for a database that holds data of type P
 // This interface is used by sqliteOperations to work with different table types
@@ -23,18 +19,18 @@ export interface DatabaseConfig<P> {
 }
 
 export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
-  source: "blog_posts",
+  source: 'blog_posts',
   exists: async (article: ArticleScheme) => {
     const db = getDatabase();
     const key = article.key;
     if (!key) return false;
-    const stmt = db.prepare("SELECT 1 FROM blog_posts WHERE key = ?");
+    const stmt = db.prepare('SELECT 1 FROM blog_posts WHERE key = ?');
     const result = stmt.get(key);
     return result !== undefined;
   },
   find: async (key: string) => {
     const db = getDatabase();
-    const stmt = db.prepare("SELECT * FROM blog_posts WHERE key = ?");
+    const stmt = db.prepare('SELECT * FROM blog_posts WHERE key = ?');
     const row = stmt.get(key) as any;
     if (!row) return undefined;
 
@@ -47,17 +43,15 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
       category: row.category,
       headImage: row.headImage,
       shortDescription: row.shortDescription,
-      originalNewsItem: row.originalNewsItem
-        ? JSON.parse(row.originalNewsItem)
-        : undefined,
-      writerType: row.writerType || "AI",
+      originalNewsItem: row.originalNewsItem ? JSON.parse(row.originalNewsItem) : undefined,
+      writerType: row.writerType || 'AI',
       isFeatured: row.isFeatured === 1 || row.isFeatured === true,
       featuredDate: row.featuredDate,
     } as ArticleScheme;
   },
   getKey: async (pInput: ArticleScheme) => {
     if (pInput.key === undefined) {
-      return "";
+      return '';
     }
 
     return pInput.key;
@@ -72,7 +66,7 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
     toInput.shortDescription = fromInput.shortDescription;
     toInput.timestamp = fromInput.timestamp;
     toInput.title = fromInput.title;
-    toInput.writerType = fromInput.writerType || "AI";
+    toInput.writerType = fromInput.writerType || 'AI';
     toInput.isFeatured = fromInput.isFeatured;
     toInput.featuredDate = fromInput.featuredDate;
 
@@ -80,90 +74,80 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
   },
 };
 
-export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> =
-  {
-    source: "featured_blog_posts",
-    exists: async (article: FeaturedArticleScheme) => {
-      const db = getDatabase();
-      const key = article.key;
-      if (!key) return false;
-      const stmt = db.prepare(
-        "SELECT 1 FROM featured_blog_posts WHERE key = ?",
-      );
-      const result = stmt.get(key);
-      return result !== undefined;
-    },
-    find: async (key: string) => {
-      const db = getDatabase();
-      const stmt = db.prepare(
-        "SELECT * FROM featured_blog_posts WHERE key = ?",
-      );
-      const row = stmt.get(key) as any;
-      if (!row) return undefined;
+export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> = {
+  source: 'featured_blog_posts',
+  exists: async (article: FeaturedArticleScheme) => {
+    const db = getDatabase();
+    const key = article.key;
+    if (!key) return false;
+    const stmt = db.prepare('SELECT 1 FROM featured_blog_posts WHERE key = ?');
+    const result = stmt.get(key);
+    return result !== undefined;
+  },
+  find: async (key: string) => {
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT * FROM featured_blog_posts WHERE key = ?');
+    const row = stmt.get(key) as any;
+    if (!row) return undefined;
 
-      return {
-        key: row.key,
-        title: row.title,
-        content: row.content ? JSON.parse(row.content) : undefined,
-        author: row.author ? JSON.parse(row.author) : undefined,
-        timestamp: row.timestamp,
-        category: row.category,
-        headImage: row.headImage,
-        shortDescription: row.shortDescription,
-        originalNewsItem: row.originalNewsItem
-          ? JSON.parse(row.originalNewsItem)
-          : undefined,
-      } as FeaturedArticleScheme;
-    },
-    getKey: async (pInput: FeaturedArticleScheme) => {
-      if (pInput.key === undefined) {
-        return "";
+    return {
+      key: row.key,
+      title: row.title,
+      content: row.content ? JSON.parse(row.content) : undefined,
+      author: row.author ? JSON.parse(row.author) : undefined,
+      timestamp: row.timestamp,
+      category: row.category,
+      headImage: row.headImage,
+      shortDescription: row.shortDescription,
+      originalNewsItem: row.originalNewsItem ? JSON.parse(row.originalNewsItem) : undefined,
+    } as FeaturedArticleScheme;
+  },
+  getKey: async (pInput: FeaturedArticleScheme) => {
+    if (pInput.key === undefined) {
+      return '';
+    }
+
+    return pInput.key;
+  },
+  copyValues: (fromInput: FeaturedArticleScheme, toInput: FeaturedArticleScheme) => {
+    toInput.key = fromInput.key;
+    toInput.category = fromInput.category;
+
+    toInput.author = [];
+    if (fromInput.author !== undefined) {
+      for (const w of fromInput.author) {
+        toInput.author.push({ ...w });
       }
+    }
 
-      return pInput.key;
-    },
-    copyValues: (
-      fromInput: FeaturedArticleScheme,
-      toInput: FeaturedArticleScheme,
-    ) => {
-      toInput.key = fromInput.key;
-      toInput.category = fromInput.category;
-
-      toInput.author = [];
-      if (fromInput.author !== undefined) {
-        for (const w of fromInput.author) {
-          toInput.author.push({ ...w });
-        }
+    toInput.content = [];
+    if (fromInput.content !== undefined) {
+      for (const w of fromInput.content) {
+        toInput.content.push({ ...w });
       }
+    }
 
-      toInput.content = [];
-      if (fromInput.content !== undefined) {
-        for (const w of fromInput.content) {
-          toInput.content.push({ ...w });
-        }
-      }
+    toInput.headImage = fromInput.headImage;
+    toInput.originalNewsItem = fromInput.originalNewsItem;
+    toInput.shortDescription = fromInput.shortDescription;
+    toInput.timestamp = fromInput.timestamp;
+    toInput.title = fromInput.title;
 
-      toInput.headImage = fromInput.headImage;
-      toInput.originalNewsItem = fromInput.originalNewsItem;
-      toInput.shortDescription = fromInput.shortDescription;
-      toInput.timestamp = fromInput.timestamp;
-      toInput.title = fromInput.title;
-
-      return true;
-    },
-  };
+    return true;
+  },
+};
 
 export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
-  source: "news_items",
+  source: 'news_items',
   exists: async (article: NewsItem) => {
     const db = getDatabase();
-    const stmt = db.prepare("SELECT 1 FROM news_items WHERE article_id = ?");
+    const stmt = db.prepare('SELECT 1 FROM news_items WHERE article_id = ?');
     const result = stmt.get(article.article_id);
     return result !== undefined;
   },
   find: async (key: string) => {
     const db = getDatabase();
-    const stmt = db.prepare("SELECT * FROM news_items WHERE article_id = ?");
+    const stmt = db.prepare('SELECT * FROM news_items WHERE article_id = ?');
     const row = stmt.get(key) as any;
     if (!row) return undefined;
 
@@ -188,18 +172,18 @@ export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
 };
 
 export const writerDatabaseConfig: DatabaseConfig<Writer> = {
-  source: "writers",
+  source: 'writers',
   exists: async (article: Writer) => {
     const db = getDatabase();
     const key = article.key;
     if (!key) return false;
-    const stmt = db.prepare("SELECT 1 FROM writers WHERE key = ?");
+    const stmt = db.prepare('SELECT 1 FROM writers WHERE key = ?');
     const result = stmt.get(key);
     return result !== undefined;
   },
   find: async (key: string) => {
     const db = getDatabase();
-    const stmt = db.prepare("SELECT * FROM writers WHERE key = ?");
+    const stmt = db.prepare('SELECT * FROM writers WHERE key = ?');
     const row = stmt.get(key) as any;
     if (!row) return undefined;
 
@@ -215,7 +199,7 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
   },
   getKey: async (pInput: Writer) => {
     if (pInput.key === undefined) {
-      return "";
+      return '';
     }
 
     return pInput.key;
@@ -234,18 +218,18 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
 };
 
 export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
-  source: "recipes",
+  source: 'recipes',
   exists: async (recipe: RecipeScheme) => {
     const db = getDatabase();
     const key = recipe.key;
     if (!key) return false;
-    const stmt = db.prepare("SELECT 1 FROM recipes WHERE key = ?");
+    const stmt = db.prepare('SELECT 1 FROM recipes WHERE key = ?');
     const result = stmt.get(key);
     return result !== undefined;
   },
   find: async (key: string) => {
     const db = getDatabase();
-    const stmt = db.prepare("SELECT * FROM recipes WHERE key = ?");
+    const stmt = db.prepare('SELECT * FROM recipes WHERE key = ?');
     const row = stmt.get(key) as any;
     if (!row) return undefined;
 
@@ -259,12 +243,12 @@ export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
       headImage: row.headImage,
       images: row.images ? JSON.parse(row.images) : undefined,
       shortDescription: row.shortDescription,
-      writerType: row.writerType || "AI",
+      writerType: row.writerType || 'AI',
     } as RecipeScheme;
   },
   getKey: async (pInput: RecipeScheme) => {
     if (pInput.key === undefined) {
-      return "";
+      return '';
     }
 
     return pInput.key;
@@ -279,7 +263,7 @@ export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
     toInput.shortDescription = fromInput.shortDescription;
     toInput.timestamp = fromInput.timestamp;
     toInput.title = fromInput.title;
-    toInput.writerType = fromInput.writerType || "AI";
+    toInput.writerType = fromInput.writerType || 'AI';
 
     return true;
   },

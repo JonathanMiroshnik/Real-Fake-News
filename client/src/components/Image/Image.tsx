@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 interface ImageProps {
   src: string;
@@ -6,9 +6,9 @@ interface ImageProps {
   className?: string;
   aspectRatio?: string; // e.g., "16/9", "4/3", "1/1"
   placeholder?: boolean;
-  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
-  loading?: "lazy" | "eager";
-  fetchPriority?: "high" | "low" | "auto";
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 /**
@@ -23,24 +23,24 @@ interface ImageProps {
 function Image({
   src,
   alt,
-  className = "",
-  aspectRatio = "16/9",
+  className = '',
+  aspectRatio = '16/9',
   placeholder = true,
-  objectFit = "cover",
-  loading = "lazy",
-  fetchPriority = "auto",
+  objectFit = 'cover',
+  loading = 'lazy',
+  fetchPriority = 'auto',
 }: ImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   // Handle empty src
-  if (!src || src === "") {
+  if (!src || src === '') {
     return placeholder ? (
       <div
         className={`relative w-full overflow-hidden ${className}`}
         style={{
           aspectRatio: aspectRatio,
-          backgroundColor: "var(--global-background-color, #f0f0f0)",
+          backgroundColor: 'var(--global-background-color, #f0f0f0)',
         }}
       >
         <div
@@ -59,9 +59,7 @@ function Image({
       className={`relative w-full overflow-hidden ${className}`}
       style={{
         aspectRatio: aspectRatio,
-        backgroundColor: placeholder
-          ? "var(--global-background-color, #f0f0f0)"
-          : "transparent",
+        backgroundColor: placeholder ? 'var(--global-background-color, #f0f0f0)' : 'transparent',
       }}
     >
       {(isLoading || hasError) && placeholder && (
@@ -79,7 +77,7 @@ function Image({
           alt={alt}
           className={`absolute inset-0 w-full h-full 
                       transition-opacity duration-300 ease-in-out 
-                      ${isLoading ? "opacity-0" : "opacity-100"}`}
+                      ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           style={{ objectFit }}
           onLoad={() => setIsLoading(false)}
           onError={() => {

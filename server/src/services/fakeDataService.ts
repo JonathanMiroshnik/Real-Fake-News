@@ -1,21 +1,21 @@
-import "dotenv/config";
-import { v4 as uuidv4 } from "uuid";
-import path from "path";
-import fs from "fs";
-import { Jimp, rgbaToInt } from "jimp";
-import { getUniqueKey } from "../utils/general.js";
-import { debugLog } from "../utils/debugLogger.js";
-import { ArticleScheme, RecipeScheme, BlogResponse } from "../types/article.js";
-import { Writer } from "../types/writer.js";
-import { Horoscope, ZODIAC_SIGNS } from "../types/horoscope.js";
-import { getImagesDirectory } from "../utils/imageCompression.js";
+import 'dotenv/config';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
+import { Jimp, rgbaToInt } from 'jimp';
+import { getUniqueKey } from '../utils/general.js';
+import { debugLog } from '../utils/debugLogger.js';
+import { ArticleScheme, RecipeScheme, BlogResponse } from '../types/article.js';
+import { Writer } from '../types/writer.js';
+import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
+import { getImagesDirectory } from '../utils/imageCompression.js';
 
 /**
  * Whether fake data fallback is enabled.
  * Controlled via the ENABLE_FAKE_DATA environment variable.
  */
 export function isFakeDataEnabled(): boolean {
-  return process.env.ENABLE_FAKE_DATA === "true";
+  return process.env.ENABLE_FAKE_DATA === 'true';
 }
 
 // ---------------------------------------------------------------------------
@@ -23,56 +23,56 @@ export function isFakeDataEnabled(): boolean {
 // ---------------------------------------------------------------------------
 
 const FAKE_CATEGORIES = [
-  "Technology",
-  "Travel",
-  "Food",
-  "Science",
-  "Health",
-  "Business",
-  "Entertainment",
-  "Sports",
+  'Technology',
+  'Travel',
+  'Food',
+  'Science',
+  'Health',
+  'Business',
+  'Entertainment',
+  'Sports',
 ];
 const FAKE_WRITER_NAMES = [
-  "Alex Johnson",
-  "Sam Smith",
-  "Taylor Reed",
-  "Jordan Lee",
-  "Casey Kim",
-  "Morgan Wells",
+  'Alex Johnson',
+  'Sam Smith',
+  'Taylor Reed',
+  'Jordan Lee',
+  'Casey Kim',
+  'Morgan Wells',
 ];
 const FAKE_WRITER_DESCRIPTIONS = [
-  "Award-winning journalist with 10+ years of experience",
-  "Tech enthusiast and startup advisor",
-  "Travel blogger exploring hidden gems worldwide",
-  "Food critic and culinary expert",
-  "Science communicator making complex topics accessible",
-  "Business analyst and market trends expert",
+  'Award-winning journalist with 10+ years of experience',
+  'Tech enthusiast and startup advisor',
+  'Travel blogger exploring hidden gems worldwide',
+  'Food critic and culinary expert',
+  'Science communicator making complex topics accessible',
+  'Business analyst and market trends expert',
 ];
 
 const FAKE_HEADLINES = [
-  "Local Man Shocked to Learn His Pet Rock Has No Opinions on Politics",
-  "Scientists Discover That Coffee Actually Makes You More Human",
-  "New Study Finds 9 Out of 10 Statistics Are Made Up on the Spot",
-  "Government Declares Monday Officially the Worst Day of the Week, Again",
-  "Expert Reveals the Secret to Happiness Is Just Pretending to Be Happy",
-  "Breaking: Internet Crashes After Everyone Tries to Watch the Same Cat Video",
-  "The Moon Announces Plans to Pursue a Career in Professional Wrestling",
-  "Survey Finds 100% of People Surveyed Were Made Up for This Survey",
+  'Local Man Shocked to Learn His Pet Rock Has No Opinions on Politics',
+  'Scientists Discover That Coffee Actually Makes You More Human',
+  'New Study Finds 9 Out of 10 Statistics Are Made Up on the Spot',
+  'Government Declares Monday Officially the Worst Day of the Week, Again',
+  'Expert Reveals the Secret to Happiness Is Just Pretending to Be Happy',
+  'Breaking: Internet Crashes After Everyone Tries to Watch the Same Cat Video',
+  'The Moon Announces Plans to Pursue a Career in Professional Wrestling',
+  'Survey Finds 100% of People Surveyed Were Made Up for This Survey',
   'Man Who Always Says "I Could Do That" Finally Challenged, Flees Country',
-  "Scientists Baffled by Discovery That Clouds Are Made of Tiny Sheep",
+  'Scientists Baffled by Discovery That Clouds Are Made of Tiny Sheep',
 ];
 
 const FAKE_RECIPE_NAMES = [
-  "Quantum-Entangled Spaghetti Bolognese",
-  "Artisanal Toast with Hypothetical Butter",
-  "Deconstructed Leftovers À La Mode",
+  'Quantum-Entangled Spaghetti Bolognese',
+  'Artisanal Toast with Hypothetical Butter',
+  'Deconstructed Leftovers À La Mode',
   "The Schrodinger's Casserole (Both Burnt and Raw Until Observed)",
-  "Panic-Baked Banana Bread for Unexpected Guests",
-  "Existential Crisp: A Salad That Questions Its Own Existence",
-  "Midnight Refrigerator Omelette (Contents May Vary)",
-  "The Very Serious Gourmet Microwave Ramen",
-  "Chaos-Theory Chili (Each Bowl Tastes Different)",
-  "Fermented Air with a Side of Optimism",
+  'Panic-Baked Banana Bread for Unexpected Guests',
+  'Existential Crisp: A Salad That Questions Its Own Existence',
+  'Midnight Refrigerator Omelette (Contents May Vary)',
+  'The Very Serious Gourmet Microwave Ramen',
+  'Chaos-Theory Chili (Each Bowl Tastes Different)',
+  'Fermented Air with a Side of Optimism',
 ];
 
 function getRandomElement<T>(array: T[]): T {
@@ -128,43 +128,19 @@ export interface PlaceholderImageConfig {
  */
 export function getPlaceholderImageConfig(): PlaceholderImageConfig {
   return {
-    width: parseInt(process.env.FAKE_IMAGE_WIDTH || "896", 10),
-    height: parseInt(process.env.FAKE_IMAGE_HEIGHT || "512", 10),
-    tilesX: parseInt(process.env.FAKE_IMAGE_TILES_X || "8", 10),
-    tilesY: parseInt(process.env.FAKE_IMAGE_TILES_Y || "6", 10),
+    width: parseInt(process.env.FAKE_IMAGE_WIDTH || '896', 10),
+    height: parseInt(process.env.FAKE_IMAGE_HEIGHT || '512', 10),
+    tilesX: parseInt(process.env.FAKE_IMAGE_TILES_X || '8', 10),
+    tilesY: parseInt(process.env.FAKE_IMAGE_TILES_Y || '6', 10),
     colorMin: {
-      r: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MIN_R || "30", 10),
-        0,
-        255,
-      ),
-      g: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MIN_G || "30", 10),
-        0,
-        255,
-      ),
-      b: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MIN_B || "30", 10),
-        0,
-        255,
-      ),
+      r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_R || '30', 10), 0, 255),
+      g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_G || '30', 10), 0, 255),
+      b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_B || '30', 10), 0, 255),
     },
     colorMax: {
-      r: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MAX_R || "225", 10),
-        0,
-        255,
-      ),
-      g: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MAX_G || "225", 10),
-        0,
-        255,
-      ),
-      b: clamp(
-        parseInt(process.env.FAKE_IMAGE_COLOR_MAX_B || "225", 10),
-        0,
-        255,
-      ),
+      r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_R || '225', 10), 0, 255),
+      g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_G || '225', 10), 0, 255),
+      b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_B || '225', 10), 0, 255),
     },
   };
 }
@@ -191,7 +167,7 @@ export async function generatePlaceholderImage(
   config?: Partial<PlaceholderImageConfig>,
 ): Promise<string> {
   if (!isFakeDataEnabled()) {
-    return "";
+    return '';
   }
 
   const cfg: PlaceholderImageConfig = {
@@ -201,10 +177,8 @@ export async function generatePlaceholderImage(
 
   // Validate dimensions
   if (cfg.tilesX < 1 || cfg.tilesY < 1 || cfg.width < 1 || cfg.height < 1) {
-    debugLog(
-      "⚠️ [PlaceholderImage] Invalid dimensions, skipping image generation",
-    );
-    return "";
+    debugLog('⚠️ [PlaceholderImage] Invalid dimensions, skipping image generation');
+    return '';
   }
 
   const tileWidth = Math.floor(cfg.width / cfg.tilesX);
@@ -249,15 +223,15 @@ export async function generatePlaceholderImage(
     const filename = `placeholder-${uuidv4()}.png`;
     const filePath = path.join(imagesDir, filename);
 
-    const buffer = await image.getBuffer("image/png");
+    const buffer = await image.getBuffer('image/png');
     await fs.promises.writeFile(filePath, buffer);
 
-    debugLog("🖼️ [PlaceholderImage] Generated:", filename);
+    debugLog('🖼️ [PlaceholderImage] Generated:', filename);
 
     return filename;
   } catch (error) {
-    console.error("❌ [PlaceholderImage] Failed to generate:", error);
-    return "";
+    console.error('❌ [PlaceholderImage] Failed to generate:', error);
+    return '';
   }
 }
 
@@ -275,7 +249,7 @@ function generateFakeWriter(): Writer {
     name,
     description,
     systemPrompt: `You are ${name}, ${description.toLowerCase()}.`,
-    profileImage: "",
+    profileImage: '',
     createdAt: now,
     updatedAt: now,
   };
@@ -300,23 +274,23 @@ export async function generateFakeArticle(): Promise<ArticleScheme> {
     title,
     content: [
       `In a world where ${category.toLowerCase()} continues to surprise us, today's developments have left experts — and a local goose named Gerald — utterly bewildered.`,
-      `"We've never seen anything quite like this," said Dr. ${getRandomElement(FAKE_WRITER_NAMES).split(" ")[0]}, a ${category.toLowerCase()} specialist who has been studying the phenomenon for decades.`,
+      `"We've never seen anything quite like this," said Dr. ${getRandomElement(FAKE_WRITER_NAMES).split(' ')[0]}, a ${category.toLowerCase()} specialist who has been studying the phenomenon for decades.`,
       `The implications are far-reaching. If this trend continues, experts predict that by next Tuesday, ${category.toLowerCase()} as we know it will be completely transformed — or at least mildly rearranged.`,
-      `Critics, however, remain skeptical. "This is clearly a coordinated effort by Big ${category === "Food" ? "Agriculture" : category} to push their agenda," said one vocal detractor.`,
+      `Critics, however, remain skeptical. "This is clearly a coordinated effort by Big ${category === 'Food' ? 'Agriculture' : category} to push their agenda," said one vocal detractor.`,
       `At press time, Gerald the goose had no further comments, though sources say he appeared to nod knowingly before waddling off toward the pond.`,
-    ].join("\n\n"),
+    ].join('\n\n'),
     author: generateFakeWriter(),
     timestamp: now.toISOString(),
     category,
     headImage: imageName,
     shortDescription: `An in-depth look at how ${category.toLowerCase()} is changing — and why a goose may have all the answers.`,
-    writerType: "Synthesis",
+    writerType: 'Synthesis',
     originalNewsItem: {
-      article_id: "",
+      article_id: '',
       title,
-      description: "",
+      description: '',
       pubDate: now.toISOString(),
-      pubDateTZ: "UTC",
+      pubDateTZ: 'UTC',
     },
     isFeatured: false,
     featuredDate: undefined,
@@ -326,9 +300,7 @@ export async function generateFakeArticle(): Promise<ArticleScheme> {
 /**
  * Generates an array of fake blog articles with unique headlines.
  */
-export async function generateFakeArticles(
-  count: number = 8,
-): Promise<ArticleScheme[]> {
+export async function generateFakeArticles(count: number = 8): Promise<ArticleScheme[]> {
   const headlines = pickUniqueRandomElements(
     FAKE_HEADLINES,
     Math.min(count, FAKE_HEADLINES.length),
@@ -351,23 +323,23 @@ export async function generateFakeArticles(
       title,
       content: [
         `In a world where ${categories[index % categories.length].toLowerCase()} continues to surprise us, today's developments have left experts utterly bewildered.`,
-        `"We've never seen anything quite like this," said Dr. ${getRandomElement(FAKE_WRITER_NAMES).split(" ")[0]}, a specialist who has been studying the phenomenon for decades.`,
+        `"We've never seen anything quite like this," said Dr. ${getRandomElement(FAKE_WRITER_NAMES).split(' ')[0]}, a specialist who has been studying the phenomenon for decades.`,
         `The implications are far-reaching. If this trend continues, experts predict that by next Tuesday, everything will be completely transformed — or at least mildly rearranged.`,
         `Critics remain skeptical. "This is clearly a coordinated effort to push their agenda," said one vocal detractor.`,
         `At press time, Gerald the goose had no further comments.`,
-      ].join("\n\n"),
+      ].join('\n\n'),
       author: generateFakeWriter(),
       timestamp: now.toISOString(),
       category: categories[index % categories.length],
       headImage: imageName,
       shortDescription: `How ${categories[index % categories.length].toLowerCase()} is changing — and why a goose may have all the answers.`,
-      writerType: "Synthesis",
+      writerType: 'Synthesis',
       originalNewsItem: {
-        article_id: "",
+        article_id: '',
         title,
-        description: "",
+        description: '',
         pubDate: now.toISOString(),
-        pubDateTZ: "UTC",
+        pubDateTZ: 'UTC',
       },
       isFeatured: false,
       featuredDate: undefined,
@@ -380,18 +352,16 @@ export async function generateFakeArticles(
  * Returns a fake BlogResponse with generated articles,
  * or an empty response if fake data is disabled.
  */
-export async function getFakeBlogResponse(
-  articleCount: number = 8,
-): Promise<BlogResponse> {
+export async function getFakeBlogResponse(articleCount: number = 8): Promise<BlogResponse> {
   if (!isFakeDataEnabled()) {
-    return { success: true, articles: [], error: "" };
+    return { success: true, articles: [], error: '' };
   }
 
-  debugLog("📰 [FakeDataService] Generating fake blog articles");
+  debugLog('📰 [FakeDataService] Generating fake blog articles');
   return {
     success: true,
     articles: await generateFakeArticles(articleCount),
-    error: "",
+    error: '',
   };
 }
 
@@ -414,22 +384,22 @@ export async function generateFakeFeaturedArticle(): Promise<ArticleScheme> {
       `In a stunning turn of events, today's top story has everyone talking — including philosophers, baristas, and at least one very confused squirrel.`,
       `Our team of award-winning journalists have assembled this comprehensive analysis of what it all means for the average person. Spoiler: nobody really knows.`,
       `What we do know is that this developing situation touches on every aspect of ${getRandomElement(FAKE_CATEGORIES).toLowerCase()}, from the macro to the micro, and from the serious to the deeply silly.`,
-    ].join("\n\n"),
+    ].join('\n\n'),
     author: generateFakeWriter(),
     timestamp: now.toISOString(),
     category: getRandomElement(FAKE_CATEGORIES),
     headImage: imageName,
     shortDescription: `A deep dive into the news that has everyone talking — plus commentary from a squirrel.`,
-    writerType: "Synthesis",
+    writerType: 'Synthesis',
     originalNewsItem: {
-      article_id: "",
+      article_id: '',
       title,
-      description: "",
+      description: '',
       pubDate: now.toISOString(),
-      pubDateTZ: "UTC",
+      pubDateTZ: 'UTC',
     },
     isFeatured: true,
-    featuredDate: now.toISOString().split("T")[0],
+    featuredDate: now.toISOString().split('T')[0],
   };
 }
 
@@ -459,20 +429,18 @@ export async function generateFakeRecipe(): Promise<RecipeScheme> {
     ],
     author: writer,
     timestamp: now.toISOString(),
-    category: "Food",
+    category: 'Food',
     headImage: imageName,
     images: [],
     shortDescription: `A forgiving recipe that works with whatever you have on hand — and a healthy dose of self-deprecation.`,
-    writerType: "Synthesis",
+    writerType: 'Synthesis',
   };
 }
 
 /**
  * Generates an array of fake recipes with unique titles.
  */
-export async function generateFakeRecipes(
-  count: number = 4,
-): Promise<RecipeScheme[]> {
+export async function generateFakeRecipes(count: number = 4): Promise<RecipeScheme[]> {
   const names = pickUniqueRandomElements(
     FAKE_RECIPE_NAMES,
     Math.min(count, FAKE_RECIPE_NAMES.length),
@@ -496,11 +464,11 @@ export async function generateFakeRecipes(
       ],
       author: generateFakeWriter(),
       timestamp: now.toISOString(),
-      category: "Food",
+      category: 'Food',
       headImage: imageName,
       images: [],
       shortDescription: `A forgiving recipe that works with whatever you have on hand.`,
-      writerType: "Synthesis",
+      writerType: 'Synthesis',
     });
   }
   return recipes;
@@ -514,7 +482,7 @@ export async function generateFakeRecipes(
  * Generates fake horoscopes for all 12 zodiac signs for today.
  */
 export function generateFakeHoroscopes(): Horoscope[] {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
 
   return ZODIAC_SIGNS.map((sign) => ({
     date: today,
@@ -525,34 +493,34 @@ export function generateFakeHoroscopes(): Horoscope[] {
       `Mercury's position indicates you'll say something you immediately regret — but don't worry, nobody was really listening anyway.`,
       `Venus whispers that it's a good day to text that person you've been thinking about, but only if you lead with a funny meme.`,
       `Remember, ${sign}: every day is a good day to take a nap. The universe supports your decision to rest.`,
-    ].join(" "),
+    ].join(' '),
     astrologicalData: {
       date: today,
       planets: [
         {
-          name: "Sun",
+          name: 'Sun',
           longitude: 0,
           latitude: 0,
           sign: sign,
           isRetrograde: false,
         },
         {
-          name: "Moon",
+          name: 'Moon',
           longitude: 60,
           latitude: 0,
-          sign: "Gemini",
+          sign: 'Gemini',
           isRetrograde: false,
         },
         {
-          name: "Mercury",
+          name: 'Mercury',
           longitude: 30,
           latitude: 0,
-          sign: "Taurus",
+          sign: 'Taurus',
           isRetrograde: false,
         },
       ],
       retrogrades: [],
-      notableAspects: ["Sun trine Your Sense of Humor"],
+      notableAspects: ['Sun trine Your Sense of Humor'],
     },
     createdAt: today,
   }));

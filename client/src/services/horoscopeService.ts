@@ -1,55 +1,45 @@
-import {
-  Horoscope,
-  HoroscopeResponse,
-  AstrologicalData,
-} from "../types/horoscope";
-import { getApiBaseUrlWithPrefix } from "../config/apiConfig";
-import { debugLog, debugError } from "../utils/debugLogger";
+import { Horoscope, HoroscopeResponse, AstrologicalData } from '../types/horoscope';
+import { getApiBaseUrlWithPrefix } from '../config/apiConfig';
+import { debugLog, debugError } from '../utils/debugLogger';
 
 /**
  * Fetches all horoscopes for today (or specified date)
  */
 export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
-  debugLog("🔮 [getHoroscopes] Fetching horoscopes...");
+  debugLog('🔮 [getHoroscopes] Fetching horoscopes...');
 
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes`;
 
   if (date) {
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
   }
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
-      debugError(
-        `❌ [getHoroscopes] Fetch failed: ${response.status} ${response.statusText}`,
-      );
+      debugError(`❌ [getHoroscopes] Fetch failed: ${response.status} ${response.statusText}`);
       return [];
     }
 
     const data: HoroscopeResponse = await response.json();
 
     if (data.success && data.horoscopes) {
-      debugLog(
-        `✅ [getHoroscopes] Fetched ${data.horoscopes.length} horoscopes`,
-      );
+      debugLog(`✅ [getHoroscopes] Fetched ${data.horoscopes.length} horoscopes`);
       return data.horoscopes;
     } else {
-      debugError(
-        `❌ [getHoroscopes] API returned error: ${data.error || "Unknown error"}`,
-      );
+      debugError(`❌ [getHoroscopes] API returned error: ${data.error || 'Unknown error'}`);
       return [];
     }
   } catch (error) {
-    debugError("❌ [getHoroscopes] Network error:", error);
+    debugError('❌ [getHoroscopes] Network error:', error);
     return [];
   }
 }
@@ -57,32 +47,27 @@ export async function getHoroscopes(date?: Date): Promise<Horoscope[]> {
 /**
  * Fetches horoscope for a specific zodiac sign
  */
-export async function getHoroscopeBySign(
-  sign: string,
-  date?: Date,
-): Promise<Horoscope | null> {
+export async function getHoroscopeBySign(sign: string, date?: Date): Promise<Horoscope | null> {
   debugLog(`🔮 [getHoroscopeBySign] Fetching horoscope for ${sign}...`);
 
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes/${sign}`;
 
   if (date) {
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
   }
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
-      debugError(
-        `❌ [getHoroscopeBySign] Fetch failed: ${response.status} ${response.statusText}`,
-      );
+      debugError(`❌ [getHoroscopeBySign] Fetch failed: ${response.status} ${response.statusText}`);
       return null;
     }
 
@@ -92,13 +77,11 @@ export async function getHoroscopeBySign(
       debugLog(`✅ [getHoroscopeBySign] Fetched horoscope for ${sign}`);
       return data.horoscope;
     } else {
-      debugError(
-        `❌ [getHoroscopeBySign] API returned error: ${data.error || "Unknown error"}`,
-      );
+      debugError(`❌ [getHoroscopeBySign] API returned error: ${data.error || 'Unknown error'}`);
       return null;
     }
   } catch (error) {
-    debugError("❌ [getHoroscopeBySign] Network error:", error);
+    debugError('❌ [getHoroscopeBySign] Network error:', error);
     return null;
   }
 }
@@ -106,24 +89,22 @@ export async function getHoroscopeBySign(
 /**
  * Fetches raw astrological data (planetary positions, retrogrades)
  */
-export async function getAstrologicalData(
-  date?: Date,
-): Promise<AstrologicalData | null> {
-  debugLog("🔮 [getAstrologicalData] Fetching astrological data...");
+export async function getAstrologicalData(date?: Date): Promise<AstrologicalData | null> {
+  debugLog('🔮 [getAstrologicalData] Fetching astrological data...');
 
   const apiBase = getApiBaseUrlWithPrefix();
   let url = `${apiBase}/horoscopes/astrological-data`;
 
   if (date) {
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = date.toISOString().split('T')[0];
     url += `?date=${dateString}`;
   }
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
@@ -137,16 +118,14 @@ export async function getAstrologicalData(
     const data = await response.json();
 
     if (data.success && data.data) {
-      debugLog("✅ [getAstrologicalData] Fetched astrological data");
+      debugLog('✅ [getAstrologicalData] Fetched astrological data');
       return data.data;
     } else {
-      debugError(
-        `❌ [getAstrologicalData] API returned error: ${data.error || "Unknown error"}`,
-      );
+      debugError(`❌ [getAstrologicalData] API returned error: ${data.error || 'Unknown error'}`);
       return null;
     }
   } catch (error) {
-    debugError("❌ [getAstrologicalData] Network error:", error);
+    debugError('❌ [getAstrologicalData] Network error:', error);
     return null;
   }
 }

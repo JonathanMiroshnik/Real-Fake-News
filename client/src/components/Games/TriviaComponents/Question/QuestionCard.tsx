@@ -1,12 +1,12 @@
-import { useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
-import "./QuestionCard.css";
+import './QuestionCard.css';
 
 export interface Question {
   category: string;
-  type: "boolean";
-  difficulty: "easy" | "medium" | "hard";
+  type: 'boolean';
+  difficulty: 'easy' | 'medium' | 'hard';
   question: string;
   correct_answer: string;
   incorrect_answers: string[];
@@ -54,7 +54,7 @@ function QuestionCard(questionProps: QuestionProps) {
 
     // Special situation for when it is a "boolean" question
     if (allAnswers.length === 2) {
-      setAnswers(["True", "False"]);
+      setAnswers(['True', 'False']);
       return;
     }
 
@@ -63,14 +63,12 @@ function QuestionCard(questionProps: QuestionProps) {
 
   return (
     <div className="trivia-question-card-main">
-      <ReactMarkdown>
-        {questionProps.questionAPIStructure.question}
-      </ReactMarkdown>
+      <ReactMarkdown>{questionProps.questionAPIStructure.question}</ReactMarkdown>
       {answers.length > 0 && (
         <div className="trivia-answer-buttons">
           {answers.map((answer, i) => (
             <button
-              key={"trivia-answer-button-" + i.toString()}
+              key={'trivia-answer-button-' + i.toString()}
               className="trivia-answer-button"
               onClick={() => checkCorrect(answer)}
             >

@@ -1,5 +1,5 @@
-import { Link } from "react-router";
-import "./GameItem.css";
+import { Link } from 'react-router';
+import './GameItem.css';
 
 /**
  * Component to show a Game
@@ -15,12 +15,7 @@ interface GameItemProps {
   linkName: string;
 }
 
-function GameItem({
-  title,
-  headImageName,
-  shortDescription,
-  linkName,
-}: GameItemProps) {
+function GameItem({ title, headImageName, shortDescription, linkName }: GameItemProps) {
   return (
     <Link className="game-item-separator" to={`/games/${linkName}`}>
       <div className="game-item">

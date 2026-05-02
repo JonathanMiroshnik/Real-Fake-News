@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { GenerateTriviaQuestionsRequest } from "../types/triviaGame.js";
-import { fetchTriviaQuestions } from "../services/triviaQuestionService.js";
+import { Request, Response } from 'express';
+import { GenerateTriviaQuestionsRequest } from '../types/triviaGame.js';
+import { fetchTriviaQuestions } from '../services/triviaQuestionService.js';
 
 export const textToTriviaQuestions = async (req: Request, res: Response) => {
   try {
@@ -12,7 +12,7 @@ export const textToTriviaQuestions = async (req: Request, res: Response) => {
     const results = await fetchTriviaQuestions(serviceReq);
     res.json(results);
   } catch (error) {
-    console.error("❌ Trivia game analysis failed:", error);
-    res.status(500).json({ error: "Game Intelligence Analysis failed" });
+    console.error('❌ Trivia game analysis failed:', error);
+    res.status(500).json({ error: 'Game Intelligence Analysis failed' });
   }
 };

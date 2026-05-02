@@ -17,7 +17,7 @@
  * Checks if debug logging is enabled via environment variable
  */
 function isDebugEnabled(): boolean {
-  return import.meta.env.VITE_DEBUG_LOGS === "true";
+  return import.meta.env.VITE_DEBUG_LOGS === 'true';
 }
 
 /**

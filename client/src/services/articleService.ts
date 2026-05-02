@@ -1,6 +1,6 @@
-import { ArticleProps } from "../pages/ArticlePage/ArticlePage";
-import { getApiBaseUrlWithPrefix } from "../config/apiConfig";
-import { debugLog, debugError } from "../utils/debugLogger";
+import { ArticleProps } from '../pages/ArticlePage/ArticlePage';
+import { getApiBaseUrlWithPrefix } from '../config/apiConfig';
+import { debugLog, debugError } from '../utils/debugLogger';
 
 export type NewsCategory = {
   name: string; // Technical name of the News category
@@ -10,28 +10,28 @@ export type NewsCategory = {
 // TODO: need constants ts file
 export const CATEGORIES: NewsCategory[] = [
   {
-    name: "Politics",
-    text: "Unreal Politics",
+    name: 'Politics',
+    text: 'Unreal Politics',
   },
   {
-    name: "Sports",
-    text: "Extraordinary Sports",
+    name: 'Sports',
+    text: 'Extraordinary Sports',
   },
   {
-    name: "Culture",
-    text: "Better Culture",
+    name: 'Culture',
+    text: 'Better Culture',
   },
   {
-    name: "Economics",
-    text: "The Real Economy",
+    name: 'Economics',
+    text: 'The Real Economy',
   },
   {
-    name: "Technology",
-    text: "Technology/Magic Lite",
+    name: 'Technology',
+    text: 'Technology/Magic Lite',
   },
   {
-    name: "Food",
-    text: "Food, Beyond",
+    name: 'Food',
+    text: 'Food, Beyond',
   },
 ];
 
@@ -44,33 +44,28 @@ const FALLBACK_MINUTES_BEFORE_TO_CHECK = 365 * 24 * 60;
 const MIN_ACCEPTABLE_ARTICLES = 15;
 
 // Session storage keys for ETags
-const ARTICLES_ETAG_KEY = "articles_etag";
-const ARTICLE_ETAG_PREFIX = "article_etag_";
-const ARTICLES_STORAGE_KEY = "articles_cache";
+const ARTICLES_ETAG_KEY = 'articles_etag';
+const ARTICLE_ETAG_PREFIX = 'article_etag_';
+const ARTICLES_STORAGE_KEY = 'articles_cache';
 
 /**
  * Helper function to fetch articles from the API
  */
-async function fetchArticlesByMinutes(
-  apiBase: string,
-  minutes: number,
-): Promise<ArticleProps[]> {
+async function fetchArticlesByMinutes(apiBase: string, minutes: number): Promise<ArticleProps[]> {
   const url = `${apiBase}/blogs/by-minute?minute=${minutes}`;
-  debugLog("📡 [pullRecentArticles] Fetching from URL:", url);
+  debugLog('📡 [pullRecentArticles] Fetching from URL:', url);
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
-      debugError(
-        `❌ [pullRecentArticles] Fetch failed: ${response.status} ${response.statusText}`,
-      );
-      const errorText = await response.text().catch(() => "No error details");
+      debugError(`❌ [pullRecentArticles] Fetch failed: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'No error details');
       debugError(`❌ [pullRecentArticles] Error response:`, errorText);
       return [];
     }
@@ -78,15 +73,15 @@ async function fetchArticlesByMinutes(
     const articlesJSON = await response.json();
     const articles = articlesJSON.articles || [];
     debugLog(
-      "📦 [pullRecentArticles] Fetched",
+      '📦 [pullRecentArticles] Fetched',
       articles.length,
-      "articles from",
+      'articles from',
       minutes,
-      "minutes window",
+      'minutes window',
     );
 
     if (articles.length > 0) {
-      debugLog("📦 [pullRecentArticles] Sample article:", {
+      debugLog('📦 [pullRecentArticles] Sample article:', {
         key: articles[0].key,
         title: articles[0].title,
         timestamp: articles[0].timestamp,
@@ -95,16 +90,14 @@ async function fetchArticlesByMinutes(
 
     return articles;
   } catch (error) {
-    debugError("❌ [pullRecentArticles] Network error:", error);
-    if (error instanceof TypeError && error.message.includes("fetch")) {
+    debugError('❌ [pullRecentArticles] Network error:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
       debugError(
-        "❌ [pullRecentArticles] Could not connect to server. Is it running at",
+        '❌ [pullRecentArticles] Could not connect to server. Is it running at',
         apiBase,
-        "?",
+        '?',
       );
-      debugError(
-        "❌ [pullRecentArticles] Note: Development backend runs on port 5001",
-      );
+      debugError('❌ [pullRecentArticles] Note: Development backend runs on port 5001');
     }
     return [];
   }
@@ -128,66 +121,55 @@ function sortArticlesByDate(articles: ArticleProps[]): ArticleProps[] {
  * @returns Array of articles, sorted by date (most recent first).
  */
 export async function getRelevantArticles(): Promise<ArticleProps[]> {
-  debugLog(
-    "🚀 [getRelevantArticles] Function called at:",
-    new Date().toISOString(),
-  );
+  debugLog('🚀 [getRelevantArticles] Function called at:', new Date().toISOString());
 
   // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
   const VITE_API_BASE = getApiBaseUrlWithPrefix();
   debugLog(
-    "🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:",
+    '🔍 [getRelevantArticles] VITE_BACKEND_DEV_MODE:',
     import.meta.env.VITE_BACKEND_DEV_MODE,
-    "→ API_BASE:",
+    '→ API_BASE:',
     VITE_API_BASE,
   );
 
   const url = `${VITE_API_BASE}/blogs/relevant`;
-  debugLog("📡 [getRelevantArticles] Fetching from URL:", url);
+  debugLog('📡 [getRelevantArticles] Fetching from URL:', url);
 
   // Get stored ETag from sessionStorage
   const storedETag = sessionStorage.getItem(ARTICLES_ETAG_KEY);
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   // Add If-None-Match header if we have a stored ETag
   if (storedETag) {
-    headers["If-None-Match"] = storedETag;
-    debugLog(
-      "🏷️ [getRelevantArticles] Sending If-None-Match header:",
-      storedETag,
-    );
+    headers['If-None-Match'] = storedETag;
+    debugLog('🏷️ [getRelevantArticles] Sending If-None-Match header:', storedETag);
   }
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: headers,
     });
 
     // Handle 304 Not Modified response
     if (response.status === 304) {
-      debugLog(
-        "✅ [getRelevantArticles] Received 304 Not Modified - using cached articles",
-      );
+      debugLog('✅ [getRelevantArticles] Received 304 Not Modified - using cached articles');
       // Try to get cached articles from sessionStorage
       try {
         const cached = sessionStorage.getItem(ARTICLES_STORAGE_KEY);
         if (cached) {
           const parsed = JSON.parse(cached);
           debugLog(
-            "📦 [getRelevantArticles] Using",
+            '📦 [getRelevantArticles] Using',
             parsed.length,
-            "cached articles from sessionStorage",
+            'cached articles from sessionStorage',
           );
           return parsed;
         }
       } catch (error) {
-        debugError(
-          "❌ [getRelevantArticles] Error reading cached articles:",
-          error,
-        );
+        debugError('❌ [getRelevantArticles] Error reading cached articles:', error);
       }
       // If no cache available, return empty array (shouldn't happen)
       return [];
@@ -197,58 +179,49 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
       debugError(
         `❌ [getRelevantArticles] Fetch failed: ${response.status} ${response.statusText}`,
       );
-      const errorText = await response.text().catch(() => "No error details");
+      const errorText = await response.text().catch(() => 'No error details');
       debugError(`❌ [getRelevantArticles] Error response:`, errorText);
       return [];
     }
 
     const articlesJSON = await response.json();
     const articles = articlesJSON.articles || [];
-    debugLog("📦 [getRelevantArticles] Fetched", articles.length, "articles");
+    debugLog('📦 [getRelevantArticles] Fetched', articles.length, 'articles');
 
     // Store ETag from response header
-    const etag = response.headers.get("ETag");
+    const etag = response.headers.get('ETag');
     if (etag) {
       sessionStorage.setItem(ARTICLES_ETAG_KEY, etag);
-      debugLog("🏷️ [getRelevantArticles] Stored ETag:", etag);
+      debugLog('🏷️ [getRelevantArticles] Stored ETag:', etag);
     }
 
     // Store articles in cache for 304 Not Modified responses
     if (articles.length > 0) {
       try {
         sessionStorage.setItem(ARTICLES_STORAGE_KEY, JSON.stringify(articles));
-        debugLog(
-          "💾 [getRelevantArticles] Stored",
-          articles.length,
-          "articles in cache",
-        );
+        debugLog('💾 [getRelevantArticles] Stored', articles.length, 'articles in cache');
       } catch (error) {
-        debugError(
-          "❌ [getRelevantArticles] Error storing articles in cache:",
-          error,
-        );
+        debugError('❌ [getRelevantArticles] Error storing articles in cache:', error);
       }
 
-      debugLog("📦 [getRelevantArticles] Sample article:", {
+      debugLog('📦 [getRelevantArticles] Sample article:', {
         key: articles[0].key,
         title: articles[0].title,
         timestamp: articles[0].timestamp,
       });
     }
 
-    debugLog("✅ [getRelevantArticles] Returning", articles.length, "articles");
+    debugLog('✅ [getRelevantArticles] Returning', articles.length, 'articles');
     return articles;
   } catch (error) {
-    debugError("❌ [getRelevantArticles] Network error:", error);
-    if (error instanceof TypeError && error.message.includes("fetch")) {
+    debugError('❌ [getRelevantArticles] Network error:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
       debugError(
-        "❌ [getRelevantArticles] Could not connect to server. Is it running at",
+        '❌ [getRelevantArticles] Could not connect to server. Is it running at',
         VITE_API_BASE,
-        "?",
+        '?',
       );
-      debugError(
-        "❌ [getRelevantArticles] Note: Development backend runs on port 5001",
-      );
+      debugError('❌ [getRelevantArticles] Note: Development backend runs on port 5001');
     }
     return [];
   }
@@ -261,48 +234,37 @@ export async function getRelevantArticles(): Promise<ArticleProps[]> {
  * @returns Array of articles, sorted by date (most recent first).
  */
 export async function pullRecentArticles() {
-  debugLog(
-    "🚀 [pullRecentArticles] Function called at:",
-    new Date().toISOString(),
-  );
-  debugLog("🚀 [pullRecentArticles] Stack trace:", new Error().stack);
+  debugLog('🚀 [pullRecentArticles] Function called at:', new Date().toISOString());
+  debugLog('🚀 [pullRecentArticles] Stack trace:', new Error().stack);
 
   // Get API base URL from config (uses VITE_BACKEND_DEV_MODE)
   const VITE_API_BASE = getApiBaseUrlWithPrefix();
   debugLog(
-    "🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:",
+    '🔍 [pullRecentArticles] VITE_BACKEND_DEV_MODE:',
     import.meta.env.VITE_BACKEND_DEV_MODE,
-    "→ API_BASE:",
+    '→ API_BASE:',
     VITE_API_BASE,
   );
 
   try {
     // Step 1: Try to get articles from the last 24 hours
-    debugLog(
-      "📡 [pullRecentArticles] Step 1: Fetching articles from last 24 hours...",
-    );
-    let finalArticles = await fetchArticlesByMinutes(
-      VITE_API_BASE,
-      MIN_MINUTES_BEFORE_TO_CHECK,
-    );
+    debugLog('📡 [pullRecentArticles] Step 1: Fetching articles from last 24 hours...');
+    let finalArticles = await fetchArticlesByMinutes(VITE_API_BASE, MIN_MINUTES_BEFORE_TO_CHECK);
 
     // Step 2: If we have no articles, try the 4-day window
     // If we have some but not enough, also try the 4-day window to get more
-    if (
-      finalArticles.length === 0 ||
-      finalArticles.length < MIN_ACCEPTABLE_ARTICLES
-    ) {
+    if (finalArticles.length === 0 || finalArticles.length < MIN_ACCEPTABLE_ARTICLES) {
       if (finalArticles.length === 0) {
         debugLog(
-          "📡 [pullRecentArticles] No articles found in last 24 hours, fetching from last 4 days...",
+          '📡 [pullRecentArticles] No articles found in last 24 hours, fetching from last 4 days...',
         );
       } else {
         debugLog(
-          "📡 [pullRecentArticles] Not enough articles (" +
+          '📡 [pullRecentArticles] Not enough articles (' +
             finalArticles.length +
-            " < " +
+            ' < ' +
             MIN_ACCEPTABLE_ARTICLES +
-            "), fetching from last 4 days...",
+            '), fetching from last 4 days...',
         );
       }
 
@@ -321,7 +283,7 @@ export async function pullRecentArticles() {
     // Step 3: If we still have no articles, fetch all articles and return the most recent ones
     if (finalArticles.length === 0) {
       debugLog(
-        "📡 [pullRecentArticles] Still no articles found, fetching all available articles...",
+        '📡 [pullRecentArticles] Still no articles found, fetching all available articles...',
       );
       const allArticles = await fetchArticlesByMinutes(
         VITE_API_BASE,
@@ -333,9 +295,9 @@ export async function pullRecentArticles() {
         const sortedArticles = sortArticlesByDate(allArticles);
         finalArticles = sortedArticles;
         debugLog(
-          "📦 [pullRecentArticles] Found",
+          '📦 [pullRecentArticles] Found',
           sortedArticles.length,
-          "total articles, returning most recent",
+          'total articles, returning most recent',
         );
       }
     } else {
@@ -343,22 +305,18 @@ export async function pullRecentArticles() {
       finalArticles = sortArticlesByDate(finalArticles);
     }
 
-    debugLog(
-      "✅ [pullRecentArticles] Returning",
-      finalArticles.length,
-      "articles",
-    );
+    debugLog('✅ [pullRecentArticles] Returning', finalArticles.length, 'articles');
     return finalArticles;
   } catch (error) {
-    debugError("❌ [pullRecentArticles] Error caught:", error);
-    debugError("❌ [pullRecentArticles] Error type:", error?.constructor?.name);
+    debugError('❌ [pullRecentArticles] Error caught:', error);
+    debugError('❌ [pullRecentArticles] Error type:', error?.constructor?.name);
     debugError(
-      "❌ [pullRecentArticles] Error message:",
+      '❌ [pullRecentArticles] Error message:',
       error instanceof Error ? error.message : String(error),
     );
     debugError(
-      "❌ [pullRecentArticles] Error stack:",
-      error instanceof Error ? error.stack : "No stack trace",
+      '❌ [pullRecentArticles] Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace',
     );
     return [];
   }
@@ -369,47 +327,42 @@ export async function pullRecentArticles() {
  * @returns The featured article if found, null otherwise
  */
 export async function getFeaturedArticle(): Promise<ArticleProps | null> {
-  debugLog("🚀 [getFeaturedArticle] Function called");
+  debugLog('🚀 [getFeaturedArticle] Function called');
 
   const VITE_API_BASE = getApiBaseUrlWithPrefix();
   const url = `${VITE_API_BASE}/blogs/featured`;
-  debugLog("📡 [getFeaturedArticle] Fetching from URL:", url);
+  debugLog('📡 [getFeaturedArticle] Fetching from URL:', url);
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
-      debugError(
-        `❌ [getFeaturedArticle] Fetch failed: ${response.status} ${response.statusText}`,
-      );
-      const errorText = await response.text().catch(() => "No error details");
+      debugError(`❌ [getFeaturedArticle] Fetch failed: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'No error details');
       debugError(`❌ [getFeaturedArticle] Error response:`, errorText);
       return null;
     }
 
     const data = await response.json();
     if (data.success && data.article) {
-      debugLog(
-        "✅ [getFeaturedArticle] Successfully fetched featured article:",
-        data.article.key,
-      );
+      debugLog('✅ [getFeaturedArticle] Successfully fetched featured article:', data.article.key);
       return data.article as ArticleProps;
     } else {
-      debugLog("📦 [getFeaturedArticle] No featured article found");
+      debugLog('📦 [getFeaturedArticle] No featured article found');
       return null;
     }
   } catch (error) {
-    debugError("❌ [getFeaturedArticle] Network error:", error);
-    if (error instanceof TypeError && error.message.includes("fetch")) {
+    debugError('❌ [getFeaturedArticle] Network error:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
       debugError(
-        "❌ [getFeaturedArticle] Could not connect to server. Is it running at",
+        '❌ [getFeaturedArticle] Could not connect to server. Is it running at',
         VITE_API_BASE,
-        "?",
+        '?',
       );
     }
     return null;
@@ -422,40 +375,35 @@ export async function getFeaturedArticle(): Promise<ArticleProps | null> {
  * @param key The article key to fetch
  * @returns The article if found, undefined otherwise
  */
-export async function getArticleByKey(
-  key: string,
-): Promise<ArticleProps | undefined> {
-  debugLog("🚀 [getArticleByKey] Function called for key:", key);
+export async function getArticleByKey(key: string): Promise<ArticleProps | undefined> {
+  debugLog('🚀 [getArticleByKey] Function called for key:', key);
 
   const VITE_API_BASE = getApiBaseUrlWithPrefix();
   const url = `${VITE_API_BASE}/blogs/${key}`;
-  debugLog("📡 [getArticleByKey] Fetching from URL:", url);
+  debugLog('📡 [getArticleByKey] Fetching from URL:', url);
 
   // Get stored ETag for this specific article
   const storedETagKey = `${ARTICLE_ETAG_PREFIX}${key}`;
   const storedETag = sessionStorage.getItem(storedETagKey);
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   // Add If-None-Match header if we have a stored ETag
   if (storedETag) {
-    headers["If-None-Match"] = storedETag;
-    debugLog("🏷️ [getArticleByKey] Sending If-None-Match header:", storedETag);
+    headers['If-None-Match'] = storedETag;
+    debugLog('🏷️ [getArticleByKey] Sending If-None-Match header:', storedETag);
   }
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: headers,
     });
 
     // Handle 304 Not Modified response
     if (response.status === 304) {
-      debugLog(
-        "✅ [getArticleByKey] Received 304 Not Modified for article:",
-        key,
-      );
+      debugLog('✅ [getArticleByKey] Received 304 Not Modified for article:', key);
       // Try to get cached article from context or sessionStorage
       // Note: We don't cache individual articles in sessionStorage currently,
       // so we'll need to return undefined and let the caller handle it
@@ -465,13 +413,11 @@ export async function getArticleByKey(
 
     if (!response.ok) {
       if (response.status === 404) {
-        debugLog("📦 [getArticleByKey] Article not found (404)");
+        debugLog('📦 [getArticleByKey] Article not found (404)');
         return undefined;
       }
-      debugError(
-        `❌ [getArticleByKey] Fetch failed: ${response.status} ${response.statusText}`,
-      );
-      const errorText = await response.text().catch(() => "No error details");
+      debugError(`❌ [getArticleByKey] Fetch failed: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'No error details');
       debugError(`❌ [getArticleByKey] Error response:`, errorText);
       return undefined;
     }
@@ -479,28 +425,25 @@ export async function getArticleByKey(
     const data = await response.json();
     if (data.success && data.article) {
       // Store ETag from response header
-      const etag = response.headers.get("ETag");
+      const etag = response.headers.get('ETag');
       if (etag) {
         sessionStorage.setItem(storedETagKey, etag);
-        debugLog("🏷️ [getArticleByKey] Stored ETag for article:", key, etag);
+        debugLog('🏷️ [getArticleByKey] Stored ETag for article:', key, etag);
       }
 
-      debugLog(
-        "✅ [getArticleByKey] Successfully fetched article:",
-        data.article.key,
-      );
+      debugLog('✅ [getArticleByKey] Successfully fetched article:', data.article.key);
       return data.article as ArticleProps;
     } else {
-      debugLog("📦 [getArticleByKey] Article not found in response");
+      debugLog('📦 [getArticleByKey] Article not found in response');
       return undefined;
     }
   } catch (error) {
-    debugError("❌ [getArticleByKey] Network error:", error);
-    if (error instanceof TypeError && error.message.includes("fetch")) {
+    debugError('❌ [getArticleByKey] Network error:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
       debugError(
-        "❌ [getArticleByKey] Could not connect to server. Is it running at",
+        '❌ [getArticleByKey] Could not connect to server. Is it running at',
         VITE_API_BASE,
-        "?",
+        '?',
       );
     }
     return undefined;
@@ -519,7 +462,7 @@ export function articlesByCategory(
 ): ArticleProps[] {
   let currentCategory;
   // Allows the category to be either a NewsCategory or a string
-  if (typeof category !== "string") {
+  if (typeof category !== 'string') {
     currentCategory = category.name;
   } else {
     currentCategory = category;
@@ -529,8 +472,7 @@ export function articlesByCategory(
   const retArticles = articles.filter((article: ArticleProps) => {
     const mapCategory = article.category;
     if (mapCategory === undefined) return false;
-    if (mapCategory.toString().toLowerCase() !== currentCategory.toLowerCase())
-      return false;
+    if (mapCategory.toString().toLowerCase() !== currentCategory.toLowerCase()) return false;
     return true;
   });
 

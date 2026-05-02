@@ -1,5 +1,5 @@
-import { CellState, Symbols } from "../Game/types";
-import "./Cell.css";
+import { CellState, Symbols } from '../Game/types';
+import './Cell.css';
 
 /**
  * Componet Cell in a Board.
@@ -20,17 +20,10 @@ interface CellProps {
   marked?: boolean;
 }
 
-function Cell({
-  cellState,
-  row,
-  column,
-  setCell,
-  disabled,
-  marked = false,
-}: CellProps) {
+function Cell({ cellState, row, column, setCell, disabled, marked = false }: CellProps) {
   return (
     <button
-      className={`tictac-cell ${marked ? "tictac-cell-marked" : ""}`}
+      className={`tictac-cell ${marked ? 'tictac-cell-marked' : ''}`}
       onClick={() => setCell(row, column)}
       disabled={disabled}
     >
@@ -38,9 +31,7 @@ function Cell({
       {cellState.symbol !== Symbols._ ? (
         <div>
           <p className="tictac-cell-text">
-            <b className="tictac-cell-symbol">
-              {Symbols[cellState.symbol].toString()}
-            </b>
+            <b className="tictac-cell-symbol">{Symbols[cellState.symbol].toString()}</b>
             &nbsp;
             {cellState.totalDice}
           </p>

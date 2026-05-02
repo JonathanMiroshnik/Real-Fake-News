@@ -25,12 +25,12 @@ function SectionHeader({ topLine, bottomLine }: SectionHeaderProps) {
       <hr
         className="w-full border-0 mt-0 mb-8 bg-gray-300"
         style={{
-          display: "block",
-          height: "4px",
-          minHeight: "4px",
-          maxHeight: "4px",
-          marginTop: "0",
-          marginBottom: "2rem",
+          display: 'block',
+          height: '4px',
+          minHeight: '4px',
+          maxHeight: '4px',
+          marginTop: '0',
+          marginBottom: '2rem',
           padding: 0,
           lineHeight: 0,
         }}
