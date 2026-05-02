@@ -35,5 +35,4 @@ services:
         - VITE_FRONTEND_DEV_MODE=true
         - VITE_CLIENT_URL_DEV=http://localhost:5173
         - VITE_CLIENT_URL_PROD=http://client:80 # Docker service name
-        - SVELTEKIT_BASE_PATH= # Empty for dev mode - serve from root instead of /admin
 

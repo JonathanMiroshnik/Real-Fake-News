@@ -96,7 +96,7 @@ VITE_NO_ARTICLES_MESSAGE_DELAY=3000 # Delay (ms) before showing "No articles" me
 
 # =============================================================================
 
-# ADMIN (Admin Panel) - Svelte/Vite
+# ADMIN (Admin Panel) - React/Vite
 
 # =============================================================================
 

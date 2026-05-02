@@ -14,8 +14,10 @@ This repo is deployed on a VPS alongside the PersonalDevOps infrastructure. The 
 ```
 real.sensorcensor.xyz → (shared nginx) → client:80
                                   ├── /        → serves static React SPA
-                                  ├── /api/*   → reverse-proxy to server:5001
-                                  └── /admin/* → reverse-proxy to admin:80
+                                  └── /api/*   → reverse-proxy to server:5001
+
+admin.real.sensorcensor.xyz → (shared nginx) → admin:80
+                                  └── serves static React admin SPA
 ```
 
 ### Container Names (for PersonalDevOps sites.yaml)
@@ -25,6 +27,14 @@ real.sensorcensor.xyz → (shared nginx) → client:80
   subdomain: 'real.sensorcensor.xyz'
   internal_port: 80
   container_name: 'client'
+  backend_repo: 'https://github.com/JonathanMiroshnik/RealWebsite.git'
+  backend_tech: 'multi'
+  enabled: true
+
+- name: 'admin'
+  subdomain: 'admin.real.sensorcensor.xyz'
+  internal_port: 80
+  container_name: 'admin'
   backend_repo: 'https://github.com/JonathanMiroshnik/RealWebsite.git'
   backend_tech: 'multi'
   enabled: true
@@ -39,7 +49,7 @@ real.sensorcensor.xyz → (shared nginx) → client:80
 | Docker network      | Internal `app-network` (bridge)                                          | External `devops_shared` (shared VPS network)                                 |
 | Health checks       | Present in all Dockerfiles                                               | Removed — shared nginx handles failures gracefully                            |
 | Server debug blocks | Present in Dockerfile                                                    | Removed — production image is leaner                                          |
-| Admin proxying      | Not handled by client nginx                                              | Added `location /admin` → `proxy_pass http://admin:80` in `client/nginx.conf` |
+| Admin serving       | Proxied through client nginx at `/admin/*`                               | Served on its own subdomain via shared nginx (e.g. `admin.real.sensorcensor.xyz`) |
 
 # Environment Configuration
 
@@ -55,7 +65,7 @@ The file is organized by:
 
 - **Server** (Node.js/Express backend) - `server/.env`
 - **Client** (React frontend) - `client/.env`
-- **Admin** (Svelte admin panel) - `admin/.env`
+- **Admin** (React admin panel) - `admin/.env`
 
 To set up the project:
 
@@ -91,7 +101,7 @@ docker compose up --build -d
 
 # Access:
 #   Client SPA:    http://localhost:5173
-#   Admin panel:   http://localhost:5174/admin
+#   Admin panel:   http://localhost:5174
 #   API directly:  http://localhost:5001/api/health
 
 # View logs
