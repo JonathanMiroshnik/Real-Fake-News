@@ -26,13 +26,13 @@
       "prettier --write --ignore-unknown"
     ],
     "client/src/**/*.{ts,tsx,js,jsx}": [
-      "cd client && eslint --fix --no-warn-ignored"
+      "npx --no-install eslint --fix --no-warn-ignored --config client/eslint.config.js"
     ],
     "server/src/**/*.{ts,tsx,js,jsx}": [
-      "cd server && eslint --fix --no-warn-ignored"
+      "npx --no-install eslint --fix --no-warn-ignored --config server/eslint.config.js"
     ],
     "admin/src/**/*.{ts,tsx,js,jsx}": [
-      "cd admin && eslint --fix --no-warn-ignored"
+      "npx --no-install eslint --fix --no-warn-ignored --config admin/eslint.config.js"
     ]
   }
 }
