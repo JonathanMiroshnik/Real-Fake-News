@@ -1,18 +1,20 @@
 # Admin Panel
 
-A secure Svelte-based admin panel for managing articles and text items.
-
-## Changes for VPS Deployment
-
-- **`nginx.conf`**: No changes needed — the `/admin` base path and API proxy to `server:5001` remain the same (the container name is now just `server` instead of the old `real-fake-news-server`, but the nginx proxy targets use `server` which matches the new container name).
-- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow.
-- **Access path**: The admin panel is now served at `/admin/*` behind the client nginx entry point, not on a separate port. The URL is `https://real.sensorcensor.xyz/admin`.
+A React-based admin panel for managing articles and text items on Real Fake News.
 
 ## Features
 
-1. **Password Protection**: The admin panel is protected by a URL query parameter. Without the correct password, the panel won't display any content.
-2. **Article Management**: View all articles in a table format with title (as hyperlink), category, and delete functionality.
-3. **Text Management**: Add and view text items in a simple list format.
+1. **Password Protection**: The admin panel is protected by a URL query parameter (`?pwd=...`). Without the correct password, the panel won't display any content.
+2. **Dashboard**: View article table with pagination, generate new articles/recipes, manage text items.
+3. **Article Editor**: Edit article title, content (markdown), category, writer type, head image; set as featured; delete.
+4. **Settings**: Manage text items and view configuration info.
+
+## Tech Stack
+
+- **React 19** with TypeScript
+- **React Router 7** (browser routing — served at root for subdomain like `admin.real.sensorcensor.xyz`)
+- **Vite 6** for build tooling
+- **Served via Nginx** (static files + API proxy)
 
 ## Setup
 
