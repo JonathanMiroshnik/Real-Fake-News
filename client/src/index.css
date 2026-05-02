@@ -1,5 +1,5 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss";
+@import 'tailwindcss/preflight';
+@import 'tailwindcss';
 
 @reference "tailwindcss";
 
@@ -11,14 +11,14 @@
   --color-border-separator: var(--border-separator-color);
   --color-border-big-separator: var(--border-big-separator-color);
   --color-global-bg: var(--global-background-color);
-  
+
   /* Custom breakpoint */
   --breakpoint-mobile: 600px;
-  
+
   /* Custom font families */
   --font-serif: 'Times New Roman', Times, serif;
   --font-sans: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  
+
   /* Custom animations */
   --animate-logo-spin: logo-spin infinite 20s linear;
   --animate-shimmer: shimmer 1.5s infinite;
@@ -51,7 +51,7 @@
   --border-separator-color: gray;
   --border-big-separator-color: black;
   --global-background-color: white;
-  
+
   /* TODO: figure out how to do mobile cutoff global, see: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/ */
   /* --mobile-size-cutoff: 600px; */
 }
@@ -99,7 +99,7 @@
 /* Dark theme - CSS variables for runtime theme switching */
 .dark-theme {
   @apply bg-black;
-  
+
   --title-color: white;
   --description-color: gray;
   --undertext-color: white;
@@ -120,7 +120,7 @@
 /* Light theme - CSS variables for runtime theme switching */
 .light-theme {
   @apply bg-white;
-  
+
   --title-color: black;
   --description-color: gray;
   --undertext-color: black;
@@ -157,7 +157,7 @@
 
   :root:not(.light-theme):not(.dark-theme) button {
     background-color: var(--global-background-color);
-    color: white;  
+    color: white;
   }
 }
 

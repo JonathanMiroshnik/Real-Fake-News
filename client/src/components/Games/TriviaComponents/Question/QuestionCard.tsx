@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-import './QuestionCard.css'
+import './QuestionCard.css';
 
 export interface Question {
   category: string;
@@ -13,76 +13,74 @@ export interface Question {
 }
 
 export interface QuestionProps {
-    questionAPIStructure: Question;
-    onAnswer: (correct: boolean) => void;
-} 
+  questionAPIStructure: Question;
+  onAnswer: (correct: boolean) => void;
+}
 
 function QuestionCard(questionProps: QuestionProps) {
-    const [answers, setAnswers] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<string[]>([]);
 
-    // Effect to trigger on question change
-    useEffect(() => {
-        randomizeAnswers();
-    }, [questionProps]);
+  // Effect to trigger on question change
+  useEffect(() => {
+    randomizeAnswers();
+  }, [questionProps]);
 
-    function checkCorrect(answer: string) {
-        if (answer === questionProps.questionAPIStructure.correct_answer) {
-            questionProps.onAnswer(true);
-            return;
-        }
-
-        questionProps.onAnswer(false);
+  function checkCorrect(answer: string) {
+    if (answer === questionProps.questionAPIStructure.correct_answer) {
+      questionProps.onAnswer(true);
+      return;
     }
 
-    
-    function shuffle(array: string[]) {        
-        for (let i = array.length - 1; i > 0; i--) { 
-    
-            // Generate random index 
-            const j = Math.floor(Math.random() * (i + 1));
-                          
-            // Swap elements at indices i and j
-            const temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
+    questionProps.onAnswer(false);
+  }
 
-        return array;
+  function shuffle(array: string[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      // Generate random index
+      const j = Math.floor(Math.random() * (i + 1));
+
+      // Swap elements at indices i and j
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
     }
 
-    function randomizeAnswers() {
-        const allAnswers: string[] = [
-            questionProps.questionAPIStructure.correct_answer,
-            ...questionProps.questionAPIStructure.incorrect_answers
-        ];
+    return array;
+  }
 
-        // Special situation for when it is a "boolean" question
-        if (allAnswers.length === 2) {
-            setAnswers(["True", "False"]);
-            return;
-        }
+  function randomizeAnswers() {
+    const allAnswers: string[] = [
+      questionProps.questionAPIStructure.correct_answer,
+      ...questionProps.questionAPIStructure.incorrect_answers,
+    ];
 
-        setAnswers(() => [...shuffle(allAnswers)]);
+    // Special situation for when it is a "boolean" question
+    if (allAnswers.length === 2) {
+      setAnswers(['True', 'False']);
+      return;
     }
 
-    return (
-        <div className="trivia-question-card-main">            
-            <ReactMarkdown>{questionProps.questionAPIStructure.question}</ReactMarkdown>
-            {answers.length > 0 && (
-                <div className="trivia-answer-buttons">
-                    {answers.map((answer, i) => (
-                        <button 
-                            key={"trivia-answer-button-" + i.toString()} 
-                            className="trivia-answer-button"
-                            onClick={() => checkCorrect(answer)}
-                        >
-                            {answer}
-                        </button>
-                    ))}
-                </div>
-            )}
+    setAnswers(() => [...shuffle(allAnswers)]);
+  }
+
+  return (
+    <div className="trivia-question-card-main">
+      <ReactMarkdown>{questionProps.questionAPIStructure.question}</ReactMarkdown>
+      {answers.length > 0 && (
+        <div className="trivia-answer-buttons">
+          {answers.map((answer, i) => (
+            <button
+              key={'trivia-answer-button-' + i.toString()}
+              className="trivia-answer-button"
+              onClick={() => checkCorrect(answer)}
+            >
+              {answer}
+            </button>
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 export default QuestionCard;

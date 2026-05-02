@@ -11,11 +11,13 @@ export async function generateDailyHoroscopes(): Promise<void> {
     debugLog('🔮 Starting daily horoscope generation...');
     const today = new Date();
     const horoscopes = await generateHoroscopesForDate(today);
-    
+
     if (horoscopes.length > 0) {
       const saved = await saveHoroscopes(horoscopes);
       if (saved) {
-        debugLog(`✅ Successfully generated and saved ${horoscopes.length} horoscopes for ${today.toISOString().split('T')[0]}`);
+        debugLog(
+          `✅ Successfully generated and saved ${horoscopes.length} horoscopes for ${today.toISOString().split('T')[0]}`,
+        );
       } else {
         console.error('❌ Failed to save horoscopes to database');
       }
@@ -36,10 +38,9 @@ export function scheduleHoroscopeGeneration(): void {
   cron.schedule('0 0 * * *', async () => {
     await generateDailyHoroscopes();
   });
-  
+
   debugLog('📅 Scheduled daily horoscope generation at midnight');
-  
+
   // Also generate horoscopes immediately if they don't exist for today
   generateDailyHoroscopes();
 }
-

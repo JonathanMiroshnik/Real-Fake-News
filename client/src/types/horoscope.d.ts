@@ -42,8 +42,7 @@ export const ZODIAC_SIGNS = [
   'Sagittarius',
   'Capricorn',
   'Aquarius',
-  'Pisces'
+  'Pisces',
 ] as const;
 
-export type ZodiacSign = typeof ZODIAC_SIGNS[number];
-
+export type ZodiacSign = (typeof ZODIAC_SIGNS)[number];

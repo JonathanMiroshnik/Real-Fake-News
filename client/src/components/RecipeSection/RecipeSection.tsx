@@ -46,4 +46,3 @@ function RecipeSection() {
 }
 
 export default RecipeSection;
-

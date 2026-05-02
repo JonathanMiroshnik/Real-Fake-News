@@ -21,41 +21,44 @@ real.sensorcensor.xyz → (shared nginx) → client:80
 ### Container Names (for PersonalDevOps sites.yaml)
 
 ```yaml
-- name: "real"
-  subdomain: "real.sensorcensor.xyz"
+- name: 'real'
+  subdomain: 'real.sensorcensor.xyz'
   internal_port: 80
-  container_name: "client"
-  backend_repo: "https://github.com/JonathanMiroshnik/RealWebsite.git"
-  backend_tech: "multi"
+  container_name: 'client'
+  backend_repo: 'https://github.com/JonathanMiroshnik/RealWebsite.git'
+  backend_tech: 'multi'
   enabled: true
 ```
 
 ### Key Changes from Previous Version
 
-| Change | Before | After |
-|--------|--------|-------|
-| Container names | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin` |
-| Port exposure | Each service exposed host ports | **No ports exposed** — all communication over `devops_shared` Docker network |
-| Docker network | Internal `app-network` (bridge) | External `devops_shared` (shared VPS network) |
-| Health checks | Present in all Dockerfiles | Removed — shared nginx handles failures gracefully |
-| Server debug blocks | Present in Dockerfile | Removed — production image is leaner |
-| Admin proxying | Not handled by client nginx | Added `location /admin` → `proxy_pass http://admin:80` in `client/nginx.conf` |
+| Change              | Before                                                                   | After                                                                         |
+| ------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Container names     | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin`                                                   |
+| Port exposure       | Each service exposed host ports                                          | **No ports exposed** — all communication over `devops_shared` Docker network  |
+| Docker network      | Internal `app-network` (bridge)                                          | External `devops_shared` (shared VPS network)                                 |
+| Health checks       | Present in all Dockerfiles                                               | Removed — shared nginx handles failures gracefully                            |
+| Server debug blocks | Present in Dockerfile                                                    | Removed — production image is leaner                                          |
+| Admin proxying      | Not handled by client nginx                                              | Added `location /admin` → `proxy_pass http://admin:80` in `client/nginx.conf` |
 
 # Environment Configuration
 
 All environment variables, config files, and constants used across the project are documented in **`ENV_CONFIG.example`** in the root directory.
 
 This comprehensive file includes:
+
 - **Environment Variables**: All `.env` variables for Server, Client, and Admin
 - **Config Files**: Documentation of all configuration files and their purposes
 - **Constants**: All hardcoded constants and where they're used
 
 The file is organized by:
+
 - **Server** (Node.js/Express backend) - `server/.env`
 - **Client** (React frontend) - `client/.env`
 - **Admin** (Svelte admin panel) - `admin/.env`
 
 To set up the project:
+
 1. Copy `ENV_CONFIG.example` and extract the relevant sections to create `.env` files in each subdirectory
 2. Fill in your API keys (DeepSeek, NewsData.io, Runware)
 3. Configure Gmail credentials if using email service
@@ -114,12 +117,14 @@ docker compose up --build -d
 ### Rebuild After Code Changes
 
 **Development:**
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
 ```
 
 **Production:**
+
 ```bash
 docker compose build --no-cache client
 docker compose up -d client
@@ -128,12 +133,14 @@ docker compose up -d client
 ### View Service Logs
 
 **Development:**
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f server
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f client
 ```
 
 **Production:**
+
 ```bash
 docker compose logs -f server
 docker compose logs -f client
@@ -150,11 +157,13 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ### Stop All Services
 
 **Development:**
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
 **Production:**
+
 ```bash
 docker compose down
 ```
@@ -164,16 +173,19 @@ docker compose down
 To populate the database with sample data for testing and development:
 
 **Using Docker Compose:**
+
 ```bash
 docker compose exec server npm run generate-mock-data
 ```
 
 **Or with custom options:**
+
 ```bash
 docker compose exec server npm run generate-mock-data --writers 3 --articles 10 --recipes 5 --no-foods
 ```
 
 **Available options:**
+
 - `--writers <number>`: Number of writers to generate (default: 5)
 - `--articles <number>`: Number of articles to generate (default: 20)
 - `--news-items <number>`: Number of news items to generate (default: 15)
@@ -184,6 +196,7 @@ docker compose exec server npm run generate-mock-data --writers 3 --articles 10 
 - `--help, -h`: Show help message
 
 **Examples:**
+
 ```bash
 # Generate default amount of data
 docker compose exec server npm run generate-mock-data
@@ -199,6 +212,7 @@ docker compose exec server npm run generate-mock-data --help
 ```
 
 The mock data generator creates realistic sample data including:
+
 - Writers with profiles and system prompts
 - Articles with different categories (Technology, Travel, Food, Science, etc.)
 - News items with breaking news
@@ -223,12 +237,12 @@ When the database is empty (fresh deployment, demo, or during development), the 
 
 ### What gets generated
 
-| Content Type | Trigger | Fallback |
-|---|---|---|
-| **Blog articles** | All `/api/blogs/*` endpoints return empty | 8 articles with unique fake headlines, writers, and images |
-| **Featured article** | No featured article for the requested date | 1 featured article with a special report headline |
-| **Recipes** | All `/api/recipes/*` endpoints return empty | 4 humorous recipes with fake instructions |
-| **Horoscopes** | Requested zodiac sign not found | All 12 signs with playful, generic horoscopes |
+| Content Type         | Trigger                                     | Fallback                                                   |
+| -------------------- | ------------------------------------------- | ---------------------------------------------------------- |
+| **Blog articles**    | All `/api/blogs/*` endpoints return empty   | 8 articles with unique fake headlines, writers, and images |
+| **Featured article** | No featured article for the requested date  | 1 featured article with a special report headline          |
+| **Recipes**          | All `/api/recipes/*` endpoints return empty | 4 humorous recipes with fake instructions                  |
+| **Horoscopes**       | Requested zodiac sign not found             | All 12 signs with playful, generic horoscopes              |
 
 ### Configuration
 
@@ -303,11 +317,13 @@ After this, the API will return fake content whenever endpoints are hit.
 ### Services Won't Start
 
 1. Check if ports are already in use:
+
    ```bash
    netstat -tulpn | grep -E "5001|5173|5174"
    ```
 
 2. Verify `.env` file exists and has correct values:
+
    ```bash
    cat .env | grep -E "SQLITE_DATA_PATH|IMAGES_DATA_PATH"
    ```
@@ -320,16 +336,19 @@ After this, the API will return fake content whenever endpoints are hit.
 ### Client Can't Connect to Server
 
 1. Verify all containers are running:
+
    ```bash
    docker compose ps
    ```
 
 2. Test server directly:
+
    ```bash
    curl http://localhost:5001/api/health
    ```
 
 3. Test proxy:
+
    ```bash
    curl http://localhost:5173/api/health
    ```
@@ -349,15 +368,19 @@ After this, the API will return fake content whenever endpoints are hit.
   ```
 
 For more detailed troubleshooting, see:
+
 - `DOCKER_ENV_SETUP.md` - Docker environment setup guide
 - `CLIENT_CONNECTION_DEBUG.md` - Client-server connection debugging
 - `DATABASE_LOCATION.md` - Database location configuration
 
 # Design
+
 ## Front-end
-An example website that I use as a model is: https://www.ynet.co.il, https://www.bbc.com/news 
+
+An example website that I use as a model is: https://www.ynet.co.il, https://www.bbc.com/news
 
 The website will have the following elements:
+
 - Logo -> A button to redirect to the home page
 - Header -> Contains buttons to the various site sections
 - Footer -> Will show information about the website creator and licensing information
@@ -365,6 +388,7 @@ The website will have the following elements:
 - Home page -> At the top it will present the front-side article, then the other main articles, and then the other lesser sections and articles.
 
 ### Possible additions:
+
 - [x] Carousel/News Ticker/Slideshow -> This will show the most recent events/articles in a shortened format and will act as buttons towards the related content.
 - [ ] Simple weather description -> This will be a real weather element that will pull from real data sources to show the current weather in various places
 - [ ] Local time clock
@@ -372,30 +396,33 @@ The website will have the following elements:
 - [ ] Comments section in an article -> along with "totally not fake" bot comments
 - [ ] Login option through Google or Facebook which allow to leave a comment
 - [ ] RSS for articles
-- [ ] Search button -> This will allow a user to search through the articles in the website according to key words 
+- [ ] Search button -> This will allow a user to search through the articles in the website according to key words
 - [ ] Automatically generated images in the middle of articles -> and also for banners for the articles
 - [ ] A tip jar for the humble creator of said website
 - [x] Dark/Light mode button
 - [x] Pages for writers for all their articles to be displayed in the page
 - [ ] Pagination where needed
 - [ ] Games section, **In development** - A tic-tac-toe game and a Trivia game
-- [ ] Share buttons on article: https://www.npmjs.com/package/react-share 
+- [ ] Share buttons on article: https://www.npmjs.com/package/react-share
 - [ ] Descriptions for images below them in articles, attribution.
 
 ## Back-end
+
 The backend will need to have the following parts for the website to work:
 
 1. A safe and cheap way of connecting to Large Language Models. We will use the OpenAI API in Node and DeepSeek(as it is quite cheap).
 2. A complex state machine that takes all existing articles/writers into consideration and chooses the next operation in the website accordingly.
-Writers will interact with other writers, discuss with the editors, and will form simple relationships and life histories of their own that will
-effect their reporting.
+   Writers will interact with other writers, discuss with the editors, and will form simple relationships and life histories of their own that will
+   effect their reporting.
 3. MongoDB database that will save the articles, the writers and the state as described above. There is also a possibility of saving generated images too.
 4. A service that connects to an open News API to take relevant daily information as part of the consideration to write relevant articles.
 
 ## Shared Parts:
+
 There are several shared aspects between both the front-end and back-end. The main ones refer to the news categories that we're interested in, and the information in the articles that we want to add to a final JSON representation of these in our article database along with on the front-end website.
 
 # Lessons learned:
+
 - DON'T install npm and node through apt-get, instead, install nvm and use _THAT_ to install those properly: https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/ + https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 - DON'T use "npx create-react-app" because it has constant issues, instead, use Vite: https://vite.dev/guide/ -> For the frontend "client", I used the command: "npm create vite@latest client -- --template react-ts"
 - For the Node backend with TypeScript and Express I used the tutorial: https://medium.com/@vihangamallawaarachchi.dev/setting-up-a-node-js-and-express-backend-with-typescript-a-comprehensive-guide-b15fad5c803c
@@ -405,5 +432,5 @@ There are several shared aspects between both the front-end and back-end. The ma
 - We are using runware.ai for the image generation
 - The Images in the website are(as of 7.5.25) exclusively in a 1.75:1 size.
 - For each React component two rules must be kept with in regards to CSS organization:
-    1. You must ask yourself whether the component should be an inline or block level element.
-    2. An element should not have its own margin or padding unless: it is a basic html tag OR there is no component higher that is responsible for the final look.
+  1. You must ask yourself whether the component should be an inline or block level element.
+  2. An element should not have its own margin or padding unless: it is a basic html tag OR there is no component higher that is responsible for the final look.

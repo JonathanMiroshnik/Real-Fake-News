@@ -3,7 +3,11 @@ import fs from 'fs';
 import { Router, Request, Response } from 'express';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { compressImageInBackground, getCompressedImagePath, getOriginalImagePath } from '../utils/imageCompression.js';
+import {
+  compressImageInBackground,
+  getCompressedImagePath,
+  getOriginalImagePath,
+} from '../utils/imageCompression.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,11 +15,11 @@ const __dirname = dirname(__filename);
 // Import sub-routes
 // import gameIntelligenceRoutes from '../lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js'
 // import llmRoutes from './llmRoutes.js';
-import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js'
-import blogRoutes from './blogRoutes.js'
-import adminRoutes from './adminRoutes.js'
-import horoscopeRoutes from './horoscopeRoutes.js'
-import recipeRoutes from './recipeRoutes.js'
+import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js';
+import blogRoutes from './blogRoutes.js';
+import adminRoutes from './adminRoutes.js';
+import horoscopeRoutes from './horoscopeRoutes.js';
+import recipeRoutes from './recipeRoutes.js';
 // import authRoutes from "./auth.js";
 
 const router = Router();
@@ -46,26 +50,26 @@ router.use('/admin', adminRoutes);
 router.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 router.get('/images/:filename', (req, res) => {
   const sanitized = path.basename(req.params.filename);
-  
+
   // Set CORP headers
   res.set({
     'Cross-Origin-Resource-Policy': 'cross-origin',
     'Cross-Origin-Embedder-Policy': 'unsafe-none',
     'Access-Control-Allow-Origin': process.env.CLIENT_URL,
     // Cache headers for better performance
-    'Cache-Control': 'public, max-age=31536000, immutable'
+    'Cache-Control': 'public, max-age=31536000, immutable',
   });
-  
+
   // Get paths for compressed and original images
   const compressedPath = getCompressedImagePath(sanitized);
   const originalPath = getOriginalImagePath(sanitized);
-  
+
   // Check if compressed version exists
   if (fs.existsSync(compressedPath)) {
     // Serve compressed version
@@ -74,7 +78,7 @@ router.get('/images/:filename', (req, res) => {
     // Original exists but compressed doesn't - serve original immediately
     // and trigger background compression
     res.sendFile(originalPath);
-    
+
     // Start background compression (non-blocking, fire-and-forget)
     compressImageInBackground(sanitized, originalPath);
   } else {
@@ -104,20 +108,19 @@ export default router;
 // export const validateImageRequest = (req, res, next) => {
 //   const validExtensions = ['.png', '.jpg', '.jpeg'];
 //   const filename = path.parse(req.params[0]);
-  
+
 //   if (!validExtensions.includes(filename.ext.toLowerCase())) {
 //     return res.status(403).send('Invalid file type');
 //   }
-  
+
 //   if (filename.dir.includes('..')) {
 //     return res.status(403).send('Path traversal detected');
 //   }
-  
+
 //   next();
 // };
 
-
-// app.use('/images', 
+// app.use('/images',
 //   rateLimit({ windowMs: 15*60*1000, max: 100 }), // 100 requests/15min
 //   validateImageRequest,
 //   express.static(imagePath, {

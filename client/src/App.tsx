@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import ArticleProvider from './contexts/ArticlesContext';
 
 // TODO: should I use this? theoretically solves STRICT error in browser.
-// https://stackoverflow.com/questions/62202890/how-can-i-fix-using-unsafe-componentwillmount-in-strict-mode-is-not-recommended 
+// https://stackoverflow.com/questions/62202890/how-can-i-fix-using-unsafe-componentwillmount-in-strict-mode-is-not-recommended
 // import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 import Layout from './components/Layout/Layout';
@@ -24,7 +24,7 @@ import TriviaGame from './components/Games/TriviaComponents/TriviaGame/TriviaGam
 import { usePrintNewspaper } from './hooks/usePrintNewspaper';
 import NewspaperPrintView from './components/NewspaperPrintView/NewspaperPrintView';
 
-import './App.css'
+import './App.css';
 
 function App() {
   const isPrintMode = usePrintNewspaper();
@@ -36,36 +36,45 @@ function App() {
         <title>Real Fake News</title>
         <link rel="canonical" href="https://www.sensorcensor.xyz" />
         {/* <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" /> */}
-        <meta name="description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
+        <meta
+          name="description"
+          content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment."
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
+
         {/* Open Graph / Facebook / WhatsApp */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.sensorcensor.xyz" />
         <meta property="og:title" content="Real Fake News" />
-        <meta property="og:description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
+        <meta
+          property="og:description"
+          content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment."
+        />
         <meta property="og:image" content="https://www.sensorcensor.xyz/longMainBlackLogo.png" />
-        
+
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://www.sensorcensor.xyz" />
         <meta name="twitter:title" content="Real Fake News" />
-        <meta name="twitter:description" content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment." />
+        <meta
+          name="twitter:description"
+          content="AI-generated satirical news, articles, recipes, and interactive games. A parody news site with fake stories and entertainment."
+        />
         <meta name="twitter:image" content="https://www.sensorcensor.xyz/longMainBlackLogo.png" />
       </Helmet>
-      
+
       {/* Newspaper view - shown when printing */}
       <div className="newspaper-view-wrapper">
         <NewspaperPrintView />
       </div>
-      
+
       {/* Normal app content - hidden when printing */}
       <div className="normal-view-wrapper">
         <Router>
           <ArticleProvider>
             <Routes>
               <Route element={<Layout />}>
-                <Route path="/" element={<HomePage />} />            
+                <Route path="/" element={<HomePage />} />
                 <Route path="/article/:key" element={<ArticlePage />} />
                 <Route path="/recipe/:key" element={<RecipePage />} />
                 {/* Article lists */}
@@ -80,7 +89,7 @@ function App() {
                 <Route path="/disclaimer" element={<DisclaimerPage />} />
                 {/* Catch-all */}
                 <Route path="*" element={<HomePage />} />
-              </Route>                      
+              </Route>
             </Routes>
           </ArticleProvider>
         </Router>

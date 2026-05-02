@@ -19,4 +19,3 @@ function HoroscopeCard({ horoscope }: HoroscopeCardProps) {
 }
 
 export default HoroscopeCard;
-

@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { getRelevantRecipesController, getDailyRecipesController, getRecipeByKeyController } from '../controllers/recipeController.js';
+import {
+  getRelevantRecipesController,
+  getDailyRecipesController,
+  getRecipeByKeyController,
+} from '../controllers/recipeController.js';
 
 const router = Router();
 
@@ -8,4 +12,3 @@ router.get('/daily', getDailyRecipesController);
 router.get('/:key', getRecipeByKeyController);
 
 export default router;
-
