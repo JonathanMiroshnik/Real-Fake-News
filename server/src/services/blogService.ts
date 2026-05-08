@@ -19,8 +19,13 @@ import { generateAndSaveImage } from '../services/imageService.js';
 import { debugLog, debugWarn, debugError } from '../utils/debugLogger.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
-  debugLog('🔍 [getAllPostsAfterDate] Start date:', startDate.toISOString());
-  debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
+  // Guard: validate the date before accessing .toISOString() to prevent
+  // RangeError("Invalid time value") from propagating
+  const isValidDate = startDate instanceof Date && !isNaN(startDate.getTime());
+  debugLog('🔍 [getAllPostsAfterDate] Start date:', isValidDate ? startDate.toISOString() : 'Invalid Date');
+  if (isValidDate) {
+    debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
+  }
 
   const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
   debugLog('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);

@@ -60,6 +60,8 @@ describe('Blog Controller', () => {
   beforeEach(() => {
     mockRes = createMockResponse();
     vi.clearAllMocks();
+    // Suppress expected console.error output from error-handling tests
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   /** ── getRelevantArticlesController ── */
