@@ -28,3 +28,9 @@ server/data/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
