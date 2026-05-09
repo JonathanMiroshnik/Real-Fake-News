@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Dashboard', icon: '📊' },
+  { path: '/config', label: 'Config', icon: '⚙️' },
   { path: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 

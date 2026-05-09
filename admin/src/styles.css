@@ -820,3 +820,164 @@ tbody tr:hover {
   color: var(--color-text-muted);
   user-select: none;
 }
+
+/* --- Config Page --- */
+.config-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-bottom: 80px;
+}
+.config-section {
+  padding: var(--space-lg);
+}
+.config-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1.125rem;
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-primary-light);
+}
+.config-section-icon {
+  font-size: 1.25rem;
+}
+.config-section-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.config-field {
+  padding: var(--space-md);
+  background: var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+.config-field-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.config-field-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.config-label {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+}
+.config-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+  flex-shrink: 0;
+}
+.config-help-icon:hover {
+  background: var(--color-primary);
+  color: white;
+}
+.config-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-width: 300px;
+  white-space: normal;
+  line-height: 1.4;
+}
+.config-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+.config-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+.config-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+.config-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+.config-sticky-bar {
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+  background: var(--color-surface);
+  border-top: 2px solid var(--color-border);
+  padding: var(--space-md) var(--space-xl);
+  z-index: 50;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+}
+.config-sticky-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.config-sticky-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.config-saved-badge {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.config-unsaved-badge {
+  color: #d97706;
+  font-weight: 600;
+  font-size: 0.875rem;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.config-sticky-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.btn-lg {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9375rem;
+}
+

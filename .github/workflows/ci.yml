@@ -21,6 +21,9 @@ jobs:
 
       - run: npm ci
 
+      - name: 🔧 Rebuild native deps and bins
+        run: npm rebuild
+
       - name: 🔍 Check formatting (Prettier)
         run: npm run format:check
 

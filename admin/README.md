@@ -7,7 +7,8 @@ A React-based admin panel for managing articles and text items on Real Fake News
 1. **Password Protection**: The admin panel is protected by a URL query parameter (`?pwd=...`). Without the correct password, the panel won't display any content.
 2. **Dashboard**: View article table with pagination, generate new articles/recipes, manage text items.
 3. **Article Editor**: Edit article title, content (markdown), category, writer type, head image; set as featured; delete.
-4. **Settings**: Manage text items and view configuration info.
+4. **Site Configuration** (`/config`): View and edit site-wide settings (articles per day, generation intervals, scheduled job toggles, etc.) with a sticky save bar showing unsaved/saved status.
+5. **Settings** (`/settings`): Manage text items and view configuration info.
 
 ## Tech Stack
 
@@ -98,6 +99,29 @@ http://localhost:5174/?pwd=your-secure-password-here
    - The text will be added to the list
 
 2. **View Texts**: All added texts are displayed in a scrollable list below the input box.
+
+### Site Configuration (`/config`)
+
+The configuration page lets you view and edit site-wide settings that control content generation behavior. All settings are server-side and saved via the API.
+
+**Available settings:**
+
+| Setting | Type | Description |
+|---------|------|-------------|
+| `articlesPerDay` | number | Articles to generate per day |
+| `recipesPerDay` | number | Recipes to generate per day |
+| `articleGenerationIntervalHours` | number | Article generation interval (hours) |
+| `newsFetchIntervalHours` | number | News fetching interval (hours) |
+| `minAcceptableArticles` | number | Minimum acceptable articles before fallback |
+| `enableScheduledJobs` | boolean | Enable/disable scheduled jobs |
+
+**Sticky Save Bar:**
+
+At the bottom of the page, a sticky bar shows the current save state:
+- ✓ **All saved** (green) — no unsaved changes
+- ⚠️ **Unsaved changes** (amber, pulsing) — changes have been made but not saved
+
+Use the **Save Configuration** button to persist changes (triggers a page refresh on success) or **Refresh** to discard changes and reload the current server values.
 
 ## API Endpoints
 

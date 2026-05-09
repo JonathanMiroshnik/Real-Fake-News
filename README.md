@@ -40,6 +40,15 @@ admin.real.sensorcensor.xyz → (shared nginx) → admin:80
   enabled: true
 ```
 
+### Admin Panel Pages
+
+| Path | Page | Description |
+|------|------|-------------|
+| `/` | Dashboard | Article table with pagination, content generation, text management |
+| `/config` | Site Configuration | Edit site-wide settings (articles per day, generation intervals, scheduled jobs) with sticky save status bar |
+| `/settings` | Settings | View text items and configuration info |
+| `/articles/edit/:key` | Article Editor | Edit, save, set featured, delete articles with image upload |
+
 ### Key Changes from Previous Version
 
 | Change              | Before                                                                   | After                                                                             |
