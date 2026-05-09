@@ -12,7 +12,9 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
