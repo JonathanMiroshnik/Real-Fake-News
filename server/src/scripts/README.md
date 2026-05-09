@@ -166,7 +166,7 @@ docker compose exec server npm run compress-images
 
 ## Database Location
 
-By default, scripts use the SQLite database at `server/data/database.db`. Make sure this file exists and is writable.
+By default, scripts use the SQLite database at the project root's `database/database.db` directory. Make sure this file exists and is writable.
 
 ## Development Notes
 

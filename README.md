@@ -335,7 +335,7 @@ After this, the API will return fake content whenever endpoints are hit.
 2. Verify `.env` file exists and has correct values:
 
    ```bash
-   cat .env | grep -E "SQLITE_DATA_PATH|IMAGES_DATA_PATH"
+   cat .env | grep -E "DATABASE_PATH"
    ```
 
 3. Check Docker logs:
@@ -371,7 +371,8 @@ After this, the API will return fake content whenever endpoints are hit.
 
 ### Database Issues
 
-- Ensure `SQLITE_DATA_PATH` directory exists and is writable
+- Ensure the database directory (default: `./database/`) exists and is writable
+- The `DATABASE_PATH` env var overrides the default database location
 - Check database file permissions:
   ```bash
   ls -la /path/to/your/database.db

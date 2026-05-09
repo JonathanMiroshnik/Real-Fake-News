@@ -11,12 +11,11 @@ useDefault = true
 [allowlist]
 description = "Global allowlist for known safe values"
 paths = [
-    # These are Docker environment examples with placeholder values
+    # These are environment examples with placeholder values
     ".env.example",
     "admin/.env.example",
     "server/.env.example",
     "client/.env.example",
-    "docker-compose.env.example",
     # Lock files aren't secrets
     "package-lock.json",
     # Configuration files

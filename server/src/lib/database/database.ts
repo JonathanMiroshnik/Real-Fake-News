@@ -1,12 +1,7 @@
 import Database, { type Database as DatabaseType } from 'better-sqlite3';
-import path from 'path';
+import path, { resolve } from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
 import { debugLog } from '../../utils/debugLogger.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 class DatabaseManager {
   private static instance: DatabaseManager | null = null;
@@ -14,26 +9,19 @@ class DatabaseManager {
 
   private constructor() {
     // Private constructor - can only be called from getInstance()
-    // Use environment variable if set, otherwise resolve relative to server root
     let dbPath: string;
 
-    // Priority 1: Use SQLITE_DATA_PATH/database.db if SQLITE_DATA_PATH is set (from root .env)
-    if (process.env.SQLITE_DATA_PATH) {
-      dbPath = path.join(process.env.SQLITE_DATA_PATH, 'database.db');
-    }
-    // Priority 2: Use DATABASE_PATH if set (container path, e.g., /data/database.db)
-    else if (process.env.DATABASE_PATH) {
+    // Priority 1: Use DATABASE_PATH if set (Docker container path, e.g., /data/database.db)
+    if (process.env.DATABASE_PATH) {
       dbPath = process.env.DATABASE_PATH;
     }
-    // Priority 3: Default fallback - relative to server root
+    // Priority 2: Default fallback - use database/ at the project root (local development)
     else {
-      // Resolve relative to server root (where .env is located)
-      // __dirname in compiled code is server/dist/lib/database/
-      // So we go up 3 levels to get to server root
-      const serverRoot = resolve(__dirname, '../../..');
-      // Use server/data/database.db - this is outside src/ and dist/ so it won't be affected by builds
-      // This directory already exists and is used for other data files (images, JSON files, etc.)
-      dbPath = path.join(serverRoot, 'data/database.db');
+      // In local development, commands run from server/ directory
+      // (e.g., npm run dev, npm run generate-mock-data)
+      // process.cwd() is server/, so .. resolves to the project root
+      const projectRoot = resolve(process.cwd(), '..');
+      dbPath = path.join(projectRoot, 'database', 'database.db');
     }
 
     const dbDir = path.dirname(dbPath);

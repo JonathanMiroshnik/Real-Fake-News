@@ -19,10 +19,16 @@ admin/build/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
-# Default SQLITE_DATA_PATH mount directory (Docker volume)
+database.db*
+database/database.db*
+database/images/
+database/images/compressed/
+database/
+
+# Database volume mount directory on host (Docker)
 /database/
 
-# Server data images (stored inside database volume)
+# Old server/data location (no longer used - data is now in database/)
 server/data/
 
 # OS files
