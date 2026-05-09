@@ -3,15 +3,20 @@
 
 services:
   server:
+    ports:
+      - '5001:5001'
     environment:
       - NODE_ENV=development
-      # LOCAL_DEV_BACKEND removed - always use /api prefix for consistency
+      - CLIENT_URL=http://localhost:5173
+      - ENABLE_SCHEDULED_JOBS=false
     # Mount source code for hot reload (optional - requires nodemon in container)
     # volumes:
     #   - ./server/src:/app/src:ro
     #   - ./server/tsconfig.json:/app/tsconfig.json:ro
 
   client:
+    ports:
+      - '5173:80'
     build:
       args:
         # In Docker, use relative API URLs with nginx proxy (recommended)
@@ -21,16 +26,18 @@ services:
         - VITE_API_BASE_DEV=http://localhost:5001 # Not used when USE_RELATIVE_API=true
         - VITE_API_BASE_PROD=http://server:5001 # Docker service name for inter-container communication
         - VITE_DEBUG_LOGS=true
-        - VITE_SHOW_HOROSCOPES=${VITE_SHOW_HOROSCOPES:-true}
-        - VITE_SHOW_RECIPES=${VITE_SHOW_RECIPES:-true}
+        - VITE_SHOW_HOROSCOPES=true
+        - VITE_SHOW_RECIPES=true
 
   admin:
+    ports:
+      - '5174:80'
     build:
       args:
-        # Default to dev mode (localhost:5001) - can be overridden in .env for production backend
-        - VITE_BACKEND_DEV_MODE=${VITE_BACKEND_DEV_MODE:-true} # true = use localhost:5001, false = use PROD URL
-        - VITE_API_BASE_DEV=${VITE_API_BASE_DEV:-http://localhost:5001} # Dev backend URL
-        - VITE_API_BASE_PROD=${VITE_API_BASE_PROD:-http://162.0.237.138:5001} # Production backend IP:port (override in .env)
+        # Default to dev mode (localhost:5001)
+        - VITE_BACKEND_DEV_MODE=true # true = use localhost:5001, false = use PROD URL
+        - VITE_API_BASE_DEV=http://localhost:5001 # Dev backend URL
+        - VITE_API_BASE_PROD=http://162.0.237.138:5001 # Production backend IP:port
         - VITE_USE_RELATIVE_API=false
         - VITE_FRONTEND_DEV_MODE=true
         - VITE_CLIENT_URL_DEV=http://localhost:5173
