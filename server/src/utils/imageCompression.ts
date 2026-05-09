@@ -2,12 +2,7 @@ import { Jimp } from 'jimp';
 import { JimpMime } from 'jimp';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { debugLog } from './debugLogger.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Lazy-load Sharp for WebP support
 let sharp: any = null;
@@ -39,33 +34,21 @@ async function getSharp(): Promise<any> {
  * Images are stored in the same directory as the SQLite database
  *
  * Priority:
- * 1. IMAGES_DATA_PATH (from root .env) - if set, use directly
- * 2. SQLITE_DATA_PATH (from root .env) - if set, use SQLITE_DATA_PATH/images
- * 3. DATABASE_PATH (container path) - if set, use dirname(DATABASE_PATH)/images
- * 4. Default: server/data/images (relative to server root)
+ * 1. DATABASE_PATH (container path) - if set, use dirname(DATABASE_PATH)/images
+ * 2. Default: database/images at the project root
  *
  * @returns Path to the images directory
  */
 export function getImagesDirectory(): string {
-  // Priority 1: Use IMAGES_DATA_PATH if explicitly set
-  if (process.env.IMAGES_DATA_PATH) {
-    return process.env.IMAGES_DATA_PATH;
-  }
-
-  // Priority 2: Use SQLITE_DATA_PATH/images if SQLITE_DATA_PATH is set
-  if (process.env.SQLITE_DATA_PATH) {
-    return path.join(process.env.SQLITE_DATA_PATH, 'images');
-  }
-
-  // Priority 3: Use DATABASE_PATH to determine directory (for Docker containers)
+  // Priority 1: Use DATABASE_PATH to determine directory (for Docker containers)
   if (process.env.DATABASE_PATH) {
     const dbDir = path.dirname(process.env.DATABASE_PATH);
     return path.join(dbDir, 'images');
   }
 
-  // Priority 4: Default fallback - relative to server root
-  const serverRoot = path.resolve(__dirname, '../..');
-  return path.join(serverRoot, 'data/images');
+  // Priority 2: Default fallback - use database/images at the project root
+  const projectRoot = path.resolve(process.cwd(), '..');
+  return path.join(projectRoot, 'database', 'images');
 }
 
 /**

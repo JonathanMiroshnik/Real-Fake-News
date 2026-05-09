@@ -22,4 +22,5 @@ These documents serve as a reference for:
 
 | File | Status | Priority | Description |
 |---|---|---|---|
+| `testing-suite.md` | Completed | High | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces |
 | `admin-server-side-auth-gate.md` | Planned | High | Prevent admin frontend from being served without valid password |
