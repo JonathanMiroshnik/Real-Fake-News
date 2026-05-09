@@ -25,7 +25,7 @@ services:
         - UID=1000
         - GID=1000
     container_name: server
-    user: "1000:1000"
+    user: '1000:1000'
     env_file:
       - server/.env
     environment:

@@ -13,4 +13,3 @@ describe('App module', () => {
     expect(typeof AppModule.default).toBe('function');
   });
 });
-

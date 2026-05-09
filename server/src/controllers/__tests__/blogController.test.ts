@@ -88,9 +88,7 @@ describe('Blog Controller', () => {
     });
 
     it('should return 500 when service throws', async () => {
-      mockGetRelevantArticles.mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      mockGetRelevantArticles.mockRejectedValue(new Error('Database connection failed'));
 
       await getRelevantArticlesController({} as Request, mockRes);
 
@@ -151,9 +149,7 @@ describe('Blog Controller', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      mockGetFeaturedArticle.mockRejectedValue(
-        new Error('Service error'),
-      );
+      mockGetFeaturedArticle.mockRejectedValue(new Error('Service error'));
 
       const mockReq = { query: {} } as unknown as Request;
       await getFeaturedArticleController(mockReq, mockRes);

@@ -21,7 +21,7 @@ test.describe('Homepage', () => {
     await page.goto('/');
     // Try clicking a category link (most sites have "Technology", "Sports", etc.)
     const techLink = page.locator('a').filter({ hasText: /Technology/i });
-    if (await techLink.count() > 0) {
+    if ((await techLink.count()) > 0) {
       await techLink.first().click();
       // Should land on a category page
       await expect(page).toHaveURL(/\/category\/technology/i);
@@ -33,7 +33,9 @@ test.describe('Homepage', () => {
     // Wait for content to load
     await page.waitForLoadState('networkidle');
     // Check that article elements are present (using common classes)
-    const articles = page.locator('[class*="article"], [class*="Article"], [class*="card"], [class*="Card"]');
+    const articles = page.locator(
+      '[class*="article"], [class*="Article"], [class*="card"], [class*="Card"]',
+    );
     const count = await articles.count();
     expect(count).toBeGreaterThanOrEqual(1);
   });
@@ -44,7 +46,7 @@ test.describe('Homepage', () => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     // Check for common footer links
     const contactLink = page.locator('a').filter({ hasText: /Contact/i });
-    if (await contactLink.count() > 0) {
+    if ((await contactLink.count()) > 0) {
       await contactLink.first().click();
       await expect(page).toHaveURL(/\/contact/i);
     }

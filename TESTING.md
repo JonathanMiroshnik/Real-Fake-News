@@ -4,12 +4,12 @@
 
 This project uses **Vitest** for unit/integration tests and **Playwright** for end-to-end (E2E) tests.
 
-| Layer | Tool | Location |
-|---|---|---|
-| Server unit/integration | Vitest + Supertest | `server/` |
-| Client unit/component | Vitest + Testing Library | `client/` |
-| Admin unit/component | Vitest + Testing Library | `admin/` |
-| E2E | Playwright | `e2e/` |
+| Layer                   | Tool                     | Location  |
+| ----------------------- | ------------------------ | --------- |
+| Server unit/integration | Vitest + Supertest       | `server/` |
+| Client unit/component   | Vitest + Testing Library | `client/` |
+| Admin unit/component    | Vitest + Testing Library | `admin/`  |
+| E2E                     | Playwright               | `e2e/`    |
 
 ---
 
@@ -40,12 +40,12 @@ The two pipelines are independent. This is standard practice — Jest users with
 
 ### Naming convention for clarity
 
-| File | Purpose | Should be touched by build migration? |
-|---|---|---|
-| `server/vitest.config.ts` | Test config only | ❌ No — keep as-is |
-| `client/vitest.config.ts` | Test config only | ❌ No — keep as-is |
-| `admin/vitest.config.ts` | Test config only | ❌ No — keep as-is |
-| `client/vite.config.ts` | Build config | ✅ Yes — can be replaced |
+| File                      | Purpose          | Should be touched by build migration? |
+| ------------------------- | ---------------- | ------------------------------------- |
+| `server/vitest.config.ts` | Test config only | ❌ No — keep as-is                    |
+| `client/vitest.config.ts` | Test config only | ❌ No — keep as-is                    |
+| `admin/vitest.config.ts`  | Test config only | ❌ No — keep as-is                    |
+| `client/vite.config.ts`   | Build config     | ✅ Yes — can be replaced              |
 
 ---
 
@@ -106,11 +106,11 @@ npm run test --workspaces --if-present
 
 ## Test File Conventions
 
-| Pattern | Location |
-|---|---|
+| Pattern     | Location                   |
+| ----------- | -------------------------- |
 | `*.test.ts` | Any `__tests__/` directory |
 | `*.spec.ts` | Any `__tests__/` directory |
-| `*.e2e.ts` | `e2e/` directory |
+| `*.e2e.ts`  | `e2e/` directory           |
 
 Tests live **alongside the code they test** in co-located `__tests__/` directories:
 
@@ -135,23 +135,23 @@ server/
 
 Current minimums (configurable in `vitest.config.ts`):
 
-| Metric | Minimum |
-|---|---|
-| Statements | 40% |
-| Branches | 30% |
-| Functions | 35% |
-| Lines | 40% |
+| Metric     | Minimum |
+| ---------- | ------- |
+| Statements | 40%     |
+| Branches   | 30%     |
+| Functions  | 35%     |
+| Lines      | 40%     |
 
 ---
 
 ## Mocking Strategy
 
-| Scenario | Approach |
-|---|---|
-| Database (SQLite) | In-memory `:memory:` database per test |
-| External APIs (NewsData, DeepSeek) | `vi.mock()` module-level mocks |
-| Express controllers | `vi.hoisted()` + `vi.mock()` for service modules |
-| HTTP requests in integration tests | `supertest` with lightweight Express app |
+| Scenario                           | Approach                                         |
+| ---------------------------------- | ------------------------------------------------ |
+| Database (SQLite)                  | In-memory `:memory:` database per test           |
+| External APIs (NewsData, DeepSeek) | `vi.mock()` module-level mocks                   |
+| Express controllers                | `vi.hoisted()` + `vi.mock()` for service modules |
+| HTTP requests in integration tests | `supertest` with lightweight Express app         |
 
 ### Database testing
 

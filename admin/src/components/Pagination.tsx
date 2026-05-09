@@ -58,7 +58,9 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
       <div className="page-numbers">
         {pageNumbers.map((pageNum, index) =>
           typeof pageNum === 'string' ? (
-            <span key={`ellipsis-${index}`} className="ellipsis">{pageNum}</span>
+            <span key={`ellipsis-${index}`} className="ellipsis">
+              {pageNum}
+            </span>
           ) : (
             <button
               key={pageNum}
@@ -69,7 +71,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
             >
               {pageNum}
             </button>
-          )
+          ),
         )}
       </div>
 

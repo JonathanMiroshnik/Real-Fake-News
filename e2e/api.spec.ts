@@ -6,9 +6,7 @@ import { test, expect } from '@playwright/test';
  * These tests hit the API directly (not through the frontend).
  */
 test.describe('API Health & Routes', () => {
-  const API_BASE = process.env.CI
-    ? 'http://server:5001/api'
-    : 'http://localhost:5001/api';
+  const API_BASE = process.env.CI ? 'http://server:5001/api' : 'http://localhost:5001/api';
 
   test('health endpoint should return 200', async ({ request }) => {
     const response = await request.get(`${API_BASE}/health`);

@@ -35,22 +35,22 @@ The project had **zero tests**. `npm test` in every workspace just printed `"Err
 
 ### Why Vitest over Jest
 
-| Factor | Vitest | Jest |
-|---|---|---|
+| Factor      | Vitest                                                | Jest                                                  |
+| ----------- | ----------------------------------------------------- | ----------------------------------------------------- |
 | ESM support | Native — works with `"type": "module"` out of the box | Requires `--experimental-vm-modules` and heavy config |
-| Speed | esbuild transform, 10-20x faster | Slower, especially with TypeScript |
-| TypeScript | Zero config | Needs ts-jest or babel |
-| Config | Standalone `vitest.config.ts` | Separate `jest.config.ts` |
-| Coverage | Built-in v8 | Needs additional plugins |
+| Speed       | esbuild transform, 10-20x faster                      | Slower, especially with TypeScript                    |
+| TypeScript  | Zero config                                           | Needs ts-jest or babel                                |
+| Config      | Standalone `vitest.config.ts`                         | Separate `jest.config.ts`                             |
+| Coverage    | Built-in v8                                           | Needs additional plugins                              |
 
 ### Why Playwright over Cypress
 
-| Factor | Playwright | Cypress |
-|---|---|---|
-| Browser support | Chromium, Firefox, WebKit | Chromium only |
-| Visual regression | Built-in | Plugin needed |
-| Multi-tab | Native support | Not supported |
-| Test runner | Built-in, parallel, sharded | Slower |
+| Factor            | Playwright                  | Cypress       |
+| ----------------- | --------------------------- | ------------- |
+| Browser support   | Chromium, Firefox, WebKit   | Chromium only |
+| Visual regression | Built-in                    | Plugin needed |
+| Multi-tab         | Native support              | Not supported |
+| Test runner       | Built-in, parallel, sharded | Slower        |
 
 ---
 
@@ -93,34 +93,33 @@ The test pipeline is **completely independent** from the build pipeline. Every `
 
 ### New Files (15)
 
-| File | Purpose |
-|---|---|
-| `server/vitest.config.ts` | Server test config with coverage thresholds |
-| `server/src/utils/__tests__/general.test.ts` | 9 tests: getUniqueKey, getNRandom |
-| `server/src/utils/__tests__/debugLogger.test.ts` | 10 tests: conditional logging |
-| `server/src/config/__tests__/constants.test.ts` | 11 tests: all config values |
-| `server/src/lib/database/__tests__/sqliteOperations.test.ts` | 10 tests: DB CRUD with :memory: |
-| `server/src/routes/__tests__/apiRoutes.test.ts` | 8 tests: Express routes via supertest |
-| `server/src/controllers/__tests__/blogController.test.ts` | 6 tests: vi.hoisted() mocks |
-| `client/vitest.config.ts` | Client test config (standalone) |
-| `client/src/__tests__/setup.ts` | Testing Library matchers |
-| `client/src/__tests__/App.test.tsx` | App module smoke test |
-| `client/src/services/__tests__/timeService.test.ts` | 7 tests: getLatestTime boundaries |
-| `playwright.config.ts` | Multi-browser E2E config |
-| `e2e/homepage.spec.ts` | Homepage navigation & content |
-| `e2e/api.spec.ts` | API health & blog endpoints |
-| `TESTING.md` | Full testing guide |
+| File                                                         | Purpose                                     |
+| ------------------------------------------------------------ | ------------------------------------------- |
+| `server/vitest.config.ts`                                    | Server test config with coverage thresholds |
+| `server/src/utils/__tests__/general.test.ts`                 | 9 tests: getUniqueKey, getNRandom           |
+| `server/src/utils/__tests__/debugLogger.test.ts`             | 10 tests: conditional logging               |
+| `server/src/config/__tests__/constants.test.ts`              | 11 tests: all config values                 |
+| `server/src/lib/database/__tests__/sqliteOperations.test.ts` | 10 tests: DB CRUD with :memory:             |
+| `server/src/routes/__tests__/apiRoutes.test.ts`              | 8 tests: Express routes via supertest       |
+| `server/src/controllers/__tests__/blogController.test.ts`    | 6 tests: vi.hoisted() mocks                 |
+| `client/vitest.config.ts`                                    | Client test config (standalone)             |
+| `client/src/__tests__/setup.ts`                              | Testing Library matchers                    |
+| `client/src/__tests__/App.test.tsx`                          | App module smoke test                       |
+| `client/src/services/__tests__/timeService.test.ts`          | 7 tests: getLatestTime boundaries           |
+| `playwright.config.ts`                                       | Multi-browser E2E config                    |
+| `e2e/homepage.spec.ts`                                       | Homepage navigation & content               |
+| `e2e/api.spec.ts`                                            | API health & blog endpoints                 |
+| `TESTING.md`                                                 | Full testing guide                          |
 
 ### Modified Files (6)
 
-| File | Change |
-|---|---|
-| `server/package.json` | Added `test`, `test:watch`, `test:coverage` |
-| `client/package.json` | Added test scripts + vitest + testing-library deps |
-| `admin/package.json` | Added placeholder test script |
-| `package.json` (root) | Added `test`, `test:e2e`, `test:e2e:ui` |
-| `.gitignore` | Added `coverage/`, `playwright-report/`, `test-results/` |
-
+| File                  | Change                                                   |
+| --------------------- | -------------------------------------------------------- |
+| `server/package.json` | Added `test`, `test:watch`, `test:coverage`              |
+| `client/package.json` | Added test scripts + vitest + testing-library deps       |
+| `admin/package.json`  | Added placeholder test script                            |
+| `package.json` (root) | Added `test`, `test:e2e`, `test:e2e:ui`                  |
+| `.gitignore`          | Added `coverage/`, `playwright-report/`, `test-results/` |
 
 ---
 
@@ -201,12 +200,12 @@ Total:    8+ test files, 63 tests ✅
 
 ### Coverage Thresholds (Server)
 
-| Metric | Minimum |
-|---|---|
-| Statements | 40% |
-| Branches | 30% |
-| Functions | 35% |
-| Lines | 40% |
+| Metric     | Minimum |
+| ---------- | ------- |
+| Statements | 40%     |
+| Branches   | 30%     |
+| Functions  | 35%     |
+| Lines      | 40%     |
 
 ---
 
@@ -232,30 +231,34 @@ npm run test:e2e:ui
 
 ## Edge Cases Covered
 
-| Scenario | Handling |
-|---|---|
-| Empty database | Controller mocks return empty arrays |
-| Service errors | Controller catch blocks tested |
-| Environment logging | debugLogger: true/false/unset |
-| Date boundaries | timeService: edge cases at 1h/2h/1d |
-| Missing DB fields | SQLite tests verify NULL handling |
-| Duplicate keys | SQLite UNIQUE constraint tested |
-| Path traversal | API route tests verify sanitization |
+| Scenario            | Handling                             |
+| ------------------- | ------------------------------------ |
+| Empty database      | Controller mocks return empty arrays |
+| Service errors      | Controller catch blocks tested       |
+| Environment logging | debugLogger: true/false/unset        |
+| Date boundaries     | timeService: edge cases at 1h/2h/1d  |
+| Missing DB fields   | SQLite tests verify NULL handling    |
+| Duplicate keys      | SQLite UNIQUE constraint tested      |
+| Path traversal      | API route tests verify sanitization  |
 
 ---
 
 ## Alternative Approaches Considered
 
 ### Jest (Rejected)
+
 ESM support is fragile, requiring `--experimental-vm-modules`. Slower transform. More configuration.
 
 ### Mocha + Chai + Sinon (Rejected)
+
 Requires 3+ separate libraries. No built-in TS/coverage/watch. More boilerplate.
 
 ### Cypress for E2E (Rejected)
+
 Chromium-only. No multi-tab. Heavy install.
 
 ### Bun test runner (Rejected)
+
 Requires Node to Bun switch. Incompatible with native modules (better-sqlite3, sharp).
 
 ---

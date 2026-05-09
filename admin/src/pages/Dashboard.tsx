@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  fetchArticles, deleteArticle, fetchTexts, addText,
-  generateArticle, generateRecipe
+  fetchArticles,
+  deleteArticle,
+  fetchTexts,
+  addText,
+  generateArticle,
+  generateRecipe,
 } from '../api/adminApi';
 import type { Article } from '../api/adminApi';
 import ArticleTable from '../components/ArticleTable';
@@ -118,7 +122,9 @@ export default function Dashboard() {
     return (
       <div className="unauthorized">
         <h1>Access Denied</h1>
-        <p>This page requires authorization. Add <code>?pwd=YOUR_PASSWORD</code> to the URL.</p>
+        <p>
+          This page requires authorization. Add <code>?pwd=YOUR_PASSWORD</code> to the URL.
+        </p>
       </div>
     );
   }
@@ -134,14 +140,24 @@ export default function Dashboard() {
         <section className="card">
           <h2>Content Generation</h2>
           <div className="generation-buttons">
-            <button className="btn btn-lg btn-primary" onClick={handleGenerateArticle} disabled={generatingArticle || loading}>
+            <button
+              className="btn btn-lg btn-primary"
+              onClick={handleGenerateArticle}
+              disabled={generatingArticle || loading}
+            >
               {generatingArticle ? 'Generating...' : '📰 Generate Article'}
             </button>
-            <button className="btn btn-lg btn-warning" onClick={handleGenerateRecipe} disabled={generatingRecipe || loading}>
+            <button
+              className="btn btn-lg btn-warning"
+              onClick={handleGenerateRecipe}
+              disabled={generatingRecipe || loading}
+            >
               {generatingRecipe ? 'Generating...' : '🍳 Generate Recipe'}
             </button>
           </div>
-          <p className="generation-hint">Generate a new article from recent news or a new recipe from random foods.</p>
+          <p className="generation-hint">
+            Generate a new article from recent news or a new recipe from random foods.
+          </p>
         </section>
 
         <section className="card">
@@ -155,17 +171,37 @@ export default function Dashboard() {
               <div className="pagination-controls-top">
                 <div className="items-per-page">
                   <label htmlFor="items-per-page">Items per page:</label>
-                  <select id="items-per-page" value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}>
+                  <select
+                    id="items-per-page"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                  >
                     <option value={10}>10</option>
                     <option value={25}>25</option>
                     <option value={50}>50</option>
                     <option value={100}>100</option>
                   </select>
                 </div>
-                <div className="pagination-info">Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of {articles.length} articles</div>
+                <div className="pagination-info">
+                  Showing {startIndex + 1}-{Math.min(endIndex, articles.length)} of{' '}
+                  {articles.length} articles
+                </div>
               </div>
-              <ArticleTable articles={paginatedArticles} loading={loading} onDelete={handleDelete} onEdit={handleEdit} startIndex={startIndex} />
-              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              <ArticleTable
+                articles={paginatedArticles}
+                loading={loading}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+                startIndex={startIndex}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </>
           )}
         </section>
@@ -173,8 +209,26 @@ export default function Dashboard() {
         <section className="card">
           <h2>Text Management</h2>
           <div className="text-input-container">
-            <input type="text" value={newText} onChange={(e) => setNewText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddText(); } }} placeholder="Enter text to add..." disabled={loading} />
-            <button className="btn btn-primary" onClick={handleAddText} disabled={loading || !newText.trim()}>Add Text</button>
+            <input
+              type="text"
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAddText();
+                }
+              }}
+              placeholder="Enter text to add..."
+              disabled={loading}
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleAddText}
+              disabled={loading || !newText.trim()}
+            >
+              Add Text
+            </button>
           </div>
           <div className="texts-display">
             {texts.length === 0 ? (
@@ -182,7 +236,10 @@ export default function Dashboard() {
             ) : (
               <ul>
                 {texts.map((text, index) => (
-                  <li key={index}><span className="text-number">{index + 1}.</span><span className="text-content">{text}</span></li>
+                  <li key={index}>
+                    <span className="text-number">{index + 1}.</span>
+                    <span className="text-content">{text}</span>
+                  </li>
                 ))}
               </ul>
             )}

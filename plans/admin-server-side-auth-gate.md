@@ -11,6 +11,7 @@
 The admin panel currently protects **data** via server-side password validation on all API endpoints, but the **frontend application itself** (the entire React SPA bundle) is served to anyone who visits the admin URL — regardless of whether they know the password.
 
 This means anyone can:
+
 - View the admin panel's HTML, JavaScript, and CSS source code
 - Understand the internal routing structure (Dashboard, Settings, ArticleEditor)
 - See the API endpoints and how the frontend calls them
@@ -102,22 +103,22 @@ Have the **Express server** serve the admin SPA's static files behind a password
 
 ### New Files
 
-| File | Purpose |
-|---|---|
+| File                                 | Purpose                                                                                                        |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
 | `server/src/middleware/adminAuth.ts` | Middleware that checks `pwd` query param against `ADMIN_PASSWORD` before allowing access to admin static files |
 
 ### Modified Files
 
-| File | Change |
-|---|---|
-| `server/src/app.ts` | Mount admin static files at `/admin-panel` with the auth middleware; add catch-all for SPA routing |
-| `admin/nginx.conf` | Change from serving static files to proxying all requests through the server |
-| `admin/src/pages/Dashboard.tsx` | Remove frontend-side `isAuthorized`/Access Denied check (server now gates entirely) |
-| `admin/src/api/adminApi.ts` | Remove dev-mode password fallback (`getPassword()` should only read from URL) |
-| `server/Dockerfile` | Add multi-stage build for admin, or copy pre-built admin files into server image |
-| `docker-compose.yml` | Update admin service; possibly remove separate admin container |
-| `client/nginx.conf` | Update `/admin` proxy to point to server instead of admin container |
-| `admin/README.md` | Update security notes to reflect server-side gating |
+| File                            | Change                                                                                             |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `server/src/app.ts`             | Mount admin static files at `/admin-panel` with the auth middleware; add catch-all for SPA routing |
+| `admin/nginx.conf`              | Change from serving static files to proxying all requests through the server                       |
+| `admin/src/pages/Dashboard.tsx` | Remove frontend-side `isAuthorized`/Access Denied check (server now gates entirely)                |
+| `admin/src/api/adminApi.ts`     | Remove dev-mode password fallback (`getPassword()` should only read from URL)                      |
+| `server/Dockerfile`             | Add multi-stage build for admin, or copy pre-built admin files into server image                   |
+| `docker-compose.yml`            | Update admin service; possibly remove separate admin container                                     |
+| `client/nginx.conf`             | Update `/admin` proxy to point to server instead of admin container                                |
+| `admin/README.md`               | Update security notes to reflect server-side gating                                                |
 
 ---
 
@@ -255,25 +256,28 @@ The following changes affect deployment and must be coordinated with the DevOps 
 
 ### Docker Image Build
 
-| Current | After Change |
-|---|---|
-| `admin/Dockerfile` builds admin SPA independently | Admin SPA must be built and its output available in the server container |
-| `server/Dockerfile` only builds server code | `server/Dockerfile` needs a multi-stage build that compiles admin, OR admin build must happen as a separate step and output is copied into server image |
+| Current                                           | After Change                                                                                                                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `admin/Dockerfile` builds admin SPA independently | Admin SPA must be built and its output available in the server container                                                                                |
+| `server/Dockerfile` only builds server code       | `server/Dockerfile` needs a multi-stage build that compiles admin, OR admin build must happen as a separate step and output is copied into server image |
 
 ### Options for Admin Build Integration
 
 **Option A (Recommended): Merge admin into server Dockerfile**
+
 - Add a build stage in `server/Dockerfile` that compiles the admin SPA
 - Copy admin build output into the server image at a known path (e.g., `/app/admin-build/`)
 - Requires admin build dependencies (node, npm) in the server build stage
 - Removes need for a separate admin container
 
 **Option B: Keep separate admin container as proxy**
+
 - Admin container remains but becomes a thin nginx proxy (no static files)
 - Admin SPA is built separately and the build output is mounted/copied into the server container
 - More complex volume management
 
 **Option C: Build admin externally, inject at deploy time**
+
 - CI/CD builds admin SPA separately
 - The build output is baked into the server image during docker build (e.g., `COPY --from=admin-builder`)
 - Requires coordinated builds
@@ -281,20 +285,22 @@ The following changes affect deployment and must be coordinated with the DevOps 
 ### Docker Compose Changes
 
 The `admin` service in `docker-compose.yml` may need to be:
+
 - Kept but simplified (thin proxy only)
 - Removed entirely (with `/admin` routing in `client/nginx.conf` pointing to `server:5001/admin-panel/`)
 
 ### Nginx Routing
 
-| File | Current | After |
-|---|---|---|
-| `client/nginx.conf` location `/admin` | `proxy_pass http://admin:80` | `proxy_pass http://server:5001/admin-panel/` (if admin container removed) |
-| `admin/nginx.conf` | Serves static files | Proxies to server |
-| devops-nginx (external) | Routes `admin.*.xyz → admin:80` | No change needed (still routes to admin container) |
+| File                                  | Current                         | After                                                                     |
+| ------------------------------------- | ------------------------------- | ------------------------------------------------------------------------- |
+| `client/nginx.conf` location `/admin` | `proxy_pass http://admin:80`    | `proxy_pass http://server:5001/admin-panel/` (if admin container removed) |
+| `admin/nginx.conf`                    | Serves static files             | Proxies to server                                                         |
+| devops-nginx (external)               | Routes `admin.*.xyz → admin:80` | No change needed (still routes to admin container)                        |
 
 ### Environment Variables
 
 No new environment variables are needed. `ADMIN_PASSWORD` is already set on the `server` service in `docker-compose.yml`. The pipeline must ensure:
+
 - `ADMIN_PASSWORD` continues to be passed to the `server` container ✅ (already done)
 - `ADMIN_BUILD_PATH` may be needed if the admin build location differs from default
 
@@ -324,39 +330,44 @@ No new environment variables are needed. `ADMIN_PASSWORD` is already set on the 
 
 ## Edge Cases
 
-| Scenario | Behavior |
-|---|---|
-| No `?pwd=` parameter | 401 — minimal "Access Denied" page |
-| Wrong password | 401 — minimal "Access Denied" page |
-| Correct password | Full admin SPA loads normally |
-| Direct access to JS file with correct pwd (`/assets/index.js?pwd=correct`) | File is served (auth passes) |
-| Direct access to JS file without pwd (`/assets/index.js`) | 401 (auth fails) |
-| Admin API call with valid password (`/api/admin/articles?password=correct`) | Works as before |
-| Admin API call without password (`/api/admin/articles`) | 401 as before |
-| Internal SPA route (`/articles/edit/abc123?pwd=correct`) | Server serves `index.html` (SPA catch-all), React handles routing |
-| Development mode with `?pwd=debug` | Works (same as current behavior) |
+| Scenario                                                                    | Behavior                                                          |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| No `?pwd=` parameter                                                        | 401 — minimal "Access Denied" page                                |
+| Wrong password                                                              | 401 — minimal "Access Denied" page                                |
+| Correct password                                                            | Full admin SPA loads normally                                     |
+| Direct access to JS file with correct pwd (`/assets/index.js?pwd=correct`)  | File is served (auth passes)                                      |
+| Direct access to JS file without pwd (`/assets/index.js`)                   | 401 (auth fails)                                                  |
+| Admin API call with valid password (`/api/admin/articles?password=correct`) | Works as before                                                   |
+| Admin API call without password (`/api/admin/articles`)                     | 401 as before                                                     |
+| Internal SPA route (`/articles/edit/abc123?pwd=correct`)                    | Server serves `index.html` (SPA catch-all), React handles routing |
+| Development mode with `?pwd=debug`                                          | Works (same as current behavior)                                  |
 
 ---
 
 ## Alternative Approaches Considered
 
 ### 1. Frontend-Only Obfuscation (Rejected)
+
 - Inline script in `index.html` that checks `?pwd=` before React loads
 - **Problem:** The bundle is still downloaded, just not rendered. Source code is still visible in DevTools.
 
 ### 2. Nginx `auth_request` Module (Rejected)
+
 - Nginx's `auth_request` makes a subrequest to the backend before serving files
 - **Problem:** Requires nginx compiled with `ngx_http_auth_request_module`; adds complexity; breaks SPA catch-all routing
 
 ### 3. Separate Auth Proxy Container (Rejected)
+
 - A dedicated lightweight auth proxy sits between nginx and the admin SPA
 - **Problem:** Another container to maintain; adds network hop
 
 ### 4. Merge Admin into Client SPA (Rejected)
+
 - Serve admin as a protected route within the main client React app
 - **Problem:** Exposes admin routes to all users; couples the public site with admin code
 
 ### 5. JSON Web Token (JWT) Authentication (Future Enhancement)
+
 - Instead of URL query param password, use a proper login flow with JWT
 - **Problem:** Scope creep — this ticket is about gating the frontend bundle, not rewriting auth
 - **Consider for V2:** A login page that issues a JWT stored in a cookie, checked by the server before serving admin files
@@ -368,16 +379,19 @@ No new environment variables are needed. `ADMIN_PASSWORD` is already set on the 
 This feature can be implemented in stages:
 
 ### Phase 1 (Minimum Viable)
+
 - Create auth middleware
 - Serve admin static files through Express
 - Update admin nginx to proxy through server
 - Remove frontend-side auth check
 
 ### Phase 2 (DevOps Integration)
+
 - Update Dockerfiles and docker-compose for new architecture
 - Update CI/CD pipeline for coordinated builds
 
 ### Phase 3 (Future)
+
 - Rate-limiting on auth endpoint
 - JWT-based authentication
 - Session management

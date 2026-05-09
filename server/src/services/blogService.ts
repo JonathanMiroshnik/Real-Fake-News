@@ -22,7 +22,10 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
   // Guard: validate the date before accessing .toISOString() to prevent
   // RangeError("Invalid time value") from propagating
   const isValidDate = startDate instanceof Date && !isNaN(startDate.getTime());
-  debugLog('🔍 [getAllPostsAfterDate] Start date:', isValidDate ? startDate.toISOString() : 'Invalid Date');
+  debugLog(
+    '🔍 [getAllPostsAfterDate] Start date:',
+    isValidDate ? startDate.toISOString() : 'Invalid Date',
+  );
   if (isValidDate) {
     debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
   }

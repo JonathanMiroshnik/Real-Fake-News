@@ -9,7 +9,7 @@ export interface Article {
   content?: string;
   shortDescription?: string;
   timestamp?: string;
-  writerType?: "AI" | "Human" | "Synthesis";
+  writerType?: 'AI' | 'Human' | 'Synthesis';
   headImage?: string;
   isFeatured?: boolean;
   featuredDate?: string;
@@ -33,8 +33,9 @@ function getPassword(): string {
   const params = new URLSearchParams(window.location.search);
   const urlPassword = params.get(ADMIN_PASSWORD_PARAM);
   if (urlPassword !== null) return urlPassword;
-  const isDev = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' ||
-                import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
+  const isDev =
+    import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' ||
+    import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
   return isDev ? 'changeme123' : '';
 }
 
@@ -101,7 +102,10 @@ export async function fetchArticle(key: string): Promise<ArticleResult> {
   }
 }
 
-export async function updateArticle(key: string, article: Partial<Article>): Promise<string | null> {
+export async function updateArticle(
+  key: string,
+  article: Partial<Article>,
+): Promise<string | null> {
   try {
     await apiFetch(`/admin/articles/${key}`, {
       method: 'PUT',
@@ -199,5 +203,10 @@ export function getImageUrl(filename: string): string {
 }
 
 export const VALID_CATEGORIES = [
-  "Politics", "Sports", "Culture", "Economics", "Technology", "Food"
+  'Politics',
+  'Sports',
+  'Culture',
+  'Economics',
+  'Technology',
+  'Food',
 ];

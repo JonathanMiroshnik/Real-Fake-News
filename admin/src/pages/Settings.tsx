@@ -12,8 +12,9 @@ export default function Settings() {
   const [success, setSuccess] = useState('');
 
   const API_BASE = getApiBaseUrlWithPrefix();
-  const isFrontendDevMode = import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' ||
-                            import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
+  const isFrontendDevMode =
+    import.meta.env.VITE_FRONTEND_DEV_MODE === 'true' ||
+    import.meta.env.VITE_LOCAL_DEV_MODE === 'true';
 
   const loadTexts = useCallback(async () => {
     const result = await fetchTexts();
@@ -55,20 +56,42 @@ export default function Settings() {
         <div className="settings-card">
           <h2>Text Management</h2>
           <div className="text-input-container">
-            <input type="text" value={newText} onChange={(e) => setNewText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddText(); } }}
-              placeholder="Enter text to add..." disabled={loading} />
-            <button className="btn btn-primary" onClick={handleAddText} disabled={loading || !newText.trim()}>Add Text</button>
+            <input
+              type="text"
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAddText();
+                }
+              }}
+              placeholder="Enter text to add..."
+              disabled={loading}
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleAddText}
+              disabled={loading || !newText.trim()}
+            >
+              Add Text
+            </button>
           </div>
           <div className="texts-display">
             {loading && texts.length === 0 ? (
-              <div className="loading-state"><div className="spinner"></div><p>Loading texts...</p></div>
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Loading texts...</p>
+              </div>
             ) : texts.length === 0 ? (
               <p className="empty">No texts added yet</p>
             ) : (
               <ul>
                 {texts.map((text, index) => (
-                  <li key={index}><span className="text-number">{index + 1}.</span><span className="text-content">{text}</span></li>
+                  <li key={index}>
+                    <span className="text-number">{index + 1}.</span>
+                    <span className="text-content">{text}</span>
+                  </li>
                 ))}
               </ul>
             )}
@@ -84,7 +107,9 @@ export default function Settings() {
             </div>
             <div className="info-item">
               <label>Backend Mode</label>
-              <code>{import.meta.env.VITE_BACKEND_DEV_MODE === 'true' ? 'Development' : 'Production'}</code>
+              <code>
+                {import.meta.env.VITE_BACKEND_DEV_MODE === 'true' ? 'Development' : 'Production'}
+              </code>
             </div>
             <div className="info-item">
               <label>Frontend Mode</label>

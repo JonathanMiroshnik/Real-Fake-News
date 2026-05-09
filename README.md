@@ -42,13 +42,13 @@ admin.real.sensorcensor.xyz → (shared nginx) → admin:80
 
 ### Key Changes from Previous Version
 
-| Change              | Before                                                                   | After                                                                         |
-| ------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| Container names     | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin`                                                   |
-| Port exposure       | Each service exposed host ports                                          | **No ports exposed** — all communication over `devops_shared` Docker network  |
-| Docker network      | Internal `app-network` (bridge)                                          | External `devops_shared` (shared VPS network)                                 |
-| Health checks       | Present in all Dockerfiles                                               | Removed — shared nginx handles failures gracefully                            |
-| Server debug blocks | Present in Dockerfile                                                    | Removed — production image is leaner                                          |
+| Change              | Before                                                                   | After                                                                             |
+| ------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Container names     | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin`                                                       |
+| Port exposure       | Each service exposed host ports                                          | **No ports exposed** — all communication over `devops_shared` Docker network      |
+| Docker network      | Internal `app-network` (bridge)                                          | External `devops_shared` (shared VPS network)                                     |
+| Health checks       | Present in all Dockerfiles                                               | Removed — shared nginx handles failures gracefully                                |
+| Server debug blocks | Present in Dockerfile                                                    | Removed — production image is leaner                                              |
 | Admin serving       | Proxied through client nginx at `/admin/*`                               | Served on its own subdomain via shared nginx (e.g. `admin.real.sensorcensor.xyz`) |
 
 # Environment Configuration

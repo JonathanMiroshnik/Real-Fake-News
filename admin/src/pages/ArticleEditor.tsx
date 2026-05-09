@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import {
-  fetchArticle, updateArticle, setFeaturedArticle, deleteArticle,
-  uploadImage, getArticleUrl, VALID_CATEGORIES
+  fetchArticle,
+  updateArticle,
+  setFeaturedArticle,
+  deleteArticle,
+  uploadImage,
+  getArticleUrl,
+  VALID_CATEGORIES,
 } from '../api/adminApi';
 import type { Article } from '../api/adminApi';
 
@@ -134,7 +139,9 @@ export default function ArticleEditor() {
   function formatDate(timestamp: string | undefined): string {
     if (!timestamp) return 'N/A';
     try {
-      return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString();
+      return (
+        new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString()
+      );
     } catch {
       return timestamp;
     }
@@ -153,7 +160,10 @@ export default function ArticleEditor() {
       <header className="page-header">
         <h1>Edit Article</h1>
         <div className="header-actions">
-          <button className="btn btn-ghost" onClick={() => navigate('/' + (password ? `?pwd=${encodeURIComponent(password)}` : ''))}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate('/' + (password ? `?pwd=${encodeURIComponent(password)}` : ''))}
+          >
             ← Back to Dashboard
           </button>
         </div>
@@ -173,7 +183,12 @@ export default function ArticleEditor() {
         </div>
         <div className="info-row">
           <span className="info-label">View:</span>
-          <a href={getArticleUrl(key)} target="_blank" rel="noopener noreferrer" className="view-link">
+          <a
+            href={getArticleUrl(key)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="view-link"
+          >
             Open Article ↗
           </a>
         </div>
@@ -182,7 +197,13 @@ export default function ArticleEditor() {
       <div className="content-card">
         <div className="form-group">
           <label htmlFor="title">Title</label>
-          <input id="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Article title" />
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Article title"
+          />
         </div>
 
         <div className="form-row">
@@ -191,14 +212,20 @@ export default function ArticleEditor() {
             <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">Select category...</option>
               {VALID_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
             <label htmlFor="writerType">Writer Type</label>
-            <select id="writerType" value={writerType} onChange={(e) => setWriterType(e.target.value as 'AI' | 'Human' | 'Synthesis')}>
+            <select
+              id="writerType"
+              value={writerType}
+              onChange={(e) => setWriterType(e.target.value as 'AI' | 'Human' | 'Synthesis')}
+            >
               <option value="AI">AI</option>
               <option value="Human">Human</option>
               <option value="Synthesis">Synthesis</option>
@@ -208,12 +235,24 @@ export default function ArticleEditor() {
 
         <div className="form-group">
           <label htmlFor="shortDescription">Short Description</label>
-          <textarea id="shortDescription" value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} placeholder="Brief description of the article" rows={3} />
+          <textarea
+            id="shortDescription"
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+            placeholder="Brief description of the article"
+            rows={3}
+          />
         </div>
 
         <div className="form-group">
           <label htmlFor="content">Content (Markdown)</label>
-          <textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Article content in markdown..." rows={15} />
+          <textarea
+            id="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Article content in markdown..."
+            rows={15}
+          />
         </div>
 
         <div className="form-group">
@@ -222,12 +261,23 @@ export default function ArticleEditor() {
             <div className="upload-section">
               <label className="upload-label">
                 <span className="btn btn-ghost">📁 Choose File</span>
-                <input type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                  style={{ display: 'none' }}
+                />
               </label>
               {selectedFile && (
                 <div className="file-info">
-                  <p>Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</p>
-                  <button className="btn btn-sm btn-primary" onClick={() => handleFileUpload(selectedFile)} disabled={uploading}>
+                  <p>
+                    Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </p>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => handleFileUpload(selectedFile)}
+                    disabled={uploading}
+                  >
                     {uploading ? 'Uploading...' : 'Upload'}
                   </button>
                 </div>
@@ -237,16 +287,35 @@ export default function ArticleEditor() {
             <div className="manual-input-section">
               <label className="manual-label">Or enter image URL manually:</label>
               <div className="text-input-container">
-                <input type="text" value={manualImageUrl} onChange={(e) => setManualImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
-                <button className="btn btn-primary" onClick={handleManualImageAdd} disabled={!manualImageUrl.trim()}>Set</button>
+                <input
+                  type="text"
+                  value={manualImageUrl}
+                  onChange={(e) => setManualImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={handleManualImageAdd}
+                  disabled={!manualImageUrl.trim()}
+                >
+                  Set
+                </button>
               </div>
             </div>
           </div>
 
           {headImage && (
             <div className="image-preview">
-              <p className="preview-label">Current Image: <code>{headImage}</code></p>
-              <img src={headImage.startsWith('http') ? headImage : `/api/images/${headImage}`} alt="Preview" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <p className="preview-label">
+                Current Image: <code>{headImage}</code>
+              </p>
+              <img
+                src={headImage.startsWith('http') ? headImage : `/api/images/${headImage}`}
+                alt="Preview"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
             </div>
           )}
         </div>

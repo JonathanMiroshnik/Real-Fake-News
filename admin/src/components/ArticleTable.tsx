@@ -24,7 +24,13 @@ function isFeaturedToday(article: Article): boolean {
   return article.featuredDate === today;
 }
 
-export default function ArticleTable({ articles, loading, onDelete, onEdit, startIndex }: ArticleTableProps) {
+export default function ArticleTable({
+  articles,
+  loading,
+  onDelete,
+  onEdit,
+  startIndex,
+}: ArticleTableProps) {
   return (
     <div className="table-container">
       <table>
@@ -53,7 +59,9 @@ export default function ArticleTable({ articles, loading, onDelete, onEdit, star
                     {article.title || 'Untitled'}
                   </a>
                   {isFeaturedToday(article) && (
-                    <span className="badge badge-featured" title="Featured Article Today">⭐</span>
+                    <span className="badge badge-featured" title="Featured Article Today">
+                      ⭐
+                    </span>
                   )}
                 </div>
               </td>
@@ -61,17 +69,27 @@ export default function ArticleTable({ articles, loading, onDelete, onEdit, star
                 <span className="badge badge-category">{article.category || 'Uncategorized'}</span>
               </td>
               <td>
-                <span className={`badge badge-writer-${(article.writerType || 'AI').toLowerCase()}`}>
+                <span
+                  className={`badge badge-writer-${(article.writerType || 'AI').toLowerCase()}`}
+                >
                   {article.writerType || 'AI'}
                 </span>
               </td>
               <td className="date-cell">{formatDate(article.timestamp)}</td>
               <td>
                 <div className="action-buttons">
-                  <button className="btn btn-sm btn-primary" onClick={() => onEdit(article.key)} disabled={loading}>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => onEdit(article.key)}
+                    disabled={loading}
+                  >
                     ✏️ Edit
                   </button>
-                  <button className="btn btn-sm btn-danger" onClick={() => onDelete(article.key)} disabled={loading}>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => onDelete(article.key)}
+                    disabled={loading}
+                  >
                     🗑️ Delete
                   </button>
                 </div>
@@ -83,4 +101,3 @@ export default function ArticleTable({ articles, loading, onDelete, onEdit, star
     </div>
   );
 }
-

@@ -4,13 +4,14 @@
   "description": "**REAL FAKE NEWS**",
   "private": true,
   "scripts": {
-    "format": "prettier --write .",
+    "format": "prettier --write . && cd client && npx eslint --fix . && cd ../server && npx eslint --fix .",
     "format:check": "prettier --check .",
-    "test": "npm run test --workspaces --if-present",
+    "test": "cd client && npm test && cd ../server && npm test",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "cd client && npm run lint && cd ../server && npm run lint",
+    "typecheck": "cd client && npm run typecheck && cd ../server && npm run typecheck",
+    "prepush": "npm run format:check && npm run lint && npm run typecheck && npm test",
     "prepare": "husky"
   },
   "keywords": [],
