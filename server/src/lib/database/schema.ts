@@ -213,5 +213,17 @@ export function initializeSchema(): void {
         ON horoscopes(date)
     `);
 
+  // Site Configuration Table
+  // Stores key-value pairs for site-wide configuration settings
+  // Managed through the admin panel's Configuration page
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS site_config (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            description TEXT,
+            updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
   debugLog('SQLite schema initialized successfully');
 }

@@ -29,21 +29,9 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy built code from builder
 COPY --from=builder /app/dist ./dist
 
-# Create non-root user matching typical host UID/GID (1000:1000)
-# Files written to mounted volumes (./database:/data) will be owned by this user
-# Change these if your host user has a different UID/GID
-ARG UID=1000
-ARG GID=1000
-RUN addgroup -g $GID appgroup && \
-    adduser -D -u $UID -G appgroup appuser && \
-    chown -R appuser:appgroup /app
-
 # Expose port
 EXPOSE 5001
 
-# Switch to non-root user
-USER appuser
-
-# Start server
+# Run as root so the SQLite database can be created/updated in the /data volume
+# which may be owned by the host root user
 CMD ["node", "--no-warnings", "dist/index.js"]
-

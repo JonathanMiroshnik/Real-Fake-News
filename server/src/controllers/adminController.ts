@@ -24,7 +24,7 @@ import {
 import { writeBlogPost } from '../services/blogService.js';
 import { getRandomWriter } from '../services/writerService.js';
 import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.js';
-import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD } from '../config/constants.js';
+import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD, DEFAULT_CONFIG } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
@@ -553,5 +553,81 @@ export const generateAdminRecipe = async (req: Request, res: Response): Promise<
       success: false,
       error: error instanceof Error ? error.message : 'Failed to generate recipe',
     });
+  }
+};
+
+// Get all site configuration values
+// Merges DB-stored values with defaults from constants.ts
+export const getAdminConfig = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    const db = getDatabase();
+    const stmt = db.prepare('SELECT key, value FROM site_config');
+    const rows = stmt.all() as { key: string; value: string }[];
+
+    const dbConfig: Record<string, string> = {};
+    for (const row of rows) {
+      dbConfig[row.key] = row.value;
+    }
+
+    // Merge DB values on top of defaults, so defaults fill in missing keys
+    const config: Record<string, { value: string; description: string; type: string }> = {};
+    for (const [key, setting] of Object.entries(DEFAULT_CONFIG)) {
+      config[key] = {
+        value: dbConfig[key] ?? setting.defaultValue,
+        description: setting.description,
+        type: setting.type,
+      };
+    }
+
+    res.json({ success: true, config });
+  } catch (error) {
+    console.error('Error fetching config:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch configuration' });
+  }
+};
+
+// Update site configuration values
+// Accepts a flat object of key-value pairs and upserts them into site_config
+export const updateAdminConfig = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!validatePassword(req)) {
+      res.status(401).json({ error: 'Invalid password' });
+      return;
+    }
+
+    const updates: Record<string, string> = req.body;
+    if (!updates || Object.keys(updates).length === 0) {
+      res.status(400).json({ error: 'No configuration values provided' });
+      return;
+    }
+
+    const db = getDatabase();
+    const upsertStmt = db.prepare(`
+      INSERT INTO site_config (key, value, updatedAt)
+      VALUES (?, ?, datetime('now'))
+      ON CONFLICT(key) DO UPDATE SET
+        value = excluded.value,
+        updatedAt = datetime('now')
+    `);
+
+    const validKeys = new Set(Object.keys(DEFAULT_CONFIG));
+    for (const [key, value] of Object.entries(updates)) {
+      if (!validKeys.has(key)) {
+        res.status(400).json({ error: `Unknown configuration key: ${key}` });
+        return;
+      }
+      upsertStmt.run(key, String(value));
+    }
+
+    debugLog('✅ [updateAdminConfig] Configuration updated successfully');
+    res.json({ success: true, message: 'Configuration saved successfully' });
+  } catch (error) {
+    console.error('Error updating config:', error);
+    res.status(500).json({ success: false, error: 'Failed to update configuration' });
   }
 };

@@ -12,6 +12,8 @@ import {
   addAdminText,
   generateAdminArticle,
   generateAdminRecipe,
+  getAdminConfig,
+  updateAdminConfig,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -28,5 +30,7 @@ router.get('/texts', getAdminTexts);
 router.post('/texts', addAdminText);
 router.post('/generate/article', generateAdminArticle);
 router.post('/generate/recipe', generateAdminRecipe);
+router.get('/config', getAdminConfig);
+router.put('/config', updateAdminConfig);
 
 export default router;

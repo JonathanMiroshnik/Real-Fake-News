@@ -44,6 +44,54 @@ const EDITOR: Writer = {
   updatedAt: new Date().toString(),
 };
 
+// Default configuration values for site-wide settings.
+// These are used as fallbacks when no value exists in the site_config DB table.
+// The `description` field is shown as a tooltip in the admin configuration page.
+interface ConfigSetting {
+  defaultValue: string;
+  description: string;
+  type: 'number' | 'boolean' | 'string';
+}
+
+const DEFAULT_CONFIG: Record<string, ConfigSetting> = {
+  articlesPerDay: {
+    defaultValue: String(MINIMAL_NUM_DAILY_ARTICLES),
+    description:
+      'The minimum number of AI-generated articles the system will produce daily. Lower values reduce API costs but result in less fresh content.',
+    type: 'number',
+  },
+  recipesPerDay: {
+    defaultValue: String(MINIMAL_NUM_DAILY_RECIPES),
+    description:
+      'The minimum number of new recipes generated daily. Increase for more variety in the recipe section.',
+    type: 'number',
+  },
+  articleGenerationIntervalHours: {
+    defaultValue: '8',
+    description:
+      'How frequently the article generation job runs on average. Lower values generate content more frequently but consume more API credits.',
+    type: 'number',
+  },
+  newsFetchIntervalHours: {
+    defaultValue: '2',
+    description:
+      'How frequently the system fetches recent news from the NewsData API. Too frequent may exhaust daily API tokens.',
+    type: 'number',
+  },
+  minAcceptableArticles: {
+    defaultValue: String(MIN_ACCEPTABLE_ARTICLES),
+    description:
+      'If fewer than this many recent articles exist, the system falls back to fetching older news to fill gaps.',
+    type: 'number',
+  },
+  enableScheduledJobs: {
+    defaultValue: 'true',
+    description:
+      'When enabled, the system automatically generates articles, fetches news, and creates recipes on a schedule. When disabled, content is only generated manually.',
+    type: 'boolean',
+  },
+};
+
 export {
   MINIMAL_NUM_DAILY_ARTICLES,
   MINIMAL_NUM_DAILY_RECIPES,
@@ -61,4 +109,6 @@ export {
   MIN_ACCEPTABLE_ARTICLES,
   VALID_CATEGORIES,
   EDITOR,
+  ConfigSetting,
+  DEFAULT_CONFIG,
 };

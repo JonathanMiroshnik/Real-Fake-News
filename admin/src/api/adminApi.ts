@@ -176,6 +176,42 @@ export async function generateRecipe(): Promise<string | null> {
   }
 }
 
+export interface SiteConfigEntry {
+  value: string;
+  description: string;
+  type: 'number' | 'boolean' | 'string';
+}
+
+export async function fetchConfig(): Promise<{
+  config: Record<string, SiteConfigEntry> | null;
+  error?: string;
+}> {
+  try {
+    const data = await apiFetch<{
+      success: boolean;
+      config?: Record<string, SiteConfigEntry>;
+    }>('/admin/config');
+    return { config: data.config || null };
+  } catch (err) {
+    return { config: null, error: handleError(err, 'fetching config') };
+  }
+}
+
+export async function saveConfig(
+  updates: Record<string, string>,
+): Promise<{ error?: string }> {
+  try {
+    await apiFetch('/admin/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    return {};
+  } catch (err) {
+    return { error: handleError(err, 'saving config') };
+  }
+}
+
 export async function uploadImage(file: File): Promise<{ filename?: string; error?: string }> {
   try {
     const formData = new FormData();

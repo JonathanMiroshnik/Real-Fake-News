@@ -11,7 +11,7 @@ import {
   DAY_MILLISECS,
   ONE_HOUR_MILLISECS,
   TEN_MINUTES_MILLISECONDS,
-} from '../constants.ts';
+} from '../constants.js';
 
 describe('Configuration Constants', () => {
   describe('Categories', () => {
