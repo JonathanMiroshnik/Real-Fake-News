@@ -20,6 +20,16 @@ admin.real.sensorcensor.xyz → (shared nginx) → admin:80
                                   └── serves static React admin SPA
 ```
 
+### Getting the VPS IP
+
+To resolve the VPS IP address from your local machine:
+
+```bash
+getent hosts api.sensorcensor.xyz
+```
+
+This uses the system's configured name resolution (DNS, `/etc/hosts`, etc.) to look up the IP — no extra tools needed.
+
 ### Container Names (for PersonalDevOps sites.yaml)
 
 ```yaml
