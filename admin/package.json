@@ -3,7 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "description": "Admin panel SPA for Real-Fake-News — React/Vite",
-  "keywords": ["news", "admin", "react", "vite"],
+  "keywords": [
+    "news",
+    "admin",
+    "react",
+    "vite"
+  ],
   "author": "Real Fake News Team",
   "type": "module",
   "scripts": {

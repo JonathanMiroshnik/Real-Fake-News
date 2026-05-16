@@ -3,7 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "description": "Frontend SPA for Real-Fake-News — React/Vite",
-  "keywords": ["news", "frontend", "react", "vite"],
+  "keywords": [
+    "news",
+    "frontend",
+    "react",
+    "vite"
+  ],
   "author": "Real Fake News Team",
   "type": "module",
   "scripts": {

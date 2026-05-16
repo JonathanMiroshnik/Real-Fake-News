@@ -19,7 +19,13 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["news", "api", "express", "typescript", "sqlite"],
+  "keywords": [
+    "news",
+    "api",
+    "express",
+    "typescript",
+    "sqlite"
+  ],
   "author": "Real Fake News Team",
   "license": "ISC",
   "engines": {
