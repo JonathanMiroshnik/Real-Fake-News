@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 const NAV_ITEMS = [
   { path: '/', label: 'Dashboard', icon: '📊' },
   { path: '/config', label: 'Configuration', icon: '🔧' },
+  { path: '/cron-jobs', label: 'Cron Jobs', icon: '⏰' },
   { path: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 

@@ -33,7 +33,6 @@ services:
       - NODE_ENV=production
       - CLIENT_URL=https://real.sensorcensor.xyz
       - RUNWARE_IMAGE_MODEL=runware:z-image@turbo
-      - ENABLE_SCHEDULED_JOBS=true
       - ENABLE_FAKE_DATA=true
     volumes:
       - ./database:/data:rw

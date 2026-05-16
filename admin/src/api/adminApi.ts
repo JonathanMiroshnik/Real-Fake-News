@@ -238,6 +238,83 @@ export function getImageUrl(filename: string): string {
   return `${getApiUrl()}/images/${filename}`;
 }
 
+// --- Cron Job API ---
+
+export interface CronJob {
+  id: number;
+  name: string;
+  routePath: string;
+  firstRunAt: string;
+  intervalSeconds: number;
+  isActive: boolean;
+  createdAt: string;
+  nextRunAt: string | null;
+}
+
+export interface FetchCronJobsResult {
+  jobs?: CronJob[];
+  error?: string;
+}
+
+export async function fetchCronJobs(): Promise<FetchCronJobsResult> {
+  try {
+    const data = await apiFetch<{ success: boolean; jobs?: CronJob[] }>('/admin/cron-jobs');
+    return { jobs: data.jobs || [] };
+  } catch (err) {
+    return { error: handleError(err, 'fetching cron jobs') };
+  }
+}
+
+export async function createCronJob(job: {
+  name: string;
+  routePath: string;
+  firstRunAt?: string;
+  intervalSeconds: number;
+  isActive?: boolean;
+}): Promise<string | null> {
+  try {
+    await apiFetch('/admin/cron-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(job),
+    });
+    return null;
+  } catch (err) {
+    return handleError(err, 'creating cron job');
+  }
+}
+
+export async function updateCronJob(
+  id: number,
+  updates: Partial<{
+    name: string;
+    routePath: string;
+    firstRunAt: string;
+    intervalSeconds: number;
+    isActive: boolean;
+  }>,
+): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/cron-jobs/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    return null;
+  } catch (err) {
+    return handleError(err, 'updating cron job');
+  }
+}
+
+export async function deleteCronJob(id: number): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/cron-jobs/${id}`, { method: 'DELETE' });
+    return null;
+  } catch (err) {
+    return handleError(err, 'deleting cron job');
+  }
+}
+
 export const VALID_CATEGORIES = [
   'Politics',
   'Sports',

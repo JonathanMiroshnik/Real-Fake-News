@@ -5,7 +5,6 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import apiRoutes from './routes/apiRoutes.js';
-import { initializeScheduledJobs } from './jobs/scheduler.js';
 import { initializeSchema } from './lib/database/schema.js';
 import { getDatabase } from './lib/database/database.js';
 
@@ -17,9 +16,6 @@ const app = express();
 // Initialize SQLite database schema
 initializeSchema();
 getDatabase(); // Establish connection
-
-// Activating the recurring jobs
-initializeScheduledJobs();
 
 // Middleware pipeline
 app.use(

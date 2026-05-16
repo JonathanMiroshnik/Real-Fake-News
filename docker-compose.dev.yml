@@ -8,7 +8,6 @@ services:
     environment:
       - NODE_ENV=development
       - CLIENT_URL=http://localhost:5173
-      - ENABLE_SCHEDULED_JOBS=false
     # Mount source code for hot reload (optional - requires nodemon in container)
     # volumes:
     #   - ./server/src:/app/src:ro

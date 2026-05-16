@@ -15,6 +15,12 @@ import {
   getAdminConfig,
   updateAdminConfig,
 } from '../controllers/adminController.js';
+import {
+  getCronJobs,
+  createCronJob,
+  updateCronJob,
+  deleteCronJob,
+} from '../controllers/cronJobController.js';
 
 const router = Router();
 
@@ -32,5 +38,11 @@ router.post('/generate/article', generateAdminArticle);
 router.post('/generate/recipe', generateAdminRecipe);
 router.get('/config', getAdminConfig);
 router.put('/config', updateAdminConfig);
+
+// Cron job management routes
+router.get('/cron-jobs', getCronJobs);
+router.post('/cron-jobs', createCronJob);
+router.put('/cron-jobs/:id', updateCronJob);
+router.delete('/cron-jobs/:id', deleteCronJob);
 
 export default router;

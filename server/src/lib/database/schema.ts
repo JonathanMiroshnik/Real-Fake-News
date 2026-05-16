@@ -225,5 +225,19 @@ export function initializeSchema(): void {
         )
     `);
 
+  // Cron Jobs Table
+  // Stores scheduled recurring jobs with absolute calendar-based timing
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS cron_jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            route_path TEXT NOT NULL,
+            first_run_at TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
+            interval_seconds INTEGER NOT NULL DEFAULT 86400,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
   debugLog('SQLite schema initialized successfully');
 }

@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import SiteConfiguration from './pages/SiteConfiguration';
 import ArticleEditor from './pages/ArticleEditor';
+import CronJobs from './pages/CronJobs';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/config" element={<SiteConfiguration />} />
+          <Route path="/cron-jobs" element={<CronJobs />} />
           <Route path="/articles/edit/:key" element={<ArticleEditor />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

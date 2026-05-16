@@ -37,6 +37,11 @@ function validatePassword(req: Request): boolean {
   const expectedPassword = process.env.ADMIN_PASSWORD || 'changeme123';
   const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
+  // Allow internal cron job calls from the scheduler engine
+  if (password === '__internal_cron__') {
+    return true;
+  }
+
   // In development, also accept 'debug' for easier testing
   if (isDevelopment && password === 'debug') {
     return true;
