@@ -28,7 +28,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@langchain/deepseek": "^0.0.1",
     "@runware/sdk-js": "^1.2.2",
     "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
@@ -42,7 +41,6 @@
     "helmet": "^8.1.0",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.3",
-    "langchain": "^0.3.27",
     "luxon": "^3.7.2",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.1",
