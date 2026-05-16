@@ -22,11 +22,11 @@ jobs:
       - name: 📦 Install root dependencies
         run: npm ci
 
-      - name: 📦 Install workspace dependencies
+      - name: 📦 Install sub-project dependencies
         run: |
-          npm ci --workspace=client --install-strategy=nested
-          npm ci --workspace=server --install-strategy=nested
-          npm ci --workspace=admin --install-strategy=nested
+          cd client && npm ci && cd ..
+          cd server && npm ci && cd ..
+          cd admin && npm ci && cd ..
 
       - name: 🔍 Check formatting (Prettier)
         run: npm run format:check
@@ -56,11 +56,11 @@ jobs:
       - name: 📦 Install root dependencies
         run: npm ci
 
-      - name: 📦 Install workspace dependencies
+      - name: 📦 Install sub-project dependencies
         run: |
-          npm ci --workspace=client --install-strategy=nested
-          npm ci --workspace=server --install-strategy=nested
-          npm ci --workspace=admin --install-strategy=nested
+          cd client && npm ci && cd ..
+          cd server && npm ci && cd ..
+          cd admin && npm ci && cd ..
 
       - name: 🧪 Run unit tests
         run: npm test
