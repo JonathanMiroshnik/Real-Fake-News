@@ -25,11 +25,6 @@
     "prepush": "npm run format:check && npm run lint && npm run typecheck && npm test",
     "prepare": "husky"
   },
-  "workspaces": [
-    "client",
-    "server",
-    "admin"
-  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
