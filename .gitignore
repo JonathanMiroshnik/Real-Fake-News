@@ -35,6 +35,9 @@ server/data/
 .DS_Store
 Thumbs.db
 
+# SvelteKit artifacts in admin (legacy)
+admin/.svelte-kit/
+
 # Test artifacts
 coverage/
 playwright-report/
