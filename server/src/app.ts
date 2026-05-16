@@ -14,6 +14,10 @@ import { getDatabase } from './lib/database/database.js';
 // Initialize express application
 const app = express();
 
+// Trust the first upstream proxy (client nginx) for accurate client IP, protocol, and host.
+// Without this, req.ip returns nginx's internal IP and req.protocol is always 'http'.
+app.set('trust proxy', 1);
+
 // Initialize SQLite database schema
 initializeSchema();
 getDatabase(); // Establish connection
