@@ -8,6 +8,7 @@ import apiRoutes from './routes/apiRoutes.js';
 import { initializeScheduledJobs } from './jobs/scheduler.js';
 import { initializeSchema } from './lib/database/schema.js';
 import { getDatabase } from './lib/database/database.js';
+import { initializeCronScheduler } from './jobs/jobSchedulerEngine.js';
 
 // TODO: change express use to get set etc?
 
@@ -20,6 +21,9 @@ getDatabase(); // Establish connection
 
 // Activating the recurring jobs
 initializeScheduledJobs();
+
+// Initialize the absolute clock cron scheduler (loads from DB)
+initializeCronScheduler();
 
 // Middleware pipeline
 app.use(

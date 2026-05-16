@@ -27,6 +27,13 @@ import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.j
 import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD, DEFAULT_CONFIG } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
+import {
+  listJobs,
+  getJob,
+  triggerJob,
+  pauseJob,
+  resumeJob,
+} from '../jobs/absoluteClock.js';
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -630,4 +637,63 @@ export const updateAdminConfig = async (req: Request, res: Response): Promise<vo
     console.error('Error updating config:', error);
     res.status(500).json({ success: false, error: 'Failed to update configuration' });
   }
+};
+export const getSchedulerJobs = async (req: Request, res: Response): Promise<void> => {
+  if (!validatePassword(req)) {
+    res.status(401).json({ error: 'Invalid password' });
+    return;
+  }
+  res.json({ success: true, jobs: listJobs() });
+};
+
+export const getSchedulerJob = async (req: Request, res: Response): Promise<void> => {
+  if (!validatePassword(req)) {
+    res.status(401).json({ error: 'Invalid password' });
+    return;
+  }
+  const job = getJob(req.params.jobName);
+  if (!job) {
+    res.status(404).json({ error: 'Job not found' });
+    return;
+  }
+  res.json({ success: true, job });
+};
+
+export const triggerSchedulerJob = async (req: Request, res: Response): Promise<void> => {
+  if (!validatePassword(req)) {
+    res.status(401).json({ error: 'Invalid password' });
+    return;
+  }
+  const triggered = triggerJob(req.params.jobName);
+  if (!triggered) {
+    res.status(404).json({ error: 'Job not found' });
+    return;
+  }
+  res.json({ success: true, message: `Job "${req.params.jobName}" triggered` });
+};
+
+export const pauseSchedulerJob = async (req: Request, res: Response): Promise<void> => {
+  if (!validatePassword(req)) {
+    res.status(401).json({ error: 'Invalid password' });
+    return;
+  }
+  const paused = pauseJob(req.params.jobName);
+  if (!paused) {
+    res.status(404).json({ error: 'Job not found' });
+    return;
+  }
+  res.json({ success: true, message: `Job "${req.params.jobName}" paused` });
+};
+
+export const resumeSchedulerJob = async (req: Request, res: Response): Promise<void> => {
+  if (!validatePassword(req)) {
+    res.status(401).json({ error: 'Invalid password' });
+    return;
+  }
+  const resumed = resumeJob(req.params.jobName);
+  if (!resumed) {
+    res.status(404).json({ error: 'Job not found' });
+    return;
+  }
+  res.json({ success: true, message: `Job "${req.params.jobName}" resumed` });
 };

@@ -238,6 +238,130 @@ export function getImageUrl(filename: string): string {
   return `${getApiUrl()}/images/${filename}`;
 }
 
+// ── Scheduler API ────────────────────────────────────────────────────────
+
+export interface SchedulerJobInfo {
+  name: string;
+  description: string;
+  cron: string;
+  enabled: boolean;
+  maxRetries: number;
+  timeoutMs: number;
+  state: {
+    lastRun: string | null;
+    lastResult: 'success' | 'failure' | null;
+    lastError: string | null;
+    runCount: number;
+    errorCount: number;
+  };
+}
+
+export interface FetchSchedulerJobsResult {
+  jobs: SchedulerJobInfo[];
+  error?: string;
+}
+
+export async function fetchSchedulerJobs(): Promise<FetchSchedulerJobsResult> {
+  try {
+    const data = await apiFetch<{ success: boolean; jobs: SchedulerJobInfo[] }>(
+      '/admin/scheduler/jobs',
+    );
+    return { jobs: data.jobs || [] };
+  } catch (err) {
+    return { jobs: [], error: handleError(err, 'fetching scheduler jobs') };
+  }
+}
+
+export async function triggerSchedulerJob(jobName: string): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/scheduler/run/${jobName}`, { method: 'POST' });
+    return null;
+  } catch (err) {
+    return handleError(err, `triggering job "${jobName}"`);
+  }
+}
+
+export async function pauseSchedulerJob(jobName: string): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/scheduler/pause/${jobName}`, { method: 'POST' });
+    return null;
+  } catch (err) {
+    return handleError(err, `pausing job "${jobName}"`);
+  }
+}
+
+export async function resumeSchedulerJob(jobName: string): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/scheduler/resume/${jobName}`, { method: 'POST' });
+    return null;
+  } catch (err) {
+    return handleError(err, `resuming job "${jobName}"`);
+  }
+}
+
+// ── Cron Jobs API ─────────────────────────────────────────────────────────
+
+export interface CronJobData {
+  id?: number;
+  name: string;
+  route_path: string;
+  first_run_at: string;
+  interval_seconds: number;
+  is_active: number;
+  created_at?: string;
+  updated_at?: string;
+  next_run_at?: string | null;
+}
+
+export interface FetchCronJobsResult {
+  jobs: CronJobData[];
+  error?: string;
+}
+
+export async function fetchCronJobs(): Promise<FetchCronJobsResult> {
+  try {
+    const data = await apiFetch<{ success: boolean; jobs: CronJobData[] }>('/admin/cron-jobs');
+    return { jobs: data.jobs || [] };
+  } catch (err) {
+    return { jobs: [], error: handleError(err, 'fetching cron jobs') };
+  }
+}
+
+export async function saveCronJob(id: number, job: Partial<CronJobData>): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/cron-jobs/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(job),
+    });
+    return null;
+  } catch (err) {
+    return handleError(err, `saving cron job #${id}`);
+  }
+}
+
+export async function createCronJob(job: Partial<CronJobData>): Promise<{ id?: number; error?: string }> {
+  try {
+    const data = await apiFetch<{ success: boolean; id: number }>('/admin/cron-jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(job),
+    });
+    return { id: data.id };
+  } catch (err) {
+    return { error: handleError(err, 'creating cron job') };
+  }
+}
+
+export async function deleteCronJob(id: number): Promise<string | null> {
+  try {
+    await apiFetch(`/admin/cron-jobs/${id}`, { method: 'DELETE' });
+    return null;
+  } catch (err) {
+    return handleError(err, `deleting cron job #${id}`);
+  }
+}
+
 export const VALID_CATEGORIES = [
   'Politics',
   'Sports',

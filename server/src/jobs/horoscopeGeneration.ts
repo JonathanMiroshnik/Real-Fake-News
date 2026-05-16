@@ -1,4 +1,3 @@
-import cron from 'node-cron';
 import { generateHoroscopesForDate, saveHoroscopes } from '../services/horoscopeService.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
 
@@ -32,15 +31,11 @@ export async function generateDailyHoroscopes(): Promise<void> {
 /**
  * Schedules daily horoscope generation at midnight
  * This is called by the scheduler initialization
+ *
+ * @deprecated Use AbsoluteClock `registerJob` instead. Kept for backwards compatibility.
  */
 export function scheduleHoroscopeGeneration(): void {
-  // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
-    await generateDailyHoroscopes();
-  });
-
-  debugLog('📅 Scheduled daily horoscope generation at midnight');
-
-  // Also generate horoscopes immediately if they don't exist for today
+  // Previously used cron.schedule directly. Now scheduling is handled
+  // by the AbsoluteClock engine. Calling this still runs immediately.
   generateDailyHoroscopes();
 }

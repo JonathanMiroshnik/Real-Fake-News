@@ -14,7 +14,18 @@ import {
   generateAdminRecipe,
   getAdminConfig,
   updateAdminConfig,
+  getSchedulerJobs,
+  getSchedulerJob,
+  triggerSchedulerJob,
+  pauseSchedulerJob,
+  resumeSchedulerJob,
 } from '../controllers/adminController.js';
+import {
+  getCronJobs,
+  createCronJob,
+  updateCronJob,
+  deleteCronJob,
+} from '../controllers/cronJobController.js';
 
 const router = Router();
 
@@ -32,5 +43,18 @@ router.post('/generate/article', generateAdminArticle);
 router.post('/generate/recipe', generateAdminRecipe);
 router.get('/config', getAdminConfig);
 router.put('/config', updateAdminConfig);
+
+// Scheduler management routes
+router.get('/scheduler/jobs', getSchedulerJobs);
+router.get('/scheduler/jobs/:jobName', getSchedulerJob);
+router.post('/scheduler/run/:jobName', triggerSchedulerJob);
+router.post('/scheduler/pause/:jobName', pauseSchedulerJob);
+router.post('/scheduler/resume/:jobName', resumeSchedulerJob);
+
+// Absolute Clock cron job CRUD routes
+router.get('/cron-jobs', getCronJobs);
+router.post('/cron-jobs', createCronJob);
+router.put('/cron-jobs/:id', updateCronJob);
+router.delete('/cron-jobs/:id', deleteCronJob);
 
 export default router;

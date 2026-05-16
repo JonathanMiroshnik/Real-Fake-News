@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Jobs — Admin Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px;
+    background: #1e293b;
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    padding: 1.5rem 0;
+  }
+  .sidebar-header { padding: 0 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-header h1 { color: #fff; font-size: 1.25rem; font-weight: 700; margin: 0; }
+  .sidebar-header .sub { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+  .nav { list-style: none; padding: 0.5rem 0; margin: 0; flex: 1; }
+  .nav li button {
+    width: 100%; display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.625rem 1.5rem; background: none; border: none;
+    color: #94a3b8; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+    font-family: inherit; text-align: left; transition: all 150ms;
+  }
+  .nav li button:hover { background: #334155; color: #fff; }
+  .nav li button.active { background: rgba(99,102,241,0.15); color: #fff; }
+  .nav li button.active::before {
+    content: ''; position: absolute; left: 0; width: 3px; top: 0.5rem; bottom: 0.5rem;
+    background: #6366f1; border-radius: 0 3px 3px 0;
+  }
+  .nav-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+
+  /* ── Main ── */
+  .main { flex: 1; margin-left: 260px; padding: 2rem; max-width: 1100px; }
+
+  .page-header { margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; display: flex; align-items: center; gap: 0.5rem; }
+  .page-header .subtitle { color: #64748b; font-size: 0.9375rem; margin-top: 0.25rem; }
+
+  .info-banner {
+    background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px;
+    padding: 0.75rem 1rem; font-size: 0.8125rem; color: #4338ca; margin-bottom: 1.5rem;
+    display: flex; align-items: flex-start; gap: 0.5rem;
+  }
+  .info-banner strong { font-weight: 600; }
+
+  /* ── Card ── */
+  .card {
+    background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+  }
+  .card-header {
+    display: flex; justify-content: flex-end; align-items: center;
+    margin-bottom: 1rem;
+  }
+  .toggle-group { display: flex; align-items: center; gap: 0.5rem; }
+  .toggle-label { font-size: 0.8125rem; font-weight: 600; }
+  .toggle-label.enabled { color: #16a34a; }
+  .toggle-label.disabled { color: #dc2626; }
+
+  .toggle {
+    position: relative; width: 44px; height: 24px; background: #cbd5e1;
+    border-radius: 12px; cursor: pointer; border: none; transition: background 200ms; flex-shrink: 0;
+  }
+  .toggle.on { background: #22c55e; }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+    background: #fff; border-radius: 50%; transition: transform 200ms;
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* ── Field Row ── */
+  .field-row {
+    display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 0.25rem; }
+  .field-group label {
+    font-size: 0.6875rem; font-weight: 600; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .field-group input, .field-group select {
+    padding: 0.5rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 6px;
+    font-size: 0.875rem; font-family: inherit; color: #1e293b;
+    background: #fff; outline: none; transition: border-color 150ms;
+  }
+  .field-group input:focus, .field-group select:focus {
+    border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+
+  .field-name { flex: 2; min-width: 160px; }
+  .field-name input { width: 100%; }
+  .field-route { flex: 3; min-width: 220px; }
+  .field-route input { width: 100%; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.8125rem; }
+  .field-interval { flex: 1; min-width: 100px; }
+  .field-interval input { width: 100%; }
+  .field-firstrun { flex: 1.5; min-width: 180px; }
+  .field-firstrun input { width: 100%; }
+
+  .field-nextrun {
+    flex: 1.5; min-width: 160px;
+  }
+  .field-nextrun .nextrun-box {
+    padding: 0.5rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 6px;
+    font-size: 0.8125rem; background: #f8fafc; color: #475569;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    cursor: help; position: relative; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .field-nextrun .nextrun-box:hover .nextrun-tooltip { opacity: 1; pointer-events: auto; }
+  .nextrun-tooltip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #e2e8f0; font-size: 0.75rem; font-family: 'Inter', sans-serif;
+    padding: 0.375rem 0.625rem; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 150ms; z-index: 10;
+  }
+  .nextrun-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: #1e293b;
+  }
+
+  /* ── Interval hover tooltip ── */
+  .interval-wrap { position: relative; }
+  .interval-wrap:hover .interval-tooltip { opacity: 1; pointer-events: auto; }
+  .interval-tooltip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #e2e8f0; font-size: 0.75rem;
+    padding: 0.5rem 0.75rem; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 150ms; z-index: 10;
+    line-height: 1.6;
+  }
+  .interval-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: #1e293b;
+  }
+  .interval-tooltip .hr { color: #a5b4fc; }
+
+  /* ── Action Buttons ── */
+  .card-actions {
+    display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid #f1f5f9; justify-content: flex-end;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.5rem 1rem; border: none; border-radius: 8px;
+    font-size: 0.8125rem; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all 150ms; line-height: 1.4;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+  .btn-save { background: #22c55e; color: #fff; }
+  .btn-save:hover { background: #16a34a; }
+  .btn-delete { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .btn-delete:hover { background: #dc2626; color: #fff; }
+
+  .btn-add {
+    width: 100%; padding: 1rem; border: 2px dashed #cbd5e1; border-radius: 12px;
+    background: none; color: #64748b; font-size: 0.9375rem; font-weight: 600;
+    cursor: pointer; transition: all 150ms; font-family: inherit;
+  }
+  .btn-add:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal {
+    background: #fff; border-radius: 12px; padding: 1.5rem 2rem;
+    max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal h3 { font-size: 1.125rem; margin-bottom: 0.5rem; }
+  .modal p { color: #64748b; font-size: 0.875rem; margin-bottom: 1.25rem; }
+  .modal code { font-weight: 600; color: #1e293b; }
+  .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+  .btn-cancel { background: #f1f5f9; color: #475569; }
+  .btn-cancel:hover { background: #e2e8f0; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>Admin Panel</h1>
+    <div class="sub">Content Management</div>
+  </div>
+  <ul class="nav">
+    <li><button><span class="nav-icon">📊</span> Dashboard</button></li>
+    <li><button><span class="nav-icon">🔧</span> Configuration</button></li>
+    <li><button class="active" style="position:relative"><span class="nav-icon">⏰</span> Cron Jobs</button></li>
+    <li><button><span class="nav-icon">⚙️</span> Settings</button></li>
+  </ul>
+</aside>
+
+<!-- ── Main Content ── -->
+<main class="main">
+
+  <div class="page-header">
+    <h1>⏰ Cron Jobs</h1>
+    <div class="subtitle">Schedule recurring server tasks on an absolute calendar clock.</div>
+  </div>
+
+  <div class="info-banner">
+    <span style="font-size:1rem;flex-shrink:0;">💡</span>
+    <div>
+      <strong>Absolute Clock Scheduling</strong> — Each job's "First Run" sets its initial trigger time.
+      Subsequent runs fire exactly every <strong>interval</strong> seconds from that anchor,
+      regardless of when the server was deployed. The server computes <code>firstRun + N × interval ≥ now</code>
+      and schedules accordingly.
+    </div>
+  </div>
+
+  <!-- ── Cron Job Card 1 ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="toggle-group">
+        <span class="toggle-label enabled">Enabled</span>
+        <button class="toggle on" aria-label="Toggle cron job"></button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group field-name">
+        <label>Job Name</label>
+        <input type="text" value="Article Generation" />
+      </div>
+      <div class="field-group field-route">
+        <label>Route Path <span style="color:#94a3b8;font-weight:400;font-size:0.65rem;">(POST request)</span></label>
+        <input type="text" value="/api/admin/generate/article" />
+      </div>
+      <div class="field-group field-firstrun">
+        <label>First Run</label>
+        <input type="datetime-local" value="2025-01-01T12:00" />
+      </div>
+      <div class="field-group field-interval">
+        <label>Interval (sec)</label>
+        <div class="interval-wrap">
+          <input type="number" value="28800" min="1" />
+          <div class="interval-tooltip">
+            28800 sec &nbsp;|&nbsp; 480.0 min<br>
+            8.00 hr &nbsp;|&nbsp; 0.33 day
+          </div>
+        </div>
+      </div>
+      <div class="field-group field-nextrun">
+        <label>Next Run</label>
+        <div class="nextrun-box">
+          📅 2025-05-16 12:00 PM
+          <span class="nextrun-tooltip">⏳ in 2h 15m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-save">💾 Save</button>
+      <button class="btn btn-delete" onclick="document.getElementById('modal').style.display='flex'">🗑️ Delete</button>
+    </div>
+  </div>
+
+  <!-- ── Cron Job Card 2 ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="toggle-group">
+        <span class="toggle-label enabled">Enabled</span>
+        <button class="toggle on" aria-label="Toggle cron job"></button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group field-name">
+        <label>Job Name</label>
+        <input type="text" value="News Fetching" />
+      </div>
+      <div class="field-group field-route">
+        <label>Route Path <span style="color:#94a3b8;font-weight:400;font-size:0.65rem;">(POST request)</span></label>
+        <input type="text" value="/api/admin/generate/fetch-news" />
+      </div>
+      <div class="field-group field-firstrun">
+        <label>First Run</label>
+        <input type="datetime-local" value="2025-01-01T06:00" />
+      </div>
+      <div class="field-group field-interval">
+        <label>Interval (sec)</label>
+        <div class="interval-wrap">
+          <input type="number" value="7200" min="1" />
+          <div class="interval-tooltip">
+            7200 sec &nbsp;|&nbsp; 120.0 min<br>
+            2.00 hr &nbsp;|&nbsp; 0.08 day
+          </div>
+        </div>
+      </div>
+      <div class="field-group field-nextrun">
+        <label>Next Run</label>
+        <div class="nextrun-box">
+          📅 2025-05-16 06:00 AM
+          <span class="nextrun-tooltip">⏳ in 20h 15m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-save">💾 Save</button>
+      <button class="btn btn-delete" onclick="document.getElementById('modal').style.display='flex'">🗑️ Delete</button>
+    </div>
+  </div>
+
+  <!-- ── Cron Job Card 3 ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="toggle-group">
+        <span class="toggle-label disabled">Disabled</span>
+        <button class="toggle" aria-label="Toggle cron job"></button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group field-name">
+        <label>Job Name</label>
+        <input type="text" value="Recipe Generation" />
+      </div>
+      <div class="field-group field-route">
+        <label>Route Path <span style="color:#94a3b8;font-weight:400;font-size:0.65rem;">(POST request)</span></label>
+        <input type="text" value="/api/admin/generate/recipe" />
+      </div>
+      <div class="field-group field-firstrun">
+        <label>First Run</label>
+        <input type="datetime-local" value="2025-01-01T03:00" />
+      </div>
+      <div class="field-group field-interval">
+        <label>Interval (sec)</label>
+        <div class="interval-wrap">
+          <input type="number" value="86400" min="1" />
+          <div class="interval-tooltip">
+            86400 sec &nbsp;|&nbsp; 1440.0 min<br>
+            24.00 hr &nbsp;|&nbsp; 1.00 day
+          </div>
+        </div>
+      </div>
+      <div class="field-group field-nextrun">
+        <label>Next Run</label>
+        <div class="nextrun-box">
+          📅 2025-05-17 03:00 AM
+          <span class="nextrun-tooltip">⏳ in 1d 5h</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-save">💾 Save</button>
+      <button class="btn btn-delete" onclick="document.getElementById('modal').style.display='flex'">🗑️ Delete</button>
+    </div>
+  </div>
+
+  <!-- ── Cron Job Card 4 (Disabled) ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="toggle-group">
+        <span class="toggle-label disabled">Disabled</span>
+        <button class="toggle" aria-label="Toggle cron job"></button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group field-name">
+        <label>Job Name</label>
+        <input type="text" value="Featured Article Selection" />
+      </div>
+      <div class="field-group field-route">
+        <label>Route Path <span style="color:#94a3b8;font-weight:400;font-size:0.65rem;">(POST request)</span></label>
+        <input type="text" value="/api/admin/articles/select-featured" />
+      </div>
+      <div class="field-group field-firstrun">
+        <label>First Run</label>
+        <input type="datetime-local" value="2025-01-01T00:00" />
+      </div>
+      <div class="field-group field-interval">
+        <label>Interval (sec)</label>
+        <div class="interval-wrap">
+          <input type="number" value="86400" min="1" />
+          <div class="interval-tooltip">
+            86400 sec &nbsp;|&nbsp; 1440.0 min<br>
+            24.00 hr &nbsp;|&nbsp; 1.00 day
+          </div>
+        </div>
+      </div>
+      <div class="field-group field-nextrun">
+        <label>Next Run</label>
+        <div class="nextrun-box" style="color:#94a3b8;">
+          ⏸️ Paused
+        </div>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-save">💾 Save</button>
+      <button class="btn btn-delete" onclick="document.getElementById('modal').style.display='flex'">🗑️ Delete</button>
+    </div>
+  </div>
+
+  <!-- ── Add Button ── -->
+  <button class="btn-add">＋ Add New Cron Job</button>
+
+  <!-- ── How It Works ── -->
+  <div style="margin-top:2rem;padding:1.25rem 1.5rem;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+    <h3 style="font-size:0.875rem;font-weight:600;color:#475569;margin-bottom:0.5rem;">How Next Run Is Calculated</h3>
+    <p style="font-size:0.8125rem;color:#64748b;font-family:'JetBrains Mono','Fira Code',monospace;">
+      nextRun = firstRun + N &times; intervalSeconds &nbsp;where&nbsp; N = ceil((now - firstRun) / intervalSeconds)
+    </p>
+    <p style="font-size:0.75rem;color:#94a3b8;margin-top:0.375rem;">
+      Example: firstRun = 2025-01-01 12:00, interval = 28800s (8h).
+      If now = 2025-05-16 09:45, then N = ceil(3,822,708 / 28,800) = 133,
+      so nextRun = 2025-01-01 12:00 + 133 &times; 8h = <strong>2025-05-16 12:00</strong>.
+    </p>
+  </div>
+
+  <p style="color:#94a3b8;font-size:0.75rem;text-align:center;margin-top:2rem;">
+    Mockup &mdash; Cron Jobs Admin Panel &middot; Design Reference
+  </p>
+
+</main>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div id="modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <h3>🗑️ Delete Cron Job</h3>
+    <p>
+      Are you sure you want to delete the
+      <code>"Article Generation"</code> cron job?
+      This action cannot be undone.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="document.getElementById('modal').style.display='none'">Cancel</button>
+      <button class="btn btn-danger" onclick="document.getElementById('modal').style.display='none'">Delete</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
