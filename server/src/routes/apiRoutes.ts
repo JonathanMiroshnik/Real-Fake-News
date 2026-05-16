@@ -1,16 +1,11 @@
 import path from 'path';
 import fs from 'fs';
 import { Router, Request, Response } from 'express';
-// import { fileURLToPath } from "url";
-// import { dirname } from "path";
 import {
   compressImageInBackground,
   getCompressedImagePath,
   getOriginalImagePath,
 } from '../utils/imageCompression.js';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
 
 // Import sub-routes
 // import gameIntelligenceRoutes from '../lib/TicTacToeGameBackend/routes/gameIntelligenceRoutes.js'
@@ -88,47 +83,3 @@ router.get('/images/:filename', (req, res) => {
 });
 
 export default router;
-
-// TODO: this is UNSAFE, exchange to rate limited and auth needed to get images?
-// // Dedicated image API endpoint
-// app.get('/api/images/:filename', (req, res) => {
-//   const sanitized = path.basename(req.params.filename);
-//   res.sendFile(path.join(__dirname, '../data/images', sanitized));
-// });
-
-// // Apply CORS specifically to image routes
-// router.use('/images', cors({
-//   origin: ["https://real.sensorcensor.xyz", "http://localhost:5173"],
-//   exposedHeaders: ['Content-Type', 'Content-Length']
-// }));
-
-// ---------------------------------------------------------------------------------
-
-// server/src/middleware/auth.ts:
-// export const validateImageRequest = (req, res, next) => {
-//   const validExtensions = ['.png', '.jpg', '.jpeg'];
-//   const filename = path.parse(req.params[0]);
-
-//   if (!validExtensions.includes(filename.ext.toLowerCase())) {
-//     return res.status(403).send('Invalid file type');
-//   }
-
-//   if (filename.dir.includes('..')) {
-//     return res.status(403).send('Path traversal detected');
-//   }
-
-//   next();
-// };
-
-// app.use('/images',
-//   rateLimit({ windowMs: 15*60*1000, max: 100 }), // 100 requests/15min
-//   validateImageRequest,
-//   express.static(imagePath, {
-//     dotfiles: 'ignore',
-//     setHeaders: (res) => {
-//       res.set('X-Content-Type-Options', 'nosniff');
-//     }
-//   })
-// );
-
-// ---------------------------------------------------------------------------------

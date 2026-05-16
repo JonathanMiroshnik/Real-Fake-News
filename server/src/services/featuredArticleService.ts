@@ -9,8 +9,6 @@ import { generateAndSaveImage } from './imageService.js';
 import { generateTextFromString } from './llmService.js';
 import { getUniqueKey } from '../utils/general.js';
 // import { getNRandom } from "../utils/general.js";
-// import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { ChatDeepSeek } from '@langchain/deepseek';
 import { createPost } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
@@ -66,14 +64,6 @@ async function createFeaturedArticle(
 
   return newFeaturedArticle;
 }
-
-// LangChain chat models for each writer
-const writerModel = new ChatDeepSeek({
-  model: 'deepseek-chat',
-  temperature: 0.9, // higher temperature more creative
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  maxTokens: 200,
-});
 
 // // Debate loop
 // export async function runDebate(rounds: number = 2): Promise<string[]> {

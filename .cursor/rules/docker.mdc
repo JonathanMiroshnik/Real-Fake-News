@@ -1,5 +1,0 @@
----
-alwaysApply: true
----
-
-This project is a dockerized project. We use "docker compose" to build it, not "npm run".

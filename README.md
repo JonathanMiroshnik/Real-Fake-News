@@ -103,11 +103,13 @@ See `ENV_CONFIG.example` for complete documentation of all environment variables
 
 ## Local Development
 
-**Use the override file for testing on your dev machine.** The override adds port mappings so you can access services from your browser.
+**Use the dev override file for testing on your dev machine.** It adds port mappings so you can access services from your browser.
+
+> ⚠️ The override file is named `docker-compose.dev.yml`, **not** `docker-compose.override.yml`. Docker only auto-merges `docker-compose.override.yml` by name, so you **must** pass `-f` flags explicitly.
 
 ```bash
 # Build and start all services with port mappings
-docker compose up --build -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 
 # Access:
 #   Client SPA:    http://localhost:5173
@@ -115,13 +117,19 @@ docker compose up --build -d
 #   API directly:  http://localhost:5001/api/health
 
 # View logs
-docker compose logs -f
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
 
 # Stop services
-docker compose down
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
-The `docker-compose.override.yml` file is auto-merged by Docker Compose — no `-f` flag needed. On the VPS, this file is absent so only the production config applies (no port exposure).
+### Startup Order & Nginx DNS Resolution
+
+The `client` and `admin` containers depend on `server` (via `depends_on`), so Docker starts the API first. However, nginx resolves upstream hostnames at startup, which can fail if `server` isn't fully ready yet.
+
+Both nginx configs use Docker's internal DNS resolver (`127.0.0.11`) with runtime variable substitution, so nginx will automatically re-resolve the `server` hostname at request time. This prevents the `host not found in upstream` error during container startup races.
+
+On the VPS, no ports are exposed — only the shared nginx serves traffic on 80/443 (the `docker-compose.dev.yml` file is absent, so only the production config applies).
 
 ## Production VPS Deployment
 
@@ -336,10 +344,12 @@ After this, the API will return fake content whenever endpoints are hit.
 
 ### Services Won't Start
 
-1. Check if ports are already in use:
+1. Check if ports are already in use (look for stale Vite dev servers from other worktrees):
 
    ```bash
-   netstat -tulpn | grep -E "5001|5173|5174"
+   sudo ss -tlnp | grep -E '5001|5173|5174'
+   # or
+   sudo lsof -i :5174
    ```
 
 2. Verify `.env` file exists and has correct values:

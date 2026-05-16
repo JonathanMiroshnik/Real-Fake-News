@@ -2,6 +2,14 @@
   "name": "client",
   "private": true,
   "version": "0.0.0",
+  "description": "Frontend SPA for Real-Fake-News — React/Vite",
+  "keywords": [
+    "news",
+    "frontend",
+    "react",
+    "vite"
+  ],
+  "author": "Real Fake News Team",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,12 +23,6 @@
   },
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
-    "@types/bcrypt": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/react-helmet": "^6.1.11",
-    "@types/react-router": "^5.1.20",
-    "bcrypt": "^5.1.1",
-    "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
     "phosphor-react": "^1.4.1",
     "react": "^19.2.3",
@@ -37,7 +39,10 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/react": "^19.0.10",
+    "@types/react-helmet": "^6.1.11",
+    "@types/react-router": "^5.1.20",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
     "@vitejs/plugin-react": "^4.3.4",

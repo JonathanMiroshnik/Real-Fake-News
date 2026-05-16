@@ -70,8 +70,6 @@ export default defineConfig({
     // Clear mocks between tests
     clearMocks: true,
 
-    // Show verbose diff on failure
-    // Note: diff accepts a string path to a custom diff config module, not a verbosity flag
     // Retry flaky tests
     retry: 0,
   },
