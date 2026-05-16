@@ -67,7 +67,9 @@ async function executeWithRetry(def: JobDefinition): Promise<void> {
       def.state.lastError = message;
 
       if (attempt < def.maxRetries) {
-        debugWarn(`⚠️ Job "${def.name}" failed (attempt ${attempt + 1}/${def.maxRetries + 1}): ${message}`);
+        debugWarn(
+          `⚠️ Job "${def.name}" failed (attempt ${attempt + 1}/${def.maxRetries + 1}): ${message}`,
+        );
       } else {
         def.state.lastResult = 'failure';
         def.state.runCount++;
@@ -99,7 +101,9 @@ export function registerJob(def: Omit<JobDefinition, 'state'>): void {
     startCronTask(fullDef);
   }
 
-  debugLog(`📅 Registered job: ${def.name}  (cron: "${def.cron}"${def.enabled ? '' : ', disabled'})`);
+  debugLog(
+    `📅 Registered job: ${def.name}  (cron: "${def.cron}"${def.enabled ? '' : ', disabled'})`,
+  );
 }
 
 /** Unregister a previously-registered job, stopping its cron task. */

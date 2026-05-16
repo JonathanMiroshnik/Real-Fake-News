@@ -1123,12 +1123,30 @@ tbody tr:hover {
   font-weight: 600;
   white-space: nowrap;
 }
-.badge-sch--active    { background: #dcfce7; color: #16a34a; }
-.badge-sch--paused    { background: #f1f5f9; color: #64748b; }
-.badge-sch--errored   { background: #fef2f2; color: #dc2626; }
-.badge-sch--success   { background: #dcfce7; color: #16a34a; }
-.badge-sch--failure   { background: #fef2f2; color: #dc2626; }
-.badge-sch--pending   { background: #fef9c3; color: #ca8a04; }
+.badge-sch--active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge-sch--paused {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.badge-sch--errored {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.badge-sch--success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge-sch--failure {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.badge-sch--pending {
+  background: #fef9c3;
+  color: #ca8a04;
+}
 
 /* --- Cron Jobs Page --- */
 .cronjobs-page .page-header {

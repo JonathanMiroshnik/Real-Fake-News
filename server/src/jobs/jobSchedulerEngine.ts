@@ -71,9 +71,17 @@ export function initializeCronScheduler(): void {
 export function reloadJob(jobId: number): void {
   clearTimer(jobId);
   const db = getDatabase();
-  const job = db.prepare('SELECT * FROM cron_jobs WHERE id = ?').get(jobId) as CronJobRow | undefined;
-  if (!job) { debugLog(`Job #${jobId} gone, timer cleared`); return; }
-  if (!job.is_active) { debugLog(`Job #${jobId} ("${job.name}") inactive, not scheduling`); return; }
+  const job = db.prepare('SELECT * FROM cron_jobs WHERE id = ?').get(jobId) as
+    | CronJobRow
+    | undefined;
+  if (!job) {
+    debugLog(`Job #${jobId} gone, timer cleared`);
+    return;
+  }
+  if (!job.is_active) {
+    debugLog(`Job #${jobId} ("${job.name}") inactive, not scheduling`);
+    return;
+  }
   scheduleJob(job);
 }
 
@@ -120,7 +128,9 @@ function scheduleJob(job: CronJobRow): void {
   }, safeDelay);
 
   activeTimers.set(job.id, { jobId: job.id, timer });
-  debugLog(`Scheduled job #${job.id} ("${job.name}") next at ${nextRun.toISOString()} (${fmtDur(delayMs)})`);
+  debugLog(
+    `Scheduled job #${job.id} ("${job.name}") next at ${nextRun.toISOString()} (${fmtDur(delayMs)})`,
+  );
 }
 
 async function executeJob(job: CronJobRow): Promise<void> {
@@ -139,13 +149,18 @@ async function executeJob(job: CronJobRow): Promise<void> {
       debugLog(`Job #${job.id} ("${job.name}") completed`);
     }
   } catch (err) {
-    debugError(`Job #${job.id} ("${job.name}") threw: ${err instanceof Error ? err.message : String(err)}`);
+    debugError(
+      `Job #${job.id} ("${job.name}") threw: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
 function clearTimer(jobId: number): void {
   const existing = activeTimers.get(jobId);
-  if (existing) { clearTimeout(existing.timer); activeTimers.delete(jobId); }
+  if (existing) {
+    clearTimeout(existing.timer);
+    activeTimers.delete(jobId);
+  }
 }
 
 function clearAllTimers(): void {

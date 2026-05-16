@@ -27,13 +27,7 @@ import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.j
 import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD, DEFAULT_CONFIG } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
-import {
-  listJobs,
-  getJob,
-  triggerJob,
-  pauseJob,
-  resumeJob,
-} from '../jobs/absoluteClock.js';
+import { listJobs, getJob, triggerJob, pauseJob, resumeJob } from '../jobs/absoluteClock.js';
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);

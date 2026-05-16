@@ -197,9 +197,7 @@ export async function fetchConfig(): Promise<{
   }
 }
 
-export async function saveConfig(
-  updates: Record<string, string>,
-): Promise<{ error?: string }> {
+export async function saveConfig(updates: Record<string, string>): Promise<{ error?: string }> {
   try {
     await apiFetch('/admin/config', {
       method: 'PUT',
@@ -340,7 +338,9 @@ export async function saveCronJob(id: number, job: Partial<CronJobData>): Promis
   }
 }
 
-export async function createCronJob(job: Partial<CronJobData>): Promise<{ id?: number; error?: string }> {
+export async function createCronJob(
+  job: Partial<CronJobData>,
+): Promise<{ id?: number; error?: string }> {
   try {
     const data = await apiFetch<{ success: boolean; id: number }>('/admin/cron-jobs', {
       method: 'POST',

@@ -35,7 +35,10 @@ function unauthorized(res: Response): void {
 // ---------------------------------------------------------------------------
 
 export function getCronJobs(req: Request, res: Response): void {
-  if (!validatePassword(req)) { unauthorized(res); return; }
+  if (!validatePassword(req)) {
+    unauthorized(res);
+    return;
+  }
 
   const db = getDatabase();
   const rows = db.prepare('SELECT * FROM cron_jobs ORDER BY id ASC').all() as any[];
@@ -56,7 +59,10 @@ export function getCronJobs(req: Request, res: Response): void {
 }
 
 export function createCronJob(req: Request, res: Response): void {
-  if (!validatePassword(req)) { unauthorized(res); return; }
+  if (!validatePassword(req)) {
+    unauthorized(res);
+    return;
+  }
 
   const { name, route_path, first_run_at, interval_seconds, is_active } = req.body as CronJobInput;
 
@@ -74,16 +80,20 @@ export function createCronJob(req: Request, res: Response): void {
     return;
   }
 
-  const result = db.prepare(`
+  const result = db
+    .prepare(
+      `
     INSERT INTO cron_jobs (name, route_path, first_run_at, interval_seconds, is_active)
     VALUES (?, ?, ?, ?, ?)
-  `).run(
-    name,
-    route_path,
-    first_run_at || '1970-01-01T00:00:00.000Z',
-    interval_seconds ?? 3600,
-    is_active ?? 1,
-  );
+  `,
+    )
+    .run(
+      name,
+      route_path,
+      first_run_at || '1970-01-01T00:00:00.000Z',
+      interval_seconds ?? 3600,
+      is_active ?? 1,
+    );
 
   const newId = result.lastInsertRowid as number;
 
@@ -96,29 +106,43 @@ export function createCronJob(req: Request, res: Response): void {
 }
 
 export function updateCronJob(req: Request, res: Response): void {
-  if (!validatePassword(req)) { unauthorized(res); return; }
+  if (!validatePassword(req)) {
+    unauthorized(res);
+    return;
+  }
 
   const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid job id' }); return; }
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid job id' });
+    return;
+  }
 
   const db = getDatabase();
   const existing = db.prepare('SELECT * FROM cron_jobs WHERE id = ?').get(id) as any;
-  if (!existing) { res.status(404).json({ error: 'Cron job not found' }); return; }
+  if (!existing) {
+    res.status(404).json({ error: 'Cron job not found' });
+    return;
+  }
 
   const { name, route_path, first_run_at, interval_seconds, is_active } = req.body as CronJobInput;
 
   // If renaming, check for duplicate
   if (name && name !== existing.name) {
     const dup = db.prepare('SELECT id FROM cron_jobs WHERE name = ? AND id != ?').get(name, id);
-    if (dup) { res.status(409).json({ error: `A cron job named "${name}" already exists` }); return; }
+    if (dup) {
+      res.status(409).json({ error: `A cron job named "${name}" already exists` });
+      return;
+    }
   }
 
-  db.prepare(`
+  db.prepare(
+    `
     UPDATE cron_jobs SET
       name = ?, route_path = ?, first_run_at = ?, interval_seconds = ?,
       is_active = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).run(
+  `,
+  ).run(
     name ?? existing.name,
     route_path ?? existing.route_path,
     first_run_at ?? existing.first_run_at,
@@ -139,14 +163,23 @@ export function updateCronJob(req: Request, res: Response): void {
 }
 
 export function deleteCronJob(req: Request, res: Response): void {
-  if (!validatePassword(req)) { unauthorized(res); return; }
+  if (!validatePassword(req)) {
+    unauthorized(res);
+    return;
+  }
 
   const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid job id' }); return; }
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid job id' });
+    return;
+  }
 
   const db = getDatabase();
   const existing = db.prepare('SELECT id FROM cron_jobs WHERE id = ?').get(id);
-  if (!existing) { res.status(404).json({ error: 'Cron job not found' }); return; }
+  if (!existing) {
+    res.status(404).json({ error: 'Cron job not found' });
+    return;
+  }
 
   // Remove timer first
   removeJob(id);

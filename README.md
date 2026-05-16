@@ -356,6 +356,7 @@ After this, the API will return fake content whenever endpoints are hit.
 ### Docker Containers Won't Stop / Kill
 
 Sometimes `docker compose down` doesn't fully kill containers — especially when:
+
 - Containers were started from different compose files or outside compose entirely
 - Orphaned containers exist from a previous project state
 - The compose project name doesn't match (e.g., started with `-f` flag but stopped without it)
@@ -389,12 +390,12 @@ docker system prune -a --volumes -f
 
 The most common causes:
 
-| Cause | Symptom | Fix |
-|-------|---------|-----|
-| **Wrong compose file** | `docker compose down` says "no such service" | Use the correct `-f` flag: `docker compose -f docker-compose.dev.yml down` |
-| **Container started manually** | Container exists but compose doesn't know about it | Kill by name: `docker rm -f client server admin` |
-| **Container is stuck** | `docker stop` hangs indefinitely | Force kill: `docker kill <container-id>` then `docker rm <container-id>` |
-| **Dev override auto-merge** | Ports 5173/5174 still bound after down | The override file auto-merges as `docker-compose.override.yml` — check if it exists in the root |
+| Cause                          | Symptom                                            | Fix                                                                                             |
+| ------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Wrong compose file**         | `docker compose down` says "no such service"       | Use the correct `-f` flag: `docker compose -f docker-compose.dev.yml down`                      |
+| **Container started manually** | Container exists but compose doesn't know about it | Kill by name: `docker rm -f client server admin`                                                |
+| **Container is stuck**         | `docker stop` hangs indefinitely                   | Force kill: `docker kill <container-id>` then `docker rm <container-id>`                        |
+| **Dev override auto-merge**    | Ports 5173/5174 still bound after down             | The override file auto-merges as `docker-compose.override.yml` — check if it exists in the root |
 
 ### Client Can't Connect to Server
 
