@@ -197,9 +197,7 @@ export async function fetchConfig(): Promise<{
   }
 }
 
-export async function saveConfig(
-  updates: Record<string, string>,
-): Promise<{ error?: string }> {
+export async function saveConfig(updates: Record<string, string>): Promise<{ error?: string }> {
   try {
     await apiFetch('/admin/config', {
       method: 'PUT',

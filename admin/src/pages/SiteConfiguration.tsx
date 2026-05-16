@@ -49,8 +49,7 @@ function ConfigField({ keyName, label, setting, value, onChange }: ConfigFieldPr
             onBlur={handleMouseLeave}
             aria-label={`Help for ${label}`}
           >
-            ?
-            {showTooltip && <span className="config-tooltip">{setting.description}</span>}
+            ?{showTooltip && <span className="config-tooltip">{setting.description}</span>}
           </span>
         </div>
         {setting.type === 'boolean' ? (
