@@ -32,7 +32,6 @@ app.use(
       'https://real.sensorcensor.xyz',
       'http://localhost:5173',
       'http://localhost:5174', // Admin panel (dev)
-      'http://162.0.237.138:5174', // Admin panel (production - IP access)
       'http://localhost:3000',
     ],
     credentials: true,
@@ -61,7 +60,6 @@ app.use(/(.*)/, (req: Request, res: Response) => {
     'https://real.sensorcensor.xyz',
     'http://localhost:5173',
     'http://localhost:5174',
-    'http://162.0.237.138:5174', // Admin panel (production - IP access)
     'http://localhost:3000',
   ];
 

@@ -8,15 +8,12 @@ import { getAllPostsAfterDate, writeBlogPost } from '../services/blogService.js'
 import { getAllNewsArticlesAfterDate } from '../services/newsService.js';
 import { NewsItem } from '../services/newsService.js';
 import { getRandomWriter } from '../services/writerService.js';
-// import { ONE_HOUR_MILLISECS } from "../config/constants.js";
 
 // Responsible for the state machine of the blog writers
-
 export async function generateScheduledArticles(writingInterval: number) {
   try {
     const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - writingInterval));
     const newArticlesNeeded: number = MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
-    // console.log("new articles needed:", newArticlesNeeded);
     if (newArticlesNeeded <= 0) {
       return;
     }
@@ -31,6 +28,7 @@ export async function generateScheduledArticles(writingInterval: number) {
       return;
     }
 
+    // TODO: this entire for loop looks like a hack
     for (let i = 0; i < newArticlesNeeded; i++) {
       if (currentNews.length === 0) {
         console.warn('Ran out of news articles to process');

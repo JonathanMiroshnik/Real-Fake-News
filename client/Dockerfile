@@ -1,4 +1,6 @@
-# Stage 1: Build
+# ============================================================
+# Stage 1: Builder — Install deps & compile Vite/React SPA
+# ============================================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -21,25 +23,33 @@ ENV VITE_DEBUG_LOGS=$VITE_DEBUG_LOGS
 ENV VITE_SHOW_HOROSCOPES=$VITE_SHOW_HOROSCOPES
 ENV VITE_SHOW_RECIPES=$VITE_SHOW_RECIPES
 
-# Copy package files
+# Copy package files first (for Docker layer caching)
 COPY client/package*.json ./
 RUN npm ci
 
-# Copy source code and config
-COPY client/src ./src
-COPY client/public ./public
-COPY client/index.html ./
-COPY client/vite.config.ts ./
+# Copy build config files
 COPY client/tsconfig.json ./
 COPY client/tsconfig.*.json ./
-COPY client/eslint.config.js ./
+
+# Copy Vite config
+COPY client/vite.config.ts ./
 COPY client/postcss.config.js ./
 COPY client/tailwind.config.js ./
+COPY client/eslint.config.js ./
+
+# Copy entry HTML
+COPY client/index.html ./
+
+# Copy source code and public assets
+COPY client/src ./src
+COPY client/public ./public
 
 # Build React app (environment variables are baked into the bundle)
 RUN npm run build
 
-# Stage 2: Production - Serve with Nginx
+# ============================================================
+# Stage 2: Production — Serve static files with Nginx
+# ============================================================
 FROM nginx:alpine
 
 # Copy built files from builder
@@ -48,7 +58,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port
+# Expose HTTP port (upstream reverse proxy handles TLS)
 EXPOSE 80
 
 # Start nginx

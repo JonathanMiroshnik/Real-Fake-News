@@ -2,10 +2,19 @@
   "name": "admin",
   "private": true,
   "version": "0.0.1",
+  "description": "Admin panel SPA for Real-Fake-News — React/Vite",
+  "keywords": [
+    "news",
+    "admin",
+    "react",
+    "vite"
+  ],
+  "author": "Real Fake News Team",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "lint": "eslint .",
     "test": "echo 'No tests yet — see TESTING.md'",
     "preview": "vite preview"
   },
@@ -15,10 +24,14 @@
     "react-router-dom": "^7.5.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "globals": "^15.15.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.24.1",
     "vite": "^6.2.6"
   }
 }
