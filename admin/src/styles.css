@@ -1071,3 +1071,91 @@ tbody tr:hover {
     flex: 1;
   }
 }
+
+/* --- Scheduler Job Cells --- */
+.job-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.job-name-cell strong {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+.job-description {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.cell-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.cron-badge {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: #1e293b;
+  color: #a5d6ff;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.action-buttons {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: nowrap;
+}
+.error-tooltip {
+  cursor: help;
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* --- Scheduler Status Badges --- */
+.badge-sch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-sch--active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge-sch--paused {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.badge-sch--errored {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.badge-sch--success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge-sch--failure {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.badge-sch--pending {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+/* --- Cron Jobs Page --- */
+.cronjobs-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cronjobs-page .page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

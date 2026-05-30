@@ -1,4 +1,3 @@
-import cron from 'node-cron';
 import { randomInt } from 'crypto';
 import { getFeaturedArticleForDate } from '../services/blogService.js';
 import { getAllPostsAfterDate } from '../services/blogService.js';
@@ -68,15 +67,11 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
 /**
  * Schedules daily featured article selection at midnight
  * This is called by the scheduler initialization
+ *
+ * @deprecated Use AbsoluteClock `registerJob` instead. Kept for backwards compatibility.
  */
 export function scheduleFeaturedArticleSelection(): void {
-  // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
-    await selectDailyFeaturedArticle();
-  });
-
-  debugLog('📅 Scheduled daily featured article selection at midnight');
-
-  // Also run immediately if no featured article exists for today
+  // Previously used cron.schedule directly. Now scheduling is handled
+  // by the AbsoluteClock engine. Calling this still runs immediately.
   selectDailyFeaturedArticle();
 }

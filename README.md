@@ -363,6 +363,50 @@ After this, the API will return fake content whenever endpoints are hit.
    docker compose logs
    ```
 
+### Docker Containers Won't Stop / Kill
+
+Sometimes `docker compose down` doesn't fully kill containers — especially when:
+
+- Containers were started from different compose files or outside compose entirely
+- Orphaned containers exist from a previous project state
+- The compose project name doesn't match (e.g., started with `-f` flag but stopped without it)
+
+**The kill chain (escalating force):**
+
+```bash
+# 1. Check what's running
+docker ps -a
+
+# 2. Stop all running containers gracefully
+docker compose -f docker-compose.yml down
+
+# 3. If using the dev override, stop via both files
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+
+# 4. Check for any compose projects still active
+docker compose ls
+
+# 5. NUCLEAR — stop & remove ALL containers (not just this project)
+docker stop $(docker ps -q) 2>/dev/null
+docker rm $(docker ps -aq) 2>/dev/null
+
+# 6. SUPERNOVA — remove all unused Docker resources (containers, networks, images)
+docker system prune -a --volumes -f
+```
+
+`docker system prune -a --volumes -f` is the absolute last resort — it deletes **all** containers, images, volumes and networks not currently in use by a running container. This will wipe cached image layers and require a full rebuild on next startup.
+
+### Why `docker compose down` Sometimes Fails
+
+The most common causes:
+
+| Cause                          | Symptom                                            | Fix                                                                                             |
+| ------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Wrong compose file**         | `docker compose down` says "no such service"       | Use the correct `-f` flag: `docker compose -f docker-compose.dev.yml down`                      |
+| **Container started manually** | Container exists but compose doesn't know about it | Kill by name: `docker rm -f client server admin`                                                |
+| **Container is stuck**         | `docker stop` hangs indefinitely                   | Force kill: `docker kill <container-id>` then `docker rm <container-id>`                        |
+| **Dev override auto-merge**    | Ports 5173/5174 still bound after down             | The override file auto-merges as `docker-compose.override.yml` — check if it exists in the root |
+
 ### Client Can't Connect to Server
 
 1. Verify all containers are running:

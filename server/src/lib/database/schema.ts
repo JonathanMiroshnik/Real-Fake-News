@@ -225,5 +225,34 @@ export function initializeSchema(): void {
         )
     `);
 
+  // Cron Jobs Table
+  // Stores scheduled recurring tasks with absolute clock timing
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS cron_jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            route_path TEXT NOT NULL,
+            first_run_at TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
+            interval_seconds INTEGER NOT NULL DEFAULT 3600,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+  // Seed default cron jobs if table is empty
+  const count = db.prepare('SELECT COUNT(*) as count FROM cron_jobs').get() as { count: number };
+  if (count.count === 0) {
+    const insert = db.prepare(`
+      INSERT INTO cron_jobs (name, route_path, first_run_at, interval_seconds, is_active)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    insert.run('Article Generation', '/api/admin/generate/article', '1970-01-01T12:00:00.000Z', 28800, 1);
+    insert.run('News Fetching', '/api/admin/generate/fetch-news', '1970-01-01T06:00:00.000Z', 7200, 1);
+    insert.run('Recipe Generation', '/api/admin/generate/recipe', '1970-01-01T03:00:00.000Z', 86400, 1);
+    insert.run('Featured Article Selection', '/api/admin/articles/select-featured', '1970-01-01T00:00:00.000Z', 86400, 1);
+    debugLog('Seeded 4 default cron jobs');
+  }
+
   debugLog('SQLite schema initialized successfully');
 }
