@@ -25,3 +25,10 @@ These documents serve as a reference for:
 | -------------------------------- | --------- | -------- | -------------------------------------------------------------------------------------- |
 | `testing-suite.md`               | Completed | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces |
 | `admin-server-side-auth-gate.md` | Planned   | High     | Prevent admin frontend from being served without valid password                        |
+| `features-status.md`             | Reference | —        | Living inventory of merged vs. abandoned features and where each one lives in the code |
+
+## Feature Status
+
+`features-status.md` is not a plan — it is an inventory of what already shipped on `main`, which
+feature branches were merged (and then deleted), and which branches were abandoned. Update it when a
+feature lands or a branch is retired.
