@@ -144,9 +144,8 @@ delete the `featured_blog_posts` path.
 - [ ] Delete `featuredBlogDatabaseConfig`, `FeaturedArticleScheme`, the `featured_blog_posts`
       branches in `sqliteOperations.ts` and the table creation, plus an explicit
       `DROP TABLE IF EXISTS featured_blog_posts` migration.
-- [ ] Guard the invariant with a partial unique index:
-      `CREATE UNIQUE INDEX idx_one_featured_per_day ON blog_posts(featuredDate)
-    WHERE isFeatured = 1`.
+- [ ] Guard the invariant with a partial unique index on `blog_posts(featuredDate)` for the rows
+      where `isFeatured = 1`, so a day can only ever hold one pin.
 - [ ] `deletePost` clears a pin that points at the deleted row.
 
 ### Phase 2 — deterministic selection and lazy derivation
