@@ -2,6 +2,7 @@ import { Jimp } from 'jimp';
 import { JimpMime } from 'jimp';
 import path from 'path';
 import fs from 'fs';
+import { resolveImagesDirectory } from '../config/paths.js';
 import { debugLog } from './debugLogger.js';
 
 // Lazy-load Sharp for WebP support
@@ -30,25 +31,17 @@ async function getSharp(): Promise<any> {
 }
 
 /**
- * Gets the images directory path based on the database directory
- * Images are stored in the same directory as the SQLite database
+ * Gets the images directory path.
  *
- * Priority:
- * 1. DATABASE_PATH (container path) - if set, use dirname(DATABASE_PATH)/images
- * 2. Default: database/images at the project root
+ * IMAGES_PATH decides where images live; when it is unset they sit next to the
+ * SQLite file (dirname(DATABASE_PATH)/images), so moving the database moves the
+ * images with it. The path comes from the same resolver the database uses,
+ * keeping the two in sync everywhere (Docker, host, scripts).
  *
- * @returns Path to the images directory
+ * @returns Absolute path to the images directory
  */
 export function getImagesDirectory(): string {
-  // Priority 1: Use DATABASE_PATH to determine directory (for Docker containers)
-  if (process.env.DATABASE_PATH) {
-    const dbDir = path.dirname(process.env.DATABASE_PATH);
-    return path.join(dbDir, 'images');
-  }
-
-  // Priority 2: Default fallback - use database/images at the project root
-  const projectRoot = path.resolve(process.cwd(), '..');
-  return path.join(projectRoot, 'database', 'images');
+  return resolveImagesDirectory();
 }
 
 /**

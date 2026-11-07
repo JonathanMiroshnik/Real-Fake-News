@@ -1,6 +1,7 @@
 import Database, { type Database as DatabaseType } from 'better-sqlite3';
-import path, { resolve } from 'path';
+import path from 'path';
 import fs from 'fs';
+import { resolveDatabaseFile } from '../../config/paths.js';
 import { debugLog } from '../../utils/debugLogger.js';
 
 class DatabaseManager {
@@ -8,25 +9,13 @@ class DatabaseManager {
   private db: DatabaseType;
 
   private constructor() {
-    // Private constructor - can only be called from getInstance()
-    let dbPath: string;
-
-    // Priority 1: Use DATABASE_PATH if set (Docker container path, e.g., /data/database.db)
-    if (process.env.DATABASE_PATH) {
-      dbPath = process.env.DATABASE_PATH;
-    }
-    // Priority 2: Default fallback - use database/ at the project root (local development)
-    else {
-      // In local development, commands run from server/ directory
-      // (e.g., npm run dev, npm run generate-mock-data)
-      // process.cwd() is server/, so .. resolves to the project root
-      const projectRoot = resolve(process.cwd(), '..');
-      dbPath = path.join(projectRoot, 'database', 'database.db');
-    }
-
+    // Priority 1: DATABASE_PATH (Docker: /data/database.db, host: any absolute path)
+    // Priority 2: <repo>/database/database.db  — see config/paths.ts
+    const dbPath = resolveDatabaseFile();
     const dbDir = path.dirname(dbPath);
 
-    // Ensure the directory exists
+    // Ensure the directory exists. An absolute path outside the repo is allowed;
+    // the process just needs permission to create/write it.
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }

@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import apiRoutes from './routes/apiRoutes.js';
+import { getAllowedOrigins } from './config/corsOrigins.js';
 import { initializeScheduledJobs } from './jobs/scheduler.js';
 import { initializeSchema } from './lib/database/schema.js';
 import { getDatabase } from './lib/database/database.js';
@@ -28,12 +29,7 @@ initializeScheduledJobs();
 // Middleware pipeline
 app.use(
   cors({
-    origin: [
-      'https://real.sensorcensor.xyz',
-      'http://localhost:5173',
-      'http://localhost:5174', // Admin panel (dev)
-      'http://localhost:3000',
-    ],
+    origin: getAllowedOrigins(),
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -54,16 +50,10 @@ app.use('/api', apiRoutes);
 // Do NOT use '*', instead:
 //  https://stackoverflow.com/questions/78973586/typeerror-invalid-token-at-1-https-git-new-pathtoregexperror
 app.use(/(.*)/, (req: Request, res: Response) => {
-  // Ensure CORS headers are set even for 404 responses
+  // Ensure CORS headers are set even for 404 responses (same allowlist as cors())
   const origin = req.headers.origin;
-  const allowedOrigins = [
-    'https://real.sensorcensor.xyz',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:3000',
-  ];
 
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && getAllowedOrigins().includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }

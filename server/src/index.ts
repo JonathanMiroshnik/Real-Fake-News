@@ -1,15 +1,8 @@
-import { config } from 'dotenv';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+// Side-effect import: must stay first so server/.env is loaded before app.ts
+// (and everything it imports) reads process.env.
+import './config/env.js';
 import app from './app.js';
 import { closeDatabase } from './lib/database/database.js';
-
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load environment variables
-config({ path: resolve(__dirname, '../.env') });
 
 // Configuration constants
 const PORT = process.env.PORT || 5001;
