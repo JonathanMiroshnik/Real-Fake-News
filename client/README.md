@@ -25,9 +25,13 @@ See `nginx.conf` for the exact routing rules.
 
 ## Environment Configuration
 
-For information about configuring environment variables (backend connection, debug logging, etc.), see [ENV_CONFIG.example](../../ENV_CONFIG.example) in the root directory.
+For information about configuring environment variables (backend connection, debug logging, etc.), see [docs/configuration.md](../docs/configuration.md) in the root directory.
+
+`client/.env.development` is committed with working local defaults, so `npm run dev` needs no setup. For personal overrides (a remote backend, for example) create `client/.env.development.local`.
 
 ### Key Environment Variables
+
+Defaults below are the Docker/production build values. Running `npm run dev` on the host uses `client/.env.development` instead (`VITE_BACKEND_DEV_MODE=true`, `VITE_USE_RELATIVE_API=false`, `VITE_API_BASE_DEV=http://localhost:5001`).
 
 | Variable                | Purpose                                    | Default              |
 | ----------------------- | ------------------------------------------ | -------------------- |

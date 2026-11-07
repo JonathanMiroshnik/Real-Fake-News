@@ -63,65 +63,48 @@ This uses the system's configured name resolution (DNS, `/etc/hosts`, etc.) to l
 
 # Environment Configuration
 
-All environment variables, config files, and constants used across the project are documented in **`ENV_CONFIG.example`** in the root directory.
+Everything about configuration — which file to edit, precedence rules, and how to
+run each app on its own — lives in **[`docs/configuration.md`](docs/configuration.md)**.
 
-This comprehensive file includes:
+Short version:
 
-- **Environment Variables**: All `.env` variables for Server, Client, and Admin
-- **Config Files**: Documentation of all configuration files and their purposes
-- **Constants**: All hardcoded constants and where they're used
+| What you want to do                         | File                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------ |
+| Run the whole stack in Docker               | **`.env`** at the repo root (copy `.env.example`)                              |
+| Run the API directly on your machine        | **`server/.env`** (copy `server/.env.example`)                                 |
+| Run the client / admin SPAs on your machine | nothing — `client/.env.development` and `admin/.env.development` are committed |
 
-The file is organized by:
-
-- **Server** (Node.js/Express backend) - `server/.env`
-- **Client** (React frontend) - `client/.env`
-- **Admin** (React admin panel) - `admin/.env`
-
-To set up the project:
-
-1. Copy `ENV_CONFIG.example` and extract the relevant sections to create `.env` files in each subdirectory
-2. Fill in your API keys (DeepSeek, NewsData.io, Runware)
-3. Configure Gmail credentials if using email service
-4. Set a secure `ADMIN_PASSWORD` (change from default!)
-
-See `ENV_CONFIG.example` for complete documentation of all environment variables, config files, and constants.
+Required keys: `DEEPSEEK_API_KEY`, `NEWSDATA_API_KEY`, `RUNWARE_API_KEY` and
+`ADMIN_PASSWORD`.
 
 # Running the Application
 
 ## Prerequisites
 
 1. **Docker and Docker Compose** installed on your system
-2. **Root `.env` file** created:
+2. **Bootstrap the repo** — creates `.env`, `server/.env`, the data directories
+   (`DATABASE_DIR`, `IMAGES_DIR`) and the `devops_shared` Docker network:
    ```bash
-   # Copy from example (create one from ENV_CONFIG.example if missing)
-   # Edit .env and fill in your API keys and paths
+   npm run setup
    ```
-3. **Docker network** (for local testing):
-   ```bash
-   docker network create devops_shared
-   ```
+3. **Fill in the API keys** in `.env` and re-run `npm run setup` until it passes.
 
 ## Local Development
 
-**Use the dev override file for testing on your dev machine.** It adds port mappings so you can access services from your browser.
-
-> ⚠️ The override file is named `docker-compose.dev.yml`, **not** `docker-compose.override.yml`. Docker only auto-merges `docker-compose.override.yml` by name, so you **must** pass `-f` flags explicitly.
+**Use the dev overlay for testing on your dev machine.** It adds port mappings so you can access services from your browser.
 
 ```bash
-# Build and start all services with port mappings
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+npm run docker:dev        # build + start everything (dev overlay merged in)
+npm run docker:dev:logs   # follow the API log
+npm run docker:dev:down   # stop (the data directory stays on disk)
 
 # Access:
 #   Client SPA:    http://localhost:5173
 #   Admin panel:   http://localhost:5174
 #   API directly:  http://localhost:5001/api/health
-
-# View logs
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
-
-# Stop services
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
+
+Those scripts are literally `docker compose -f docker-compose.yml -f docker-compose.dev.yml <up|logs|down>`. Keep the `-f` flags if you type commands by hand: the overlay is named `docker-compose.dev.yml`, **not** `docker-compose.override.yml`, and Docker only auto-merges the latter by name. Full runbook: [`docs/configuration.md` §3](docs/configuration.md).
 
 ### Startup Order & Nginx DNS Resolution
 
@@ -334,7 +317,7 @@ To wipe the database and images completely (useful for testing the fallback):
 
 ```bash
 docker compose down
-sudo rm -rf ./database/
+sudo rm -rf "${DATABASE_DIR:-./database}" "${IMAGES_DIR:-${DATABASE_DIR:-./database}/images}"
 docker compose up --build -d
 ```
 
@@ -355,7 +338,7 @@ After this, the API will return fake content whenever endpoints are hit.
 2. Verify `.env` file exists and has correct values:
 
    ```bash
-   cat .env | grep -E "DATABASE_PATH"
+   cat .env | grep -E "DATABASE_DIR|IMAGES_DIR|DATABASE_PATH|IMAGES_PATH"
    ```
 
 3. Check Docker logs:
@@ -389,13 +372,19 @@ After this, the API will return fake content whenever endpoints are hit.
    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
    ```
 
-### Database Issues
+### Database and image files
 
-- Ensure the database directory (default: `./database/`) exists and is writable
-- The `DATABASE_PATH` env var overrides the default database location
-- Check database file permissions:
+- Data directory (default `./database/`, override with `DATABASE_DIR` in the root
+  `.env`) holds `database.db` + `-wal`/`-shm`; the images directory (default
+  `<DATABASE_DIR>/images`, override with `IMAGES_DIR`) holds the JPEGs
+- Both must exist and be writable — `npm run setup` creates them
+- In Docker the app always uses `/data/database.db` and `/images`; the host side is
+  `DATABASE_DIR` / `IMAGES_DIR`
+- Running the API without Docker? `DATABASE_PATH` and `IMAGES_PATH` in
+  `server/.env` win (absolute paths are used as-is)
+- Check permissions:
   ```bash
-  ls -la /path/to/your/database.db
+  ls -la /path/to/your/database.db /path/to/your/images
   ```
 
 For more detailed troubleshooting, see:

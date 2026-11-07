@@ -55,10 +55,11 @@ npm run dev
 
 The admin panel will be available at `http://localhost:5174` (or the next available port).
 
-**Note**: If your backend server runs on a different port, create a `.env` file in the `admin` folder with:
+**Note**: `npm run dev` already reads `admin/.env.development` (committed), which points at `http://localhost:5001`. If your backend runs on a different port, create `admin/.env.development.local` with:
 
 ```
-VITE_API_BASE=http://localhost:YOUR_PORT/api
+VITE_BACKEND_DEV_MODE=true
+VITE_API_BASE_DEV=http://localhost:YOUR_PORT
 ```
 
 ## Usage
@@ -112,7 +113,7 @@ The admin panel uses the following API endpoints (all require password authentic
 
 ### Environment Variables
 
-The admin panel now supports separate toggles for frontend and backend development modes. Create a `.env` file in the `admin` folder:
+The admin panel supports separate toggles for frontend and backend development modes. `admin/.env.development` (committed) already holds working local values; create `admin/.env.development.local` for personal overrides, or set the values in the root `.env` for Docker builds:
 
 ```env
 # Use Relative API URLs (for nginx proxy - RECOMMENDED for production)

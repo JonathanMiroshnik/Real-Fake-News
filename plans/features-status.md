@@ -120,7 +120,7 @@ by area, with one representative commit as evidence.
 | Lint/format commands at the repo root                                                         | `fdf81d0e`                         |
 | `trust proxy` so the API sees the real client IP/scheme behind nginx                          | `848a217e`                         |
 | Docker startup ordering hardened (no more boot race)                                          | `e10f5e6e`                         |
-| Central env/config documentation (`ENV_CONFIG.md`)                                            | PR #8                              |
+| Central env/config documentation (`docs/configuration.md`, replaced `ENV_CONFIG.md`)          | PR #8                              |
 
 ### 2.6 Quality & documentation
 
