@@ -1,13 +1,21 @@
 # ============================================================
 # docker-compose.yml — real.sensorcensor.xyz (production VPS)
 # ============================================================
-# This repo is deployed alongside PersonalDevOps on the same VPS.
-# The shared nginx (devops-nginx) routes real.sensorcensor.xyz
-# to container "client" on port 80. That container's own nginx
-# handles internal routing to server (API) and admin (panel).
+# Orchestration only. Every value comes from the root .env (see .env.example):
+#   - ${VARS} are interpolated by Compose
+#   - the server also receives .env as env_file (new vars need no compose edit)
+# Precedence inside a container: environment: > env_file: > Dockerfile ENV
 #
-# ⚠️ No ports are exposed to the host — all inter-container
-#    communication is over the devops_shared Docker network.
+# Each service builds from ITS OWN directory (context: ./server, ./client,
+# ./admin), so every app stays self-contained — it can be built, run and
+# relocated on its own:  cd server && docker build -t rfnews-server .
+#
+# This repo is deployed alongside PersonalDevOps on the same VPS. The shared
+# nginx (devops-nginx) routes real.sensorcensor.xyz to container "client" on
+# port 80. That container's own nginx proxies /api to container "server".
+#
+# ⚠️ No ports are exposed to the host — all inter-container communication is
+#    over the devops_shared Docker network.
 # ⚠️ No version: field (deprecated since docker-compose v2).
 # ⚠️ No HEALTHCHECK — the shared nginx handles failures gracefully.
 # ============================================================
@@ -19,45 +27,67 @@ services:
   # -----------------------------
   server:
     build:
-      context: .
-      dockerfile: server/Dockerfile
-      args:
-        - UID=1000
-        - GID=1000
+      context: ./server
+      dockerfile: Dockerfile
     container_name: server
     env_file:
-      - server/.env
+      - .env
     environment:
-      - PORT=5001
-      - DATABASE_PATH=/data/database.db
-      - NODE_ENV=production
-      - CLIENT_URL=https://real.sensorcensor.xyz
-      - RUNWARE_IMAGE_MODEL=runware:z-image@turbo
-      - ENABLE_SCHEDULED_JOBS=true
-      - ENABLE_FAKE_DATA=true
+      PORT: '5001'
+      NODE_ENV: production
+      # Path INSIDE the container — never touches the host namespace.
+      # The host directory is bind-mounted at /data by DATABASE_DIR below, so the
+      # app only ever knows /data/database.db (and /data/images).
+      DATABASE_PATH: /data/database.db
+      # Same idea for the images directory: the container side is fixed at
+      # /images, the host side is IMAGES_DIR. Leave IMAGES_DIR unset and it
+      # follows the database (DATABASE_DIR/images).
+      IMAGES_PATH: /images
+      CLIENT_URL: ${CLIENT_URL:-https://real.sensorcensor.xyz}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      # Required secrets — `docker compose config` fails with these messages
+      DEEPSEEK_API_KEY: '${DEEPSEEK_API_KEY:?DEEPSEEK_API_KEY missing - cp .env.example .env}'
+      NEWSDATA_API_KEY: '${NEWSDATA_API_KEY:?NEWSDATA_API_KEY missing - cp .env.example .env}'
+      RUNWARE_API_KEY: '${RUNWARE_API_KEY:?RUNWARE_API_KEY missing - cp .env.example .env}'
+      ADMIN_PASSWORD: '${ADMIN_PASSWORD:?ADMIN_PASSWORD missing - cp .env.example .env}'
+      # Behaviour toggles
+      RUNWARE_IMAGE_MODEL: ${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
+      ENABLE_SCHEDULED_JOBS: ${ENABLE_SCHEDULED_JOBS:-true}
+      ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-true}
+      DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
-      - ./database:/data:rw
+      # SQLite file (database.db, -wal, -shm). DATABASE_DIR is any directory on
+      # the HOST — absolute paths are recommended and may live outside the repo:
+      # DATABASE_DIR=/var/lib/rfnews
+      # ./database is only the default. Migrating = move the files, change the var.
+      - ${DATABASE_DIR:-./database}:/data:rw
+      # Generated images (originals + compressed copies). IMAGES_DIR defaults to
+      # <DATABASE_DIR>/images, so nothing is required; set it to split images onto
+      # their own disk: IMAGES_DIR=/mnt/big-disk/rfnews-images
+      - ${IMAGES_DIR:-${DATABASE_DIR:-./database}/images}:/images:rw
     restart: unless-stopped
     networks:
       - devops_shared
 
   # -----------------------------
   # Client Frontend — React SPA
-  # Entry point for shared nginx
-  # Listens on internal port 80
+  # Entry point for the shared nginx, listens on internal port 80
   # Routes: / → static files, /api/* → server:5001
+  # VITE_* values are baked in at BUILD time (rebuild to change them)
   # -----------------------------
   client:
     build:
-      context: .
-      dockerfile: client/Dockerfile
+      context: ./client
+      dockerfile: Dockerfile
       args:
-        - VITE_BACKEND_DEV_MODE=false
-        - VITE_API_BASE_DEV=http://localhost:5001
-        - VITE_API_BASE_PROD=http://server:5001
-        - VITE_USE_RELATIVE_API=true
-        - VITE_DEBUG_LOGS=false
-        - VITE_SHOW_HOROSCOPES=true
+        VITE_USE_RELATIVE_API: ${VITE_USE_RELATIVE_API:-true}
+        VITE_BACKEND_DEV_MODE: ${VITE_BACKEND_DEV_MODE:-false}
+        VITE_API_BASE_DEV: ${VITE_API_BASE_DEV:-http://localhost:5001}
+        VITE_API_BASE_PROD: ${VITE_API_BASE_PROD:-http://server:5001}
+        VITE_DEBUG_LOGS: ${VITE_DEBUG_LOGS:-false}
+        VITE_SHOW_HOROSCOPES: ${VITE_SHOW_HOROSCOPES:-true}
+        VITE_SHOW_RECIPES: ${VITE_SHOW_RECIPES:-true}
+        VITE_ARTICLES_CACHE_EXPIRATION_MS: ${VITE_ARTICLES_CACHE_EXPIRATION_MS:-600000}
     container_name: client
     depends_on:
       - server
@@ -72,16 +102,16 @@ services:
   # -----------------------------
   admin:
     build:
-      context: .
-      dockerfile: admin/Dockerfile
+      context: ./admin
+      dockerfile: Dockerfile
       args:
-        - VITE_BACKEND_DEV_MODE=false
-        - VITE_API_BASE_DEV=http://localhost:5001
-        - VITE_API_BASE_PROD=http://server:5001
-        - VITE_USE_RELATIVE_API=true
-        - VITE_FRONTEND_DEV_MODE=false
-        - VITE_CLIENT_URL_DEV=http://localhost:5173
-        - VITE_CLIENT_URL_PROD=https://real.sensorcensor.xyz
+        VITE_USE_RELATIVE_API: ${VITE_USE_RELATIVE_API:-true}
+        VITE_BACKEND_DEV_MODE: ${VITE_BACKEND_DEV_MODE:-false}
+        VITE_API_BASE_DEV: ${VITE_API_BASE_DEV:-http://localhost:5001}
+        VITE_API_BASE_PROD: ${VITE_API_BASE_PROD:-http://server:5001}
+        VITE_FRONTEND_DEV_MODE: ${VITE_FRONTEND_DEV_MODE:-false}
+        VITE_CLIENT_URL_DEV: ${VITE_CLIENT_URL_DEV:-http://localhost:5173}
+        VITE_CLIENT_URL_PROD: ${VITE_CLIENT_URL_PROD:-https://real.sensorcensor.xyz}
     container_name: admin
     depends_on:
       - server
@@ -90,5 +120,12 @@ services:
       - devops_shared
 
 networks:
+  # Shared network owned by the PersonalDevOps stack on this VPS: its nginx
+  # reaches container "client" by name. `external: true` means exactly one thing
+  # — "it already exists, do NOT create it", and that is the only reason a bare
+  # `docker compose up` complains about it. Create it once:
+  #   npm run setup        (or: docker network create devops_shared)
+  # The dev overlay redefines this network as a local, auto-created one, so
+  # `npm run docker:dev` needs no preparation at all.
   devops_shared:
     external: true

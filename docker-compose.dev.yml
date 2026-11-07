@@ -1,45 +1,68 @@
-# Development overrides for docker-compose.yml
-# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# ============================================================
+# docker-compose.dev.yml — LOCAL containerised development overlay
+# ============================================================
+# Usage (the merge is explicit — Compose only auto-merges a file named
+# docker-compose.override.yml, and we deliberately avoid that name):
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+#
+# What it adds:   host port mappings so you can open the apps in a browser
+#                 a project-local network (Compose creates it, so no manual
+#                 `docker network create devops_shared` is needed for dev)
+# What it overrides: environment values that are only correct for local dev
+#
+# Secrets still come from the root .env (env_file: .env in the base file).
+# The VITE_* values below are hardcoded on purpose: they describe "browser on
+# this machine -> containers", which is never a production configuration.
+# ============================================================
 
 services:
   server:
     ports:
       - '5001:5001'
     environment:
-      - NODE_ENV=development
-      - CLIENT_URL=http://localhost:5173
-      - ENABLE_SCHEDULED_JOBS=false
-    # Mount source code for hot reload (optional - requires nodemon in container)
-    # volumes:
-    #   - ./server/src:/app/src:ro
-    #   - ./server/tsconfig.json:/app/tsconfig.json:ro
+      NODE_ENV: development
+      CLIENT_URL: http://localhost:5173
+      # Safety: never run background jobs against real API keys while developing
+      # (they fetch news and generate articles = real API cost).
+      # To test jobs locally, comment this line out or run the server on the host
+      # with ENABLE_SCHEDULED_JOBS=true in server/.env.
+      ENABLE_SCHEDULED_JOBS: 'false'
+      DEBUG_LOGS: ${DEBUG_LOGS:-true}
 
   client:
     ports:
       - '5173:80'
     build:
       args:
-        # In Docker, use relative API URLs with nginx proxy (recommended)
-        # OR use Docker service name 'server' instead of localhost
-        - VITE_USE_RELATIVE_API=true
-        - VITE_BACKEND_DEV_MODE=false # Set to false to use PROD URL (which will be server:5001)
-        - VITE_API_BASE_DEV=http://localhost:5001 # Not used when USE_RELATIVE_API=true
-        - VITE_API_BASE_PROD=http://server:5001 # Docker service name for inter-container communication
-        - VITE_DEBUG_LOGS=true
-        - VITE_SHOW_HOROSCOPES=true
-        - VITE_SHOW_RECIPES=true
+        # Browser -> http://localhost:5173 -> this container's nginx -> server:5001
+        VITE_USE_RELATIVE_API: 'true'
+        VITE_BACKEND_DEV_MODE: 'false'
+        VITE_API_BASE_PROD: http://server:5001
+        VITE_DEBUG_LOGS: 'true'
+        VITE_SHOW_HOROSCOPES: 'true'
+        VITE_SHOW_RECIPES: 'true'
 
   admin:
     ports:
       - '5174:80'
     build:
       args:
-        # Default to dev mode (localhost:5001)
-        - VITE_BACKEND_DEV_MODE=true # true = use localhost:5001, false = use PROD URL
-        - VITE_API_BASE_DEV=http://localhost:5001 # Dev backend URL
-        - VITE_API_BASE_PROD=http://162.0.237.138:5001 # Production backend IP:port
-        - VITE_USE_RELATIVE_API=false
-        - VITE_FRONTEND_DEV_MODE=true
-        - VITE_CLIENT_URL_DEV=http://localhost:5173
-        - VITE_CLIENT_URL_PROD=http://client:80 # Docker service name
+        # Same nginx-proxy trick as the client, so no hardcoded host/IPs and no
+        # CORS: the browser talks to localhost:5174, nginx talks to server:5001
+        VITE_USE_RELATIVE_API: 'true'
+        VITE_BACKEND_DEV_MODE: 'false'
+        VITE_API_BASE_PROD: http://server:5001
+        VITE_FRONTEND_DEV_MODE: 'true'
+        VITE_CLIENT_URL_DEV: http://localhost:5173
+        VITE_CLIENT_URL_PROD: http://client:80
 
+networks:
+  # Dev never talks to the shared VPS nginx, so the same logical network
+  # ("devops_shared", referenced by the services) is realised as a local one that
+  # Compose creates and removes by itself — `npm run docker:dev` therefore needs
+  # no `docker network create` step. Production keeps external: true in the base
+  # file, where the PersonalDevOps nginx owns the real network.
+  devops_shared:
+    external: false
+    name: rfnews-dev

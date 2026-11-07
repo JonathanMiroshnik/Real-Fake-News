@@ -4,6 +4,12 @@
   "description": "**REAL FAKE NEWS**",
   "private": true,
   "scripts": {
+    "setup": "bash scripts/bootstrap.sh",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d",
+    "docker:dev:logs": "docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f server",
+    "docker:dev:down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml down",
+    "docker:prod": "docker compose up --build -d",
+    "docker:down": "docker compose down",
     "format": "prettier --write . && cd client && npx eslint --fix . && cd ../server && npx eslint --fix .",
     "format:check": "prettier --check .",
     "test": "cd client && npm test && cd ../server && npm test",
