@@ -37,11 +37,10 @@ services:
       NODE_ENV: production
       # Path INSIDE the container — never touches the host namespace.
       # The host directory is bind-mounted at /data by DATABASE_DIR below, so the
-      # app only ever knows /data/database.db (and /data/images).
+      # Container-side paths are fixed so the app never depends on the host
+      # layout: DATABASE_PATH and IMAGES_PATH are both REQUIRED by the app and
+      # pinned here. The host side of each mount is DATABASE_DIR / IMAGES_DIR.
       DATABASE_PATH: /data/database.db
-      # Same idea for the images directory: the container side is fixed at
-      # /images, the host side is IMAGES_DIR. Leave IMAGES_DIR unset and it
-      # follows the database (DATABASE_DIR/images).
       IMAGES_PATH: /images
       CLIENT_URL: ${CLIENT_URL:-https://real.sensorcensor.xyz}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
@@ -56,15 +55,16 @@ services:
       ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-true}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
-      # SQLite file (database.db, -wal, -shm). DATABASE_DIR is any directory on
-      # the HOST — absolute paths are recommended and may live outside the repo:
-      # DATABASE_DIR=/var/lib/rfnews
-      # ./database is only the default. Migrating = move the files, change the var.
-      - ${DATABASE_DIR:-./database}:/data:rw
-      # Generated images (originals + compressed copies). IMAGES_DIR defaults to
-      # <DATABASE_DIR>/images, so nothing is required; set it to split images onto
-      # their own disk: IMAGES_DIR=/mnt/big-disk/rfnews-images
-      - ${IMAGES_DIR:-${DATABASE_DIR:-./database}/images}:/images:rw
+      # Both mount sources are REQUIRED: there is no default host directory, so
+      # `docker compose up` stops here instead of silently creating ./database
+      # inside the repo. Set them in the root .env (see .env.example).
+      #
+      # SQLite file (database.db, -wal, -shm). Any directory on the HOST works;
+      # absolute paths are recommended and may live outside the repo.
+      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw'
+      # Generated images (originals + compressed copies). Usually the sibling of
+      # DATABASE_DIR, but it may point at its own disk / quota.
+      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw'
     restart: unless-stopped
     networks:
       - devops_shared

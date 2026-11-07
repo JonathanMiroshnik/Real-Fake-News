@@ -8,14 +8,17 @@
  *
  * The file is located relative to this module, so the server works from any
  * working directory. A missing file is fine (Docker injects env vars instead).
+ * `config/paths.ts` also imports this module, so the `tsx` scripts get the same
+ * treatment as the server.
  */
 import { config } from 'dotenv';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
-// server/src/config -> server/.env   (same depth from server/dist/config)
-const ENV_FILE_PATH = resolve(MODULE_DIR, '../../.env');
+// server/src/config -> server   (same depth from server/dist/config)
+export const SERVER_ROOT = resolve(MODULE_DIR, '../..');
+const ENV_FILE_PATH = resolve(SERVER_ROOT, '.env');
 
 const { error } = config({ path: ENV_FILE_PATH });
 const isMissingEnvFile = (error as NodeJS.ErrnoException | undefined)?.code === 'ENOENT';

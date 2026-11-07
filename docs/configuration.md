@@ -89,7 +89,7 @@ Two consistent ways to remove the duplication:
 # Local containerised dev (publishes 5001 / 5173 / 5174, no background jobs)
 npm run docker:dev          # = docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
 npm run docker:dev:logs     # follow the API container
-npm run docker:dev:down     # stop, keep ./database
+npm run docker:dev:down     # stop, keep your DATABASE_DIR/IMAGES_DIR contents
 
 # Production-like (no host ports, shared VPS network)
 npm run docker:prod         # = docker compose up --build -d
@@ -139,11 +139,16 @@ Compose bind-mounts them at `/data` and `/images` inside the container:
 
 ```bash
 DATABASE_DIR=/var/lib/rfnews                    # absolute: any path, any disk
-# DATABASE_DIR=./database                       # default: inside the repo
+# DATABASE_DIR=./database                       # inside the repo (gitignored)
 
-# IMAGES_DIR unset  → <DATABASE_DIR>/images     (images follow the database)
 IMAGES_DIR=/mnt/big-disk/rfnews-images          # images on their own disk
+# IMAGES_DIR=./database/images                  # or next to the database
 ```
+
+**Both are required — neither has a default.** `docker compose up` aborts with
+`DATABASE_DIR missing - set the host database directory in .env` if either is
+unset, which is deliberate: a silent default used to drop a `database/` folder
+inside the repo. `npm run setup` checks the same two values first.
 
 Only Compose reads these two. Inside the container the API always uses
 `DATABASE_PATH=/data/database.db` and `IMAGES_PATH=/images`, so relocating data
@@ -152,7 +157,8 @@ either: they are served by `GET /api/images/:filename`, never from a raw path.
 
 Why split them? The database is small (a few MB) and wants an SSD; images are the
 bulk of the disk usage and can sit on cheap storage, or get their own quota or
-backup cycle. Keeping `IMAGES_DIR` unset is perfectly fine — that is the default.
+backup cycle. Pointing `IMAGES_DIR` at `<DATABASE_DIR>/images` keeps them together,
+which is what most installs do.
 
 Moving an existing dataset (stop first: SQLite has `-wal`/`-shm` side files):
 
@@ -170,8 +176,15 @@ Host-run API (no Docker)? Then `DATABASE_DIR`/`IMAGES_DIR` are irrelevant — se
 `DATABASE_PATH` and `IMAGES_PATH` in `server/.env` instead, absolute:
 `DATABASE_PATH=/var/lib/rfnews/database.db`,
 `IMAGES_PATH=/mnt/big-disk/rfnews-images`. Relative values resolve against
-`server/`, never against your shell's cwd (`server/src/config/paths.ts`). With
-`IMAGES_PATH` unset, images fall back to `dirname(DATABASE_PATH)/images`.
+`server/`, never against your shell's cwd (`server/src/config/paths.ts`); the
+example file ships `../database/database.db` + `../database/images`.
+
+**These two have no defaults either.** `server/src/config/paths.ts` throws
+`MissingPathConfigError` when either is unset or blank, so a host run fails at
+startup instead of creating a `database/` folder in the repo. `server/.env` is
+loaded relative to the source file (`server/src/config/env.ts`), so every
+entrypoint — `npm run dev`, `node dist/index.js`, the `tsx` scripts — behaves the
+same from any working directory.
 
 The server container runs as **root**, so files it creates in those directories are
 root-owned on the host; removing them later needs `sudo`.
@@ -199,25 +212,25 @@ instead of silently falling back to the production API — the fallback in
 
 ### server (`server/.env` or root `.env`)
 
-| Key                              | Required | Default                         | Notes                                        |
-| -------------------------------- | -------- | ------------------------------- | -------------------------------------------- |
-| `DEEPSEEK_API_KEY`               | yes      | —                               | article text generation                      |
-| `NEWSDATA_API_KEY`               | yes      | —                               | real news fetching                           |
-| `RUNWARE_API_KEY`                | yes      | —                               | AI image generation                          |
-| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback)   | admin panel login                            |
-| `PORT`                           | no       | `5001`                          | internal only                                |
-| `DATABASE_PATH`                  | no       | `<repo>/database/database.db`   | SQLite file; Docker pins `/data/database.db` |
-| `DATABASE_DIR`                   | no       | `./database`                    | host dir mounted at `/data` (compose only)   |
-| `IMAGES_PATH`                    | no       | `dirname(DATABASE_PATH)/images` | images dir; Docker pins `/images`            |
-| `IMAGES_DIR`                     | no       | `<DATABASE_DIR>/images`         | host dir mounted at `/images` (compose only) |
-| `CLIENT_URL`                     | no       | built-in defaults               | CORS + absolute links                        |
-| `ALLOWED_ORIGINS`                | no       | —                               | extra CORS origins, comma-separated          |
-| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                         | cron: news fetch + article writing           |
-| `ENABLE_FAKE_DATA`               | no       | `false`                         | placeholder content when DB empty            |
-| `DEBUG_LOGS`                     | no       | `false`                         | verbose server logging                       |
-| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`         | image model                                  |
-| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                               | reserved, only read by helpers               |
-| `FAKE_IMAGE_*`                   | no       | see example                     | placeholder image generator                  |
+| Key                              | Required | Default                       | Notes                                        |
+| -------------------------------- | -------- | ----------------------------- | -------------------------------------------- |
+| `DEEPSEEK_API_KEY`               | yes      | —                             | article text generation                      |
+| `NEWSDATA_API_KEY`               | yes      | —                             | real news fetching                           |
+| `RUNWARE_API_KEY`                | yes      | —                             | AI image generation                          |
+| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback) | admin panel login                            |
+| `PORT`                           | no       | `5001`                        | internal only                                |
+| `DATABASE_PATH`                  | yes      | —                             | SQLite file; Docker pins `/data/database.db` |
+| `DATABASE_DIR`                   | yes      | —                             | host dir mounted at `/data` (compose only)   |
+| `IMAGES_PATH`                    | yes      | —                             | images dir; Docker pins `/images`            |
+| `IMAGES_DIR`                     | yes      | —                             | host dir mounted at `/images` (compose only) |
+| `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                        |
+| `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated          |
+| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing           |
+| `ENABLE_FAKE_DATA`               | no       | `false`                       | placeholder content when DB empty            |
+| `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                       |
+| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                  |
+| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers               |
+| `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                  |
 
 ### client / admin (`.env.development`, root `.env`, or build args)
 
@@ -249,8 +262,9 @@ The layout follows four rules:
 3. **Paths resolve from the source file, never from `process.cwd()`.**
    `server/src/config/env.ts` loads `server/.env` relative to itself (and is
    imported first, before anything reads `process.env`), and
-   `server/src/lib/database/database.ts` resolves the default SQLite location the
-   same way — so `node dist/index.js` behaves identically from any directory.
+   `server/src/lib/database/database.ts` resolves `DATABASE_PATH` (required, no
+   default) the same way — so `node dist/index.js` behaves identically from any
+   directory.
 4. **Links between apps are URLs from the environment,** never imports. The one
    build-time coupling left is `proxy_pass` in `client/nginx.conf` and
    `admin/nginx.conf`, which hardcodes the Compose service name `server:5001`.
@@ -261,14 +275,16 @@ The layout follows four rules:
 
 ```bash
 cd server && npm ci
-# point at your own database and origins:
+# point at your own database, images and origins (all required from here on):
 echo 'DATABASE_PATH=/srv/realfakenews/database.db' >> .env
+echo 'IMAGES_PATH=/srv/realfakenews/images' >> .env
 echo 'CLIENT_URL=https://your-frontend.example.com' >> .env
 echo 'ALLOWED_ORIGINS=https://admin.your-frontend.example.com' >> .env
 npm run build && npm start          # listens on $PORT (5001)
 ```
 
-It needs the three API keys, `ADMIN_PASSWORD` and a writable `DATABASE_PATH`.
+It needs the three API keys, `ADMIN_PASSWORD` and a writable `DATABASE_PATH` +
+`IMAGES_PATH` (no defaults — it exits with `MissingPathConfigError` otherwise).
 Nothing else from this repo is required.
 
 **client/** or **admin/** — copy the folder, then:
@@ -300,12 +316,15 @@ point the SPA at an absolute API URL unless you bring your own nginx.
   creates it. `external: true` is the _only_ reason Compose will not create it for
   you. Dev mode does not need it: the overlay uses `rfnews-dev`, created and removed
   by Compose automatically.
-- **`DATABASE_DIR` and `IMAGES_DIR` must exist and be writable.** If Docker creates
-  them, they are root-owned and you need `sudo` to delete them.
+- **`DATABASE_DIR` and `IMAGES_DIR` have no defaults** — Compose fails on a
+  missing value rather than writing a `database/` folder into the repo. They must
+  also exist and be writable: if Docker creates them, they are root-owned and you
+  need `sudo` to delete them.
 - **`IMAGES_PATH`/`DATABASE_PATH` are container-internal.** Setting them to a host
   path in the root `.env` has no effect on the containers — the host side of the
-  mount is `IMAGES_DIR`/`DATABASE_DIR`. (`IMAGES_PATH` in `server/.env` is for
-  running the API on the host, where no mount exists.)
+  mount is `IMAGES_DIR`/`DATABASE_DIR`. (`IMAGES_PATH`/`DATABASE_PATH` in
+  `server/.env` are for running the API on the host, where no mount exists, and
+  the server refuses to start without them.)
 - **Changing a `VITE_*` value needs a rebuild**, not a restart.
 - **The root `.env` is also the server's `env_file`**, so the inert `VITE_*` keys show
   up in the container environment. They are public and unused there; that is the

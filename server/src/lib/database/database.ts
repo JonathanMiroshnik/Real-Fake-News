@@ -9,8 +9,8 @@ class DatabaseManager {
   private db: DatabaseType;
 
   private constructor() {
-    // Priority 1: DATABASE_PATH (Docker: /data/database.db, host: any absolute path)
-    // Priority 2: <repo>/database/database.db  — see config/paths.ts
+    // DATABASE_PATH is required (no default) — see config/paths.ts. Docker pins
+    // /data/database.db, a host run sets it in server/.env.
     const dbPath = resolveDatabaseFile();
     const dbDir = path.dirname(dbPath);
 

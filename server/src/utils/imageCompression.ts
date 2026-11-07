@@ -33,10 +33,10 @@ async function getSharp(): Promise<any> {
 /**
  * Gets the images directory path.
  *
- * IMAGES_PATH decides where images live; when it is unset they sit next to the
- * SQLite file (dirname(DATABASE_PATH)/images), so moving the database moves the
- * images with it. The path comes from the same resolver the database uses,
- * keeping the two in sync everywhere (Docker, host, scripts).
+ * IMAGES_PATH is required — there is no "next to the database" fallback, so a
+ * missing value fails loudly in `config/paths.ts` instead of writing images into
+ * an invented directory. The path comes from the same resolver the database
+ * uses, keeping the two in sync everywhere (Docker, host, scripts).
  *
  * @returns Absolute path to the images directory
  */

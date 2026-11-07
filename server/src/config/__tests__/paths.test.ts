@@ -1,6 +1,12 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import path from 'path';
-import { resolveDatabaseFile, resolveImagesDirectory } from '../paths.js';
+import { resolveDatabaseFile, resolveImagesDirectory, MissingPathConfigError } from '../paths.js';
+
+/**
+ * Both data locations are required: `paths.ts` throws instead of inventing a
+ * default, which is the whole point of these tests — an unset variable must fail
+ * loudly, never fall back to a `database/` folder inside the repo.
+ */
 
 const originalDatabasePath = process.env.DATABASE_PATH;
 const originalImagesPath = process.env.IMAGES_PATH;
@@ -22,13 +28,11 @@ const restoreEnv = (): void => {
 describe('resolveDatabaseFile', () => {
   afterEach(restoreEnv);
 
-  it('falls back to <repo>/database/database.db when DATABASE_PATH is unset', () => {
+  it('throws when DATABASE_PATH is unset instead of guessing a location', () => {
     delete process.env.DATABASE_PATH;
 
-    const dbFile = resolveDatabaseFile();
-
-    expect(path.isAbsolute(dbFile)).toBe(true);
-    expect(dbFile.endsWith(path.join('database', 'database.db'))).toBe(true);
+    expect(() => resolveDatabaseFile()).toThrow(MissingPathConfigError);
+    expect(() => resolveDatabaseFile()).toThrow(/DATABASE_PATH is not set/);
   });
 
   it('uses an absolute DATABASE_PATH as-is (any directory on the host)', () => {
@@ -49,35 +53,29 @@ describe('resolveDatabaseFile', () => {
     expect(fromRepoCwd.startsWith('/tmp')).toBe(false);
   });
 
-  it('treats blank and whitespace-only values as unset', () => {
-    delete process.env.DATABASE_PATH;
-    const unsetValue = resolveDatabaseFile();
-
-    expect(resolveDatabaseFile('')).toBe(unsetValue);
-    expect(resolveDatabaseFile('   ')).toBe(unsetValue);
+  it('treats blank and whitespace-only values as missing', () => {
+    expect(() => resolveDatabaseFile('')).toThrow(MissingPathConfigError);
+    expect(() => resolveDatabaseFile('   ')).toThrow(MissingPathConfigError);
   });
 });
 
 describe('resolveImagesDirectory', () => {
   afterEach(restoreEnv);
 
-  it('follows the database file when IMAGES_PATH is unset', () => {
-    process.env.DATABASE_PATH = '/var/lib/rfnews/database.db';
+  it('throws when IMAGES_PATH is unset instead of following the database', () => {
     delete process.env.IMAGES_PATH;
 
-    expect(resolveImagesDirectory()).toBe('/var/lib/rfnews/images');
+    expect(() => resolveImagesDirectory()).toThrow(MissingPathConfigError);
+    expect(() => resolveImagesDirectory()).toThrow(/IMAGES_PATH is not set/);
   });
 
   it('uses an absolute IMAGES_PATH as-is, even on a different disk', () => {
-    process.env.DATABASE_PATH = '/var/lib/rfnews/database.db';
-
     expect(resolveImagesDirectory('/mnt/big-disk/rfnews-images')).toBe(
       '/mnt/big-disk/rfnews-images',
     );
   });
 
   it('resolves a relative IMAGES_PATH against the server dir, not the cwd', () => {
-    process.env.DATABASE_PATH = '/var/lib/rfnews/database.db';
     const fromRepoCwd = resolveImagesDirectory('media/images');
     const originalCwd = process.cwd();
 
@@ -89,14 +87,11 @@ describe('resolveImagesDirectory', () => {
     }
 
     expect(fromRepoCwd.startsWith('/tmp')).toBe(false);
+    expect(fromRepoCwd.endsWith(path.join('media', 'images'))).toBe(true);
   });
 
-  it('treats blank and whitespace-only values as unset', () => {
-    process.env.DATABASE_PATH = '/var/lib/rfnews/database.db';
-    delete process.env.IMAGES_PATH;
-    const unsetValue = resolveImagesDirectory();
-
-    expect(resolveImagesDirectory('')).toBe(unsetValue);
-    expect(resolveImagesDirectory('   ')).toBe(unsetValue);
+  it('treats blank and whitespace-only values as missing', () => {
+    expect(() => resolveImagesDirectory('')).toThrow(MissingPathConfigError);
+    expect(() => resolveImagesDirectory('   ')).toThrow(MissingPathConfigError);
   });
 });

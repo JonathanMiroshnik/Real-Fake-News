@@ -144,7 +144,12 @@ docker compose exec server npm run compress-images
 
 ## Database Location
 
-By default, scripts use the SQLite database at the project root's `database/database.db` directory. Make sure this file exists and is writable.
+Scripts use whatever `DATABASE_PATH` points at (`server/src/config/paths.ts`):
+`/data/database.db` inside the container, or an absolute host path when the API
+runs on the host. There is no fallback — `DATABASE_PATH` and `IMAGES_PATH` are
+required, and a missing value throws `MissingPathConfigError` instead of creating
+a `database/` folder in the repo. `server/.env` is loaded relative to the source
+file, so a `tsx` script works from any working directory.
 
 ## Development Notes
 

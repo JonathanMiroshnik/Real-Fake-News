@@ -317,7 +317,8 @@ To wipe the database and images completely (useful for testing the fallback):
 
 ```bash
 docker compose down
-sudo rm -rf "${DATABASE_DIR:-./database}" "${IMAGES_DIR:-${DATABASE_DIR:-./database}/images}"
+# DATABASE_DIR / IMAGES_DIR are required in .env, so read them instead of assuming:
+sudo rm -rf "$DATABASE_DIR" "$IMAGES_DIR"
 docker compose up --build -d
 ```
 
@@ -374,14 +375,16 @@ After this, the API will return fake content whenever endpoints are hit.
 
 ### Database and image files
 
-- Data directory (default `./database/`, override with `DATABASE_DIR` in the root
-  `.env`) holds `database.db` + `-wal`/`-shm`; the images directory (default
-  `<DATABASE_DIR>/images`, override with `IMAGES_DIR`) holds the JPEGs
-- Both must exist and be writable — `npm run setup` creates them
+- The data directory is whatever `DATABASE_DIR` in the root `.env` points at (there is no
+  default) and holds `database.db` + `-wal`/`-shm`; the images directory is whatever
+  `IMAGES_DIR` points at and holds the JPEGs
+- Both are required — `docker compose up` refuses to start without them, and
+  `npm run setup` creates them
 - In Docker the app always uses `/data/database.db` and `/images`; the host side is
   `DATABASE_DIR` / `IMAGES_DIR`
 - Running the API without Docker? `DATABASE_PATH` and `IMAGES_PATH` in
-  `server/.env` win (absolute paths are used as-is)
+  `server/.env` are required too — the server exits with
+  `MissingPathConfigError` instead of inventing a directory
 - Check permissions:
   ```bash
   ls -la /path/to/your/database.db /path/to/your/images

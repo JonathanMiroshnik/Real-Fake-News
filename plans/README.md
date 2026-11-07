@@ -15,34 +15,33 @@ These documents serve as a reference for:
 
 ## Current session — 7 November 2026
 
-The work for this session has one agreed order. **Each entry below is exactly one commit** — do
-not mix two entries into a single commit even when the diff is small, so every step can be
-reviewed, reverted and bisected on its own. Entry 1 _(staged)_ is already edited in the working
-tree and only needs committing; entries 2–3 were edited as well but are now parked in
-`git stash@{0}` so that commit 1 lands alone (restore instructions under entry 3).
+The work for this session has one agreed order. **Each entry below is exactly one commit** — with
+one deliberate exception: entries 2 and 3 landed as a single commit, because they edit the same
+four docs files (`docker-compose.yml`, `scripts/bootstrap.sh`, `docs/configuration.md`, `README.md`)
+hunk for hunk, and splitting them would mean hand-authoring intermediate versions of those files
+for no review benefit. Entry 1 landed as `73790b05`.
 
-- [ ] **1. Delete dead code, stale build output and unused dependencies.** Repo-root `database/`
+- [x] **1. Delete dead code, stale build output and unused dependencies.** Repo-root `database/`
       folder, `server/src/scripts/migrateToSqlite.ts`, the legacy CJS `server/src/config/constants.js`
       plus its stale `server/dist/` copies (a `prebuild` clean now prevents new ones), the dead
       `seed` npm script (`node data/seed-data.js` — no such file), and the now-dead
       `"allowJs": true` in `server/tsconfig.json` (it only ever existed to pull that one legacy
-      file into the program). _(staged)_ Still to do inside
+      file into the program). _Landed as `73790b05`._ Still to do inside
       the same commit: `server/src/models/admin.ts` + `mongoose` + `@types/mongoose`, and the
       commented-out LowDB/DeepSeek blocks in `specialArticleService.ts` and `constants.ts`.
-- [ ] **2. Require `DATABASE_DIR` and `IMAGES_DIR`; no default host directory.** `docker-compose.yml`
+- [x] **2. Require `DATABASE_DIR` and `IMAGES_DIR`; no default host directory.** `docker-compose.yml`
       fails on a missing value (`${VAR:?…}`), `scripts/bootstrap.sh` stops before creating
-      anything, `.env`/`.env.example`/docs say "required". _(parked in `stash@{0}`)_
-- [ ] **3. Require `DATABASE_PATH` and `IMAGES_PATH`; no default data location.**
+      anything, `.env`/`.env.example`/docs say "required". _Landed with entry 3._
+- [x] **3. Require `DATABASE_PATH` and `IMAGES_PATH`; no default data location.**
       `config/paths.ts` throws `MissingPathConfigError`, `config/env.ts` exports `SERVER_ROOT`,
       bootstrap checks `server/.env`, `paths.test.ts` asserts the throws, docs updated.
-      _(parked in `stash@{0}`)_
+      _Landed with entry 2._
 
-> **Restoring 2–3:** `git stash pop` brings back all 11 files. `server/src/scripts/README.md` had
-> to be split by hand (its `migrateToSqlite.ts` removals belong to commit 1, its `## Database
-Location` rewrite to commit 3), so that one paragraph is _not_ in the stash — re-apply it with
-> `git apply ~/.cache/rfn-stage23/stage3-scripts-readme.patch`. A full backup of both stages as a
-> single diff (pre-split) is at `~/.cache/rfn-stage23/stage23-full.patch`. Restoring a single file
-> instead: `git stash show -p stash@{0} -- <path> | git apply`.
+_Where entries 2–3 stand:_ both are committed together — they were one working-tree change-set and
+their doc hunks interleave. Commit 1 needed `server/src/scripts/README.md` split by hand: its
+`migrateToSqlite.ts` removals went into `73790b05`, its `## Database Location` rewrite went with
+entry 3. The snapshots in `~/.cache/rfn-stage23/` are historical backups only; do not apply them on
+top of `73790b05`.
 
 - [ ] **4. Fix the nginx proxy: forward the request URI.** `proxy_pass $backend_server$request_uri;`
       in `client/nginx.conf` and `admin/nginx.conf` — with a variable in `proxy_pass` nginx drops

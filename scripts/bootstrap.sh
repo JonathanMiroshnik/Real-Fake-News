@@ -11,6 +11,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REQUIRED_KEYS=(DEEPSEEK_API_KEY NEWSDATA_API_KEY RUNWARE_API_KEY ADMIN_PASSWORD)
+# Required by the server itself (src/config/paths.ts throws without them), and
+# only ever set in server/.env because the containers get their paths from Compose.
+SERVER_REQUIRED_KEYS=(DATABASE_PATH IMAGES_PATH)
 PLACEHOLDER_PATTERN='your_[a-z_]+_here|changeme123'
 DOCKER_NETWORK='devops_shared'
 
@@ -41,16 +44,38 @@ report_placeholders() {
   done
 }
 
+# Prints the data-location keys that server/.env does not set.
+# The server has no defaults for these (src/config/paths.ts), so a missing value
+# would only surface as a crash on the first `npm run dev`.
+report_missing_server_paths() {
+  local env_file="$1"
+  local key value
+
+  for key in "${SERVER_REQUIRED_KEYS[@]}"; do
+    value="$(grep -E "^${key}=" "$env_file" | tail -n1 | cut -d= -f2- || true)"
+
+    if [[ -z "$value" ]]; then
+      echo "  x ${key} (server/.env)"
+    fi
+  done
+}
+
 # Prints the absolute host directory configured in .env for a variable.
 # Relative values resolve against the repo root, matching docker-compose.yml.
-# Usage: resolve_host_dir DATABASE_DIR ./database
+# No default on purpose: both mount sources must be explicit, so a forgotten
+# value fails here and in `docker compose up` instead of quietly writing into
+# the repo.
+# Usage: resolve_host_dir DATABASE_DIR
 resolve_host_dir() {
   local env_var="$1"
-  local default_dir="$2"
   local configured_dir
 
   configured_dir="$(grep -E "^${env_var}=" "$REPO_ROOT/.env" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
-  configured_dir="${configured_dir:-$default_dir}"
+
+  if [[ -z "$configured_dir" ]]; then
+    echo "  x ${env_var} is not set in .env" >&2
+    return 1
+  fi
 
   if [[ "$configured_dir" != /* ]]; then
     configured_dir="$REPO_ROOT/${configured_dir#./}"
@@ -60,12 +85,13 @@ resolve_host_dir() {
 }
 
 # Creates the two host directories docker-compose.yml bind-mounts.
-# Images default to <DATABASE_DIR>/images — the same rule compose applies.
+# Both variables are required — compose refuses to start without them, so this
+# fails first with a clearer message.
 ensure_data_dirs() {
   local database_dir images_dir
 
-  database_dir="$(resolve_host_dir DATABASE_DIR './database')"
-  images_dir="$(resolve_host_dir IMAGES_DIR "${database_dir}/images")"
+  database_dir="$(resolve_host_dir DATABASE_DIR)" || return 1
+  images_dir="$(resolve_host_dir IMAGES_DIR)" || return 1
 
   create_host_dir "$database_dir" '/data'
   create_host_dir "$images_dir" '/images'
@@ -119,7 +145,11 @@ main() {
   copy_if_missing server/.env.example server/.env
 
   echo "2) Filesystem + docker prerequisites"
-  ensure_data_dirs
+  if ! ensure_data_dirs; then
+    echo
+    echo "Set DATABASE_DIR and IMAGES_DIR in .env (see .env.example), then re-run: npm run setup"
+    exit 1
+  fi
   ensure_docker_network
 
   echo "3) Checking required values in .env"
@@ -130,6 +160,18 @@ main() {
     echo "$missing"
     echo
     echo "Fill these in .env (see docs/configuration.md), then re-run: npm run setup"
+    exit 1
+  fi
+
+  echo "4) Checking data locations in server/.env"
+  local missing_paths
+  missing_paths="$(report_missing_server_paths server/.env)"
+
+  if [[ -n "$missing_paths" ]]; then
+    echo "$missing_paths"
+    echo
+    echo "Set DATABASE_PATH and IMAGES_PATH in server/.env (see server/.env.example),"
+    echo "then re-run: npm run setup   (the server has no defaults for them)"
     exit 1
   fi
 
