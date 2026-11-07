@@ -43,7 +43,7 @@ their doc hunks interleave. Commit 1 needed `server/src/scripts/README.md` split
 entry 3. The snapshots in `~/.cache/rfn-stage23/` are historical backups only; do not apply them on
 top of `73790b05`.
 
-- [ ] **4. Fix the nginx proxy: forward the request URI.** `proxy_pass $backend_server$request_uri;`
+- [x] **4. Fix the nginx proxy: forward the request URI.** `proxy_pass $backend_server$request_uri;`
       in `client/nginx.conf` and `admin/nginx.conf` — with a variable in `proxy_pass` nginx drops
       the URI, so every `/api/*` arrives as `GET /api` and 404s. Needed to verify anything else.
 - [ ] **5. Add a deterministic dev seeder backed by mock content.** `seedDevData.ts` +
