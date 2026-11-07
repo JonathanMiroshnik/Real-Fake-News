@@ -75,6 +75,18 @@ result of every later step; 5–7 give dev a real write path and only then retir
 crutch; 8–9 finish the job layer; 10–12 touch the fewest files last, so a late change of mind is
 cheap.
 
+## Not yet ordered — next session
+
+These are agreed but deliberately unsequenced, so they stay out of the 7 November commit order:
+
+- [ ] **13. Give the featured article one owner.** Today it is a random `randomInt` pick by a
+      midnight cron into `blog_posts.isFeatured`/`featuredDate`, duplicated by a dead
+      `featured_blog_posts` table, and masked in dev by `generateFakeFeaturedArticle()`
+      returning a UUID that was never persisted. Phase 0 (seeder pins one article, two
+      articles inside the last hour) unblocks dev review immediately; then one service,
+      deterministic selection, lazy derivation on read, and admin pin/unpin →
+      `plans/featured-articles.md`.
+
 ## Convention
 
 - Each file is named `kebab-case-description.md`
@@ -91,6 +103,7 @@ cheap.
 | `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                 |
 | `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler          |
 | `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phase 1 done) |
+| `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback         |
 | `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                        |
 | `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code          |
 
