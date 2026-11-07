@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
-// ⚠️ Import from the .ts file directly, not .js.
-// constants.js is a legacy compiled file that is missing many exports.
-// Using .ts extension ensures Vitest resolves to the TypeScript source.
-// Test files are excluded from tsc compilation via tsconfig.json, so
-// the .ts extension won't cause issues with the production build.
+// The legacy compiled `src/config/constants.js` that used to shadow this module is gone,
+// so the normal `.js` specifier (resolved to `constants.ts` by Vitest/tsx) is safe again.
 import {
   VALID_CATEGORIES,
   MIN_MINUTES_BEFORE_TO_CHECK,
@@ -13,7 +10,7 @@ import {
   DAY_MILLISECS,
   ONE_HOUR_MILLISECS,
   TEN_MINUTES_MILLISECONDS,
-} from '../constants.ts';
+} from '../constants.js';
 
 describe('Configuration Constants', () => {
   describe('Categories', () => {

@@ -69,27 +69,7 @@ docker compose exec server npm run generate-mock-data --writers 3 --articles 10 
 - Image URLs for head images (example.com placeholder)
 - Progress indicators with emojis for visual feedback
 
-### 2. `migrateToSqlite.ts` - Database Migration Script
-
-**Purpose:** Migrates data from JSON files to SQLite database.
-
-**Usage:**
-
-```bash
-npm run migrate
-```
-
-**What it does:**
-
-- Migrates blog posts from `data/blogPosts.json`
-- Migrates news items from `data/newsData.json`
-- Migrates writers from `data/writers.json`
-- Migrates featured blog posts from `data/featuredBlogPosts.json`
-- Creates SQLite schema if not exists
-- Handles duplicates gracefully
-- Provides migration summary with counts
-
-### 3. `compressExistingImages.ts` - Image Compression Script
+### 2. `compressExistingImages.ts` - Image Compression Script
 
 **Purpose:** Compresses existing images in the media directory.
 
@@ -152,7 +132,6 @@ Without Docker:
 ```bash
 cd server
 npm run generate-mock-data [options]
-npm run migrate
 npm run compress-images
 ```
 
@@ -160,7 +139,6 @@ With Docker:
 
 ```bash
 docker compose exec server npm run generate-mock-data [options]
-docker compose exec server npm run migrate
 docker compose exec server npm run compress-images
 ```
 

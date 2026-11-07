@@ -45,13 +45,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov', 'json'],
       include: ['src/**/*.ts'],
-      exclude: [
-        'src/**/*.test.ts',
-        'src/**/*.spec.ts',
-        'src/**/*.d.ts',
-        'src/config/constants.js', // Legacy JS file
-        'src/**/README.md',
-      ],
+      exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/*.d.ts', 'src/**/README.md'],
       // Fail if coverage drops below these thresholds
       thresholds: {
         statements: 40,

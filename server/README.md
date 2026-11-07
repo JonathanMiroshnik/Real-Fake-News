@@ -21,7 +21,7 @@ client (nginx proxy) → server:5001
 - **`services/`** — Business logic (blogService, recipeService, horoscopeService, newsService, llmService, imageService, fakeDataService)
 - **`lib/database/`** — SQLite database layer (schema.ts, database.ts, sqliteOperations.ts, databaseConfigurations.ts)
 - **`jobs/`** — Cron/scheduled tasks (news fetching, article generation, horoscope generation)
-- **`scripts/`** — CLI utilities (generateMockData, generateFakeImage, migrateToSqlite)
+- **`scripts/`** — CLI utilities (generateMockData, generateFakeImage, compressExistingImages)
 - **`types/`** — TypeScript interfaces (ArticleScheme, RecipeScheme, Writer, Horoscope)
 - **`utils/`** — Shared utilities (imageCompression, debugLogger, general)
 
