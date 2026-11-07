@@ -30,6 +30,44 @@ services:
       ENABLE_SCHEDULED_JOBS: 'false'
       DEBUG_LOGS: ${DEBUG_LOGS:-true}
 
+  # One-shot content seeder — `docker compose up` populates an empty dev
+  # database and then exits (restart: "no"), so `npm run docker:dev` yields a
+  # site with content instead of an empty feed.
+  #
+  # Safe to leave in the stack: the seeder is idempotent, so every restart after
+  # the first is a no-op that prints "already seeded".
+  # To wipe and rewrite the seeded content:
+  #   docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+  #     run --rm seed node --no-warnings dist/scripts/seedDevData.js --reset
+  seed:
+    build:
+      # Same context as `server`, so Docker reuses the cached build layers and
+      # the seed runs exactly the code the API runs (dist/, not src/).
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: seed
+    command: ['node', '--no-warnings', 'dist/scripts/seedDevData.js']
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      # Same pinned container paths as the server: one database, one image dir.
+      DATABASE_PATH: /data/database.db
+      IMAGES_PATH: /images
+      # The seeder needs no API keys and must not start the scheduler.
+      ENABLE_SCHEDULED_JOBS: 'false'
+      DEBUG_LOGS: ${DEBUG_LOGS:-true}
+    volumes:
+      # Identical mounts to `server` — a seed that wrote somewhere else would be
+      # invisible to the API.
+      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw'
+      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw'
+    depends_on:
+      - server
+    restart: 'no'
+    networks:
+      - devops_shared
+
   client:
     ports:
       - '5173:80'

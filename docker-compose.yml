@@ -52,7 +52,9 @@ services:
       # Behaviour toggles
       RUNWARE_IMAGE_MODEL: ${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
       ENABLE_SCHEDULED_JOBS: ${ENABLE_SCHEDULED_JOBS:-true}
-      ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-true}
+      # Off by default: production must never invent content at read time.
+      # Dev content is seeded explicitly (see docker-compose.dev.yml `seed`).
+      ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-false}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
       # Both mount sources are REQUIRED: there is no default host directory, so

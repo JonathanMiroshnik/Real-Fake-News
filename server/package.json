@@ -13,7 +13,8 @@
     "start": "node --no-warnings dist/index.js",
     "prestart": "npm run build",
     "compress-images": "tsx src/scripts/compressExistingImages.ts",
-    "generate-mock-data": "tsx src/scripts/generateMockData.ts",
+    "seed:dev": "tsx src/scripts/seedDevData.ts",
+    "seed:reset": "tsx src/scripts/seedDevData.ts --reset",
     "generate-fake-image": "tsx src/scripts/generateFakeImage.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"

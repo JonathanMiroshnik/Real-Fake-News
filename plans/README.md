@@ -46,7 +46,7 @@ top of `73790b05`.
 - [x] **4. Fix the nginx proxy: forward the request URI.** `proxy_pass $backend_server$request_uri;`
       in `client/nginx.conf` and `admin/nginx.conf` — with a variable in `proxy_pass` nginx drops
       the URI, so every `/api/*` arrives as `GET /api` and 404s. Needed to verify anything else.
-- [ ] **5. Add a deterministic dev seeder backed by mock content.** `seedDevData.ts` +
+- [x] **5. Add a deterministic dev seeder backed by mock content.** `seedDevData.ts` +
       `contentSources/mocks/mockContent.ts`, `seed:dev`/`seed:reset`, one-shot `seed` service in
       the dev overlay → `plans/dev-content-seeding.md` Phase 1.
 - [ ] **6. Inject content-source ports so jobs run without API keys.**
@@ -85,14 +85,14 @@ cheap.
 
 ## Current Plans
 
-| File                             | Status     | Priority | Description                                                                            |
-| -------------------------------- | ---------- | -------- | -------------------------------------------------------------------------------------- |
-| `testing-suite.md`               | Completed  | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces |
-| `admin-server-side-auth-gate.md` | Planned    | High     | Prevent admin frontend from being served without valid password                        |
-| `horoscope-cron-wiring.md`       | Planned    | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler |
-| `dev-content-seeding.md`         | Planned    | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters       |
-| `api-origin-and-rest-shape.md`   | Discussion | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape               |
-| `features-status.md`             | Reference  | —        | Living inventory of merged vs. abandoned features and where each one lives in the code |
+| File                             | Status      | Priority | Description                                                                                     |
+| -------------------------------- | ----------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `testing-suite.md`               | Completed   | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces          |
+| `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                 |
+| `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler          |
+| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phase 1 done) |
+| `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                        |
+| `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code          |
 
 ## Feature Status
 

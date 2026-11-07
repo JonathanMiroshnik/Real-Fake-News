@@ -179,64 +179,58 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 docker compose down
 ```
 
-### Generate Mock Data
+### Seed Dev Content
 
-To populate the database with sample data for testing and development:
-
-**Using Docker Compose:**
-
-```bash
-docker compose exec server npm run generate-mock-data
-```
-
-**Or with custom options:**
+The dev overlay starts a one-shot `seed` service, so `npm run docker:dev` gives you
+a populated site. The same seeder runs on the host when you develop without Docker:
 
 ```bash
-docker compose exec server npm run generate-mock-data --writers 3 --articles 10 --recipes 5 --no-foods
+cd server
+npm run seed:dev        # insert anything missing (idempotent)
+npm run seed:reset      # delete the seeded rows + images, then re-insert
 ```
 
-**Available options:**
+**Or from inside the containers:**
 
-- `--writers <number>`: Number of writers to generate (default: 5)
-- `--articles <number>`: Number of articles to generate (default: 20)
-- `--news-items <number>`: Number of news items to generate (default: 15)
-- `--featured <number>`: Number of featured articles to generate (default: 5)
-- `--recipes <number>`: Number of recipes to generate (default: 10)
-- `--horoscopes <number>`: Number of horoscopes to generate (default: 24)
-- `--no-foods`: Skip inserting food names (default: insert foods)
-- `--help, -h`: Show help message
+```bash
+docker compose exec server npm run seed:dev
+docker compose exec server npm run seed:dev -- --reset
+```
+
+**Options:**
+
+- `--reset`: Delete previously seeded rows and their images before writing
+- `--force`: Overwrite rows that already exist (default: skip them)
+- `--seed <n>`: PRNG seed for the placeholder images (default: fixed → byte-identical output)
+- `--help, -h`: Show help
 
 **Examples:**
 
 ```bash
-# Generate default amount of data
-docker compose exec server npm run generate-mock-data
+# Seed everything that is missing
+npm run seed:dev
 
-# Generate minimal data
-docker compose exec server npm run generate-mock-data --writers 2 --articles 5
+# Rewrite the seeded content from scratch
+npm run seed:dev -- --reset
 
-# Generate data without food entries
-docker compose exec server npm run generate-mock-data --no-foods
-
-# Show help
-docker compose exec server npm run generate-mock-data --help
+# Same content, different placeholder images
+npm run seed:dev -- --seed 42
 ```
 
-The mock data generator creates realistic sample data including:
+What it writes: 5 writers, 20 articles (spread over the last week), 15 news items,
+10 recipes, 5 food names and today's 12 horoscopes — plus a real placeholder PNG
+per writer/article/recipe under `IMAGES_PATH` (original + compressed copy).
 
-- Writers with profiles and system prompts
-- Articles with different categories (Technology, Travel, Food, Science, etc.)
-- News items with breaking news
-- Featured articles with multiple authors and sub-articles
-- Recipes with ingredients and instructions
-- Horoscopes with astrological data
-- Basic food names for recipe generation
+The content lives in `server/src/services/contentSources/mocks/` as typed
+TypeScript, not JSON or a committed database: a schema change becomes a compile
+error, and review shows exactly what a new article says. Rows are keyed `dev-…`,
+which is what makes a second run a no-op and `--reset` precise.
 
-All data is inserted into the SQLite database and includes realistic Lorem Ipsum content, dates within the past year, and proper relationships between entities.
+The seeder refuses to run with `NODE_ENV=production` unless `--force` is passed.
 
 ## Fake Data Fallback
 
-When the database is empty (fresh deployment, demo, or during development), the API can automatically generate placeholder content so the frontend always has something to display. This is controlled by the `ENABLE_FAKE_DATA` environment variable.
+When the database is empty (fresh deployment, demo, or during development), the API can automatically generate placeholder content so the frontend always has something to display. This is controlled by the `ENABLE_FAKE_DATA` environment variable — **off by default**, because production must never invent content at read time. For development, seed real rows instead (`npm run seed:dev`).
 
 ### How it works
 
@@ -260,8 +254,8 @@ When the database is empty (fresh deployment, demo, or during development), the 
 Set in `server/.env`:
 
 ```env
-# Enable/disable fake data fallback
-ENABLE_FAKE_DATA=true
+# Enable/disable fake data fallback (default: off)
+ENABLE_FAKE_DATA=false
 ```
 
 ### Tiled Placeholder Images

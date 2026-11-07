@@ -212,25 +212,25 @@ instead of silently falling back to the production API — the fallback in
 
 ### server (`server/.env` or root `.env`)
 
-| Key                              | Required | Default                       | Notes                                        |
-| -------------------------------- | -------- | ----------------------------- | -------------------------------------------- |
-| `DEEPSEEK_API_KEY`               | yes      | —                             | article text generation                      |
-| `NEWSDATA_API_KEY`               | yes      | —                             | real news fetching                           |
-| `RUNWARE_API_KEY`                | yes      | —                             | AI image generation                          |
-| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback) | admin panel login                            |
-| `PORT`                           | no       | `5001`                        | internal only                                |
-| `DATABASE_PATH`                  | yes      | —                             | SQLite file; Docker pins `/data/database.db` |
-| `DATABASE_DIR`                   | yes      | —                             | host dir mounted at `/data` (compose only)   |
-| `IMAGES_PATH`                    | yes      | —                             | images dir; Docker pins `/images`            |
-| `IMAGES_DIR`                     | yes      | —                             | host dir mounted at `/images` (compose only) |
-| `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                        |
-| `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated          |
-| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing           |
-| `ENABLE_FAKE_DATA`               | no       | `false`                       | placeholder content when DB empty            |
-| `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                       |
-| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                  |
-| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers               |
-| `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                  |
+| Key                              | Required | Default                       | Notes                                                 |
+| -------------------------------- | -------- | ----------------------------- | ----------------------------------------------------- |
+| `DEEPSEEK_API_KEY`               | yes      | —                             | article text generation                               |
+| `NEWSDATA_API_KEY`               | yes      | —                             | real news fetching                                    |
+| `RUNWARE_API_KEY`                | yes      | —                             | AI image generation                                   |
+| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback) | admin panel login                                     |
+| `PORT`                           | no       | `5001`                        | internal only                                         |
+| `DATABASE_PATH`                  | yes      | —                             | SQLite file; Docker pins `/data/database.db`          |
+| `DATABASE_DIR`                   | yes      | —                             | host dir mounted at `/data` (compose only)            |
+| `IMAGES_PATH`                    | yes      | —                             | images dir; Docker pins `/images`                     |
+| `IMAGES_DIR`                     | yes      | —                             | host dir mounted at `/images` (compose only)          |
+| `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                                 |
+| `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated                   |
+| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing                    |
+| `ENABLE_FAKE_DATA`               | no       | `false`                       | placeholder content when DB empty (dev: seed instead) |
+| `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                                |
+| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                           |
+| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers                        |
+| `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                           |
 
 ### client / admin (`.env.development`, root `.env`, or build args)
 
@@ -330,7 +330,10 @@ point the SPA at an absolute API URL unless you bring your own nginx.
   up in the container environment. They are public and unused there; that is the
   price of a single root file.
 - **`ADMIN_PASSWORD` has a `changeme123` fallback in code.** Always set it.
-- **`npm run seed` is stale** — it reads `server/data/`, which no longer exists; use
-  `npm run generate-mock-data` instead.
+- **Dev content is seeded, not generated on read.** `npm run seed:dev` (or the
+  one-shot `seed` service in `docker-compose.dev.yml`) writes rows with
+  `dev-…` keys plus real placeholder images; `npm run seed:reset` removes exactly
+  those. The old `npm run seed` / `npm run generate-mock-data` scripts are gone —
+  both read `server/data/`, which no longer exists.
 - **Unknown `VITE_*` names are silently ignored.** Vite only inlines declared keys,
   so a typo becomes `undefined` at runtime instead of an error.

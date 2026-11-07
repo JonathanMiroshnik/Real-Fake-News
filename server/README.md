@@ -21,7 +21,7 @@ client (nginx proxy) → server:5001
 - **`services/`** — Business logic (blogService, recipeService, horoscopeService, newsService, llmService, imageService, fakeDataService)
 - **`lib/database/`** — SQLite database layer (schema.ts, database.ts, sqliteOperations.ts, databaseConfigurations.ts)
 - **`jobs/`** — Cron/scheduled tasks (news fetching, article generation, horoscope generation)
-- **`scripts/`** — CLI utilities (generateMockData, generateFakeImage, compressExistingImages)
+- **`scripts/`** — CLI utilities (seedDevData, generateFakeImage, compressExistingImages)
 - **`types/`** — TypeScript interfaces (ArticleScheme, RecipeScheme, Writer, Horoscope)
 - **`utils/`** — Shared utilities (imageCompression, debugLogger, general)
 
@@ -43,9 +43,19 @@ When the database is empty, the API can return auto-generated placeholder conten
 # Generate a placeholder image
 npm run generate-fake-image -- --width 896 --height 512 --tiles-x 8 --tiles-y 6
 
-# Generate mock database data
-npm run generate-mock-data
+# Seed the dev database with mock content (writers, articles, news, recipes, horoscopes)
+npm run seed:dev
+npm run seed:reset        # wipe the seeded rows + images first
 ```
+
+### Placeholder images
+
+The tiled placeholder drawing lives in `src/utils/placeholderImage.ts`
+(`createTilePlaceholderImage`). `fakeDataService.generatePlaceholderImage()` and
+the dev seeder both call it, so there is one image implementation, not two.
+
+`ENABLE_FAKE_DATA` is off by default: production must never invent content at
+read time. Dev content is seeded explicitly with `npm run seed:dev`.
 
 ## Production Deployment
 

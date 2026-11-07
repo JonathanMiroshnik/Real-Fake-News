@@ -1,6 +1,6 @@
 # Dev Content: Deterministic Seeder + Content-Source Adapters
 
-> **Status:** Planned · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
+> **Status:** In Progress (Phase 1 done) · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
 
 ## Problem
 
@@ -91,21 +91,37 @@ Rules that keep it simple:
 
 ## Phase 1 — deterministic seeder
 
-- [ ] Add `server/src/services/contentSources/mocks/mockContent.ts`: 5 writers, ~20 articles over the
+- [x] Add `server/src/services/contentSources/mocks/mockContent.ts`: 5 writers, ~20 articles over the
       last week, 15 news items, 10 recipes, 12 horoscopes (today), 5 foods
-- [ ] Rewrite `generateMockData.ts` → `server/src/scripts/seedDevData.ts`
+- [x] Rewrite `generateMockData.ts` → `server/src/scripts/seedDevData.ts`
       (write via `sqliteOperations`, images via `generatePlaceholderImage()`, no
       `https://example.com/images/...` URLs)
-- [ ] Flags: `--reset`, `--force`, `--seed <n>`; `NODE_ENV=production` guard
-- [ ] `server/package.json`: add `seed:dev` / `seed:reset`; delete `generate-mock-data`
-- [ ] `docker-compose.dev.yml`: one-shot `seed` service
+- [x] Flags: `--reset`, `--force`, `--seed <n>`; `NODE_ENV=production` guard
+- [x] `server/package.json`: add `seed:dev` / `seed:reset`; delete `generate-mock-data`
+- [x] `docker-compose.dev.yml`: one-shot `seed` service
       (`command: ["node","--no-warnings","dist/scripts/seedDevData.js"]`, same `env_file`,
       same `/data` + `/images` volumes, `restart: "no"`), so `npm run docker:dev` yields a
       populated site
-- [ ] Stop `docker-compose.yml` from defaulting `ENABLE_FAKE_DATA: true` (production must not
+- [x] Stop `docker-compose.yml` from defaulting `ENABLE_FAKE_DATA: true` (production must not
       invent content); keep `false` until Phase 2 removes the flag
-- [ ] Docs: replace the "`npm run seed` is stale" gotcha in `docs/configuration.md`, update
+- [x] Docs: replace the "`npm run seed` is stale" gotcha in `docs/configuration.md`, update
       `server/src/scripts/README.md`
+
+Implementation notes (where the code differs from the sketch above, and why):
+
+- **Idempotency is per row, not per table.** The sketch said "if `blog_posts` is non-empty,
+  exit 0". The seeder instead keys every row `dev-…` and skips keys that already exist, so an
+  interrupted run repairs itself and `--reset` can name exactly what it deletes. A complete
+  second run still inserts nothing and prints "already seeded".
+- **The image helper moved.** `generatePlaceholderImage()` in `fakeDataService` is a
+  feature-flagged wrapper (`ENABLE_FAKE_DATA`) around the drawing code, so the seeder could not
+  use it. The drawing now lives in `utils/placeholderImage.ts`
+  (`createTilePlaceholderImage`); `fakeDataService` and the seeder call it, no duplication.
+- **`--force` deletes then inserts**, because the write path (`createPost`) has no update.
+
+Verified by hand: seed → 67 rows + 70 image files; second run → 0 inserted, 67 skipped;
+`--reset` → 137 removed (67 rows + 70 files) then re-seeded; `--force` → same image bytes
+(md5 unchanged); `NODE_ENV=production` → exits 1 with the guard message.
 
 ## Phase 2 — drop the read-time fake fallback
 

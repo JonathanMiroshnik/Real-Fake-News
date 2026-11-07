@@ -1,14 +1,14 @@
 import 'dotenv/config';
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path';
-import fs from 'fs';
-import { Jimp, rgbaToInt } from 'jimp';
 import { getUniqueKey } from '../utils/general.js';
 import { debugLog } from '../utils/debugLogger.js';
 import { ArticleScheme, RecipeScheme, BlogResponse } from '../types/article.js';
 import { Writer } from '../types/writer.js';
 import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
-import { getImagesDirectory } from '../utils/imageCompression.js';
+import {
+  createTilePlaceholderImage,
+  getPlaceholderImageConfig,
+  type PlaceholderImageConfig,
+} from '../utils/placeholderImage.js';
 
 /**
  * Whether fake data fallback is enabled.
@@ -84,73 +84,15 @@ function pickUniqueRandomElements<T>(array: T[], count: number): T[] {
   return shuffled.slice(0, count);
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
 // ---------------------------------------------------------------------------
 // Tiled placeholder image generator
 // ---------------------------------------------------------------------------
 
-/**
- * Configuration for the tiled placeholder image generation.
- *
- * Can be overridden via environment variables:
- * - FAKE_IMAGE_WIDTH        (default: 896)  Actual image width in pixels
- * - FAKE_IMAGE_HEIGHT       (default: 512)  Actual image height in pixels
- * - FAKE_IMAGE_TILES_X      (default: 8)    Number of tiles horizontally
- * - FAKE_IMAGE_TILES_Y      (default: 6)    Number of tiles vertically
- * - FAKE_IMAGE_COLOR_MIN_R  (default: 30)   Minimum red value (0-255)
- * - FAKE_IMAGE_COLOR_MAX_R  (default: 225)  Maximum red value (0-255)
- * - FAKE_IMAGE_COLOR_MIN_G  (default: 30)   Minimum green value (0-255)
- * - FAKE_IMAGE_COLOR_MAX_G  (default: 225)  Maximum green value (0-255)
- * - FAKE_IMAGE_COLOR_MIN_B  (default: 30)   Minimum blue value (0-255)
- * - FAKE_IMAGE_COLOR_MAX_B  (default: 225)  Maximum blue value (0-255)
- */
-export interface PlaceholderImageConfig {
-  /** Image width in pixels */
-  width: number;
-  /** Image height in pixels */
-  height: number;
-  /** Number of tiles horizontally */
-  tilesX: number;
-  /** Number of tiles vertically */
-  tilesY: number;
-  /** Minimum RGB channel values (inclusive) */
-  colorMin: { r: number; g: number; b: number };
-  /** Maximum RGB channel values (inclusive) */
-  colorMax: { r: number; g: number; b: number };
-}
-
-/**
- * Reads PlaceholderImageConfig from environment variables,
- * falling back to defaults for any missing values.
- */
-export function getPlaceholderImageConfig(): PlaceholderImageConfig {
-  return {
-    width: parseInt(process.env.FAKE_IMAGE_WIDTH || '896', 10),
-    height: parseInt(process.env.FAKE_IMAGE_HEIGHT || '512', 10),
-    tilesX: parseInt(process.env.FAKE_IMAGE_TILES_X || '8', 10),
-    tilesY: parseInt(process.env.FAKE_IMAGE_TILES_Y || '6', 10),
-    colorMin: {
-      r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_R || '30', 10), 0, 255),
-      g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_G || '30', 10), 0, 255),
-      b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MIN_B || '30', 10), 0, 255),
-    },
-    colorMax: {
-      r: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_R || '225', 10), 0, 255),
-      g: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_G || '225', 10), 0, 255),
-      b: clamp(parseInt(process.env.FAKE_IMAGE_COLOR_MAX_B || '225', 10), 0, 255),
-    },
-  };
-}
-
-/**
- * Generates a random integer in [min, max] inclusive.
- */
-function randomChannel(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// The drawing code lives in utils/placeholderImage.ts so that write paths which
+// are NOT the read-time fallback (the dev seeder) can use it with
+// ENABLE_FAKE_DATA=false. Re-exported here to keep the existing imports working.
+export { getPlaceholderImageConfig };
+export type { PlaceholderImageConfig };
 
 /**
  * Generates a tiled-color placeholder image and saves it to the images
@@ -161,7 +103,8 @@ function randomChannel(min: number, max: number): number {
  *
  * @param config   Optional override config. Uses env vars / defaults if omitted.
  * @returns        The saved image filename (e.g. "placeholder-abc123.png"),
- *                 or empty string on failure.
+ *                 or empty string on failure — or when the fallback is disabled,
+ *                 which is why the seeder calls createTilePlaceholderImage() instead.
  */
 export async function generatePlaceholderImage(
   config?: Partial<PlaceholderImageConfig>,
@@ -170,65 +113,8 @@ export async function generatePlaceholderImage(
     return '';
   }
 
-  const cfg: PlaceholderImageConfig = {
-    ...getPlaceholderImageConfig(),
-    ...config,
-  };
-
-  // Validate dimensions
-  if (cfg.tilesX < 1 || cfg.tilesY < 1 || cfg.width < 1 || cfg.height < 1) {
-    debugLog('⚠️ [PlaceholderImage] Invalid dimensions, skipping image generation');
-    return '';
-  }
-
-  const tileWidth = Math.floor(cfg.width / cfg.tilesX);
-  const tileHeight = Math.floor(cfg.height / cfg.tilesY);
-
   try {
-    const image = new Jimp({
-      width: cfg.width,
-      height: cfg.height,
-      color: 0x000000,
-    });
-
-    for (let ty = 0; ty < cfg.tilesY; ty++) {
-      for (let tx = 0; tx < cfg.tilesX; tx++) {
-        const r = randomChannel(cfg.colorMin.r, cfg.colorMax.r);
-        const g = randomChannel(cfg.colorMin.g, cfg.colorMax.g);
-        const b = randomChannel(cfg.colorMin.b, cfg.colorMax.b);
-
-        // Pack into 32-bit RGBA using Jimp's utility
-        const hexColor = rgbaToInt(r, g, b, 255);
-
-        const x = tx * tileWidth;
-        const y = ty * tileHeight;
-
-        // Draw the tile as a filled rectangle
-        for (let py = 0; py < tileHeight; py++) {
-          for (let px = 0; px < tileWidth; px++) {
-            const pixelX = x + px;
-            const pixelY = y + py;
-            if (pixelX < cfg.width && pixelY < cfg.height) {
-              image.setPixelColor(hexColor, pixelX, pixelY);
-            }
-          }
-        }
-      }
-    }
-
-    // Ensure images directory exists
-    const imagesDir = getImagesDirectory();
-    fs.mkdirSync(imagesDir, { recursive: true });
-
-    const filename = `placeholder-${uuidv4()}.png`;
-    const filePath = path.join(imagesDir, filename);
-
-    const buffer = await image.getBuffer('image/png');
-    await fs.promises.writeFile(filePath, buffer);
-
-    debugLog('🖼️ [PlaceholderImage] Generated:', filename);
-
-    return filename;
+    return await createTilePlaceholderImage({ config });
   } catch (error) {
     console.error('❌ [PlaceholderImage] Failed to generate:', error);
     return '';

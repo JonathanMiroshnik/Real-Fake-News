@@ -4,72 +4,82 @@ This directory contains utility scripts that should run once or periodically for
 
 ## Available Scripts
 
-### 1. `generateMockData.ts` - Mock Data Generator
+### 1. `seedDevData.ts` - Dev Content Seeder
 
-**Purpose:** Populates the database with realistic sample data for development and testing.
+**Purpose:** Fills an empty development database with reviewable mock content
+(writers, articles, news items, recipes, foods, today's horoscopes) and real
+placeholder images. Replaces the old `generateMockData.ts`, which produced
+different nonsense on every run, used `example.com` image URLs and could not be
+repeated or cleaned up.
 
 **Usage:**
 
 ```bash
-npm run generate-mock-data [options]
+npm run seed:dev                # insert anything missing (idempotent)
+npm run seed:reset              # delete seeded rows + images, then re-insert
+npm run seed:dev -- --force     # overwrite existing seeded rows
+npm run seed:dev -- --seed 42   # different PRNG seed for the placeholder images
+npm run seed:dev -- --help      # usage
 ```
 
-**Options:**
+**What it writes:**
 
-- `--writers <number>`: Number of writers to generate (default: 5)
-- `--articles <number>`: Number of articles to generate (default: 20)
-- `--news-items <number>`: Number of news items to generate (default: 15)
-- `--featured <number>`: Number of featured articles to generate (default: 5)
-- `--recipes <number>`: Number of recipes to generate (default: 10)
-- `--horoscopes <number>`: Number of horoscopes to generate (default: 24)
-- `--no-foods`: Skip inserting food names (default: insert foods)
-- `--help, -h`: Show help message
+- **Writers** (5) — name, description, system prompt, profile image
+- **Articles** (20) — spread over the last week, each with a head image
+- **News items** (15) — the input rows the article job reads
+- **Recipes** (10) — with author, paragraphs and a head image
+- **Foods** (5) — the names the recipe job samples from
+- **Horoscopes** (12) — today's set, one row per zodiac sign, with astrological data
 
-**Examples:**
+Images are real PNGs written through the normal compression path
+(`IMAGES_PATH/original` + `IMAGES_PATH/compressed`), never remote URLs.
 
-```bash
-# Generate default amount of data (5 writers, 20 articles, 15 news items, etc.)
-npm run generate-mock-data
+**Rules that make it predictable:**
 
-# Generate minimal data for quick testing
-npm run generate-mock-data --writers 2 --articles 5
+- **Deterministic** — one `mulberry32(FIXED_SEED)` PRNG, so the same `--seed`
+  produces byte-identical images. Timestamps are "now minus N hours", so the feed
+  always looks recent.
+- **Idempotent** — every row is keyed `dev-…`; a second run inserts nothing and
+  reports `skipped`. `--force` rewrites rows in place (delete + insert, because
+  the write path has no update).
+- **Reversible** — `--reset` deletes only what the seeder created: rows whose key
+  starts with `dev-`, the mock food names, today's horoscope set, and the matching
+  image files.
+- **Safe** — refuses to run when `NODE_ENV=production` unless `--force` is passed.
+- **Writes through `sqliteOperations` / `config/paths.ts`**, i.e. the same code
+  path as the jobs, so the database lands wherever the API looks for it.
 
-# Generate data without food entries
-npm run generate-mock-data --no-foods
-
-# Show help message
-npm run generate-mock-data --help
-```
+The content itself lives in `src/services/contentSources/mocks/` as typed
+TypeScript arrays — one source of truth, shared with the mock content sources,
+and a schema change becomes a compile error instead of a silent mismatch.
 
 **Using Docker Compose:**
 
 ```bash
-docker compose exec server npm run generate-mock-data
-docker compose exec server npm run generate-mock-data --writers 3 --articles 10 --recipes 5
+# the dev overlay already runs the seeder once on `up`
+npm run docker:dev
+
+# wipe and rewrite the seeded content
+docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+  run --rm seed node --no-warnings dist/scripts/seedDevData.js --reset
 ```
 
-**What it generates:**
+### 2. `generateFakeImage.ts` - Placeholder Image Generator
 
-- **Writers**: AI-generated writer profiles with names, descriptions, and system prompts
-- **Articles**: News articles in various categories (Technology, Travel, Food, Science, etc.)
-- **News Items**: Breaking news items fetched from external APIs (simulated)
-- **Featured Articles**: Special reports with multiple authors and sub-articles
-- **Recipes**: Food recipes with ingredients and instructions
-- **Horoscopes**: Daily horoscopes for all zodiac signs with astrological data
-- **Foods**: Basic food names for recipe generation
+**Purpose:** Writes a single tiled placeholder image, for inspecting what the
+seeder's images look like.
 
-**Features:**
+**Usage:**
 
-- Realistic Lorem Ipsum content with proper formatting
-- Dates distributed over the past year
-- Proper relationships between entities (writers author articles, etc.)
-- Random category assignment
-- Featured articles with isFeatured flag and featuredDate
-- Writer types (AI, Human, Synthesis)
-- Image URLs for head images (example.com placeholder)
-- Progress indicators with emojis for visual feedback
+```bash
+npm run generate-fake-image -- --width 896 --height 512 --tiles-x 8 --tiles-y 6
+```
 
-### 2. `compressExistingImages.ts` - Image Compression Script
+The drawing itself lives in `src/utils/placeholderImage.ts`
+(`createTilePlaceholderImage`), so the seeder and this CLI share one
+implementation.
+
+### 3. `compressExistingImages.ts` - Image Compression Script
 
 **Purpose:** Compresses existing images in the media directory.
 
@@ -131,14 +141,15 @@ Without Docker:
 
 ```bash
 cd server
-npm run generate-mock-data [options]
+npm run seed:dev [-- --reset|--force|--seed <n>]
+npm run seed:reset
 npm run compress-images
 ```
 
 With Docker:
 
 ```bash
-docker compose exec server npm run generate-mock-data [options]
+docker compose exec server npm run seed:dev [-- --reset|--force|--seed <n>]
 docker compose exec server npm run compress-images
 ```
 
