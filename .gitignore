@@ -2,7 +2,12 @@
 node_modules/
 
 # Environment files (never committed)
+# Root .env  -> Docker Compose only (secrets for the server container)
+# */..env    -> per-app secrets for running an app directly on the host
+# *.local    -> personal overrides (highest Vite priority, never committed)
 .env
+.env.local
+.env.*.local
 admin/.env
 server/.env
 client/.env
