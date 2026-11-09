@@ -1,10 +1,15 @@
 # ============================================================
-# docker-compose.dev.yml — LOCAL containerised development overlay
+# docker-compose.override.yml — LOCAL containerised development overlay
 # ============================================================
-# Usage (the merge is explicit — Compose only auto-merges a file named
-# docker-compose.override.yml, and we deliberately avoid that name):
+# Compose merges this file into docker-compose.yml AUTOMATICALLY (the filename
+# is special), so plain commands work with no flags:
 #
-#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+#   docker compose up --build -d
+#   docker compose logs -f server
+#   docker compose down
+#
+# Production ignores it by naming the base file explicitly:
+#   docker compose -f docker-compose.yml up -d
 #
 # What it adds:   host port mappings so you can open the apps in a browser
 #                 a project-local network (Compose creates it, so no manual
@@ -31,14 +36,13 @@ services:
       DEBUG_LOGS: ${DEBUG_LOGS:-true}
 
   # One-shot content seeder — `docker compose up` populates an empty dev
-  # database and then exits (restart: "no"), so `npm run docker:dev` yields a
+  # database and then exits (restart: "no"), so `docker compose up` yields a
   # site with content instead of an empty feed.
   #
   # Safe to leave in the stack: the seeder is idempotent, so every restart after
   # the first is a no-op that prints "already seeded".
   # To wipe and rewrite the seeded content:
-  #   docker compose -f docker-compose.yml -f docker-compose.dev.yml \
-  #     run --rm seed node --no-warnings dist/scripts/seedDevData.js --reset
+  #   docker compose run --rm seed node --no-warnings dist/scripts/seedDevData.js --reset
   seed:
     build:
       # Same context as `server`, so Docker reuses the cached build layers and
@@ -99,7 +103,7 @@ services:
 networks:
   # Dev never talks to the shared VPS nginx, so the same logical network
   # ("devops_shared", referenced by the services) is realised as a local one that
-  # Compose creates and removes by itself — `npm run docker:dev` therefore needs
+  # Compose creates and removes by itself — `docker compose up` therefore needs
   # no `docker network create` step. Production keeps external: true in the base
   # file, where the PersonalDevOps nginx owns the real network.
   devops_shared:

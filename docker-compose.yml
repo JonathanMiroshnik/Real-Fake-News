@@ -53,7 +53,7 @@ services:
       RUNWARE_IMAGE_MODEL: ${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
       ENABLE_SCHEDULED_JOBS: ${ENABLE_SCHEDULED_JOBS:-true}
       # Off by default: production must never invent content at read time.
-      # Dev content is seeded explicitly (see docker-compose.dev.yml `seed`).
+      # Dev content is seeded explicitly (see docker-compose.override.yml `seed`).
       ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-false}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
@@ -129,9 +129,9 @@ networks:
   # Shared network owned by the PersonalDevOps stack on this VPS: its nginx
   # reaches container "client" by name. `external: true` means exactly one thing
   # — "it already exists, do NOT create it", and that is the only reason a bare
-  # `docker compose up` complains about it. Create it once:
+  # `docker compose -f docker-compose.yml up` complains about it. Create it once:
   #   npm run setup        (or: docker network create devops_shared)
-  # The dev overlay redefines this network as a local, auto-created one, so
-  # `npm run docker:dev` needs no preparation at all.
+  # The dev overlay (docker-compose.override.yml) redefines this network as a
+  # local, auto-created one, so local `docker compose up` needs no preparation.
   devops_shared:
     external: true

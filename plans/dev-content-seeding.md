@@ -100,7 +100,7 @@ Rules that keep it simple:
 - [x] `server/package.json`: add `seed:dev` / `seed:reset`; delete `generate-mock-data`
 - [x] `docker-compose.dev.yml`: one-shot `seed` service
       (`command: ["node","--no-warnings","dist/scripts/seedDevData.js"]`, same `env_file`,
-      same `/data` + `/images` volumes, `restart: "no"`), so `npm run docker:dev` yields a
+      same `/data` + `/images` volumes, `restart: "no"`), so `docker compose up` yields a
       populated site
 - [x] Stop `docker-compose.yml` from defaulting `ENABLE_FAKE_DATA: true` (production must not
       invent content); keep `false` until Phase 2 removes the flag
@@ -185,7 +185,7 @@ SQLite) against free, deterministic content instead of replacing that path at re
   (original + compressed).
 - `CONTENT_SOURCE=mock` job run: 20 articles after one pass, no outbound network
   (`vi.mock` on `axios`/`openai`/`@runware/sdk-js` to prove the ports never reached them).
-- Manual dev smoke: `npm run docker:dev`, then `localhost:5173` shows articles, thumbnails load,
+- Manual dev smoke: ``docker compose up`, then `localhost:5173` shows articles, thumbnails load,
   and `/api/blogs?limit=20` returns the same ETag across two calls.
 
 ## Edge Cases

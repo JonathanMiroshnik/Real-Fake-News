@@ -57,10 +57,10 @@ and a schema change becomes a compile error instead of a silent mismatch.
 
 ```bash
 # the dev overlay already runs the seeder once on `up`
-npm run docker:dev
+docker compose up
 
 # wipe and rewrite the seeded content
-docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+docker compose \
   run --rm seed node --no-warnings dist/scripts/seedDevData.js --reset
 ```
 

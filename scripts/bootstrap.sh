@@ -152,7 +152,7 @@ ensure_docker_network() {
     echo "  ! docker daemon unreachable — skipping network setup"
     echo "    start it:  sudo systemctl enable --now docker"
     echo "    or join:   sudo usermod -aG docker \"\$USER\"  (then log out/in)"
-    echo "    verify:    npm run docker:dev:check"
+    echo "    verify:    npm run doctor"
     return 0
   fi
 
@@ -173,7 +173,7 @@ print_next_steps() {
   echo
   echo "Next steps:"
   echo "  Production-like:  docker compose up --build -d          (uses the devops_shared network)"
-  echo "  Local dev:        docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d"
+  echo "  Local dev:        docker compose up --build -d"
   echo "                    (self-contained: Compose creates its own network)"
   echo "  Apps on the host: cd server && npm run dev   (client/admin: npm run dev)"
   echo

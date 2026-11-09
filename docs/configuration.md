@@ -92,24 +92,33 @@ Two consistent ways to remove the duplication:
 ## 3. Docker
 
 ```bash
-# Local containerised dev (publishes 5001 / 5173 / 5174, no background jobs)
-npm run docker:dev          # plain alias: docker compose -f … -f … up --build -d
-npm run docker:dev:status   # container table + seed log + write probe (no changes)
-npm run docker:dev:check    # pre-flight + running-stack verdict, starts nothing
-npm run docker:dev:check:deep  # + write probe inside a throwaway container
-npm run docker:dev:logs     # follow the API container
-npm run docker:dev:down     # stop, keep your DATABASE_DIR/IMAGES_DIR contents
+docker compose up --build -d     # dev — docker-compose.override.yml merges automatically
+docker compose logs -f server
+docker compose down
 
-# Production-like (no host ports, shared VPS network)
-npm run docker:prod         # plain alias: docker compose up --build -d
-npm run docker:down
+# Production-like (base file only: no host ports, shared VPS network)
+docker compose -f docker-compose.yml up -d
+docker compose -f docker-compose.yml down
 ```
 
-The npm scripts are **convenience only** — `docker compose up --build -d` and
-`docker compose down`, with and without `-f docker-compose.dev.yml`, behave the
-same whether or not you go through npm. `scripts/docker-dev.sh` adds the
-diagnostics (`status` / `check`) on top of the compose files, it does not gate
-them.
+Stock Compose commands — no wrapper, no extra flags. The stack is defined by
+`docker-compose.yml` (base) and `docker-compose.override.yml` (dev overlay:
+published ports, project-local network, `ENABLE_SCHEDULED_JOBS=false`), which
+Compose picks up by filename.
+
+When something "does nothing" and the reason is not obvious, run the doctor:
+
+```bash
+npm run doctor           # docker CLI, Compose v2, daemon + socket, .env, data dirs
+npm run doctor:deep      # + prove /data and /images are writable inside a container
+npm run doctor:status    # container states + seed log + write probe (no changes)
+```
+
+The most common one is a shell that predates `usermod -aG docker`: the group is
+on disk but not in the running process, so every docker command dies at the
+socket. `npm run doctor` names that case explicitly and tells you to run
+`newgrp docker` (or log out of the desktop session entirely — opening a new
+terminal is not enough, because desktop sessions keep the stale group list).
 
 What `check` / `status` report (they never start or stop anything):
 
@@ -124,7 +133,7 @@ What `check` / `status` report (they never start or stop anything):
 That last row is the important one: `docker compose up` can create the bind-mount
 directories and then fail with the daemon unreachable, which used to leave two
 empty root-owned directories, no container and no visible reason. Run
-`npm run docker:dev:check` first if you only want the pre-flight.
+`npm run doctor` for the pre-flight and `npm run doctor:status` for the stack.
 
 **"unable to open database file" in the container.** The host check can pass and
 the container still be refused the mount: on Fedora, SELinux (`Enforcing`) labels
@@ -152,7 +161,7 @@ Then open:
 | admin  | http://localhost:5174            |
 | API    | http://localhost:5001/api/health |
 
-Anything unclear? `docker compose ps` for state, `npm run docker:dev:logs` for the
+Anything unclear? `docker compose ps` for state, `docker compose logs -f server` for the
 API log, `docker compose logs client` when a SPA page is blank (a 502 from nginx
 means the `server` container is not up yet, or failed on a missing key).
 
@@ -370,7 +379,7 @@ point the SPA at an absolute API URL unless you bring your own nginx.
   price of a single root file.
 - **`ADMIN_PASSWORD` has a `changeme123` fallback in code.** Always set it.
 - **Dev content is seeded, not generated on read.** `npm run seed:dev` (or the
-  one-shot `seed` service in `docker-compose.dev.yml`) writes rows with
+  one-shot `seed` service in `docker-compose.override.yml`) writes rows with
   `dev-…` keys plus real placeholder images; `npm run seed:reset` removes exactly
   those. The old `npm run seed` / `npm run generate-mock-data` scripts are gone —
   both read `server/data/`, which no longer exists.

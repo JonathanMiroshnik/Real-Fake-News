@@ -94,11 +94,9 @@ Required keys: `DEEPSEEK_API_KEY`, `NEWSDATA_API_KEY`, `RUNWARE_API_KEY` and
 **Use the dev overlay for testing on your dev machine.** It adds port mappings so you can access services from your browser.
 
 ```bash
-npm run docker:dev        # plain alias: docker compose -f … -f … up --build -d
-npm run docker:dev:status # container table + seed log + write probe (changes nothing)
-npm run docker:dev:check  # pre-flight + running-stack verdict
-npm run docker:dev:logs   # follow the API log
-npm run docker:dev:down   # stop (the data directory stays on disk)
+docker compose up --build -d     # dev — docker-compose.override.yml merges automatically
+docker compose logs -f server    # follow the API log
+docker compose down              # stop (the data directory stays on disk)
 
 # Access:
 #   Client SPA:    http://localhost:5173
@@ -106,14 +104,21 @@ npm run docker:dev:down   # stop (the data directory stays on disk)
 #   API directly:  http://localhost:5001/api/health
 ```
 
-`docker compose up -d` and `docker compose down` work directly — the npm scripts
-and `scripts/docker-dev.sh` are convenience wrappers around the compose files, not
-a gate in front of them. Use `docker:dev:status` when something looks wrong: it
-prints the container states, the `seed` log, and whether a container can write
-`DATABASE_DIR`/`IMAGES_DIR`. If you type the compose command by hand, keep the
-`-f` flags: the overlay is named `docker-compose.dev.yml`, **not**
-`docker-compose.override.yml`, and Docker only auto-merges the latter by name.
-Full runbook: [`docs/configuration.md` §3](docs/configuration.md).
+Stock Compose commands, no wrapper and no `-f` flags. When something "does
+nothing" and the reason is not obvious, run the doctor:
+
+```bash
+npm run doctor           # docker CLI, Compose v2, daemon + socket, .env, data dirs
+npm run doctor:deep      # + prove /data and /images are writable inside a container
+npm run doctor:status    # container states + seed log + write probe (changes nothing)
+```
+
+The stack is defined by `docker-compose.yml` (base) and
+`docker-compose.override.yml` (dev overlay: published ports, project-local
+network, no background jobs). Compose merges the override automatically because
+of its filename, so plain `docker compose up -d` gives you the dev stack and
+`docker compose -f docker-compose.yml up -d` gives you production. Full runbook:
+[`docs/configuration.md` §3](docs/configuration.md).
 
 ### Startup Order & Nginx DNS Resolution
 
@@ -121,7 +126,7 @@ The `client` and `admin` containers depend on `server` (via `depends_on`), so Do
 
 Both nginx configs use Docker's internal DNS resolver (`127.0.0.11`) with runtime variable substitution, so nginx will automatically re-resolve the `server` hostname at request time. This prevents the `host not found in upstream` error during container startup races.
 
-On the VPS, no ports are exposed — only the shared nginx serves traffic on 80/443 (the `docker-compose.dev.yml` file is absent, so only the production config applies).
+On the VPS, no ports are exposed — only the shared nginx serves traffic on 80/443 (the `docker-compose.override.yml` file is absent, so only the production config applies).
 
 ## Production VPS Deployment
 
@@ -139,8 +144,8 @@ docker compose up --build -d
 **Development:**
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
+docker compose build --no-cache client
+docker compose up -d client
 ```
 
 **Production:**
@@ -155,8 +160,8 @@ docker compose up -d client
 **Development:**
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f server
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f client
+docker compose logs -f server
+docker compose logs -f client
 ```
 
 **Production:**
@@ -171,7 +176,7 @@ docker compose logs -f client
 ```bash
 docker compose ps
 # or for development:
-docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
+docker compose ps
 ```
 
 ### Stop All Services
@@ -179,7 +184,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 **Development:**
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+docker compose down
 ```
 
 **Production:**
@@ -190,7 +195,7 @@ docker compose down
 
 ### Seed Dev Content
 
-The dev overlay starts a one-shot `seed` service, so `npm run docker:dev` gives you
+The dev overlay starts a one-shot `seed` service, so ``docker compose up` gives you
 a populated site. The same seeder runs on the host when you develop without Docker:
 
 ```bash
@@ -372,8 +377,8 @@ After this, the API will return fake content whenever endpoints are hit.
 
 4. Rebuild client with correct config:
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.dev.yml build --no-cache client
-   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d client
+   docker compose build --no-cache client
+   docker compose up -d client
    ```
 
 ### Database and image files
