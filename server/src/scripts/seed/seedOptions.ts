@@ -113,6 +113,8 @@ Writes:
   rows into blog_posts, news_items, writers, foods, recipes and horoscopes, plus
   one placeholder PNG per writer, article and recipe under IMAGES_PATH (the
   compressed copy is generated too, so the client's image sizes work).
+  Every row is stamped contentSource = 'mock'; --reset deletes by that marker
+  (horoscopes by date, see seedKitchenContent).
 
 Notes:
   Default PRNG seed is ${FIXED_SEED}; the same seed produces identical images.

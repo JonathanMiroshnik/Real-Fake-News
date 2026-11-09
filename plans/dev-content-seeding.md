@@ -50,7 +50,7 @@ mode, and nothing below the port executes:
 Two consequences worth stating, because they are the point of the exercise:
 
 - The **text** mock is pure memory — the article row it produces is written by the same
-  `createPost()` that production uses, so the insert path is covered.
+  `insert()` that production uses, so the insert path is covered.
 - The **image** mock writes a _real file_ through the real compression path, because the
   file/DB lifecycle is exactly the part that keeps leaking (8 orphan PNGs per fake request).
   Mocking that away would hide the bug class.
@@ -66,7 +66,7 @@ readable, while a giant JSON forces review of every content tweak and gives no t
 script stays boring on purpose:
 
 ```
-read mock content → for each entity: createPost(row, dbConfig) → generate head image → done
+read mock content → for each entity: insert(dbConfig, row) → generate head image → done
 ```
 
 Rules that keep it simple:
@@ -117,7 +117,7 @@ Implementation notes (where the code differs from the sketch above, and why):
   feature-flagged wrapper (`ENABLE_FAKE_DATA`) around the drawing code, so the seeder could not
   use it. The drawing now lives in `utils/placeholderImage.ts`
   (`createTilePlaceholderImage`); `fakeDataService` and the seeder call it, no duplication.
-- **`--force` deletes then inserts**, because the write path (`createPost`) has no update.
+- **`--force` deletes then inserts**, because the write path (`insert`) has no update.
 
 Verified by hand: seed → 67 rows + 70 image files; second run → 0 inserted, 67 skipped;
 `--reset` → 137 removed (67 rows + 70 files) then re-seeded; `--force` → same image bytes
@@ -166,10 +166,36 @@ SQLite) against free, deterministic content instead of replacing that path at re
 - [ ] Tests: one integration test per job run against `CONTENT_SOURCE=mock` asserting rows land in
       SQLite — this is the write path coverage the project currently lacks
 
+### Three guards that must land _inside_ the commit that flips dev to `mock`
+
+Discovered while implementing `plans/dev-content-marking.md` Phase A (9 November 2026). Each of
+these makes dev quietly degrade rather than fail, and each is invisible to an integration test
+that only counts rows **after** a job runs — which is why they are listed as work items and not
+as risks:
+
+- [ ] **Token arithmetic must move into the `live` adapter.** `newsService.fetchNews()` checks
+      `remainingTokens <= 0` **before** any network call (`newsService.ts:37`), and
+      `addNewsToTotal()` calls it through the service, not through the port. If the port is
+      injected but that check stays where it is, a depleted counter short-circuits **before** the
+      mock adapter is ever reached, and `generateScheduledArticles()`'s `try/catch` swallows the
+      error — dev produces nothing and logs nothing useful. The counter is a property of the real
+      provider, so it belongs to the `live` implementation; the mock must not consult it.
+- [ ] **Choose-n counting must be per source.** `generateScheduledArticles()` and
+      `ensureHoroscopesForToday()` both early-return when the table already has "enough" rows. With
+      67 seeded articles and 12 seeded horoscopes, a correct mock adapter would still be asked for
+      **zero** items forever, so the very first dev run after the flip looks broken. The count
+      must be "rows this source produced today", not "rows in the table". This also matters in the
+      other direction: `horoscopeController` calls the ensure on **read**, so a prod process with
+      the mock wired and a short day would serve mock horoscopes.
+- [ ] **`remainingTokens` must become adapter state, not module state.** It is a module-level
+      `let` today (`newsService.ts:14`), so it depletes across every test in a file and the order
+      of `it()` blocks changes the outcome. Once it is a field on the `live` adapter, each test
+      gets a fresh one; until then, any test that exercises the news path is order-dependent.
+
 ## Phase 4 — image lifecycle
 
 - [ ] Give image files an owner: store `headImage` as a filename (already the case) and have
-      `deletePost` remove the original + compressed copy
+      `remove` removes the original + compressed copy
 - [ ] `npm run images:gc` — delete files in `IMAGES_PATH` that no row references
       (this would have caught the 8-orphans-per-request leak from the fake fallback)
 - [ ] Document the rule in `docs/configuration.md`: images are owned by rows, not by requests

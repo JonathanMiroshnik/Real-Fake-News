@@ -13,7 +13,7 @@ Today the only marker is a string prefix inside the primary key — `dev-article
 convention, not a mechanism:
 
 - **Not enforced on write.** `insertSeedRow()` (`server/src/scripts/seed/seedRows.ts:20-44`)
-  hands `row` straight to `createPost(row, dbConfig)`. Nothing asserts the key starts with
+  hands `row` straight to `insert(dbConfig, row)`. Nothing asserts the key starts with
   `dev-`, so a mock record authored with an ordinary key writes an ordinary-looking row.
 - **Not its own column.** The marker is the primary key, so there is no
   `WHERE isDev = 1`. The honest query behind `--reset` does not exist; instead
@@ -22,7 +22,7 @@ convention, not a mechanism:
 - **Invisible through the API.** `ArticleScheme` carries `writerType`, `isFeatured`,
   `featuredDate` — nothing about origin, so no client, admin screen or health check can report
   that a response contains invented content.
-- **Invisible to the pipeline.** Once Phase 3 writes through the same `createPost` as
+- **Invisible to the pipeline.** Once Phase 3 writes through the same `insert` as
   production, a mock-generated row is byte-for-byte indistinguishable from a real one. Only the
   seeder's rows are marked at all; mock _adapters_ mark nothing.
 
@@ -83,23 +83,104 @@ panel, and it makes `--reset` a single statement that cannot leak rows.
 
 ## Implementation
 
-### Phase A — store the marker (do first; entry 6 depends on it)
+### Phase A — store the marker (do first; entry 6 depends on it) — **implemented, not yet committed**
 
-- [ ] Add `contentSource TEXT NOT NULL DEFAULT 'live'` to the five tables in `schema.ts`, using
+Landed as one commit. Corrections found while implementing are marked ⚠️ and replace the
+original bullet where they disagree.
+
+- [x] Add `contentSource TEXT NOT NULL DEFAULT 'live'` to the five tables in `schema.ts`, using
       the existing `ALTER TABLE` + `duplicate column name` swallow pattern already used for
       `writerType` (`schema.ts:30-57`) and `isFeatured` (`schema.ts:61-91`). Backfill is
       implicit: the default applies to existing rows.
-- [ ] Extend `ArticleScheme` / `RecipeScheme` / horoscope / `NewsItem` / `Writer` types with
-      `contentSource: ContentSource`.
-- [ ] Add `isSeededContentKey()` next to `SEEDED_KEY_PREFIX` in `mockContent.ts` and call it from
-      `insertSeedRow()` — **throw** if a seeder row's key is not `dev-…` and its
-      `contentSource` is not `'mock'`. The prefix becomes a redundant guard rail, not the
-      mechanism.
-- [ ] Rewrite `resetSeededBlogContent()` / `resetSeededKitchenContent()` to
+      ⚠️ The original bullet claimed the pattern already existed for the five tables. It did not:
+      only `blog_posts` had any `ALTER` block, so `news_items`, `writers`, `recipes` and
+      `horoscopes` needed new ones. Hence the five-`ALTER` loop at the end of
+      `initializeSchema()`, driven by one `CONTENT_SOURCE_TABLES` list, plus the column declared
+      inline in each `CREATE TABLE` so a fresh database never needs the migration pass.
+      ⚠️ `foods` is deliberately **not** marked (a row is just a name fed into a recipe prompt,
+      and `--reset` deletes exactly the names it wrote). `featured_blog_posts` is not marked
+      either — the table is dead, and `blog_posts.contentSource` already describes the article.
+      ⚠️ The indexes were not in the plan. Added `idx_<table>_contentSource` so "how many mock
+      rows?" is a real `COUNT(*)` rather than a `LIKE 'dev-%'` guess.
+- [x] Extend `ArticleScheme` / `RecipeScheme` / horoscope / `NewsItem` / `Writer` types with
+      `contentSource: ContentSource`. Done as **optional** (`contentSource?: ContentSource`) in
+      the row types, because every live write path omits it and relies on the column default;
+      requiring it would force edits to code that must stay untouched in Phase A.
+      `ContentSource`, `LIVE_CONTENT_SOURCE` and `MOCK_CONTENT_SOURCE` live in their own module,
+      `types/contentSource.ts`. They were first parked in `types/horoscope.ts` on the theory that
+      both `types/` and `services/` already imported from it — but nothing outside the horoscope
+      domain did, so every other content type had to import the marker _from the horoscope
+      module_. The marker describes a column on five tables and no single content type, so the
+      module now contains nothing but the marker, imports nothing, and is what every other type
+      file depends on (a domain module that imports it must never be imported back into it).
+- [x] ⚠️ **Persistence had to be fixed, and the plan never said so.** The marker is only worth
+      anything if it survives a round trip: `insert` did not write the column, so every mock
+      row would have landed as `'live'` via the default. Three insert branches were extended
+      (`blog_posts`, `news_items`, `writers`, `recipes`) behind one `resolveContentSource()`
+      helper, and `findAll` / `findOne` / `findPaginated` now return `contentSource`.
+- [x] ⚠️ **An earlier revision of this plan explained the round trip wrongly**, and the error was
+      worth recording because it is the kind that reads as reassuring. It claimed `update` was safe
+      to leave alone because "it copies onto the row it read, so the marker is preserved". Both
+      halves are wrong. `update`'s `UPDATE … SET` names its columns explicitly and simply never
+      mentions `contentSource`, so the stored value survives by *omission*, not by copying — and
+      `find()` did not return the field at all, so every `find()` result had it `undefined`. A
+      consumer reading `article.contentSource` off a read row therefore saw "live" for mock rows.
+      The fix: all four `find()` returns that have the column now include it, and all five
+      `copyValues()` copy it. `featured_blog_posts` is the one config that has neither — that
+      table has no such column — which is why `copyValues` there carries the field with a comment
+      rather than pretending to persist it.
+- [x] ⚠️ **`update` had no `recipes` branch.** A recipe update looked successful and wrote
+      nothing: the branch chain fell through to `return true` after preparing no statement. Added
+      the `recipes` branch (with the same defaults as the INSERT path, so a round trip is
+      lossless) and replaced the silent fall-through with a `throw`, so a future table added
+      without an UPDATE branch fails loudly instead of reporting a write that never happened.
+- [x] **Renamed the gateway functions to one vocabulary** (its own change, and it touches ~15 call
+      sites, so it is called out here rather than buried). `createPost` / `getPostByKey` /
+      `getAllPosts` / `getPostsCount` / `getPostsPaginated` / `updatePost` / `deletePost` said
+      "post" about five different tables, and mixed the type name (`ArticleScheme`), the table name
+      (`blog_posts`), and the column name in a single signature. They are now `insert` / `findOne` /
+      `findAll` / `count` / `countByContentSource` / `findPaginated` / `update` / `remove`, with
+      `dbConfig` as the **first** argument in every case, because the table descriptor is what
+      identifies the call — `insert(blogDatabaseConfig, article)` reads in the order it executes.
+      The row type `Post` became `Row` for the same reason: it is a row of an unspecified table.
+      `getAllPostsAfterDate` in `blogService` is **not** renamed — it is a service function that
+      filters by date, not a gateway call.
+
+- [x] Stamp seeded rows. Replaces the original `isSeededContentKey()` bullet, which proposed a
+      `throw` when a `dev-…` key was not marked `mock`. That rejected the wrong thing — a mock
+      row does not have to be spelled `dev-`, and the check would have added a second source of
+      truth instead of one. Instead `stampAsMock()` in `seedRows.ts` marks every row
+      `insertSeedRow()` writes (the one choke point), each row builder stamps explicitly, and
+      `seedHoroscopes()` re-stamps on `--force` (it does not go through `insertSeedRow`).
+- [x] Rewrite `resetSeededBlogContent()` / `resetSeededKitchenContent()` to
       `DELETE ... WHERE contentSource = 'mock'` (plus deleting images referenced by the removed
       rows), so `--reset` no longer depends on `MOCK_ARTICLES` matching the database.
-- [ ] Tests: schema migration is idempotent on an existing DB; existing rows come back as
-      `'live'`; a `dev-…` row with `contentSource: 'live'` is rejected by the seeder.
+      ⚠️ Without this, the whole Phase A commit was a lie: `--force` deletes then re-inserts, so
+      rows would silently come back as `'live'`. Deletion order is now news items → articles →
+      writers, because articles embed a full author object.
+      ⚠️ **`horoscopes` cannot use one honest delete.** A day's set is one row per sign behind
+      `UNIQUE(date, zodiacSign)`; deleting by `contentSource` would leave a half-mock day (mock
+      rows gone, live rows for the other signs still served) and the next seed would rewrite only
+      the mock signs. So it stays `DELETE FROM horoscopes WHERE date = ?`, and the cost is
+      documented in `resetSeededKitchenContent()`: a live set for today is removed too. That is
+      acceptable for a development command and is exactly why `--reset` exists.
+- [x] Tests. `types/__tests__/contentSource.test.ts` pins the two stored strings (they are a
+      database contract, not an implementation detail). `scripts/seed/__tests__/seedMarking.test.ts`
+      asserts every row builder — writers, articles, news items, recipes, and the whole mock data
+      set rather than just the first element — carries `'mock'`; both run without a database, which
+      matters because the native `better-sqlite3` binding is unavailable in some environments.
+      The migration was validated against a real SQLite engine for both a fresh database and a
+      legacy one: the column lands with `DEFAULT 'live'`, existing rows backfill, `NOT NULL` is
+      enforced, and a re-run only hits the swallowed duplicate-column error.
+      ⚠️ The planned "a `dev-…` row with `contentSource: 'live'` is rejected" test went away with
+      `isSeededContentKey()`; there is nothing to reject once the seeder stamps unconditionally.
+      **Not** covered by a test, and worth knowing: `better-sqlite3` cannot be built in an
+      environment without a C++ toolchain, so DB-touching tests do not run there at all (this
+      predates Phase A and affects `sqliteOperations.test.ts` too).
+
+**Operational note for existing dev databases.** Rows seeded _before_ this commit were written
+without the column, so they backfill to `'live'` — the one case where the default is wrong. Rebuild
+once with `npm run seed:reset` (or delete the dev database) and the rows come back marked `mock`.
 
 ### Phase B — stamp from the pipeline (part of entry 6)
 
@@ -122,6 +203,13 @@ panel, and it makes `--reset` a single statement that cannot leak rows.
       Rationale: a flag is something you type by habit; a phrase is a decision.
 - [ ] Expose the count in the health endpoint (or the startup log) in every environment, so dev
       sees "mock rows: 67" instead of wondering why the feed looks odd.
+- [ ] Refuse non-`live` inserts inside `insert()` itself in production, not only in the
+      seeder. Phase A stamps the marker but enforces nothing at write time, so today the only
+      thing standing between mock content and a production database is `assertNotProduction()` in
+      the seeder — which a mock content-source adapter bypasses entirely (it calls `insert`
+      directly). A production `insert` that throws on `contentSource === 'mock'` closes the
+      hole at the single choke point every writer already goes through, which is the same
+      argument that put `stampAsMock()` in `insertSeedRow()`.
 
 ### Do not do
 
@@ -170,7 +258,12 @@ panel, and it makes `--reset` a single statement that cannot leak rows.
   this lands. Acceptable: those DBs are dev-only, and re-running `--reset` + `seed:dev` is the
   documented fix. Say so in the migration commit message.
 - **`--force` re-seed** must delete by key _and_ rewrite `contentSource: 'mock'`; otherwise a
-  force-updated row keeps whatever the previous version wrote.
+  force-updated row keeps whatever the previous version wrote. Implemented in Phase A:
+  `insertSeedRow()` re-stamps on every write (it deletes then inserts, so the old value never
+  survives), and `seedHoroscopes()` stamps explicitly because it bypasses `insertSeedRow`.
+  ⚠️ **Except horoscopes on `--reset`**, which delete by date rather than by marker — see the
+  Phase A note. `--force` on a day that already has live rows will therefore mark the whole day
+  `mock`, which is honest: the content really was replaced.
 - **Featured article.** `featuredArticleSelection.ts` picks from `getAllPostsAfterDate()` over
   all rows, so in a dev DB it can pin a seeded row as the hero. Fine in dev, but it matters to
   `plans/featured-articles.md`, which should not assume every candidate is real.
@@ -190,7 +283,18 @@ panel, and it makes `--reset` a single statement that cannot leak rows.
   tested path differ from the shipped one in exactly the way `ENABLE_FAKE_DATA` did.
 - **A sidecar table (`mock_content_keys`).** No migration on five tables, but it is a second
   source of truth that can drift from the rows it describes, and every "is this fake?" read
-  becomes a join.
+  becomes a join. Examined in more detail during Phase A and rejected for two concrete reasons
+  beyond drift:
+  1. **It needs a type discriminator.** The five tables have no cross-table key uniqueness
+     (`blog_posts.key` and `recipes.key` are both `dev-…`), so the sidecar would need a
+     `(table_name, row_key)` pair — at which point it stores the same information the column
+     does, one indirection further from the row, and every read still has to name its table.
+  2. **It can dangle.** Foreign keys are enabled (`PRAGMA foreign_keys = ON`) but no content
+     table has an FK, so nothing stops a row disappearing while its mark survives. Every delete
+     path would need a second statement — `remove()` alone would silently leave orphans,
+     and the production integrity check would report mock rows that no longer exist.
+     The column is a strict superset: same information, one migration, no referential integrity to
+     maintain by hand, and `COUNT(*)` instead of a join.
 - **Trust `NODE_ENV` and skip marking entirely.** Cheapest, and it is where the project stands
   today. It only answers "was this process asked to produce fake data?", never "does this
   database contain fake data?" — and the second question is the one that matters after a

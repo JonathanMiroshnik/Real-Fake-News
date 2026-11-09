@@ -2,10 +2,11 @@ import 'dotenv/config';
 import axios from 'axios';
 import cron from 'node-cron';
 import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS } from '../config/constants.js';
-import { getAllPosts } from '../lib/database/sqliteOperations.js';
+import { findAll } from '../lib/database/sqliteOperations.js';
 import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { standardizeDate } from './timeService.js';
 import { debugLog } from '../utils/debugLogger.js';
+import type { ContentSource } from '../types/contentSource.js';
 
 // TODO: like this, it will be restarted every time we start up the project again
 /**
@@ -25,6 +26,7 @@ export type NewsItem = {
   description: string;
   pubDate: string;
   pubDateTZ: string;
+  contentSource?: ContentSource;
 };
 
 /**
@@ -65,7 +67,7 @@ export async function fetchNews(page: string = ''): Promise<[any[], nextPage: st
  * @returns News Items that were published after the given date
  */
 export async function getAllNewsArticlesAfterDate(startDate: Date): Promise<NewsItem[]> {
-  const allArticles: NewsItem[] = await getAllPosts<NewsItem>(newsDatabaseConfig);
+  const allArticles: NewsItem[] = await findAll<NewsItem>(newsDatabaseConfig);
 
   const retArticles = allArticles.filter((article) => {
     const timestamp = standardizeDate(article.pubDate, article.pubDateTZ);

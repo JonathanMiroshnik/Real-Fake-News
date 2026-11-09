@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { randomInt } from 'crypto';
 import { getFeaturedArticleForDate } from '../services/blogService.js';
 import { getAllPostsAfterDate } from '../services/blogService.js';
-import { updatePost } from '../lib/database/sqliteOperations.js';
+import { update } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
@@ -51,7 +51,7 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
       featuredDate: today,
     };
 
-    const success = await updatePost<ArticleScheme>(featuredArticle, blogDatabaseConfig);
+    const success = await update<ArticleScheme>(blogDatabaseConfig, featuredArticle);
 
     if (success) {
       debugLog(

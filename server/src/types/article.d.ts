@@ -1,15 +1,9 @@
-import {
-  Post,
-  // createPost,
-  // getAllPosts,
-  // getPostByKey,
-  // updatePost,
-  // deletePost,
-} from '../lib/database/sqliteOperations.js';
+import { Row } from '../lib/database/sqliteOperations.js';
 import { NewsItem } from '../services/newsService.js';
 import { Writer } from './writer';
+import type { ContentSource } from './contentSource.js';
 
-export interface ArticleScheme extends Post {
+export interface ArticleScheme extends Row {
   title?: string;
   content?: string;
   author?: Writer;
@@ -21,6 +15,7 @@ export interface ArticleScheme extends Post {
   writerType?: 'AI' | 'Human' | 'Synthesis';
   isFeatured?: boolean;
   featuredDate?: string;
+  contentSource?: ContentSource;
 }
 
 export interface FeaturedArticleScheme extends ArticleScheme {
@@ -45,7 +40,7 @@ export interface BlogResponse {
   error?: string;
 }
 
-export interface RecipeScheme extends Post {
+export interface RecipeScheme extends Row {
   title?: string;
   paragraphs?: string[];
   author?: Writer;
@@ -55,6 +50,7 @@ export interface RecipeScheme extends Post {
   images?: string[];
   shortDescription?: string;
   writerType?: 'AI' | 'Human' | 'Synthesis';
+  contentSource?: ContentSource;
 }
 
 // FOR TESTING PURPOSRS ----------------------------------------------------------------------------------

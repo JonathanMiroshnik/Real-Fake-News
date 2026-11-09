@@ -5,7 +5,7 @@ import { generateTextFromString } from './llmService.js';
 import { generateAndSaveImage } from './imageService.js';
 import { getUniqueKey } from '../utils/general.js';
 import { getDatabase } from '../lib/database/database.js';
-import { createPost } from '../lib/database/sqliteOperations.js';
+import { insert } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
 
@@ -85,7 +85,7 @@ export async function generateRecipe(
     };
 
     if (saveRecipe) {
-      await createPost<RecipeScheme>(newRecipe, recipeDatabaseConfig);
+      await insert<RecipeScheme>(recipeDatabaseConfig, newRecipe);
       debugLog('✅ [generateRecipe] Recipe saved:', newRecipe.key);
     }
 

@@ -5,7 +5,7 @@ import {
   getRelevantArticles,
   getFeaturedArticleForDate,
 } from '../services/blogService.js';
-import { getPostByKey, getPostsCount } from '../lib/database/sqliteOperations.js';
+import { findOne, count } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
 import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
@@ -132,7 +132,7 @@ export async function getArticleByKeyController(req: Request, res: Response) {
   }
 
   try {
-    const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+    const article = await findOne<ArticleScheme>(blogDatabaseConfig, key);
 
     if (article) {
       debugLog('📥 Returning article:', article.key, article.title);
@@ -142,7 +142,7 @@ export async function getArticleByKeyController(req: Request, res: Response) {
       });
     } else if (isFakeDataEnabled()) {
       // Fallback: check if DB is empty, if so return a fake article
-      const totalCount = await getPostsCount(blogDatabaseConfig);
+      const totalCount = await count(blogDatabaseConfig);
       if (totalCount === 0) {
         debugLog('📰 [Fallback] Database empty, returning fake article for key:', key);
         const fakeArticle = await generateFakeArticle();

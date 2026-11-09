@@ -23,10 +23,11 @@ import {
 } from '../../services/contentSources/mocks/mockContent.js';
 import { hoursAgoToIso, type SeedContext } from './seedContext.js';
 import { deleteSeedImage, ensureSeedImage } from './seedImages.js';
-import { deleteSeedRowByKey, insertSeedRow } from './seedRows.js';
+import { deleteMockRows, insertSeedRow } from './seedRows.js';
+import { MOCK_CONTENT_SOURCE } from '../../types/contentSource.js';
 
-/** Builds the `writers` row for one mock profile. */
-function buildWriterRow(mockWriter: MockWriter, context: SeedContext): Writer {
+/** Builds the `writers` row for one mock profile. Exported for the marking test. */
+export function buildWriterRow(mockWriter: MockWriter, context: SeedContext): Writer {
   const timestamp = hoursAgoToIso(context, 0);
 
   return {
@@ -37,11 +38,12 @@ function buildWriterRow(mockWriter: MockWriter, context: SeedContext): Writer {
     profileImage: `${mockWriter.key}.png`,
     createdAt: timestamp,
     updatedAt: timestamp,
+    contentSource: MOCK_CONTENT_SOURCE,
   };
 }
 
 /** Builds the `blog_posts` row, embedding the author as the client expects. */
-function buildArticleRow(
+export function buildArticleRow(
   mockArticle: MockArticle,
   author: Writer,
   context: SeedContext,
@@ -67,17 +69,19 @@ function buildArticleRow(
     writerType: mockArticle.writerType,
     isFeatured: false,
     featuredDate: undefined,
+    contentSource: MOCK_CONTENT_SOURCE,
   };
 }
 
 /** Builds the `news_items` row. */
-function buildNewsItemRow(mockNewsItem: MockNewsItem, context: SeedContext): NewsItem {
+export function buildNewsItemRow(mockNewsItem: MockNewsItem, context: SeedContext): NewsItem {
   return {
     article_id: mockNewsItem.articleId,
     title: mockNewsItem.title,
     description: mockNewsItem.description,
     pubDate: hoursAgoToIso(context, mockNewsItem.hoursAgo),
     pubDateTZ: 'UTC',
+    contentSource: MOCK_CONTENT_SOURCE,
   };
 }
 
@@ -140,19 +144,27 @@ export async function seedNewsItems(context: SeedContext): Promise<void> {
   }
 }
 
-/** Removes seeded writers, articles, news items and their images (`--reset`). */
+/**
+ * Removes seeded blog content and its images (`--reset`).
+ *
+ * Rows are deleted by their `contentSource` marker, so a mock row written by a
+ * mock content source (Phase 3) is collected too, not just the ones whose keys are
+ * spelled out below. Images are still derived from the known mock keys: a file
+ * name cannot be read off a deleted row.
+ *
+ * News items go first, then articles, then writers: articles embed a full author
+ * object, so the writers must outlive them.
+ */
 export async function resetSeededBlogContent(context: SeedContext): Promise<void> {
-  for (const mockArticle of MOCK_ARTICLES) {
-    await deleteSeedRowByKey(mockArticle.key, blogDatabaseConfig, context);
-    context.report.removed += deleteSeedImage(mockArticle.key);
-  }
+  await deleteMockRows(newsDatabaseConfig, context);
+  await deleteMockRows(blogDatabaseConfig, context);
+  await deleteMockRows(writerDatabaseConfig, context);
 
-  for (const mockWriter of MOCK_WRITERS) {
-    await deleteSeedRowByKey(mockWriter.key, writerDatabaseConfig, context);
-    context.report.removed += deleteSeedImage(mockWriter.key);
-  }
-
-  for (const mockNewsItem of MOCK_NEWS_ITEMS) {
-    await deleteSeedRowByKey(mockNewsItem.articleId, newsDatabaseConfig, context);
+  const imageKeys = [
+    ...MOCK_ARTICLES.map((article) => article.key),
+    ...MOCK_WRITERS.map((writer) => writer.key),
+  ];
+  for (const imageKey of imageKeys) {
+    context.report.removed += deleteSeedImage(imageKey);
   }
 }

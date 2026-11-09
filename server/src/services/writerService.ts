@@ -1,13 +1,13 @@
 import { randomInt } from 'crypto';
 import { Writer } from '../types/writer.js';
-import { getAllPosts } from '../lib/database/sqliteOperations.js';
+import { findAll } from '../lib/database/sqliteOperations.js';
 import { writerDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 
 /**
  * @returns Single random Writer from the Writers in the database
  */
 export async function getRandomWriter(): Promise<Writer> {
-  const writersList = await getAllPosts<Writer>(writerDatabaseConfig);
+  const writersList = await findAll<Writer>(writerDatabaseConfig);
 
   if (writersList.length === 0) {
     throw new Error('No writers found in the database. Cannot select a random writer.');

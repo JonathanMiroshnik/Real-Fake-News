@@ -2,6 +2,57 @@ import { getDatabase } from './database.js';
 import { debugLog, debugWarn } from '../../utils/debugLogger.js';
 
 /**
+ * Column added by the content-marking migration
+ * (`plans/dev-content-marking.md` Phase A).
+ *
+ * 'live' is stamped by the column default, so the existing write paths need no
+ * change; mock code sources stamp 'mock' explicitly. It is metadata, not a
+ * filter: nothing reads it for ranking or selection yet.
+ */
+const CONTENT_SOURCE_COLUMN = "contentSource TEXT NOT NULL DEFAULT 'live'";
+
+/**
+ * Tables that carry the `contentSource` marker.
+ *
+ * `foods` is absent on purpose: a food row is only a name fed into a recipe
+ * prompt, and the seeder deletes exactly the names it wrote. `featured_blog_posts`
+ * is absent too — the table is dead (see `plans/featured-articles.md`), and
+ * `blog_posts.contentSource` already describes the article it would duplicate.
+ */
+const CONTENT_SOURCE_TABLES = [
+  'blog_posts',
+  'news_items',
+  'writers',
+  'recipes',
+  'horoscopes',
+] as const;
+
+/**
+ * Adds the `contentSource` marker to an existing table.
+ *
+ * SQLite has no `ADD COLUMN IF NOT EXISTS`, so the second and later runs land in
+ * the `duplicate column name` branch and are ignored — the same swallow pattern
+ * used below for `writerType`, `isFeatured` and `featuredDate`.
+ *
+ * @param db the open connection.
+ * @param tableName table that already exists (new tables declare the column inline).
+ */
+function addContentSourceColumn(db: ReturnType<typeof getDatabase>, tableName: string): void {
+  try {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${CONTENT_SOURCE_COLUMN}`);
+  } catch (error: any) {
+    const isDuplicateColumn =
+      error.code === 'SQLITE_ERROR' &&
+      (error.message?.includes('duplicate column name') ||
+        error.message?.includes('duplicate column'));
+
+    if (!isDuplicateColumn) {
+      debugWarn(`Warning: Could not add contentSource column to ${tableName}:`, error.message);
+    }
+  }
+}
+
+/**
  * Initializes the SQLite database schema.
  * Creates all tables and indexes if they don't exist.
  * Safe to call multiple times - won't modify existing tables or data.
@@ -23,7 +74,8 @@ export function initializeSchema(): void {
             shortDescription TEXT,
             originalNewsItem TEXT,
             writerType TEXT DEFAULT 'AI',
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            ${CONTENT_SOURCE_COLUMN}
         )
     `);
 
@@ -101,7 +153,8 @@ export function initializeSchema(): void {
             description TEXT,
             pubDate TEXT NOT NULL,
             pubDateTZ TEXT,
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            ${CONTENT_SOURCE_COLUMN}
         )
     `);
 
@@ -115,7 +168,8 @@ export function initializeSchema(): void {
             systemPrompt TEXT NOT NULL,
             profileImage TEXT,
             createdAt TEXT NOT NULL,
-            updatedAt TEXT NOT NULL
+            updatedAt TEXT NOT NULL,
+            ${CONTENT_SOURCE_COLUMN}
         )
     `);
 
@@ -183,7 +237,8 @@ export function initializeSchema(): void {
             images TEXT,
             shortDescription TEXT,
             writerType TEXT DEFAULT 'AI',
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            ${CONTENT_SOURCE_COLUMN}
         )
     `);
 
@@ -203,6 +258,7 @@ export function initializeSchema(): void {
             content TEXT NOT NULL,
             astrologicalData TEXT NOT NULL,
             createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            ${CONTENT_SOURCE_COLUMN},
             UNIQUE(date, zodiacSign)
         )
     `);
@@ -224,6 +280,24 @@ export function initializeSchema(): void {
             updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
         )
     `);
+
+  // Migration: add the contentSource marker to databases created before it
+  // existed (plans/dev-content-marking.md Phase A). Existing rows backfill to
+  // 'live' through the column default — which is wrong for anything seeded before
+  // this lands, so a dev database that predates it should be rebuilt once with
+  // `npm run seed:reset`. Runs after the CREATEs so every target table exists.
+  for (const tableName of CONTENT_SOURCE_TABLES) {
+    addContentSourceColumn(db, tableName);
+  }
+
+  // Index on origin, so "how many mock rows?" is a real COUNT(*) in every table
+  // instead of a LIKE 'dev-%' guess.
+  for (const tableName of CONTENT_SOURCE_TABLES) {
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_${tableName}_contentSource 
+        ON ${tableName}(contentSource)
+    `);
+  }
 
   debugLog('SQLite schema initialized successfully');
 }

@@ -47,6 +47,7 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
       writerType: row.writerType || 'AI',
       isFeatured: row.isFeatured === 1 || row.isFeatured === true,
       featuredDate: row.featuredDate,
+      contentSource: row.contentSource,
     } as ArticleScheme;
   },
   getKey: async (pInput: ArticleScheme) => {
@@ -69,6 +70,8 @@ export const blogDatabaseConfig: DatabaseConfig<ArticleScheme> = {
     toInput.writerType = fromInput.writerType || 'AI';
     toInput.isFeatured = fromInput.isFeatured;
     toInput.featuredDate = fromInput.featuredDate;
+    // Absent means live (the insert path defaults it the same way).
+    toInput.contentSource = fromInput.contentSource;
 
     return true;
   },
@@ -132,6 +135,10 @@ export const featuredBlogDatabaseConfig: DatabaseConfig<FeaturedArticleScheme> =
     toInput.shortDescription = fromInput.shortDescription;
     toInput.timestamp = fromInput.timestamp;
     toInput.title = fromInput.title;
+    // Carried even though `featured_blog_posts` has no such column: this config's
+    // UPDATE never writes it, and leaving it out would make an in-memory featured
+    // copy of a mock article look live to anything that inspects it.
+    toInput.contentSource = fromInput.contentSource;
 
     return true;
   },
@@ -157,6 +164,7 @@ export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
       description: row.description,
       pubDate: row.pubDate,
       pubDateTZ: row.pubDateTZ,
+      contentSource: row.contentSource,
     } as NewsItem;
   },
   getKey: async (pInput: NewsItem) => {
@@ -166,6 +174,8 @@ export const newsDatabaseConfig: DatabaseConfig<NewsItem> = {
     toInput.article_id = fromInput.article_id;
     toInput.description = fromInput.description;
     toInput.title = fromInput.title;
+    // Absent means live (the insert path defaults it the same way).
+    toInput.contentSource = fromInput.contentSource;
 
     return true;
   },
@@ -195,6 +205,7 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
       profileImage: row.profileImage,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+      contentSource: row.contentSource,
     } as Writer;
   },
   getKey: async (pInput: Writer) => {
@@ -212,6 +223,8 @@ export const writerDatabaseConfig: DatabaseConfig<Writer> = {
     toInput.profileImage = fromInput.profileImage;
     toInput.createdAt = fromInput.createdAt;
     toInput.updatedAt = fromInput.updatedAt;
+    // Absent means live (the insert path defaults it the same way).
+    toInput.contentSource = fromInput.contentSource;
 
     return true;
   },
@@ -244,6 +257,7 @@ export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
       images: row.images ? JSON.parse(row.images) : undefined,
       shortDescription: row.shortDescription,
       writerType: row.writerType || 'AI',
+      contentSource: row.contentSource,
     } as RecipeScheme;
   },
   getKey: async (pInput: RecipeScheme) => {
@@ -264,6 +278,8 @@ export const recipeDatabaseConfig: DatabaseConfig<RecipeScheme> = {
     toInput.timestamp = fromInput.timestamp;
     toInput.title = fromInput.title;
     toInput.writerType = fromInput.writerType || 'AI';
+    // Absent means live (the insert path defaults it the same way).
+    toInput.contentSource = fromInput.contentSource;
 
     return true;
   },

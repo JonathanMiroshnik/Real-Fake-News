@@ -6,13 +6,13 @@ import fs from 'fs';
 // import { dirname } from "path";
 import { v4 as uuidv4 } from 'uuid';
 import {
-  getAllPosts,
-  getPostByKey,
-  updatePost,
-  getPostsCount,
-  getPostsPaginated,
+  findAll,
+  findOne,
+  update,
+  count,
+  findPaginated,
 } from '../lib/database/sqliteOperations.js';
-import { deletePost } from '../lib/database/sqliteOperations.js';
+import { remove } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { getDatabase } from '../lib/database/database.js';
 import { ArticleScheme } from '../types/article.js';
@@ -109,7 +109,7 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
       const sortedPages = [...pages].sort((a, b) => a - b);
       const allArticles: ArticleScheme[] = [];
       for (const pageNum of sortedPages) {
-        const pageArticles = await getPostsPaginated<ArticleScheme>(
+        const pageArticles = await findPaginated<ArticleScheme>(
           blogDatabaseConfig,
           pageNum,
           itemsPerPage,
@@ -126,7 +126,7 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
       });
     } else if (page !== undefined && itemsPerPage !== undefined) {
       // Single page request
-      const articles: ArticleScheme[] = await getPostsPaginated<ArticleScheme>(
+      const articles: ArticleScheme[] = await findPaginated<ArticleScheme>(
         blogDatabaseConfig,
         page,
         itemsPerPage,
@@ -141,7 +141,7 @@ export const getAdminArticles = async (req: Request, res: Response): Promise<voi
       });
     } else {
       // Non-paginated request (backward compatibility)
-      const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+      const allArticles: ArticleScheme[] = await findAll<ArticleScheme>(blogDatabaseConfig);
 
       res.json({
         success: true,
@@ -167,7 +167,7 @@ export const getAdminArticlesCount = async (req: Request, res: Response): Promis
       return;
     }
 
-    const totalCount = await getPostsCount<ArticleScheme>(blogDatabaseConfig);
+    const totalCount = await count<ArticleScheme>(blogDatabaseConfig);
 
     res.json({
       success: true,
@@ -198,7 +198,7 @@ export const getAdminArticle = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+    const article = await findOne<ArticleScheme>(blogDatabaseConfig, key);
 
     if (article) {
       res.json({
@@ -229,7 +229,7 @@ export const updateAdminArticle = async (req: Request, res: Response): Promise<v
     }
 
     // Get the existing article first
-    const existingArticle = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+    const existingArticle = await findOne<ArticleScheme>(blogDatabaseConfig, key);
     if (!existingArticle) {
       res.status(404).json({ error: 'Article not found' });
       return;
@@ -255,7 +255,7 @@ export const updateAdminArticle = async (req: Request, res: Response): Promise<v
       }),
     };
 
-    const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
+    const success = await update<ArticleScheme>(blogDatabaseConfig, updatedArticle);
 
     if (success) {
       res.json({
@@ -286,7 +286,7 @@ export const deleteAdminArticle = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const deleted = await deletePost<ArticleScheme>(key, blogDatabaseConfig);
+    const deleted = await remove<ArticleScheme>(blogDatabaseConfig, key);
 
     if (deleted) {
       res.json({ success: true, message: 'Article deleted successfully' });
@@ -314,7 +314,7 @@ export const setFeaturedArticle = async (req: Request, res: Response): Promise<v
     }
 
     // Get the article to feature
-    const article = await getPostByKey<ArticleScheme>(key, blogDatabaseConfig);
+    const article = await findOne<ArticleScheme>(blogDatabaseConfig, key);
     if (!article) {
       res.status(404).json({ error: 'Article not found' });
       return;
@@ -338,7 +338,7 @@ export const setFeaturedArticle = async (req: Request, res: Response): Promise<v
       featuredDate: today,
     };
 
-    const success = await updatePost<ArticleScheme>(updatedArticle, blogDatabaseConfig);
+    const success = await update<ArticleScheme>(blogDatabaseConfig, updatedArticle);
 
     if (success) {
       debugLog('✅ [setFeaturedArticle] Article set as featured:', key, 'for date:', today);

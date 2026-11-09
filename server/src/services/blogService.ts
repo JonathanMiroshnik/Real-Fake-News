@@ -11,7 +11,7 @@ import { ArticleScheme, BlogResponse } from '../types/article.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { Writer } from '../types/writer.js';
 import { generateTextFromString } from './llmService.js';
-import { getAllPosts, createPost, getPostByKey } from '../lib/database/sqliteOperations.js';
+import { findAll, insert, findOne } from '../lib/database/sqliteOperations.js';
 import { getDatabase } from '../lib/database/database.js';
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from '../services/newsService.js';
@@ -30,7 +30,7 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
     debugLog('🔍 [getAllPostsAfterDate] Start time:', startDate.getTime());
   }
 
-  const allArticles: ArticleScheme[] = await getAllPosts<ArticleScheme>(blogDatabaseConfig);
+  const allArticles: ArticleScheme[] = await findAll<ArticleScheme>(blogDatabaseConfig);
   debugLog('🔍 [getAllPostsAfterDate] Total articles in database:', allArticles.length);
 
   const retArticles = allArticles.filter((article) => {
@@ -209,7 +209,7 @@ export async function getFeaturedArticleForDate(date?: string): Promise<ArticleS
       return undefined;
     }
 
-    const article = await getPostByKey<ArticleScheme>(result.key, blogDatabaseConfig);
+    const article = await findOne<ArticleScheme>(blogDatabaseConfig, result.key);
     debugLog(
       '✅ [getFeaturedArticleForDate] Found featured article:',
       article?.key,
@@ -247,7 +247,7 @@ export async function writeBlogPost(
 
   // Only save if saveArticle is true and we have a valid article
   if (saveArticle) {
-    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+    await insert<ArticleScheme>(blogDatabaseConfig, newArticle);
   }
   return newArticle;
 }
@@ -627,7 +627,7 @@ export async function generateNewsArticleFromExplanation(
 
   if (saveArticle) {
     // Add new AI news article to AI news article database
-    await createPost<ArticleScheme>(newArticle, blogDatabaseConfig);
+    await insert<ArticleScheme>(blogDatabaseConfig, newArticle);
   }
 
   return newArticle;

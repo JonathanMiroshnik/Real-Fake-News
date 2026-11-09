@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { RecipeScheme } from '../types/article.js';
 import { getAllRecipesAfterDate, getAllRecipes } from '../services/recipeService.js';
-import { getPostByKey, getPostsCount } from '../lib/database/sqliteOperations.js';
+import { findOne, count } from '../lib/database/sqliteOperations.js';
 import { recipeDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { DAY_MILLISECS } from '../config/constants.js';
 import { debugLog } from '../utils/debugLogger.js';
@@ -88,7 +88,7 @@ export async function getRecipeByKeyController(req: Request, res: Response) {
   }
 
   try {
-    const recipe = await getPostByKey<RecipeScheme>(key, recipeDatabaseConfig);
+    const recipe = await findOne<RecipeScheme>(recipeDatabaseConfig, key);
 
     if (recipe) {
       debugLog('📥 Returning recipe:', recipe.key, recipe.title);
@@ -98,7 +98,7 @@ export async function getRecipeByKeyController(req: Request, res: Response) {
       });
     } else if (isFakeDataEnabled()) {
       // Fallback: check if DB is empty, if so return a fake recipe
-      const totalCount = await getPostsCount(recipeDatabaseConfig);
+      const totalCount = await count(recipeDatabaseConfig);
       if (totalCount === 0) {
         debugLog('🍳 [Fallback] Database empty, returning fake recipe for key:', key);
         const fakeRecipe = await generateFakeRecipe();

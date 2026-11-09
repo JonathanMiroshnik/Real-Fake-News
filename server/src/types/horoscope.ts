@@ -1,3 +1,5 @@
+import type { ContentSource } from './contentSource.js';
+
 export interface PlanetaryPosition {
   name: string;
   longitude: number;
@@ -21,6 +23,7 @@ export interface Horoscope {
   content: string;
   astrologicalData: AstrologicalData;
   createdAt?: string;
+  contentSource?: ContentSource;
 }
 
 export interface HoroscopeResponse {

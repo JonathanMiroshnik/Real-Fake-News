@@ -1,5 +1,5 @@
 import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants.js';
-import { createPost } from '../lib/database/sqliteOperations.js';
+import { insert } from '../lib/database/sqliteOperations.js';
 import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { NewsItem, remainingTokens, fetchNews } from '../services/newsService.js';
 
@@ -51,7 +51,7 @@ async function insertArticlesToDatabase(articles: any[]): Promise<NewsItem[]> {
     // console.log("Is this related?", boolResponse);
     // if (!boolResponse) {
 
-    if (await createPost<NewsItem>(article, newsDatabaseConfig)) {
+    if (await insert<NewsItem>(newsDatabaseConfig, article)) {
       retArticles.push({
         article_id: article.article_id,
         title: article.title,

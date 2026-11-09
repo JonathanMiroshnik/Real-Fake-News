@@ -9,7 +9,7 @@ import { generateAndSaveImage } from './imageService.js';
 import { generateTextFromString } from './llmService.js';
 import { getUniqueKey } from '../utils/general.js';
 // import { getNRandom } from "../utils/general.js";
-import { createPost } from '../lib/database/sqliteOperations.js';
+import { insert } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
 
@@ -60,7 +60,7 @@ async function createFeaturedArticle(
     headImage: imgName,
   };
 
-  await createPost<FeaturedArticleScheme>(newFeaturedArticle, featuredBlogDatabaseConfig);
+  await insert<FeaturedArticleScheme>(featuredBlogDatabaseConfig, newFeaturedArticle);
 
   return newFeaturedArticle;
 }

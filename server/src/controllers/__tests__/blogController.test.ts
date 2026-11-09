@@ -20,8 +20,8 @@ vi.mock('../../services/blogService.js', () => ({
 }));
 
 vi.mock('../../lib/database/sqliteOperations.js', () => ({
-  getPostByKey: mockGetPostByKey,
-  getPostsCount: vi.fn(),
+  findOne: mockGetPostByKey,
+  count: vi.fn(),
 }));
 
 vi.mock('../../services/fakeDataService.js', () => ({

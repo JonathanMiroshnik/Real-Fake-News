@@ -3,12 +3,28 @@
  *
  * The idempotency rule lives here, in one place: a row whose key already exists
  * is skipped (and counted) unless `--force` is set, in which case the old row is
- * deleted first and written again. `createPost` cannot update, so delete+insert
- * is what "re-seed this row" means.
+ * deleted first and written again. `insert` cannot update an existing row, so
+ * delete+insert is what "re-seed this row" means.
+ *
+ * The origin stamp also lives here, for the same reason: every row this module
+ * writes is mock content by definition, so no table seeder can forget to mark one
+ * (`plans/dev-content-marking.md`).
  */
 import type { DatabaseConfig } from '../../lib/database/databaseConfigurations.js';
-import { createPost, deletePost } from '../../lib/database/sqliteOperations.js';
+import { getDatabase } from '../../lib/database/database.js';
+import { insert, deleteMarkedRows, remove } from '../../lib/database/sqliteOperations.js';
+import { MOCK_CONTENT_SOURCE } from '../../types/contentSource.js';
 import type { SeedContext } from './seedContext.js';
+
+/**
+ * Stamps a row as mock content before it is written.
+ *
+ * @param row typed row; `contentSource` is carried by every marked scheme.
+ * @returns the same row, marked `mock`.
+ */
+function stampAsMock<P>(row: P): P {
+  return { ...row, contentSource: MOCK_CONTENT_SOURCE };
+}
 
 /**
  * Inserts one row if it is missing.
@@ -31,10 +47,10 @@ export async function insertSeedRow<P>(
   }
 
   if (alreadyExists) {
-    await deletePost(key, dbConfig);
+    await remove(dbConfig, key);
   }
 
-  const wasCreated = await createPost(row, dbConfig);
+  const wasCreated = await insert(dbConfig, stampAsMock(row));
   if (!wasCreated) {
     context.report.skipped++;
     return false;
@@ -44,21 +60,24 @@ export async function insertSeedRow<P>(
 }
 
 /**
- * Deletes one row by key if it exists (used by --reset).
+ * Deletes every row of one table that is marked `mock` (used by --reset).
  *
- * @param key primary key value (`key`, or `article_id` for news items).
- * @returns true if a row was removed.
+ * Keyed on `contentSource` rather than on the `dev-` key prefix: the prefix is a
+ * naming convention, the column is the contract. It also collects the rows a
+ * mock content source wrote, whose keys nothing can predict in advance
+ * (`plans/dev-content-marking.md` Phase A).
+ *
+ * @param dbConfig table to scrub.
+ * @param context the run context (counters).
+ * @returns true if at least one row was removed.
  */
-export async function deleteSeedRowByKey<P>(
-  key: string,
+export async function deleteMockRows<P>(
   dbConfig: DatabaseConfig<P>,
   context: SeedContext,
 ): Promise<boolean> {
-  const wasDeleted = await deletePost(key, dbConfig);
+  const db = getDatabase();
+  const removedCount = deleteMarkedRows(db, dbConfig.source, MOCK_CONTENT_SOURCE);
 
-  if (wasDeleted) {
-    context.report.removed++;
-  }
-
-  return wasDeleted;
+  context.report.removed += removedCount;
+  return removedCount > 0;
 }
