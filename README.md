@@ -94,7 +94,9 @@ Required keys: `DEEPSEEK_API_KEY`, `NEWSDATA_API_KEY`, `RUNWARE_API_KEY` and
 **Use the dev overlay for testing on your dev machine.** It adds port mappings so you can access services from your browser.
 
 ```bash
-npm run docker:dev        # build + start everything (dev overlay merged in)
+npm run docker:dev        # plain alias: docker compose -f … -f … up --build -d
+npm run docker:dev:status # container table + seed log + write probe (changes nothing)
+npm run docker:dev:check  # pre-flight + running-stack verdict
 npm run docker:dev:logs   # follow the API log
 npm run docker:dev:down   # stop (the data directory stays on disk)
 
@@ -104,7 +106,14 @@ npm run docker:dev:down   # stop (the data directory stays on disk)
 #   API directly:  http://localhost:5001/api/health
 ```
 
-Those scripts are literally `docker compose -f docker-compose.yml -f docker-compose.dev.yml <up|logs|down>`. Keep the `-f` flags if you type commands by hand: the overlay is named `docker-compose.dev.yml`, **not** `docker-compose.override.yml`, and Docker only auto-merges the latter by name. Full runbook: [`docs/configuration.md` §3](docs/configuration.md).
+`docker compose up -d` and `docker compose down` work directly — the npm scripts
+and `scripts/docker-dev.sh` are convenience wrappers around the compose files, not
+a gate in front of them. Use `docker:dev:status` when something looks wrong: it
+prints the container states, the `seed` log, and whether a container can write
+`DATABASE_DIR`/`IMAGES_DIR`. If you type the compose command by hand, keep the
+`-f` flags: the overlay is named `docker-compose.dev.yml`, **not**
+`docker-compose.override.yml`, and Docker only auto-merges the latter by name.
+Full runbook: [`docs/configuration.md` §3](docs/configuration.md).
 
 ### Startup Order & Nginx DNS Resolution
 

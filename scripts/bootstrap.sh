@@ -97,22 +97,62 @@ ensure_data_dirs() {
   create_host_dir "$images_dir" '/images'
 }
 
+# Reports whether the current user can actually write into a data directory.
+# `-w` alone misses ACL/read-only-mount cases, so a real file create decides.
+is_dir_writable() {
+  local host_dir="$1"
+  local probe_file="${host_dir}/.write-probe.$$"
+
+  if ! ( : >"$probe_file" ) 2>/dev/null; then
+    return 1
+  fi
+
+  rm -f "$probe_file"
+  return 0
+}
+
+# Ownership is what bit us before: a `docker compose up` that failed on an
+# unreachable daemon still created these directories as root, so every later
+# run (host or dev script) found a directory it could not write to.
+report_unwritable_dir() {
+  local host_dir="$1"
+
+  echo "  x ${host_dir} belongs to $(stat -c '%U:%G' "$host_dir" 2>/dev/null || echo '?') and is not writable by $(id -un)"
+  echo "    fix: sudo chown -R \"$(id -un)\" ${host_dir}"
+}
+
 # Usage: create_host_dir <absolute dir> <container mount point>
 create_host_dir() {
   local host_dir="$1"
   local mount_point="$2"
 
-  if mkdir -p "$host_dir" 2>/dev/null; then
-    echo "  = data dir ready: ${host_dir} (mounted at ${mount_point})"
+  if [[ ! -d "$host_dir" ]] && ! mkdir -p "$host_dir" 2>/dev/null; then
+    echo "  ! cannot create ${host_dir} — create it yourself and make it writable"
     return 0
   fi
 
-  echo "  ! cannot create ${host_dir} — create it yourself and make it writable"
+  if ! is_dir_writable "$host_dir"; then
+    report_unwritable_dir "$host_dir"
+    return 0
+  fi
+
+  echo "  = data dir ready: ${host_dir} (mounted at ${mount_point})"
 }
 
 ensure_docker_network() {
   if ! command -v docker >/dev/null 2>&1; then
     echo "  ! docker not found — skipping network setup"
+    echo "    (install it, then re-run: npm run setup — see scripts/lib/docker-preflight.sh)"
+    return 0
+  fi
+
+  # Without the daemon every `docker network` call fails with a permission or
+  # connection error that used to scroll past; say it plainly instead.
+  if ! docker info >/dev/null 2>&1; then
+    echo "  ! docker daemon unreachable — skipping network setup"
+    echo "    start it:  sudo systemctl enable --now docker"
+    echo "    or join:   sudo usermod -aG docker \"\$USER\"  (then log out/in)"
+    echo "    verify:    npm run docker:dev:check"
     return 0
   fi
 
@@ -121,8 +161,12 @@ ensure_docker_network() {
     return 0
   fi
 
-  docker network create "$DOCKER_NETWORK" >/dev/null
-  echo "  + created docker network $DOCKER_NETWORK (production needs it; dev makes its own)"
+  if docker network create "$DOCKER_NETWORK" >/dev/null; then
+    echo "  + created docker network $DOCKER_NETWORK (production needs it; dev makes its own)"
+    return 0
+  fi
+
+  echo "  ! could not create docker network $DOCKER_NETWORK (production only; dev creates its own)"
 }
 
 print_next_steps() {

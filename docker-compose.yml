@@ -57,16 +57,20 @@ services:
       ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-false}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
-      # Both mount sources are REQUIRED: there is no default host directory, so
-      # `docker compose up` stops here instead of silently creating ./database
-      # inside the repo. Set them in the root .env (see .env.example).
+      # Both mount sources come from the root .env (no defaults on purpose, so
+      # `docker compose up` stops instead of silently creating ./database).
       #
-      # SQLite file (database.db, -wal, -shm). Any directory on the HOST works;
-      # absolute paths are recommended and may live outside the repo.
-      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw'
+      # `:z` tells Docker to label the host path for container use on every
+      # start. Without it, a directory under /home keeps its `user_home_t`
+      # SELinux label and a container is refused write access even though the
+      # host user is allowed (Fedora ships SELinux as Enforcing). `:z` is
+      # idempotent and relabels recursively, so relative paths like
+      # `DATABASE_DIR=./database` work as-is — the label, not the location, is
+      # what matters.
+      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw,z'
       # Generated images (originals + compressed copies). Usually the sibling of
       # DATABASE_DIR, but it may point at its own disk / quota.
-      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw'
+      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw,z'
     restart: unless-stopped
     networks:
       - devops_shared

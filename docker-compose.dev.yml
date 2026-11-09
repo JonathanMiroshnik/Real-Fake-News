@@ -59,9 +59,10 @@ services:
       DEBUG_LOGS: ${DEBUG_LOGS:-true}
     volumes:
       # Identical mounts to `server` — a seed that wrote somewhere else would be
-      # invisible to the API.
-      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw'
-      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw'
+      # invisible to the API. The `:z` suffix must match too: same SELinux label,
+      # same relabel pass, no two-service relabel churn.
+      - '${DATABASE_DIR:?DATABASE_DIR missing - set the host database directory in .env}:/data:rw,z'
+      - '${IMAGES_DIR:?IMAGES_DIR missing - set the host images directory in .env}:/images:rw,z'
     depends_on:
       - server
     restart: 'no'

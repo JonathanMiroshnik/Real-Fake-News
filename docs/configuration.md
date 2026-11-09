@@ -28,6 +28,12 @@ The script is idempotent and only ever creates what is missing:
 - `database/` — the host directory bind-mounted to `/data` in the server container
 - the `devops_shared` Docker network (Compose declares it `external: true`)
 
+Existing `DATABASE_DIR` / `IMAGES_DIR` directories are write-probed (a real file
+create, not `-w`) and reported with owner and mode when they are not writable —
+an earlier `docker compose up` that failed on an unreachable daemon could leave
+them owned by `root`. An unreachable docker daemon is reported instead of being
+skipped silently.
+
 It exits non-zero while `DEEPSEEK_API_KEY`, `NEWSDATA_API_KEY`,
 `RUNWARE_API_KEY` or `ADMIN_PASSWORD` still hold placeholder values, so a
 half-configured deployment never starts.
@@ -87,14 +93,47 @@ Two consistent ways to remove the duplication:
 
 ```bash
 # Local containerised dev (publishes 5001 / 5173 / 5174, no background jobs)
-npm run docker:dev          # = docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+npm run docker:dev          # plain alias: docker compose -f … -f … up --build -d
+npm run docker:dev:status   # container table + seed log + write probe (no changes)
+npm run docker:dev:check    # pre-flight + running-stack verdict, starts nothing
+npm run docker:dev:check:deep  # + write probe inside a throwaway container
 npm run docker:dev:logs     # follow the API container
 npm run docker:dev:down     # stop, keep your DATABASE_DIR/IMAGES_DIR contents
 
 # Production-like (no host ports, shared VPS network)
-npm run docker:prod         # = docker compose up --build -d
+npm run docker:prod         # plain alias: docker compose up --build -d
 npm run docker:down
 ```
+
+The npm scripts are **convenience only** — `docker compose up --build -d` and
+`docker compose down`, with and without `-f docker-compose.dev.yml`, behave the
+same whether or not you go through npm. `scripts/docker-dev.sh` adds the
+diagnostics (`status` / `check`) on top of the compose files, it does not gate
+them.
+
+What `check` / `status` report (they never start or stop anything):
+
+| Check                       | Message when it fails                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| docker CLI + Compose v2     | which package to install                                                              |
+| daemon reachable            | `docker.sock permission denied` → group/login fix, or `systemctl enable --now docker` |
+| root `.env`                 | names the keys that are **empty**; `your_*_here` placeholders are fine for dev        |
+| `DATABASE_DIR`/`IMAGES_DIR` | created if missing, else reported with owner+mode and a `chown` command               |
+| running stack               | `ps -a` table, the `seed` log, exit 1 if a service is restarting/exited/dead          |
+
+That last row is the important one: `docker compose up` can create the bind-mount
+directories and then fail with the daemon unreachable, which used to leave two
+empty root-owned directories, no container and no visible reason. Run
+`npm run docker:dev:check` first if you only want the pre-flight.
+
+**"unable to open database file" in the container.** The host check can pass and
+the container still be refused the mount: on Fedora, SELinux (`Enforcing`) labels
+any directory under `/home` as `user_home_t`, which `container_t` may not write.
+The bind mounts carry `:z`, so Docker relabels them (`container_file_t`) on every
+start — `.env` stays the single source of truth for _where_ the data lives,
+relative paths included. If a stack started before `:z` was added still fails,
+re-create the containers once: `docker compose up -d --force-recreate`.
+`--deep` verifies this from inside a container.
 
 Both require the root `.env` (Compose errors out with `cp .env.example .env` until
 the four required keys are filled). `npm run setup` creates the `.env` files, the
