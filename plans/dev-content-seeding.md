@@ -141,6 +141,10 @@ Verified by hand: seed → 67 rows + 70 image files; second run → 0 inserted, 
 The point of this phase: dev should run the **production write path** (jobs → services →
 SQLite) against free, deterministic content instead of replacing that path at read time.
 
+> **Prerequisite:** `plans/dev-content-marking.md` Phase A. Once the _pipeline_ writes mock rows,
+> origin must be a column on the row (`contentSource`), not a `dev-` key prefix — otherwise
+> mock-generated rows are indistinguishable from real ones and `--reset` has nothing to select on.
+
 - [ ] Introduce `server/src/services/contentSources/` with one port per external dependency,
       exactly at the seams listed in "Where the mock begins": `NewsSource` (`fetchLatest(count)`),
       `TextGenerator` (`generate(prompt, type)`), `ImageGenerator` (`generate(prompt)`),
