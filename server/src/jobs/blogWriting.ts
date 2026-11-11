@@ -59,7 +59,7 @@ export async function generateScheduledArticles(
         break;
       }
       const currentNewsItem = currentNews.splice(randomBelow(currentNews.length), 1)[0];
-      const writer = await getRandomWriter(randomBelow);
+      const writer = await getRandomWriter(randomBelow, ports);
       await writeBlogPost(writer, currentNewsItem, true, ports);
     }
   } catch (error) {

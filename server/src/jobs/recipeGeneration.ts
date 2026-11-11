@@ -55,7 +55,7 @@ export async function generateScheduledRecipes(
 
     for (let i = 0; i < newRecipesNeeded; i++) {
       try {
-        const writer = await getRandomWriter(randomBelow);
+        const writer = await getRandomWriter(randomBelow, ports);
         const recipeFoods = await getRandomFoods(2 + randomBelow(2)); // 2-3 foods per recipe
 
         if (recipeFoods.length === 0) {

@@ -16,7 +16,7 @@ import {
   buildMockAstrologicalData,
   type MockRecipe,
 } from '../../services/contentSources/mocks/mockContent.js';
-import { LIVE_CONTENT_SOURCE, MOCK_CONTENT_SOURCE } from '../../types/contentSource.js';
+import { MOCK_CONTENT_SOURCE } from '../../types/contentSource.js';
 import { hoursAgoToIso, toHoroscopeDate, type SeedContext } from './seedContext.js';
 import { deleteSeedImage, ensureSeedImage } from './seedImages.js';
 import { deleteMockRows, insertSeedRow } from './seedRows.js';
@@ -103,13 +103,17 @@ export function seedFoods(context: SeedContext): void {
  * `--force` re-stamps the date as `mock`: replacing a live set with mock text
  * while leaving it marked `live` would be exactly the lie the column exists to
  * prevent (`plans/dev-content-marking.md`).
+ *
+ * Every row written here is mock content, so every row is stamped `mock` —
+ * `--force` decides *whether* to write, never *what the row is*. Stamping only
+ * under `--force` marked a plain `seed:dev` day `live`, which told a reader the
+ * placeholder text had been generated from real planetary data.
  */
 export function seedHoroscopes(context: SeedContext): void {
   const db = getDatabase();
   const horoscopeDate = toHoroscopeDate(context);
   const astrologicalData = JSON.stringify(buildMockAstrologicalData(horoscopeDate));
   const insertVerb = context.options.force ? 'INSERT OR REPLACE' : 'INSERT OR IGNORE';
-  const rowSource = context.options.force ? MOCK_CONTENT_SOURCE : LIVE_CONTENT_SOURCE;
 
   const statement = db.prepare(`
     ${insertVerb} INTO horoscopes (date, zodiacSign, content, astrologicalData, createdAt, contentSource)
@@ -123,7 +127,7 @@ export function seedHoroscopes(context: SeedContext): void {
       entry.content,
       astrologicalData,
       context.now.toISOString(),
-      rowSource,
+      MOCK_CONTENT_SOURCE,
     );
 
     if (result.changes > 0) {

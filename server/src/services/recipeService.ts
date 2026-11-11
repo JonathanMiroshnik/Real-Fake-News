@@ -84,6 +84,9 @@ export async function generateRecipe(
       images: images,
       shortDescription: parsedData.shortDescription,
       writerType: 'AI',
+      // The text port names the origin of the prose — see writeBlogPost(). The image
+      // port cannot disagree: both come from the same port set (contentSources/index.ts).
+      contentSource: ports.text.contentSource,
     };
 
     if (saveRecipe) {

@@ -630,6 +630,10 @@ export async function generateNewsArticleFromExplanation(
     originalNewsItem: currentNewsItem,
     shortDescription: parsedData.shortDescription,
     headImage: imgName,
+    // The text port names the origin of the prose. Without this the row would take
+    // the column default ('live') and a mock article would claim to be real
+    // (`plans/dev-content-marking.md` Phase B).
+    contentSource: ports.text.contentSource,
   };
 
   if (saveArticle) {
