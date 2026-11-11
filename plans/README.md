@@ -66,8 +66,9 @@ top of `73790b05`.
       `CONTENT_SOURCE_TABLES` list; **(6.3) done** — `getAllPostsAfterDateBySource()` counts what
       one pipeline produced, `getAllNewsArticlesAfterDate()` takes an origin, and
       `ensureHoroscopesForToday()` counts its own twelve, so a seeded table no longer answers
-      "quota met" for a pipeline that has produced nothing; **(6.4)** move `remainingTokens`
-      into the live adapter; **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
+      "quota met" for a pipeline that has produced nothing; **(6.4) done** — the daily token
+      budget is `LiveNewsSource` instance state, and `fetchNews()` no longer meters anything;
+      **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
       mock-row count in the startup log; **(6.6)** put both `0 0 * * *` crons behind
       `JOBS_TIME_SCALE`; **(6.7)** per-job integration test asserting each row's `contentSource`.
       **6.7 is last on purpose** — it is the test that proves 6.1–6.3 were done, so it lands after

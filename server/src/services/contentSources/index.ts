@@ -6,8 +6,9 @@
  * answered by one environment variable instead of by following six imports.
  *
  * The ports are built once and exported as a single object. Building them per
- * call would be wrong for the live set: `LiveNewsSource` reads a shared token
- * budget, and a fresh instance per job would make the budget look unlimited.
+ * call would be wrong for the live set: `LiveNewsSource` owns a daily token
+ * budget as instance state, and a fresh instance per job would hand each job the
+ * full allowance, resetting the day's spend by accident.
  *
  * Callers should read `ports` rather than `configuredContentSource` when the
  * question is "where does my row come from" — each port carries its own marker,

@@ -1,24 +1,10 @@
 import 'dotenv/config';
 import axios from 'axios';
-import cron from 'node-cron';
-import { NEWS_API_BASE_URL, NEWS_API_DAILY_TOKENS } from '../config/constants.js';
+import { NEWS_API_BASE_URL } from '../config/constants.js';
 import { findAll } from '../lib/database/sqliteOperations.js';
 import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { standardizeDate } from './timeService.js';
-import { debugLog } from '../utils/debugLogger.js';
 import type { ContentSource } from '../types/contentSource.js';
-
-// TODO: like this, it will be restarted every time we start up the project again
-/**
- * Number of remaining daily News API tokens
- */
-export let remainingTokens: number = NEWS_API_DAILY_TOKENS;
-
-// Every day at midnight
-cron.schedule('0 0 * * *', () => {
-  remainingTokens = NEWS_API_DAILY_TOKENS;
-  debugLog('Daily tokens reset.');
-});
 
 export type NewsItem = {
   article_id: string;
@@ -30,16 +16,18 @@ export type NewsItem = {
 };
 
 /**
- * Performs one news API call and adds the articles to the total.
+ * Performs one news API call and returns the articles.
+ *
+ * Unmetered on purpose: the daily budget belongs to `LiveNewsSource`, which owns
+ * the counter, charges it and refills it. This function used to check and
+ * decrement a module-level `let`, which made the budget global state readable and
+ * spendable from anywhere — and left the count wrong as soon as two callers
+ * existed. The port is the only caller, so the charge happens there.
  *
  * @param {string} page - The page of the current news to pull from.
  * @returns {string} The next page in the current news page that we could pull from.
  */
 export async function fetchNews(page: string = ''): Promise<[any[], nextPage: string]> {
-  if (remainingTokens <= 0) {
-    throw new Error('No more tokens remaining to do another API call.');
-  }
-
   try {
     const response = await axios.get(NEWS_API_BASE_URL, {
       params: {
@@ -53,7 +41,6 @@ export async function fetchNews(page: string = ''): Promise<[any[], nextPage: st
       response.config.params.page = page;
     }
 
-    remainingTokens--;
     return [[...response.data.results], response.data.nextPage.toString()];
   } catch (error) {
     console.error('Failed to fetch news:', error);

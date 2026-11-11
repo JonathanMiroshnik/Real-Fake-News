@@ -248,6 +248,23 @@ as risks:
       statements are true — reading it late is correct, owning it locally is also correct and
       additionally makes tests independent. Do it as its own change, because `fetchNews()` itself
       still decrements the module counter and both halves must move together.
+      _Done in 6.4 (11 November 2026):_ both halves moved, in one commit, as warned.
+      `LiveNewsSource` now owns `tokensLeft` as a private field with a constructor allowance
+      (default `NEWS_API_DAILY_TOKENS`, overridable so a test can start at 1), plus
+      `resetDailyCalls()`. `fetchNews()` lost the check, the decrement, the `remainingTokens`
+      export **and** its `node-cron` midnight reset — it is now a plain API call with no
+      metering, so the budget has exactly one owner. Two consequences worth naming: a test
+      constructs its own source and starts full, so the news path is no longer order-dependent;
+      and the reset is now an explicit method, because registering a cron from a module import
+      side effect was the same mistake as the counter — schedule state living outside the
+      scheduler. Nothing calls `resetDailyCalls()` yet; 6.6 puts it on the scheduler. Also removed
+      `cron` from `newsService`'s imports, which drops one of the pre-existing `tsc` errors (41
+      → 40).
+      Caught while writing the tests, and worth recording because it was a regression I
+      introduced and then fixed rather than an inherited bug: charging after the `await` meant a
+      `fetchNews()` that *threw* went uncharged, so a provider outage would burn the network
+      without burning the budget. The charge now happens in `finally`. `fetchNews()` swallows its
+      own HTTP errors, so this is the path for failures below that.
 
 ## Phase 4 — image lifecycle
 
