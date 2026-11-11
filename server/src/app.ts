@@ -31,7 +31,7 @@ app.use(
   cors({
     origin: getAllowedOrigins(),
     credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'], // TODO: 11 Nov 26 - Am I supposed to add the new "QUERY" keyword?
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
