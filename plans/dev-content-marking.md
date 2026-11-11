@@ -1,6 +1,6 @@
 # Dev Content Marking: Proving Which Rows Are Fake
 
-> **Status:** Planned · **Priority:** High · **Related:** `plans/dev-content-seeding.md` (Phases 1, 3), `plans/featured-articles.md` · **Order:** prerequisite to entry 6 of the 2026-11-07 session (`plans/README.md`)
+> **Status:** In Progress (Phases A–C shipped; the per-job contentSource test is open) · **Priority:** High · **Related:** `plans/dev-content-seeding.md` (Phases 1, 3), `plans/featured-articles.md` · **Order:** prerequisite to entry 6 of the 2026-11-07 session (`plans/README.md`)
 
 ## Problem
 

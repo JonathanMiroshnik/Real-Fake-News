@@ -1,6 +1,6 @@
 # Dev Content: Deterministic Seeder + Content-Source Adapters
 
-> **Status:** In Progress (Phases 1 done, Phase 3 adapters shipped) · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
+> **Status:** In Progress (Phases 0–1 and 3's adapters, marking and guards shipped; Phase 3's crons and Phase 4 open) · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
 
 ## Problem
 
@@ -81,13 +81,17 @@ Rules that keep it simple:
 
 ## Phase 0 — prerequisite bugfix (blocks everything else in dev)
 
-- [ ] `client/nginx.conf:38` — `proxy_pass $backend_server/api;` → `proxy_pass $backend_server$request_uri;`
-- [ ] `admin/nginx.conf:38` — same fix
-- [ ] Why: with a variable in `proxy_pass`, nginx does **not** append the request URI, so every
+_Done, and ticked late: both configs have carried `proxy_pass $backend_server$request_uri;` since
+entry 4 of the 2026-11-07 session, but the boxes stayed open and made a finished phase read as
+pending work._
+
+- [x] `client/nginx.conf:38` — `proxy_pass $backend_server/api;` → `proxy_pass $backend_server$request_uri;`
+- [x] `admin/nginx.conf:38` — same fix
+- [x] Why: with a variable in `proxy_pass`, nginx does **not** append the request URI, so every
       `/api/*` call reached Express as `GET /api` and hit the catch-all 404 (`path: "/"`).
       Regression from `e10f5e6e`, newly visible because the dev overlay now sets
       `VITE_USE_RELATIVE_API=true`
-- [ ] Verify: `curl -s localhost:5173/api/blogs | head`, and an image URL returns `200`
+- [x] Verify: `curl -s localhost:5173/api/blogs | head`, and an image URL returns `200`
 
 ## Phase 1 — deterministic seeder
 
@@ -207,11 +211,15 @@ shows what was promised against what was built):
 
 ### Still to do in this phase
 
-- [ ] Mark every row the pipeline writes. Only `newsFetching` forwards its port's
-      `contentSource`; `blogService`, `recipeService` and `writerService` do not, so a mock
-      article currently lands as `live`. See `plans/dev-content-marking.md` Phase B.
-- [ ] Close the remaining two guards listed below (choose-n counting, `remainingTokens`
-      as adapter state). The token-budget guard is **done** — `addNewsToTotal()` now asks
+_Only the last item is open. The mock pipeline now stamps every row it writes, and both remaining
+guards (choose-n counting, `remainingTokens`) landed in 6.3 and 6.4 — their boxes were ticked late
+on 11 November 2026, not when the code landed._
+
+- [x] Mark every row the pipeline writes. Only `newsFetching` forwarded its port's
+      `contentSource`; `blogService`, `recipeService` and `writerService` did not, so a mock
+      article landed as `live`. Fixed in 6.1 (`plans/dev-content-marking.md` Phase B).
+- [x] Close the remaining two guards listed below (choose-n counting, `remainingTokens`
+      as adapter state). The token-budget guard came first — `addNewsToTotal()` now asks
       `source.remainingCalls()`, so a mock is never short-circuited by the live counter.
 - [ ] Move both `0 0 * * *` crons (featured selection, horoscopes) into the scheduler, so
       `JOBS_TIME_SCALE` compresses them.
@@ -233,7 +241,7 @@ as risks:
       _Done in `28d1624c`:_ `addNewsToTotal()` asks `source.remainingCalls()` and the live
       adapter reads the module counter, so the budget is a property of the source. The counter
       is still module-level — see the third guard — but a mock is no longer subject to it.
-- [ ] **Choose-n counting must be per source.** `generateScheduledArticles()` and
+- [x] **Choose-n counting must be per source.** `generateScheduledArticles()` and
       `ensureHoroscopesForToday()` both early-return when the table already has "enough" rows. With
       67 seeded articles and 12 seeded horoscopes, a correct mock adapter would still be asked for
       **zero** items forever, so the very first dev run after the flip looks broken. The count
@@ -264,7 +272,7 @@ as risks:
       live pipeline would never generate its own horoscopes and never replace the mock ones,
       including on the controller's read path. It now counts its own origin's rows and compares
       against `ZODIAC_SIGNS.length` instead of the literal 12.
-- [ ] **`remainingTokens` must become adapter state, not module state.** It is a module-level
+- [x] **`remainingTokens` must become adapter state, not module state.** It is a module-level
       `let` today (`newsService.ts:14`), so it depletes across every test in a file and the order
       of `it()` blocks changes the outcome. Once it is a field on the `live` adapter, each test
       gets a fresh one; until then, any test that exercises the news path is order-dependent.

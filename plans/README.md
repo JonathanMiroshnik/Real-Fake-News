@@ -129,14 +129,22 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 
 | File                             | Status      | Priority | Description                                                                                                        |
 | -------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| `testing-suite.md`               | Completed   | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces                             |
 | `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                                    |
 | `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                             |
-| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phases 1–3 done; Phase 4 open) |
-| `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phase A done)      |
+| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phases 0–3 done; 6.6 crons and Phase 4 open) |
+| `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phases A–C done) |
 | `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                            |
 | `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                           |
 | `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code                             |
+
+### Two plans were deleted on 11 November 2026
+
+`testing-suite.md` (Completed) and `absolute-clock-cron-scheduler-rundown.md` (Planned, never
+started). Neither described outstanding work. The testing plan's lasting content — how to run the
+suites, file conventions, the Vitest/Vite warning — lives in `TESTING.md`, and `features-status.md`
+records the suite as shipped via PR #7. The cron-scheduler rundown described a branch that never
+landed and was superseded by `horoscope-cron-wiring.md`; `features-status.md` now points at the
+branch itself, which is the only remaining record of that design.
 
 ## Feature Status
 
