@@ -14,6 +14,9 @@ export interface Row {
   key: string | undefined;
 }
 
+/** The environment that must never hold invented content. */
+const PRODUCTION_ENV = 'production';
+
 /**
  * Maps DatabaseConfig source (table name) to actual SQLite table name.
  *
@@ -92,6 +95,46 @@ function contentSourceFor(tableName: string, row: unknown): string | undefined {
 }
 
 /**
+ * Refuses to persist invented content into a production database.
+ *
+ * The last line of defence, and the only one that holds for code nobody thought
+ * about: `assertNotProduction()` lives in the seeder, which a mock content-source
+ * adapter never calls, because the adapter writes through `insert()` directly.
+ * Putting the check at the single choke point every writer already passes through
+ * is the same argument that put `stampAsMock()` in `insertSeedRow()`.
+ */
+export class MockContentInProductionError extends Error {
+  constructor(tableName: string) {
+    super(
+      `Refusing to write a "mock" row into '${tableName}' with NODE_ENV=production. ` +
+        'Invented content must never be persisted in production; set CONTENT_SOURCE=live ' +
+        'or run with a non-production NODE_ENV. See plans/dev-content-marking.md.',
+    );
+    this.name = 'MockContentInProductionError';
+  }
+}
+
+/**
+ * Rejects a mock marker when this process is production.
+ *
+ * Reads `process.env` at call time rather than at import: the check must reflect
+ * the environment the write actually happens in, and capturing it at module load
+ * would make the value untestable without re-importing the module.
+ *
+ * @param tableName table being written, for the error message.
+ * @param contentSource marker the row would be written with.
+ * @throws {MockContentInProductionError} in production, when the marker is 'mock'.
+ */
+function rejectMockInProduction(tableName: string, contentSource: string | undefined): void {
+  const isMockRow = contentSource === MOCK_CONTENT_SOURCE;
+  const isProduction = process.env.NODE_ENV === PRODUCTION_ENV;
+
+  if (isMockRow && isProduction) {
+    throw new MockContentInProductionError(tableName);
+  }
+}
+
+/**
  * Deletes the rows of one table that carry `contentSource = ?`.
  *
  * Shared by the seeder's per-table scrub and the horoscope sweep, so the column
@@ -143,6 +186,12 @@ function deserializeJson<T>(value: string | null): T | undefined {
 export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<boolean> {
   const db = getDatabase();
   const tableName = getTableName(dbConfig.source);
+
+  // Refused before the row is read, keyed or looked up: a mock write into
+  // production is a configuration error, and it must not depend on which of the
+  // branches below happens to run.
+  rejectMockInProduction(tableName, (row as { contentSource?: string } | null)?.contentSource);
+
   let key = await dbConfig.getKey(row);
 
   // Generate a key if missing (callers may build rows without one)
@@ -278,6 +327,12 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
     // failure below means "the row was not written"; this one means "this code
     // must be fixed", so it is rethrown instead of reported as `false`.
     if (error instanceof MissingContentSourceError) {
+      throw error;
+    }
+
+    // Same reasoning: a refused production write is a misconfiguration, and
+    // returning `false` would let the job treat it as a duplicate and carry on.
+    if (error instanceof MockContentInProductionError) {
       throw error;
     }
 

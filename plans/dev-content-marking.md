@@ -315,19 +315,19 @@ every other caller.
 
 ### Phase C — fail closed
 
-- [ ] Boot check in the server: if `NODE_ENV === 'production'` and `CONTENT_SOURCE === 'mock'` →
+- [x] Boot check in the server: if `NODE_ENV === 'production'` and `CONTENT_SOURCE === 'mock'` →
       throw (same shape as `config/paths.ts`'s `MissingPathConfigError`, which already refuses to
       start rather than degrade).
-- [ ] Boot check in the server: in production, `SELECT COUNT(*) WHERE contentSource = 'mock'` on
+- [x] Boot check in the server: in production, `SELECT COUNT(*) WHERE contentSource = 'mock'` on
       each table; non-zero → throw, naming the count and the `DATABASE_PATH` in use. This is the
       check that would have caught a mis-invoked compose command, and it is the only one that
       looks at the _data_ rather than at _intent_.
-- [ ] `assertNotProduction()` keeps its throw, and `--force` in production additionally requires
+- [x] `assertNotProduction()` keeps its throw, and `--force` in production additionally requires
       an explicit confirmation string (`--i-know-this-is-a-demo`) instead of a single flag.
       Rationale: a flag is something you type by habit; a phrase is a decision.
-- [ ] Expose the count in the health endpoint (or the startup log) in every environment, so dev
+- [x] Expose the count in the health endpoint (or the startup log) in every environment, so dev
       sees "mock rows: 67" instead of wondering why the feed looks odd.
-- [ ] Refuse non-`live` inserts inside `insert()` itself in production, not only in the
+- [x] Refuse non-`live` inserts inside `insert()` itself in production, not only in the
       seeder. Phase A stamps the marker but enforces nothing at write time, so today the only
       thing standing between mock content and a production database is `assertNotProduction()` in
       the seeder — which a mock content-source adapter bypasses entirely (it calls `insert`
@@ -339,6 +339,20 @@ every other caller.
       the silent `'live'` it is today and the production check has nothing to look at. Land
       the "omission is impossible" change first, then this one — they are two edits to the
       same function and reviewing them apart is what keeps the diff honest.
+
+**Landed.** All five sit in `config/contentSourceGuard.ts`, called from `index.ts` before
+`app.js` is imported — the app opens the schema at import time, so a refusal has to precede
+that, which is why the app is imported dynamically after the check. Tests:
+`config/__tests__/contentSourceGuard.test.ts` (decisions and the boot refusal),
+`lib/database/__tests__/contentSourceRequired.test.ts` (the `insert()` refusal), and
+`scripts/seed/__tests__/seedOptions.test.ts` (both gates, neither sufficient alone).
+
+⚠️ Not verified in this sandbox: the data check against a real populated database. It runs
+`COUNT(*)` through `better-sqlite3`, whose native binding cannot be built here (the same reason
+11 tests in `lib/database/__tests__/sqliteOperations.test.ts` already fail). The *decision* is
+tested against a stubbed count; the SQL path is exercised by the binding-equipped environment.
+Confirm once by hand with a seeded DB: `NODE_ENV=production CONTENT_SOURCE=live` must exit
+non-zero and name the count.
 
 ### Do not do
 

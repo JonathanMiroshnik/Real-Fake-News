@@ -1,15 +1,35 @@
 // Side-effect import: must stay first so server/.env is loaded before app.ts
 // (and everything it imports) reads process.env.
 import './config/env.js';
-import app from './app.js';
+import { checkContentSourceAtBoot, logMockRowCount } from './config/contentSourceGuard.js';
+import { resolveDatabaseFile } from './config/paths.js';
 import { closeDatabase } from './lib/database/database.js';
 
 // Configuration constants
 const PORT = process.env.PORT || 5001;
 
+/**
+ * Runs the content checks before the application is imported.
+ *
+ * `app.ts` initialises the schema and opens the database while it is being
+ * imported, so importing it first would start a server on a database these checks
+ * exist to reject. A refusal has to happen before any of that, which is why the
+ * app is imported dynamically, after the await.
+ *
+ * @returns The application, ready to listen.
+ */
+async function loadCheckedApp() {
+  const mockTally = await checkContentSourceAtBoot(resolveDatabaseFile());
+  logMockRowCount(mockTally);
+
+  const { default: app } = await import('./app.js');
+  return app;
+}
+
 // Server startup sequence
 const startServer = async () => {
   try {
+    const app = await loadCheckedApp();
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`);
       console.log(`🔗 http://localhost:${PORT}`);

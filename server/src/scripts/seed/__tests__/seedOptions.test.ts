@@ -63,10 +63,32 @@ describe('assertNotProduction', () => {
     );
   });
 
-  it('seeds production with --force, but says so out loud', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('refuses to seed production with --force alone', () => {
+    // The new gate: --force is what developers type by habit, so in production it
+    // is not enough on its own.
+    expect(() => assertNotProduction(forcedOptions, { NODE_ENV: 'production' })).toThrow(
+      /--i-know-this-is-a-demo/,
+    );
+  });
 
-    expect(() => assertNotProduction(forcedOptions, { NODE_ENV: 'production' })).not.toThrow();
+  it('seeds production with --force and the typed phrase, and says so out loud', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const confirmedOptions = parse(['--force', '--i-know-this-is-a-demo']);
+
+    expect(() => assertNotProduction(confirmedOptions, { NODE_ENV: 'production' })).not.toThrow();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('production database'));
+  });
+
+  it('refuses the phrase without --force, so neither gate alone is enough', () => {
+    const phraseOnly = parse(['--i-know-this-is-a-demo']);
+
+    expect(() => assertNotProduction(phraseOnly, { NODE_ENV: 'production' })).toThrow(
+      /NODE_ENV=production/,
+    );
+  });
+
+  it('records the phrase when it is parsed', () => {
+    expect(parse(['--i-know-this-is-a-demo']).confirmation).toBe('--i-know-this-is-a-demo');
+    expect(parse([]).confirmation).toBeUndefined();
   });
 });

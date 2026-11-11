@@ -6,6 +6,9 @@
  *   --force        rewrite rows that already exist (default: skip them)
  *   --seed=<int>   PRNG seed for placeholder images (default: FIXED_SEED)
  *
+ * Plus one phrase, `--i-know-this-is-a-demo`, which production additionally
+ * requires alongside `--force`.
+ *
  * Everything is validated up front so a typo fails before the script touches
  * the database.
  */
@@ -21,7 +24,11 @@ export interface SeedOptions {
   seed: number;
   /** Print usage and exit without touching the database. */
   help: boolean;
+  /** Typed phrase that upgrades `--force` into a production write; `undefined` otherwise. */
+  confirmation?: string;
 }
+
+const CONFIRM_FLAG = '--i-know-this-is-a-demo';
 
 const RESET_FLAG = '--reset';
 const FORCE_FLAG = '--force';
@@ -43,6 +50,8 @@ export function parseSeedArgs(argv: string[]): SeedOptions {
       options.reset = true;
     } else if (argument === FORCE_FLAG) {
       options.force = true;
+    } else if (argument === CONFIRM_FLAG) {
+      options.confirmation = CONFIRM_FLAG;
     } else if (argument === '--help' || argument === '-h') {
       options.help = true;
     } else if (argument === SEED_FLAG) {
@@ -73,28 +82,35 @@ function parseSeedValue(rawValue: string | undefined): number {
  * Refuses to run against a production database.
  *
  * The seeder writes invented content and mock images; there is no scenario in
- * which that belongs in production. `--force` is the documented escape hatch for
- * the one legitimate case (a deliberate demo deployment), so it is the only way
- * past the guard.
+ * which that belongs in production. Two gates, because one is not enough:
  *
- * @throws If NODE_ENV is production and --force was not passed.
+ * `--force` alone is something you type by habit — it is also the flag that means
+ * "overwrite rows" in development, so muscle memory can carry it across. In
+ * production it must therefore be paired with `--i-know-this-is-a-demo`, a phrase
+ * that says what the deployment is. A flag is a reflex; a phrase is a decision.
+ *
+ * @throws If NODE_ENV is production and the typed confirmation was not passed.
  */
 export function assertNotProduction(
   options: SeedOptions,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
   const isProduction = env.NODE_ENV === 'production';
-  const isExplicitlyForced = options.force;
+  const hasTypedConfirmation = options.confirmation === CONFIRM_FLAG;
+  const isConfirmedForce = options.force && hasTypedConfirmation;
 
-  if (isProduction && !isExplicitlyForced) {
+  if (isProduction && !isConfirmedForce) {
     throw new Error(
       'seedDevData refuses to run with NODE_ENV=production — it writes mock content. ' +
-        'Pass --force if this deployment is meant to be seeded with mock content.',
+        'Seeding a production database requires --force AND the phrase ' +
+        `${CONFIRM_FLAG}, so the intent is stated rather than assumed.`,
     );
   }
 
   if (isProduction) {
-    console.warn('⚠️  Seeding a production database because --force was passed.');
+    console.warn(
+      `⚠️  Seeding a production database: --force with ${CONFIRM_FLAG} was passed.`,
+    );
   }
 }
 
@@ -107,6 +123,8 @@ Usage:
   npm run seed:dev                 Insert anything that is missing (idempotent)
   npm run seed:dev -- --reset      Delete seeded rows and images, then re-insert
   npm run seed:dev -- --force      Overwrite existing seeded rows
+  npm run seed:dev -- --force --i-know-this-is-a-demo
+                                   The only way to seed a production database
   npm run seed:dev -- --seed 42    Use a different PRNG seed for placeholder images
 
 Writes:

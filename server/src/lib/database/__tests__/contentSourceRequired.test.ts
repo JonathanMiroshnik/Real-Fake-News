@@ -110,3 +110,82 @@ describe('insert() requires a content source marker on marked tables', () => {
     expect(boundParameters[0]).not.toContain('mock');
   });
 });
+
+/**
+ * Pins the last bullet of Phase C (`plans/dev-content-marking.md`): production
+ * refuses a mock row at the one choke point every writer passes through.
+ *
+ * This is the check that holds for code nobody reviewed. `assertNotProduction()`
+ * guards the seeder, but a mock content-source adapter never calls the seeder — it
+ * writes through `insert()` directly, so before this the only thing between
+ * invented content and a production database was a flag on a different entry
+ * point.
+ */
+describe('insert() refuses mock rows in production', () => {
+  let insert: typeof import('../sqliteOperations.js').insert;
+  let MockContentInProductionError: typeof import('../sqliteOperations.js').MockContentInProductionError;
+  let blogDatabaseConfig: typeof import('../databaseConfigurations.js').blogDatabaseConfig;
+
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeAll(async () => {
+    ({ insert, MockContentInProductionError } = await import('../sqliteOperations.js'));
+    ({ blogDatabaseConfig } = await import('../databaseConfigurations.js'));
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  const mockArticle = (key: string) => ({
+    key,
+    title: 'Invented headline',
+    content: 'Invented body',
+    contentSource: 'mock',
+  });
+
+  it('throws instead of writing, and writes nothing', async () => {
+    process.env.NODE_ENV = 'production';
+    boundParameters.length = 0;
+
+    await expect(insert(blogDatabaseConfig, mockArticle('prod-mock') as never)).rejects.toThrow(
+      MockContentInProductionError,
+    );
+
+    // The refusal must precede the write, not follow it.
+    expect(boundParameters).toHaveLength(0);
+  });
+
+  it('is rethrown rather than reported as a duplicate', async () => {
+    process.env.NODE_ENV = 'production';
+
+    // `insert()` returns false for an existing row; a refused write must not look
+    // the same, or a job would treat it as "already there" and carry on.
+    const result = insert(blogDatabaseConfig, mockArticle('prod-mock-2') as never);
+
+    await expect(result).rejects.toBeInstanceOf(MockContentInProductionError);
+  });
+
+  it('allows a live row in production', async () => {
+    process.env.NODE_ENV = 'production';
+    boundParameters.length = 0;
+
+    await insert(blogDatabaseConfig, {
+      key: 'prod-live',
+      title: 'Real headline',
+      content: 'Real body',
+      contentSource: 'live',
+    } as never);
+
+    expect(boundParameters).toHaveLength(1);
+  });
+
+  it('allows a mock row outside production, which is what the marker is for', async () => {
+    process.env.NODE_ENV = 'development';
+    boundParameters.length = 0;
+
+    await insert(blogDatabaseConfig, mockArticle('dev-mock') as never);
+
+    expect(boundParameters.at(-1)?.at(-1)).toBe('mock');
+  });
+});
