@@ -5,8 +5,8 @@ import { ArticleScheme } from '../types/article.js';
 import { writeBlogPost } from './blogService.js';
 import { Writer } from '../types/writer.js';
 import { NewsItem } from './newsService.js';
-import { generateAndSaveImage } from './imageService.js';
-import { generateTextFromString } from './llmService.js';
+import type { ContentPorts } from '../types/contentPorts.js';
+import { ports as defaultPorts } from './contentSources/index.js';
 import { getUniqueKey } from '../utils/general.js';
 // import { getNRandom } from "../utils/general.js";
 import { insert } from '../lib/database/sqliteOperations.js';
@@ -27,11 +27,12 @@ async function createFeaturedArticle(
     pubDateTZ: '',
   },
   prompt: string,
+  ports: ContentPorts = defaultPorts,
 ) {
   const currentArticles: ArticleScheme[] = [];
 
   for (const w of writers) {
-    const currentArticle = await writeBlogPost(w, currentNewsItem, false);
+    const currentArticle = await writeBlogPost(w, currentNewsItem, false, ports);
     if (currentArticle === undefined) {
       return;
     }
@@ -39,14 +40,14 @@ async function createFeaturedArticle(
     currentArticles.push(currentArticle);
   }
   debugLog('Generating new article');
-  const result = await generateTextFromString(prompt, 'json_object');
+  const result = await ports.text.generate(prompt, 'json_object');
   if (result === undefined || !result?.success) {
     console.error('Meta prompt output invalid!');
     return;
   }
 
   const parsedData = JSON.parse(result.generatedText);
-  const imgName = await generateAndSaveImage(parsedData.prompt);
+  const imgName = await ports.image.generateAndSave(parsedData.prompt);
 
   const newFeaturedArticle: FeaturedArticleScheme = {
     key: getUniqueKey(),

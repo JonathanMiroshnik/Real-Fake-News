@@ -1,31 +1,51 @@
 import { NEWS_API_NUM_OF_ARTICLES_PER_TOKEN } from '../config/constants.js';
 import { insert } from '../lib/database/sqliteOperations.js';
 import { newsDatabaseConfig } from '../lib/database/databaseConfigurations.js';
-import { NewsItem, remainingTokens, fetchNews } from '../services/newsService.js';
+import { NewsItem } from '../services/newsService.js';
+import type { NewsSource } from '../types/contentPorts.js';
+import { ports as defaultPorts } from '../services/contentSources/index.js';
 
-// TODO: I want to get an arbitrary number of daily articles to use in any given moment.
-export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem[]> {
-  // TODO: perhaps I could just check the number of tokens left by asking the API at some other URL?
-  // If there are no more tokens remaining, this function cannot be used.
-  if (remainingTokens <= 0) {
+/**
+ * Fetches real news into `news_items`, the raw material the writing jobs rewrite.
+ *
+ * The budget check reads `source.remainingCalls()` rather than the module-level
+ * `remainingTokens` counter: the token count belongs to the live provider, and a
+ * job asking *the source* how much it has left works the same for a mock.
+ *
+ * Partial pages are written before the count is re-checked, so a page that ends
+ * early leaves the rows it did deliver in the database rather than discarding
+ * them; the return value is whatever the last page yielded, matching the previous
+ * behaviour.
+ *
+ * @param numArticles How many items to try to fetch this cycle.
+ * @param source The news source to read from; defaults to the configured one.
+ * @returns The items from the final page, or `[]` when the source is exhausted.
+ */
+export async function addNewsToTotal(
+  numArticles: number = 10,
+  source: NewsSource = defaultPorts.news,
+): Promise<NewsItem[]> {
+  const callsLeft = source.remainingCalls();
+  const articlesAvailable = callsLeft * NEWS_API_NUM_OF_ARTICLES_PER_TOKEN;
+
+  if (callsLeft <= 0) {
     throw new Error('No more tokens remaining.');
   }
-  if (remainingTokens * NEWS_API_NUM_OF_ARTICLES_PER_TOKEN < numArticles) {
+  if (articlesAvailable < numArticles) {
     throw new Error(`Not enough tokens remaining for ${numArticles} articles.`);
   }
 
   const neededApiRequests = Math.ceil(numArticles / NEWS_API_NUM_OF_ARTICLES_PER_TOKEN);
   let nextPage: string = '';
-
   let retArticles: NewsItem[] = [];
-  let gatherPage: string;
+
   for (let i = 0; i < neededApiRequests; i++) {
-    [retArticles, gatherPage] = await fetchNews(nextPage);
+    const page = await source.fetchPage(nextPage);
+    retArticles = page.items;
 
-    // console.log(`Fetched ${retArticles.length} recent real news articles`);
+    await insertArticlesToDatabase(retArticles, source.contentSource);
 
-    insertArticlesToDatabase(retArticles);
-    nextPage = gatherPage;
+    nextPage = page.nextPage;
     if (nextPage === '') {
       return [];
     }
@@ -34,24 +54,23 @@ export async function addNewsToTotal(numArticles: number = 10): Promise<NewsItem
   return retArticles;
 }
 
-async function insertArticlesToDatabase(articles: any[]): Promise<NewsItem[]> {
+/**
+ * Inserts news items, stamping each with the source it came from.
+ *
+ * The stamp matters more here than anywhere else: these rows are real-world news
+ * fed to the writer jobs, and without it a mock item is indistinguishable from one
+ * fetched from the news API (`plans/dev-content-marking.md`).
+ */
+async function insertArticlesToDatabase(
+  articles: NewsItem[],
+  contentSource: NewsItem['contentSource'],
+): Promise<NewsItem[]> {
   const retArticles: NewsItem[] = [];
 
   for (const article of articles) {
-    // TODO: add topics filter list in .env or outside in general
-    // const questionPrompt = `
-    //     Is the following article title and/or description related to the following topics?\n
-    //     Topics: Israel, Gaza, IDF\n
-    //     Article Title: ${article.title}\n
-    //     Article Description: ${article.description}\n
-    //     `;
-
-    // TODO: perhaps 10 articles at once and remove the ones that dont work out and basically return a 10 long json boolean check?
-    // const boolResponse: boolean = await getBooleanResponse(questionPrompt);
-    // console.log("Is this related?", boolResponse);
-    // if (!boolResponse) {
-
-    if (await insert<NewsItem>(newsDatabaseConfig, article)) {
+    const rowToInsert: NewsItem = { ...article, contentSource };
+    const wasInserted = await insert<NewsItem>(newsDatabaseConfig, rowToInsert);
+    if (wasInserted) {
       retArticles.push({
         article_id: article.article_id,
         title: article.title,
@@ -64,3 +83,5 @@ async function insertArticlesToDatabase(articles: any[]): Promise<NewsItem[]> {
 
   return retArticles;
 }
+
+// TODO: I want to get an arbitrary number of daily articles to use in any given moment.

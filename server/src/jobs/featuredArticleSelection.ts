@@ -5,13 +5,16 @@ import { getAllPostsAfterDate } from '../services/blogService.js';
 import { update } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
+import type { RandomBelow } from '../utils/random.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
 
 /**
  * Selects a random article from today's articles and sets it as featured
  * Only runs if no featured article exists for today
+ *
+ * @param randomBelow Picks the article index; defaults to `crypto.randomInt`.
  */
-export async function selectDailyFeaturedArticle(): Promise<void> {
+export async function selectDailyFeaturedArticle(randomBelow: RandomBelow = randomInt): Promise<void> {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     debugLog('⭐ [selectDailyFeaturedArticle] Checking for featured article for date:', today);
@@ -41,7 +44,7 @@ export async function selectDailyFeaturedArticle(): Promise<void> {
     }
 
     // Randomly select one article
-    const randomIndex = randomInt(todayArticles.length);
+    const randomIndex = randomBelow(todayArticles.length);
     const selectedArticle = todayArticles[randomIndex];
 
     // Set as featured

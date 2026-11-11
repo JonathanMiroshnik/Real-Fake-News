@@ -1,16 +1,35 @@
 import 'dotenv/config';
-import { fetchAstrologicalData, AstrologicalData } from './astrologyService.js';
-import { generateTextFromString } from './llmService.js';
-import { Horoscope, ZODIAC_SIGNS } from '../types/horoscope.js';
+import type { AstrologicalData } from './astrologyService.js';
+import type { ContentPorts } from '../types/contentPorts.js';
+import type { Horoscope, ZodiacSign } from '../types/horoscope.js';
+import { ZODIAC_SIGNS } from '../types/horoscope.js';
 import { getDatabase } from '../lib/database/database.js';
+import { ports as defaultPorts } from './contentSources/index.js';
+import { LIVE_CONTENT_SOURCE } from '../types/contentSource.js';
 import { debugLog } from '../utils/debugLogger.js';
+
+/** Pause between signs, so the live provider is not hammered twelve times at once. */
+const DELAY_BETWEEN_SIGNS_MS = 500;
+
+/**
+ * Waits between provider calls in the live set, and not at all in the mock set.
+ *
+ * The delay exists only to stay under the real provider's rate limit; in a job run
+ * against mock text it would add six seconds of nothing per day generated.
+ */
+async function pauseBetweenSigns(ports: ContentPorts): Promise<void> {
+  if (ports.text.contentSource === 'live') {
+    await new Promise((resolve) => setTimeout(resolve, DELAY_BETWEEN_SIGNS_MS));
+  }
+}
 
 /**
  * Generates a horoscope for a specific zodiac sign using LLM
  */
 async function generateHoroscopeForSign(
-  zodiacSign: string,
+  zodiacSign: ZodiacSign,
   astrologicalData: AstrologicalData,
+  ports: ContentPorts,
 ): Promise<string> {
   const retrogradeInfo =
     astrologicalData.retrogrades.length > 0
@@ -33,7 +52,7 @@ async function generateHoroscopeForSign(
 Write the horoscope now:`;
 
   try {
-    const response = await generateTextFromString(prompt, 'text', 0.8);
+    const response = await ports.text.generate(prompt, 'text', 0.8);
     if (response?.success && response.generatedText) {
       return response.generatedText.trim();
     } else {
@@ -49,31 +68,34 @@ Write the horoscope now:`;
 /**
  * Generates horoscopes for all zodiac signs for a given date
  */
-export async function generateHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
+export async function generateHoroscopesForDate(
+  date?: Date,
+  ports: ContentPorts = defaultPorts,
+): Promise<Horoscope[]> {
   const targetDate = date || new Date();
   const dateString = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
 
   // Fetch astrological data for the date
-  const astrologicalData = await fetchAstrologicalData(targetDate);
+  const astrologicalData = await ports.transit.fetchTransits(targetDate);
 
   const horoscopes: Horoscope[] = [];
 
   // Generate horoscope for each zodiac sign
   for (const sign of ZODIAC_SIGNS) {
     try {
-      const content = await generateHoroscopeForSign(sign, astrologicalData);
+      const content = await generateHoroscopeForSign(sign, astrologicalData, ports);
 
       const horoscope: Horoscope = {
         date: dateString,
         zodiacSign: sign,
         content,
         astrologicalData,
+        contentSource: ports.text.contentSource,
       };
 
       horoscopes.push(horoscope);
 
-      // Small delay to avoid overwhelming the LLM API
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await pauseBetweenSigns(ports);
     } catch (error) {
       console.error(`Error generating horoscope for ${sign}:`, error);
       // Continue with other signs even if one fails
@@ -85,14 +107,18 @@ export async function generateHoroscopesForDate(date?: Date): Promise<Horoscope[
 
 /**
  * Saves horoscopes to the database
+ *
+ * The `contentSource` each horoscope carries is written, not left to the column
+ * default: a mock set stored as `live` would be indistinguishable from a generated
+ * one (`plans/dev-content-marking.md`). A row without the field gets the default.
  */
 export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> {
   const db = getDatabase();
 
   try {
     const stmt = db.prepare(`
-      INSERT OR REPLACE INTO horoscopes (date, zodiacSign, content, astrologicalData, createdAt)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO horoscopes (date, zodiacSign, content, astrologicalData, createdAt, contentSource)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
 
     for (const horoscope of horoscopes) {
@@ -102,6 +128,7 @@ export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> 
         horoscope.content,
         JSON.stringify(horoscope.astrologicalData),
         horoscope.createdAt || new Date().toISOString(),
+        horoscope.contentSource ?? LIVE_CONTENT_SOURCE,
       );
     }
 
@@ -110,6 +137,24 @@ export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> 
     console.error('Error saving horoscopes:', error);
     return false;
   }
+}
+
+/**
+ * Maps a `horoscopes` row to the API shape, carrying the provenance marker through.
+ *
+ * Without the marker a caller cannot tell a mock day from a generated one, so the
+ * reader is the second half of what `saveHoroscopes` writes.
+ */
+function mapHoroscopeRow(row: any): Horoscope {
+  return {
+    id: row.id,
+    date: row.date,
+    zodiacSign: row.zodiacSign,
+    content: row.content,
+    astrologicalData: JSON.parse(row.astrologicalData),
+    createdAt: row.createdAt,
+    contentSource: row.contentSource ?? LIVE_CONTENT_SOURCE,
+  };
 }
 
 /**
@@ -128,14 +173,7 @@ export async function getHoroscopesForDate(date?: Date): Promise<Horoscope[]> {
 
   const rows = stmt.all(dateString) as any[];
 
-  return rows.map((row) => ({
-    id: row.id,
-    date: row.date,
-    zodiacSign: row.zodiacSign,
-    content: row.content,
-    astrologicalData: JSON.parse(row.astrologicalData),
-    createdAt: row.createdAt,
-  }));
+  return rows.map(mapHoroscopeRow);
 }
 
 /**
@@ -160,14 +198,7 @@ export async function getHoroscopeForSign(
     return null;
   }
 
-  return {
-    id: row.id,
-    date: row.date,
-    zodiacSign: row.zodiacSign,
-    content: row.content,
-    astrologicalData: JSON.parse(row.astrologicalData),
-    createdAt: row.createdAt,
-  };
+  return mapHoroscopeRow(row);
 }
 
 /**

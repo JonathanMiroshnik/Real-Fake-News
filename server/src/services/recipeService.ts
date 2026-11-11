@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { RecipeScheme } from '../types/article.js';
 import { Writer } from '../types/writer.js';
-import { generateTextFromString } from './llmService.js';
-import { generateAndSaveImage } from './imageService.js';
+import type { ContentPorts } from '../types/contentPorts.js';
+import { ports as defaultPorts } from './contentSources/index.js';
 import { getUniqueKey } from '../utils/general.js';
 import { getDatabase } from '../lib/database/database.js';
 import { insert } from '../lib/database/sqliteOperations.js';
@@ -26,18 +26,20 @@ export async function getRandomFoods(count: number = 3): Promise<string[]> {
  * @param writer The writer to use for generating the recipe
  * @param foods Array of food names to include in the recipe
  * @param saveRecipe Whether to save the recipe to the database
+ * @param ports The content source the recipe's text and images come from.
  * @returns The generated recipe or undefined if generation fails
  */
 export async function generateRecipe(
   writer: Writer,
   foods: string[],
   saveRecipe: boolean = true,
+  ports: ContentPorts = defaultPorts,
 ): Promise<RecipeScheme | undefined> {
   try {
     const prompt = createRecipePrompt(writer, foods);
 
     debugLog('🍳 [generateRecipe] Generating recipe with foods:', foods.join(', '));
-    const result = await generateTextFromString(prompt, 'json_object');
+    const result = await ports.text.generate(prompt, 'json_object');
 
     if (result === undefined || !result?.success) {
       console.error('❌ [generateRecipe] Recipe generation failed - invalid response');
@@ -58,14 +60,14 @@ export async function generateRecipe(
       parsedData.headImagePrompt ||
       parsedData.prompt ||
       `A beautiful photo of ${parsedData.title || 'a recipe'}`;
-    const headImageName = await generateAndSaveImage(headImagePrompt);
+    const headImageName = await ports.image.generateAndSave(headImagePrompt);
 
     // Generate additional images for the recipe
     const imagePrompts = parsedData.imagePrompts || [];
     const images: string[] = [];
 
     for (const imgPrompt of imagePrompts) {
-      const imgName = await generateAndSaveImage(imgPrompt);
+      const imgName = await ports.image.generateAndSave(imgPrompt);
       if (imgName) {
         images.push(imgName);
       }

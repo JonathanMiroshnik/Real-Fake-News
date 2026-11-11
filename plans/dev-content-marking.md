@@ -83,7 +83,7 @@ panel, and it makes `--reset` a single statement that cannot leak rows.
 
 ## Implementation
 
-### Phase A — store the marker (do first; entry 6 depends on it) — **implemented, not yet committed**
+### Phase A — store the marker (do first; entry 6 depends on it) — **done 9 November 2026** (`8f8c5ecb`)
 
 Landed as one commit. Corrections found while implementing are marked ⚠️ and replace the
 original bullet where they disagree.
@@ -184,6 +184,75 @@ once with `npm run seed:reset` (or delete the dev database) and the rows come ba
 
 ### Phase B — stamp from the pipeline (part of entry 6)
 
+**Foundation and wiring landed (uncommitted):** the four ports, `CONTENT_SOURCE`
+plumbing and both adapter sets exist, and every job in the pipeline now reaches
+them through a `ports` parameter instead of importing the live services.
+
+- [x] Port interfaces in `types/contentPorts.d.ts` — `NewsSource`, `TextGenerator`,
+      `ImageGenerator`, `TransitSource` and the `ContentPorts` bundle. Each port
+      mirrors one existing service function and additionally exposes
+      `readonly contentSource`, so the marker travels *with* the data instead of
+      being re-derived by the caller. That is what makes "the port was injected"
+      provable from the row.
+      ⚠️ `NewsSource.remainingCalls()` is a method, not a property, because the
+      live token budget is a module-level `let` reset by a midnight cron; a
+      snapshot taken at construction would go stale.
+      ⚠️ `TransitSource` was not in the original plan's four names. The horoscope
+      job cannot run without planetary positions, and leaving it hard-imported
+      would have made the horoscope job the one job that still needs the network.
+- [x] `config/contentSource.ts` reads `CONTENT_SOURCE`. Unset and blank → `live`,
+      so a forgotten variable can never invent content. An unrecognised value
+      **throws** (`InvalidContentSourceError`) rather than falling back: guessing
+      would either invent content or starve the jobs, and both are silent.
+- [x] Live adapters (`contentSources/live/livePorts.ts`) are pure delegation to
+      `fetchNews` / `generateTextFromString` / `generateAndSaveImage` /
+      `fetchAstrologicalData` — no conditionals, no new behaviour, so the live
+      path stays byte-identical.
+- [x] Mock adapters (`contentSources/mocks/mockPorts.ts`) are deterministic and
+      offline: news pages through the canned `MOCK_NEWS_ITEMS`, text is derived
+      from an FNV-1a hash of the prompt, images return a filename without writing
+      bytes, and transits delegate to `buildMockAstrologicalData()`. Determinism
+      is the point — a random mock would make every job assertion vacuous.
+      ⚠️ The mock text says it is placeholder text. Content that reads real is
+      content someone ships by accident.
+- [x] `services/contentSources/index.ts` picks one set from `CONTENT_SOURCE` and
+      exports it as a single `ports` object, built once. Per-call construction
+      would make the live token budget look unlimited.
+      ⚠️ Importing this module pulls in `newsService`, which registers a
+      `node-cron` job at module scope. That keeps the event loop alive, so a
+      `tsx -e` probe of `index.ts` hangs instead of exiting — verify selection in
+      a test, not from the shell.
+- [x] Tests: `config/__tests__/contentSource.test.ts` (parsing rules),
+      `contentSources/__tests__/mockPorts.test.ts` (determinism + every port
+      stamps `mock`) and `contentSources/__tests__/selection.test.ts` (the env var
+      really selects the set, both ways). None needs a database or a network.
+      ⚠️ A multiline `import { … } from '../mocks/mockPorts.js'` failed to resolve
+      under Vitest with `ERR_MODULE_NOT_FOUND`; the same import on one line works.
+      Worth knowing before the next test spends time on the wrong diagnosis.
+- [x] `contentSources/__tests__/jobsTimeScale.test.ts` covers `JOBS_TIME_SCALE`
+      parsing, and `jobs/__tests__/timeScaleWindows.test.ts` covers the window
+      arithmetic below. `jobs/__tests__/mockPipeline.test.ts` runs the real jobs
+      against the mock ports with `better-sqlite3` stubbed, and asserts the live
+      text/image services are **never** called — that is what would catch a job
+      that quietly went back to a direct import.
+      ⚠️ `JOBS_TIME_SCALE` originally divided only the timers. `blogWriting`
+      still used the hard-coded 24-hour `RECENT_NEWS_ARTICLES_TIME_THRESHOLD`, so a
+      compressed run found no news inside a real day of history and logged "No
+      recent real news articles found!" on a full database. The recency window is
+      divided by the scale too; the test fails if that division is removed.
+- [x] **Pointing the pipeline at the ports.** `newsFetching`, `blogService`,
+      `recipeService`, `horoscopeService`, `featuredArticleService` and
+      `writerService` take a `ContentPorts` argument (defaulting to the process's
+      `ports`) and call it instead of importing `llmService` / `imageService` /
+      `newsService` / `astrologyService`. Jobs pass the set down; random choices
+      are injected as a `RandomBelow` so a run is reproducible from a seed.
+      ⚠️ `horoscopeController` still calls `ensureHoroscopesForToday()`, which
+      uses the default set rather than an explicit port. Correct under
+      `CONTENT_SOURCE=mock`, but it is the one call path where the port is
+      implicit rather than passed.
+      ⚠️ `scheduleFeaturedArticleSelection` still fires on a literal
+      `cron.schedule('0 0 * * *')`, which `JOBS_TIME_SCALE` does not compress, so
+      a fast dev run will not show the daily selection firing.
 - [ ] Mock adapters write rows with `contentSource: 'mock'`; live adapters with `'live'`.
 - [ ] Integration test per job (entry 6's own criterion) additionally asserts the
       `contentSource` of every inserted row, so "the port was injected" is proven by data and

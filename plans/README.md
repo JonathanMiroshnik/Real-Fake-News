@@ -53,11 +53,10 @@ top of `73790b05`.
       `NewsSource`/`TextGenerator`/`ImageGenerator`/`TransitSource`, `live` vs `mock` selected by
       `CONTENT_SOURCE`, `JOBS_TIME_SCALE`, one integration test per job → Phase 3.
       _Prerequisite:_ ~~`plans/dev-content-marking.md` Phase A (a persisted `contentSource`
-      column)~~ — **implemented, not yet committed**, so treat this entry as unblocked only once
-      that change is in `main`: the column exists on all five content tables, seeded rows are
-      stamped `mock`, `--reset` deletes by marker, and `insert`/`findAll`/`findOne` round-trip the
-      value. Dev databases seeded before it need one `npm run seed:reset` to re-stamp their rows
-      (they backfilled as `live`).
+      column)~~ — **done 9 November 2026** (`8f8c5ecb`), so this entry is unblocked: the column
+      exists on all five content tables, seeded rows are stamped `mock`, `--reset` deletes by
+      marker, and `insert`/`findAll`/`findOne` round-trip the value. Dev databases seeded before
+      it need one `npm run seed:reset` to re-stamp their rows (they backfilled as `live`).
 - [ ] **7. Delete the read-time `ENABLE_FAKE_DATA` fallback.** Guards removed from
       `blogController` (5), `recipeController` (3), `horoscopeController` (1); fake generators
       deleted (`generatePlaceholderImage()` stays); compose default dropped → Phase 2.

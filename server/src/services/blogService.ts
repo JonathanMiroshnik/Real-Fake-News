@@ -10,12 +10,12 @@ import {
 import { ArticleScheme, BlogResponse } from '../types/article.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { Writer } from '../types/writer.js';
-import { generateTextFromString } from './llmService.js';
+import type { ContentPorts } from '../types/contentPorts.js';
 import { findAll, insert, findOne } from '../lib/database/sqliteOperations.js';
 import { getDatabase } from '../lib/database/database.js';
 import { getUniqueKey } from '../utils/general.js';
 import { NewsItem } from '../services/newsService.js';
-import { generateAndSaveImage } from '../services/imageService.js';
+import { ports as defaultPorts } from './contentSources/index.js';
 import { debugLog, debugWarn, debugError } from '../utils/debugLogger.js';
 
 export async function getAllPostsAfterDate(startDate: Date): Promise<BlogResponse> {
@@ -235,11 +235,16 @@ export async function writeBlogPost(
     pubDateTZ: '',
   },
   saveArticle: boolean = true,
+  ports: ContentPorts = defaultPorts,
 ) {
-  // const newArticle = await createArticle(writer, currentNewsItem);
   // Pass saveArticle=false to generateNewsArticleWithExplanation so we can control when to save
   // This prevents saving invalid articles if generation fails partway through
-  const newArticle = await generateNewsArticleWithExplanation(writer, currentNewsItem, false);
+  const newArticle = await generateNewsArticleWithExplanation(
+    writer,
+    currentNewsItem,
+    false,
+    ports,
+  );
   if (newArticle === undefined) {
     console.error('❌ [writeBlogPost] Article generation failed, not saving');
     return;
@@ -525,11 +530,12 @@ export async function generateNewsExplanation(
     pubDate: '',
     pubDateTZ: '',
   },
+  ports: ContentPorts = defaultPorts,
 ): Promise<string[] | undefined> {
   const prompt: string = writeNewsExplanationPrompt(writer, currentNewsItem);
 
   debugLog('Generating news explanation');
-  const result = await generateTextFromString(prompt, 'text');
+  const result = await ports.text.generate(prompt, 'text');
   if (result === undefined || !result?.success) {
     console.error('News explanation generation failed!');
     return undefined;
@@ -560,6 +566,7 @@ export async function generateNewsArticleFromExplanation(
     pubDateTZ: '',
   },
   saveArticle: boolean = true,
+  ports: ContentPorts = defaultPorts,
 ): Promise<ArticleScheme | undefined> {
   const prompt: string = writeNewsArticleFromExplanationPrompt(
     writer,
@@ -568,7 +575,7 @@ export async function generateNewsArticleFromExplanation(
   );
 
   debugLog('Generating news article from explanation');
-  const result = await generateTextFromString(prompt, 'json_object');
+  const result = await ports.text.generate(prompt, 'json_object');
   if (result === undefined || !result?.success) {
     console.error('News article generation from explanation failed!');
     return undefined;
@@ -601,7 +608,7 @@ export async function generateNewsArticleFromExplanation(
   // Generate image - if it fails, don't create the article
   let imgName: string;
   try {
-    imgName = await generateAndSaveImage(parsedData.prompt);
+    imgName = await ports.image.generateAndSave(parsedData.prompt);
     if (!imgName || imgName === '') {
       console.error(
         '❌ [generateNewsArticleFromExplanation] Image generation returned empty string',
@@ -643,9 +650,10 @@ export async function generateNewsArticleWithExplanation(
     pubDateTZ: '',
   },
   saveArticle: boolean = true,
+  ports: ContentPorts = defaultPorts,
 ): Promise<ArticleScheme | undefined> {
   // First generate the explanation points
-  const explanationPoints = await generateNewsExplanation(writer, currentNewsItem);
+  const explanationPoints = await generateNewsExplanation(writer, currentNewsItem, ports);
   if (explanationPoints === undefined) {
     console.error('Failed to generate explanation points');
     return undefined;
@@ -657,6 +665,7 @@ export async function generateNewsArticleWithExplanation(
     explanationPoints,
     currentNewsItem,
     saveArticle,
+    ports,
   );
   return article;
 }
