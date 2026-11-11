@@ -63,13 +63,21 @@ export async function fetchNews(page: string = ''): Promise<[any[], nextPage: st
 
 /**
  * Used to get news articles after a given date
+ *
  * @param startDate Given date after which articles are returned
+ * @param contentSource When given, only articles from that origin are returned.
  * @returns News Items that were published after the given date
  */
-export async function getAllNewsArticlesAfterDate(startDate: Date): Promise<NewsItem[]> {
+export async function getAllNewsArticlesAfterDate(
+  startDate: Date,
+  contentSource?: NewsItem['contentSource'],
+): Promise<NewsItem[]> {
   const allArticles: NewsItem[] = await findAll<NewsItem>(newsDatabaseConfig);
+  const candidates = contentSource
+    ? allArticles.filter((article) => article.contentSource === contentSource)
+    : allArticles;
 
-  const retArticles = allArticles.filter((article) => {
+  const retArticles = candidates.filter((article) => {
     const timestamp = standardizeDate(article.pubDate, article.pubDateTZ);
 
     try {

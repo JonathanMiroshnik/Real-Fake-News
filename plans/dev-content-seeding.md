@@ -222,6 +222,23 @@ as risks:
       happens to be the right outcome — mock news yields mock articles — but by accident. The
       honest form is: "articles this source produced today", over the article table, and let the
       news query filter on the same origin.
+      _Done in 6.3 (11 November 2026):_ the honest form, in all three places that count.
+      `services/contentSourceQueries.ts` owns the origin-aware questions:
+      `getAllPostsAfterDateBySource()` filters in memory after `getAllPostsAfterDate()`, since the
+      service returns whole rows and the callers already filter on date there;
+      `tallyContentSource()` returns per-table counts for one origin, which 6.5's startup log
+      needs; `countHoroscopesBySource()` exists separately because `horoscopes` is the one marked
+      table with no `DatabaseConfig` — it is written and read with direct SQL, so there is no
+      descriptor to hand `countByContentSource()`. `getAllNewsArticlesAfterDate(startDate,
+      contentSource?)` now takes the origin, and `blogWriting` passes `ports.news.contentSource`,
+      so the "mock news yields mock articles" outcome is now stated rather than accidental — and
+      a mock run can no longer rewrite live news into an article stamped `mock`, which would have
+      been a true statement about the producer and a false one about the text.
+      `ensureHoroscopesForToday()` had the same bug from the other side and was not in this
+      entry's list: it returned early whenever the table held twelve, so on a seeded database a
+      live pipeline would never generate its own horoscopes and never replace the mock ones,
+      including on the controller's read path. It now counts its own origin's rows and compares
+      against `ZODIAC_SIGNS.length` instead of the literal 12.
 - [ ] **`remainingTokens` must become adapter state, not module state.** It is a module-level
       `let` today (`newsService.ts:14`), so it depletes across every test in a file and the order
       of `it()` blocks changes the outcome. Once it is a field on the `live` adapter, each test

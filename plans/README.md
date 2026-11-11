@@ -63,8 +63,10 @@ top of `73790b05`.
       article, and `seedHoroscopes()` stamps `mock` unconditionally instead of only under
       `--force`; **(6.2) done** — `insert()` throws `MissingContentSourceError` for a row on a
       marked table with no marker, opting out `foods`/`featured_blog_posts` through the shared
-      `CONTENT_SOURCE_TABLES` list; **(6.3)** count "rows this source produced
-      today" so a seeded database does not starve the mock jobs; **(6.4)** move `remainingTokens`
+      `CONTENT_SOURCE_TABLES` list; **(6.3) done** — `getAllPostsAfterDateBySource()` counts what
+      one pipeline produced, `getAllNewsArticlesAfterDate()` takes an origin, and
+      `ensureHoroscopesForToday()` counts its own twelve, so a seeded table no longer answers
+      "quota met" for a pipeline that has produced nothing; **(6.4)** move `remainingTokens`
       into the live adapter; **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
       mock-row count in the startup log; **(6.6)** put both `0 0 * * *` crons behind
       `JOBS_TIME_SCALE`; **(6.7)** per-job integration test asserting each row's `contentSource`.

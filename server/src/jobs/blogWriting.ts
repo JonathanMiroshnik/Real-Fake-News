@@ -3,8 +3,8 @@ import {
   MINIMAL_NUM_DAILY_ARTICLES,
   RECENT_NEWS_ARTICLES_TIME_THRESHOLD,
 } from '../config/constants.js';
-import { BlogResponse } from '../types/article.js';
-import { getAllPostsAfterDate, writeBlogPost } from '../services/blogService.js';
+import { writeBlogPost } from '../services/blogService.js';
+import { getAllPostsAfterDateBySource } from '../services/contentSourceQueries.js';
 import { getAllNewsArticlesAfterDate } from '../services/newsService.js';
 import { NewsItem } from '../services/newsService.js';
 import { getRandomWriter } from '../services/writerService.js';
@@ -32,8 +32,15 @@ export async function generateScheduledArticles(
   const randomBelow = options.randomBelow ?? randomInt;
 
   try {
-    const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - writingInterval));
-    const newArticlesNeeded: number = MINIMAL_NUM_DAILY_ARTICLES - result.articles.length;
+    // Count what *this* pipeline produced, not what is in the table: a seeded
+    // database already holds 67 mock articles, so counting all of them would ask
+    // a correctly-wired mock job for zero articles forever
+    // (`plans/dev-content-seeding.md`, choose-n guard).
+    const producedByThisSource = await getAllPostsAfterDateBySource(
+      new Date(Date.now() - writingInterval),
+      ports.text.contentSource,
+    );
+    const newArticlesNeeded: number = MINIMAL_NUM_DAILY_ARTICLES - producedByThisSource.length;
     if (newArticlesNeeded <= 0) {
       return;
     }
@@ -44,8 +51,11 @@ export async function generateScheduledArticles(
     // finishes before any real news falls inside the last 24 hours and reports
     // "no recent news" on a database that is full of it.
     const recentNewsWindow = scaledInterval(RECENT_NEWS_ARTICLES_TIME_THRESHOLD);
+    // Same origin as the pipeline: otherwise a mock run rewrites live news into a
+    // mock article, which is a provenance lie about the text it inherited.
     const currentNews: NewsItem[] = await getAllNewsArticlesAfterDate(
       new Date(Date.now() - recentNewsWindow),
+      ports.news.contentSource,
     );
     if (currentNews.length == 0) {
       console.error('No recent real news articles found!');

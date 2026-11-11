@@ -203,19 +203,32 @@ export async function getHoroscopeForSign(
 
 /**
  * Generates and saves horoscopes for today if they don't exist
+ *
+ * The check is "has *this* pipeline produced today's twelve?", not "does the
+ * table hold twelve?" — a seeded database holds twelve mock rows, so a correctly
+ * wired live pipeline would otherwise never generate its own, and a mock one
+ * would never replace them. The controller calls this on read, so the wrong
+ * answer also decides what a user is served.
+ *
+ * @param ports source of the horoscope text; defaults to the configured ports.
  */
-export async function ensureHoroscopesForToday(): Promise<Horoscope[]> {
+export async function ensureHoroscopesForToday(ports?: ContentPorts): Promise<Horoscope[]> {
+  const contentSource = (ports ?? defaultPorts).text.contentSource;
   const today = new Date();
   const existingHoroscopes = await getHoroscopesForDate(today);
+  const producedByThisSource = existingHoroscopes.filter(
+    (horoscope) => horoscope.contentSource === contentSource,
+  );
 
-  // If we already have horoscopes for today, return them
-  if (existingHoroscopes.length === 12) {
-    return existingHoroscopes;
+  // If we already have all twelve for today from this pipeline, return them
+  if (producedByThisSource.length === ZODIAC_SIGNS.length) {
+    return producedByThisSource;
   }
 
-  // Otherwise, generate new ones
+  // Otherwise, generate new ones — replacing this pipeline's rows for the day,
+  // since `saveHoroscopes` upserts by (date, zodiacSign)
   debugLog('Generating horoscopes for today...');
-  const horoscopes = await generateHoroscopesForDate(today);
+  const horoscopes = await generateHoroscopesForDate(today, ports);
   await saveHoroscopes(horoscopes);
   debugLog(`Generated and saved ${horoscopes.length} horoscopes`);
 
