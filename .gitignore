@@ -28,7 +28,10 @@ database.db*
 database/database.db*
 database/images/
 database/images/compressed/
-database/
+# Runtime volume only — anchored, because an unanchored `database/` also matched
+# `server/src/lib/database/`, which silently dropped newly added files there
+# (an untracked test file was invisible to `git add .`). Sibling of the rule below.
+/database/
 
 # Database volume mount directory on host (Docker)
 /database/

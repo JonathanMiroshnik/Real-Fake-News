@@ -122,7 +122,7 @@ original bullet where they disagree.
       worth recording because it is the kind that reads as reassuring. It claimed `update` was safe
       to leave alone because "it copies onto the row it read, so the marker is preserved". Both
       halves are wrong. `update`'s `UPDATE … SET` names its columns explicitly and simply never
-      mentions `contentSource`, so the stored value survives by *omission*, not by copying — and
+      mentions `contentSource`, so the stored value survives by _omission_, not by copying — and
       `find()` did not return the field at all, so every `find()` result had it `undefined`. A
       consumer reading `article.contentSource` off a read row therefore saw "live" for mock rows.
       The fix: all four `find()` returns that have the column now include it, and all five
@@ -189,7 +189,7 @@ plumbing and both adapter sets exist, and every job in the pipeline now reaches
 them through a `ports` parameter instead of importing the live services.
 
 What that commit did **not** do — and what the remaining bullets below are — is make the
-marker travel *through* the services to the row. Only the news path stamps today
+marker travel _through_ the services to the row. Only the news path stamps today
 (`addNewsToTotal` writes `source.contentSource`); `blogService`, `recipeService` and
 `horoscopeService` build their rows without it, `writerService` returns writers read from
 the database, and `insert()` treats a missing marker as `'live'`. A mock article therefore
@@ -199,7 +199,7 @@ every other caller.
 - [x] Port interfaces in `types/contentPorts.d.ts` — `NewsSource`, `TextGenerator`,
       `ImageGenerator`, `TransitSource` and the `ContentPorts` bundle. Each port
       mirrors one existing service function and additionally exposes
-      `readonly contentSource`, so the marker travels *with* the data instead of
+      `readonly contentSource`, so the marker travels _with_ the data instead of
       being re-derived by the caller. That is what makes "the port was injected"
       provable from the row.
       ⚠️ `NewsSource.remainingCalls()` is a method, not a property, because the
@@ -222,12 +222,12 @@ every other caller.
       bytes, and transits delegate to `buildMockAstrologicalData()`. Determinism
       is the point — a random mock would make every job assertion vacuous.
       ⚠️ **The image mock contradicts this plan's own table.** `dev-content-seeding.md`
-      says the mock image writes a real local file *through* the real compression path,
+      says the mock image writes a real local file _through_ the real compression path,
       precisely so the file/DB lifecycle keeps being exercised — and this plan's goal 1
       ("every row carries its origin") assumes a row whose image is real. The
       implementation writes no bytes: the filename is a stem that no file backs, so
       `dev-mock-image-*.webp` 404s on the client. Accepted for now because the mock's job
-      is to exercise the *pipeline*, not the image path, and a placeholder tile behind a
+      is to exercise the _pipeline_, not the image path, and a placeholder tile behind a
       mock headline would look like a working site rather than a test one. Revisit in
       Phase 4 (image ownership), where the missing original is exactly the orphan case
       `images:gc` must not delete for the wrong reason. Recorded, not silently changed.
@@ -267,7 +267,7 @@ every other caller.
       ⚠️ `horoscopeController` still calls `ensureHoroscopesForToday()`, which
       uses the default set rather than an explicit port. Correct under
       `CONTENT_SOURCE=mock`, but it is the one call path where the port is
-      implicit rather than passed. Deferred deliberately: the *right* fix is not to
+      implicit rather than passed. Deferred deliberately: the _right_ fix is not to
       thread a port through a controller but to stop generating on the read path at
       all (a cron does that now that horoscopes are in the scheduler), so it is
       scheduled with that change rather than patched twice.
@@ -278,10 +278,10 @@ every other caller.
       `runOnBoot: 'if-due'` pass — the commit that closes entry 6's "compress every
       schedule" gap.
 - [x] Mock adapters write rows with `contentSource: 'mock'`; live adapters with `'live'`.
-      Half-true as written: the *adapters* all expose the right marker, but only
+      Half-true as written: the _adapters_ all expose the right marker, but only
       `newsFetching` forwarded it. Done by passing `ports.text.contentSource` into the row
       builders in `writeBlogPost` / `generateNewsArticleFromExplanation`, `generateRecipe` and
-      `getRandomWriter` (which re-stamps the writer it reads, because a writer travels *inside*
+      `getRandomWriter` (which re-stamps the writer it reads, because a writer travels _inside_
       an article/recipe as a nested object and its own marker would otherwise contradict the
       row's). `seedHoroscopes()` was stamping `mock` only under `--force` and wrote a plain
       `seed:dev` day as `live` — it now always stamps.
@@ -289,19 +289,25 @@ every other caller.
       both are reachable from outside the pipeline: `createArticle` in `adminController.ts`
       calls `writeBlogPost(writer, newsItem, true)` with no ports, and `seedWriters()` in
       `scripts/seed/seedBlogContent.ts` builds writer rows by hand instead of through
-      `insertSeedRow()`. The first is *correct* — an admin-authored article is live content by
+      `insertSeedRow()`. The first is _correct_ — an admin-authored article is live content by
       definition — but only until the mock set is selected, at which point it would be stamped
-      `mock` by the default port without anyone choosing that. The second writes a seeded row
-      that is not stamped until 6.2 makes that an error. Neither is fixed here: the first needs
-      a decision about whether an admin action follows `CONTENT_SOURCE` at all; the second is
-      exactly the case 6.2 ("omission is impossible") exists to catch.
-- [ ] **Make omission impossible, not just remembered.** Every bullet above was a
+      `mock` by the default port without anyone choosing that. The second turned out to be a
+      false alarm: `buildWriterRow()` stamps `MOCK_CONTENT_SOURCE` itself, so it survives 6.2
+      unchanged. Neither is fixed here: the first needs a decision about whether an admin action
+      follows `CONTENT_SOURCE` at all; the second is now enforced by 6.2's `insert()` check,
+      which will reject any future hand-built row that forgets its marker.
+- [x] **Make omission impossible, not just remembered.** Every bullet above was a
       "remember to pass the marker" instruction, and remembering is what failed — the row
       builder had no reason to know it was missing a field, because the column has a default.
-      Left for its own commit (6.2): `resolveContentSource` should refuse a row with no marker
-      on a table that has the column, so a service that forgets one fails its tests instead of
-      writing a fake row that claims to be real. Same argument as `stampAsMock()` in
-      `insertSeedRow()`.
+      Done in 6.2: `insert()` now derives the marker through `contentSourceFor()`, which
+      throws `MissingContentSourceError` when a row for a table in `CONTENT_SOURCE_TABLES`
+      carries no marker. The error is rethrown rather than logged, because `insert()`'s other
+      failure path means "not written" and this one means "fix the caller".
+      ⚠️ Two things this check cannot see: it runs _after_ `dbConfig.exists()`, so a row that
+      already exists is skipped before the marker is ever inspected; and it only guards
+      `insert()`, so a future `UPDATE` path can still write a row the check never saw. The
+      tables without the column (`foods`, `featured_blog_posts`) are opted out by the shared
+      list rather than by a second list in `sqliteOperations.ts`.
 - [ ] Integration test per job (entry 6's own criterion) additionally asserts the
       `contentSource` of every inserted row, so "the port was injected" is proven by data and
       not only by a `vi.mock` on `axios`. Must land **last** of the pipeline bullets: it is
@@ -328,7 +334,7 @@ every other caller.
       directly). A production `insert` that throws on `contentSource === 'mock'` closes the
       hole at the single choke point every writer already goes through, which is the same
       argument that put `stampAsMock()` in `insertSeedRow()`.
-      ⚠️ **Sequencing.** Phase B adds the *precondition* for this bullet: `insert()` must
+      ⚠️ **Sequencing.** Phase B adds the _precondition_ for this bullet: `insert()` must
       require a marker at all before it can refuse a bad one, otherwise "no marker" is still
       the silent `'live'` it is today and the production check has nothing to look at. Land
       the "omission is impossible" change first, then this one — they are two edits to the

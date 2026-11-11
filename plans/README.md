@@ -58,9 +58,12 @@ top of `73790b05`.
       marker, and `insert`/`findAll`/`findOne` round-trip the value. Dev databases seeded before
       it need one `npm run seed:reset` to re-stamp their rows (they backfilled as `live`).
       _Adapters and `CONTENT_SOURCE` landed 11 November 2026 (`28d1624c`)._ Remaining, in order:
-      **(6.1)** forward `contentSource` through `blogService`/`recipeService`/`writerService` and
-      fix `seedHoroscopes()` stamping placeholder rows `live`; **(6.2)** make a missing marker on a
-      marked table an error instead of a silent `live`; **(6.3)** count "rows this source produced
+      **(6.1) done** (`b0813000`) — `blogService`/`recipeService` stamp their rows,
+      `getRandomWriter` re-stamps the writer it reads so a nested author cannot contradict its
+      article, and `seedHoroscopes()` stamps `mock` unconditionally instead of only under
+      `--force`; **(6.2) done** — `insert()` throws `MissingContentSourceError` for a row on a
+      marked table with no marker, opting out `foods`/`featured_blog_posts` through the shared
+      `CONTENT_SOURCE_TABLES` list; **(6.3)** count "rows this source produced
       today" so a seeded database does not starve the mock jobs; **(6.4)** move `remainingTokens`
       into the live adapter; **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
       mock-row count in the startup log; **(6.6)** put both `0 0 * * *` crons behind

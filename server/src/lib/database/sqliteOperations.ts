@@ -2,6 +2,7 @@ import { getDatabase } from './database.js';
 import { DatabaseConfig } from './databaseConfigurations.js';
 import Database from 'better-sqlite3';
 import { getUniqueKey } from '../../utils/general.js';
+import { CONTENT_SOURCE_TABLES } from './schema.js';
 import {
   LIVE_CONTENT_SOURCE,
   MOCK_CONTENT_SOURCE,
@@ -31,17 +32,63 @@ export function getTableName(source: string): string {
 }
 
 /**
- * Normalises the marker before it reaches SQL.
+ * Thrown when a row for a marked table is written without a `contentSource`.
  *
- * An absent value means "this row came from the live pipeline": the column's
- * DEFAULT 'live' would produce the same result, but better-sqlite3 refuses to bind
- * `undefined`, so it is made explicit here — in one place, for every table.
- *
- * @param contentSource value from the typed row, if any.
- * @returns 'live' or 'mock'.
+ * This is a programming error, not a data error: every writer of a marked table
+ * knows which pipeline it is in, and the one that forgot is the bug. It throws
+ * rather than defaulting because the default is the whole problem — a mock row
+ * stamped 'live' is not a missing value, it is a false claim, and it is
+ * indistinguishable from a real one afterwards.
  */
-function resolveContentSource(contentSource: string | undefined): string {
-  return contentSource === MOCK_CONTENT_SOURCE ? MOCK_CONTENT_SOURCE : LIVE_CONTENT_SOURCE;
+export class MissingContentSourceError extends Error {
+  constructor(tableName: string) {
+    super(
+      `Row for '${tableName}' has no contentSource. Rows in this table must be stamped ` +
+        `with the origin of the pipeline that wrote them ('live' or 'mock'); there is no ` +
+        `safe default. See plans/dev-content-marking.md.`,
+    );
+    this.name = 'MissingContentSourceError';
+  }
+}
+
+/**
+ * Passes the marker through, rejecting an absent or unrecognised one.
+ *
+ * The column has a DEFAULT 'live', but nothing here relies on it: better-sqlite3
+ * refuses to bind `undefined`, and an absent marker used to fall through to that
+ * default, which is how a mock row ended up claiming to be real.
+ *
+ * @param tableName table being written, for the error message.
+ * @param contentSource value from the typed row.
+ * @returns the marker, unchanged.
+ * @throws {MissingContentSourceError} if the row carries no marker.
+ */
+function requireContentSource(tableName: string, contentSource: string | undefined): string {
+  const isStamped = contentSource === LIVE_CONTENT_SOURCE || contentSource === MOCK_CONTENT_SOURCE;
+
+  if (!isStamped) {
+    throw new MissingContentSourceError(tableName);
+  }
+
+  return contentSource;
+}
+
+/**
+ * Reads the marker off a row, refusing the tables that must carry one.
+ *
+ * `featured_blog_posts` has no column, so its rows pass `undefined` and get one
+ * back; for every table in `CONTENT_SOURCE_TABLES` the marker is mandatory.
+ *
+ * @param tableName table being written.
+ * @param row the row about to be persisted.
+ * @returns the marker to bind, or `undefined` for an unmarked table.
+ */
+function contentSourceFor(tableName: string, row: unknown): string | undefined {
+  const isMarkedTable = (CONTENT_SOURCE_TABLES as readonly string[]).includes(tableName);
+
+  if (!isMarkedTable) return undefined;
+
+  return requireContentSource(tableName, (row as { contentSource?: string }).contentSource);
 }
 
 /**
@@ -143,7 +190,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         writerType,
         isFeatured,
         article.featuredDate || null,
-        resolveContentSource(article.contentSource),
+        contentSourceFor(tableName, article),
       );
     } else if (tableName === 'news_items') {
       const newsItem = row as any;
@@ -158,7 +205,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         newsItem.description || null,
         newsItem.pubDate || null,
         newsItem.pubDateTZ || null,
-        resolveContentSource(newsItem.contentSource),
+        contentSourceFor(tableName, newsItem),
       );
     } else if (tableName === 'writers') {
       const writer = row as any;
@@ -176,7 +223,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         writer.profileImage || null,
         writer.createdAt || null,
         writer.updatedAt || null,
-        resolveContentSource(writer.contentSource),
+        contentSourceFor(tableName, writer),
       );
     } else if (tableName === 'featured_blog_posts') {
       const featured = row as any;
@@ -219,7 +266,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         serializeJson(recipe.images) || null,
         recipe.shortDescription || null,
         writerType,
-        resolveContentSource(recipe.contentSource),
+        contentSourceFor(tableName, recipe),
       );
     } else {
       throw new Error(`Unknown table: ${tableName}`);
@@ -227,6 +274,13 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
 
     return true;
   } catch (error) {
+    // A missing marker is a bug in the caller, not a storage outcome. Every other
+    // failure below means "the row was not written"; this one means "this code
+    // must be fixed", so it is rethrown instead of reported as `false`.
+    if (error instanceof MissingContentSourceError) {
+      throw error;
+    }
+
     if (error instanceof Database.SqliteError) {
       if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
         // Duplicate key - already exists

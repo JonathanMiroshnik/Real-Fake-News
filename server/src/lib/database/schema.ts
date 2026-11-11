@@ -5,9 +5,12 @@ import { debugLog, debugWarn } from '../../utils/debugLogger.js';
  * Column added by the content-marking migration
  * (`plans/dev-content-marking.md` Phase A).
  *
- * 'live' is stamped by the column default, so the existing write paths need no
- * change; mock code sources stamp 'mock' explicitly. It is metadata, not a
- * filter: nothing reads it for ranking or selection yet.
+ * The DEFAULT is a migration artifact, not the mechanism: `insert()` requires
+ * every row in a marked table to carry an explicit marker and throws without one
+ * (6.2), so nothing relies on this defaulting any more. It stays because existing
+ * databases have already been migrated with it, and dropping a DEFAULT in SQLite
+ * means rebuilding the table. It is metadata, not a filter: nothing reads it for
+ * ranking or selection yet.
  */
 const CONTENT_SOURCE_COLUMN = "contentSource TEXT NOT NULL DEFAULT 'live'";
 
@@ -18,8 +21,12 @@ const CONTENT_SOURCE_COLUMN = "contentSource TEXT NOT NULL DEFAULT 'live'";
  * prompt, and the seeder deletes exactly the names it wrote. `featured_blog_posts`
  * is absent too — the table is dead (see `plans/featured-articles.md`), and
  * `blog_posts.contentSource` already describes the article it would duplicate.
+ *
+ * Exported because `insert()` reads the same list to decide which tables must
+ * carry a marker: a table in here is a table where leaving the marker out is an
+ * error rather than an implicit 'live' (`plans/dev-content-marking.md` 6.2).
  */
-const CONTENT_SOURCE_TABLES = [
+export const CONTENT_SOURCE_TABLES = [
   'blog_posts',
   'news_items',
   'writers',
