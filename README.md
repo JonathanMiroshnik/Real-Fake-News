@@ -240,41 +240,42 @@ TypeScript, not JSON or a committed database: a schema change becomes a compile
 error, and review shows exactly what a new article says. Rows are keyed `dev-…`,
 which is what makes a second run a no-op and `--reset` precise.
 
-The seeder refuses to run with `NODE_ENV=production` unless `--force` is passed.
+The seeder refuses to run with `NODE_ENV=production` unless **both** `--force` and
+`--i-know-this-is-a-demo` are passed.
 
-## Fake Data Fallback
+## No Read-Time Fake Content
 
-When the database is empty (fresh deployment, demo, or during development), the API can automatically generate placeholder content so the frontend always has something to display. This is controlled by the `ENABLE_FAKE_DATA` environment variable — **off by default**, because production must never invent content at read time. For development, seed real rows instead (`npm run seed:dev`).
+The API never invents content while answering a request. An empty database
+answers `200` with an empty list (`{ "posts": [], "error": "" }`); a key that is
+not there is a `404`; a date with no featured article is
+`{ "success": false, "article": null }`. Whatever the response body says is
+what is on disk.
 
-### How it works
+This was not always true. Until Phase 2 of
+[`plans/dev-content-seeding.md`](plans/dev-content-seeding.md) the controllers
+could generate satirical placeholder articles, recipes and horoscopes at read
+time behind an `ENABLE_FAKE_DATA` flag. The flag and the generators are gone:
+guarding a fallback means the fallback still exists, and every bug in the guard
+is a production incident. There is now one code path.
 
-1. Frontend requests articles/recipes/horoscopes from the API
-2. Service queries the database — returns empty
-3. Controller checks `isFakeDataEnabled()` → `ENABLE_FAKE_DATA=true` in `.env`
-4. `fakeDataService.ts` generates in-memory content with satirical headlines, fake writer profiles, and tiled-color placeholder images
-5. Response returned in the exact same JSON format as real data — frontend renders normally
+### Where placeholder content comes from instead
 
-### What gets generated
+| You want                                | Do this                                          |
+| --------------------------------------- | ------------------------------------------------ |
+| A populated dev database                | `npm run seed:dev` (see [Dev Data Seeding](#dev-data-seeding)) |
+| Content with no API keys / no network   | `CONTENT_SOURCE=mock` (defaults to `live`)       |
+| A stand-alone placeholder image file    | `npm run generate-fake-image`                    |
 
-| Content Type         | Trigger                                     | Fallback                                                   |
-| -------------------- | ------------------------------------------- | ---------------------------------------------------------- |
-| **Blog articles**    | All `/api/blogs/*` endpoints return empty   | 8 articles with unique fake headlines, writers, and images |
-| **Featured article** | No featured article for the requested date  | 1 featured article with a special report headline          |
-| **Recipes**          | All `/api/recipes/*` endpoints return empty | 4 humorous recipes with fake instructions                  |
-| **Horoscopes**       | Requested zodiac sign not found             | All 12 signs with playful, generic horoscopes              |
-
-### Configuration
-
-Set in `server/.env`:
-
-```env
-# Enable/disable fake data fallback (default: off)
-ENABLE_FAKE_DATA=false
-```
+`CONTENT_SOURCE=mock` runs the **real** write path (jobs → services → SQLite)
+with offline, deterministic adapters. Rows it writes are stamped
+`contentSource: "mock"` so they can be found again, and the server refuses to
+boot with `CONTENT_SOURCE=mock` under `NODE_ENV=production` — as well as
+refusing to boot on a production database that still holds `mock` rows.
 
 ### Tiled Placeholder Images
 
-Fake articles include auto-generated placeholder images — tiled color PNGs created with Jimp:
+The dev seeder and the preview CLI share one tiled-color PNG generator
+(`server/src/utils/placeholderImage.ts`, drawn with Jimp). It is configurable:
 
 ```env
 # Image dimensions (pixels)
@@ -315,13 +316,9 @@ npm run generate-fake-image -- --help
 
 Images are saved to the server's images directory (same as AI-generated images) and served through `/api/images/:filename`.
 
-### Marking Fallback Content
-
-All fake items have `writerType: "Synthesis"` so frontends can optionally detect and label them (e.g., display an "Auto-generated" badge).
-
 ### Factory Reset
 
-To wipe the database and images completely (useful for testing the fallback):
+To wipe the database and images completely:
 
 ```bash
 docker compose down
@@ -330,7 +327,9 @@ sudo rm -rf "$DATABASE_DIR" "$IMAGES_DIR"
 docker compose up --build -d
 ```
 
-After this, the API will return fake content whenever endpoints are hit.
+After this the API answers every endpoint with an empty 200 — it does not fill
+the gap. Run `npm run seed:dev` (or let the scheduled jobs write rows) if you
+want content to look at.
 
 ## Troubleshooting
 

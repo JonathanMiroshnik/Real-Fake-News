@@ -18,24 +18,26 @@ client (nginx proxy) → server:5001
 
 - **`routes/`** — Express Router definitions (blogRoutes, recipeRoutes, horoscopeRoutes, apiRoutes)
 - **`controllers/`** — Request/response handlers; interface between HTTP and services
-- **`services/`** — Business logic (blogService, recipeService, horoscopeService, newsService, llmService, imageService, fakeDataService)
+- **`services/`** — Business logic (blogService, recipeService, horoscopeService, newsService, llmService, imageService)
 - **`lib/database/`** — SQLite database layer (schema.ts, database.ts, sqliteOperations.ts, databaseConfigurations.ts)
 - **`jobs/`** — Cron/scheduled tasks (news fetching, article generation, horoscope generation)
 - **`scripts/`** — CLI utilities (seedDevData, generateFakeImage, compressExistingImages)
 - **`types/`** — TypeScript interfaces (ArticleScheme, RecipeScheme, Writer, Horoscope)
 - **`utils/`** — Shared utilities (imageCompression, debugLogger, general)
 
-## Fake Data Fallback
+## No Read-Time Fake Content
 
-When the database is empty, the API can return auto-generated placeholder content instead of empty responses. See the main [README](../../README.md#fake-data-fallback) for details.
+The API does not invent content while answering a request: an empty database is
+an empty `200`, a missing key is a `404`. Dev content comes from
+`npm run seed:dev`, or from `CONTENT_SOURCE=mock`, which runs the real write path
+with offline adapters. See the main
+[README](../../README.md#no-read-time-fake-content) for details.
 
 ### Key files:
 
-- **`src/services/fakeDataService.ts`** — Generators for fake articles, recipes, horoscopes, and tiled placeholder images
+- **`src/utils/placeholderImage.ts`** — Tiled placeholder image drawing, shared by the seeder and the CLI
 - **`src/scripts/generateFakeImage.ts`** — CLI tool for generating single placeholder images
-- **`src/controllers/blogController.ts`** — All blog endpoints check `isFakeDataEnabled()` when empty
-- **`src/controllers/recipeController.ts`** — All recipe endpoints check `isFakeDataEnabled()` when empty
-- **`src/controllers/horoscopeController.ts`** — Horoscope-by-sign endpoint falls back to fake data
+- **`src/config/contentSourceGuard.ts`** — Boot/write-path refusals that keep mock content out of production
 
 ### CLI
 
@@ -51,11 +53,9 @@ npm run seed:reset        # wipe the seeded rows + images first
 ### Placeholder images
 
 The tiled placeholder drawing lives in `src/utils/placeholderImage.ts`
-(`createTilePlaceholderImage`). `fakeDataService.generatePlaceholderImage()` and
-the dev seeder both call it, so there is one image implementation, not two.
-
-`ENABLE_FAKE_DATA` is off by default: production must never invent content at
-read time. Dev content is seeded explicitly with `npm run seed:dev`.
+(`createTilePlaceholderImage`). The dev seeder (`scripts/seed/seedImages.ts`) and
+the `generate-fake-image` CLI both call it, so there is one image
+implementation, not two.
 
 ## Production Deployment
 

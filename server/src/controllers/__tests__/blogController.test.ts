@@ -21,14 +21,6 @@ vi.mock('../../services/blogService.js', () => ({
 
 vi.mock('../../lib/database/sqliteOperations.js', () => ({
   findOne: mockGetPostByKey,
-  count: vi.fn(),
-}));
-
-vi.mock('../../services/fakeDataService.js', () => ({
-  isFakeDataEnabled: vi.fn().mockReturnValue(false),
-  generateFakeArticle: vi.fn(),
-  generateFakeFeaturedArticle: vi.fn(),
-  getFakeBlogResponse: vi.fn(),
 }));
 
 vi.mock('../../lib/database/databaseConfigurations.js', () => ({
@@ -130,6 +122,19 @@ describe('Blog Controller', () => {
         article: mockArticle,
       });
     });
+
+    it('should 404 for a missing key even when the database is empty', async () => {
+      mockGetPostByKey.mockResolvedValue(null);
+
+      const mockReq = { params: { key: 'missing' } } as unknown as Request;
+      await getArticleByKeyController(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Article not found',
+      });
+    });
   });
 
   /** ── getFeaturedArticleController ── */
@@ -145,6 +150,20 @@ describe('Blog Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         article: mockArticle,
+      });
+    });
+
+    it('should answer null rather than invent a featured article', async () => {
+      mockGetFeaturedArticle.mockResolvedValue(null);
+
+      const mockReq = { query: {} } as unknown as Request;
+      await getFeaturedArticleController(mockReq, mockRes);
+
+      expect(mockRes.status).not.toHaveBeenCalled();
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        article: null,
+        message: 'No featured article found for the specified date',
       });
     });
 

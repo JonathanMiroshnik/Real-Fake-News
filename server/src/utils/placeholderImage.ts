@@ -1,19 +1,17 @@
 /**
- * Tiled placeholder images — the drawing code behind the fake-data fallback.
+ * Tiled placeholder images — the drawing code shared by the dev seeder and the
+ * `npm run image:fake` preview CLI.
  *
- * Why this is not inside `services/fakeDataService.ts`: the fallback itself is
- * read-time (it runs per request behind `ENABLE_FAKE_DATA`) and is being retired
- * in favour of the dev seeder, but the *image generator* has to outlive it —
- * the seeder writes real files through the real image path
- * (`plans/dev-content-seeding.md`, Phases 1–2). Keeping the drawing code here
- * means the seeder does not have to switch the fallback flag back on to get a
- * placeholder, and Phase 2 can delete the fallback without touching this file.
+ * This is the *only* placeholder generator left. The read-time fake-data
+ * fallback that used to wrap it was deleted with `ENABLE_FAKE_DATA`
+ * (`plans/dev-content-seeding.md` Phase 2), so there is no longer a flag to
+ * consult: the function always draws. Nothing here invents content on a
+ * request path — both callers write files deliberately, ahead of serving them.
  *
- * Two entry points use it:
- *   `fakeDataService.generatePlaceholderImage()` — keeps the `ENABLE_FAKE_DATA`
- *   guard and the old "return '' on failure" contract for controllers.
- *   `scripts/seed/seedImages.ts` — calls it directly with a deterministic
- *   filename and a seeded PRNG, so repeated seed runs are byte-identical.
+ * Callers:
+ *   `scripts/seed/seedImages.ts` — passes a deterministic filename and a seeded
+ *   PRNG, so repeated seed runs are byte-identical.
+ *   `scripts/generateFakeImage.ts` — the manual preview CLI.
  */
 import path from 'path';
 import fs from 'fs';

@@ -274,7 +274,7 @@ instead of silently falling back to the production API — the fallback in
 | `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                                 |
 | `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated                   |
 | `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing                    |
-| `ENABLE_FAKE_DATA`               | no       | `false`                       | placeholder content when DB empty (dev: seed instead) |
+| `CONTENT_SOURCE`                 | no       | `live`                        | `live` \| `mock`; `mock` refuses `NODE_ENV=production` |
 | `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                                |
 | `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                           |
 | `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers                        |

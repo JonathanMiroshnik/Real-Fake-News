@@ -74,11 +74,19 @@ top of `73790b05`.
       **6.7 is last on purpose** — it is the test that proves 6.1–6.3 were done, so it lands after
       the code it checks, and the entry is ticked only when it passes.
 
-- [ ] **7. Delete the read-time `ENABLE_FAKE_DATA` fallback.** Guards removed from
+- [x] **7. Delete the read-time `ENABLE_FAKE_DATA` fallback.** Guards removed from
       `blogController` (5), `recipeController` (3), `horoscopeController` (1); fake generators
       deleted (`generatePlaceholderImage()` stays); compose default dropped → Phase 2.
       _Decision:_ delete the flag outright (planned) — if we keep it, it must default to `false`
-      and be read only by the dev overlay.
+      and be read only by the dev overlay. **Taken: deleted outright.**
+      _Landed:_ the whole of `services/fakeDataService.ts` is gone, including
+      `generatePlaceholderImage()` — with the flag deleted that wrapper could only ever return
+      `''`, so the CLI that used it now calls `createTilePlaceholderImage()` directly. The flag
+      is out of `docker-compose.yml`, both `.env.example` files, `README.md`, `server/README.md`
+      and `docs/configuration.md`; the last of those gained the `CONTENT_SOURCE` row that should
+      have been there since Phase 3. An empty database is now an empty list / `404`, never
+      random content; `blogController.test.ts` pins both answers. See
+      `plans/dev-content-seeding.md` Phase 2 for the deviations.
 - [ ] **8. Wire the daily horoscope job into one scheduler.** Job registry + if-due guard, move
       `initializeScheduledJobs()` out of `app.ts` module scope →
       `plans/horoscope-cron-wiring.md`.
@@ -124,7 +132,7 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 | `testing-suite.md`               | Completed   | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces                             |
 | `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                                    |
 | `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                             |
-| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phase 1 + Phase 3 adapters done) |
+| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phases 1–3 done; Phase 4 open) |
 | `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phase A done)      |
 | `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                            |
 | `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                           |

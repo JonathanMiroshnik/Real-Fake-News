@@ -52,9 +52,6 @@ services:
       # Behaviour toggles
       RUNWARE_IMAGE_MODEL: ${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
       ENABLE_SCHEDULED_JOBS: ${ENABLE_SCHEDULED_JOBS:-true}
-      # Off by default: production must never invent content at read time.
-      # Dev content is seeded explicitly (see docker-compose.override.yml `seed`).
-      ENABLE_FAKE_DATA: ${ENABLE_FAKE_DATA:-false}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:
       # Both mount sources come from the root .env (no defaults on purpose, so

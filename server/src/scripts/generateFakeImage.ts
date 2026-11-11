@@ -25,7 +25,10 @@
  *   npx tsx src/scripts/generateFakeImage.ts --output ./my-image.png
  */
 
-import { PlaceholderImageConfig, generatePlaceholderImage } from '../services/fakeDataService.js';
+import {
+  createTilePlaceholderImage,
+  type PlaceholderImageConfig,
+} from '../utils/placeholderImage.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -145,6 +148,20 @@ Examples:
 `);
 }
 
+/**
+ * Writes the placeholder, or exits non-zero on failure.
+ *
+ * Returns the filename on success so `main()` can copy it where asked.
+ */
+async function writeImageOrExit(config: Partial<PlaceholderImageConfig>): Promise<string> {
+  try {
+    return await createTilePlaceholderImage({ config });
+  } catch (error) {
+    console.error('❌ Failed to generate image:', error);
+    process.exit(1);
+  }
+}
+
 async function main(): Promise<void> {
   const { config, output, help } = parseArgs();
   if (help) {
@@ -155,11 +172,7 @@ async function main(): Promise<void> {
   console.log('🎨 Generating placeholder image...');
   console.log('   Config:', JSON.stringify(config));
 
-  const filename = await generatePlaceholderImage(config);
-  if (!filename) {
-    console.error('❌ Failed to generate image. Is ENABLE_FAKE_DATA=true in .env?');
-    process.exit(1);
-  }
+  const filename = await writeImageOrExit(config);
 
   if (output) {
     const { getImagesDirectory } = await import('../utils/imageCompression.js');

@@ -125,16 +125,41 @@ Verified by hand: seed → 67 rows + 70 image files; second run → 0 inserted, 
 
 ## Phase 2 — drop the read-time fake fallback
 
-- [ ] Remove the `isFakeDataEnabled()` guards from `blogController` (5 sites),
+- [x] Remove the `isFakeDataEnabled()` guards from `blogController` (5 sites),
       `recipeController` (3 sites), `horoscopeController` (1 site)
-- [ ] Delete the fake generators in `server/src/services/fakeDataService.ts`
+- [x] Delete the fake generators in `server/src/services/fakeDataService.ts`
       (`generateFakeArticle(s)`, `getFakeBlogResponse`, `generateFakeRecipe(s)`,
       `generateFakeHoroscopes`, `generateFakeFeaturedArticle`); **keep**
       `generatePlaceholderImage()` — the seeder depends on it
-- [ ] Remove `ENABLE_FAKE_DATA` from `docker-compose.yml`, `.env.example`, `README.md`,
+- [x] Remove `ENABLE_FAKE_DATA` from `docker-compose.yml`, `.env.example`, `README.md`,
       `server/README.md`, `docs/configuration.md`
-- [ ] Regression: empty database now answers `200 { posts: [], ... }` consistently instead of
+- [x] Regression: empty database now answers `200 { posts: [], ... }` consistently instead of
       random content, and an image request for a missing file is a clean `404`
+
+Implementation notes (where the code differs from the sketch above, and why):
+
+- **The whole module went, not just the generators.** Every export of
+  `fakeDataService.ts` was either a fake generator or `isFakeDataEnabled()`. The one export
+  this checklist protected, `generatePlaceholderImage()`, was *itself* a flag-gated wrapper
+  that returned `''` when `ENABLE_FAKE_DATA` was off — so with the flag deleted it would have
+  been a function that could never draw. Its one remaining caller, the
+  `generate-fake-image` CLI, now calls `createTilePlaceholderImage()` directly and reports the
+  thrown error instead of printing "Is ENABLE_FAKE_DATA=true in .env?". Verified by hand:
+  the CLI writes a file with the variable unset, which it could not do before.
+  The seeder never used the wrapper (it already called `createTilePlaceholderImage`).
+- **The by-key and featured branches collapsed rather than lost a branch.** Both had the shape
+  `if (isFakeDataEnabled()) { … } else { 404 / null }`. Removing the guard left a duplicated
+  fallback branch, so the fake arm is gone and the real answer is now the only answer. An
+  empty database deliberately stays a `404`, not a `200` — "no row with this key" is the
+  same fact whether or not other rows exist.
+- **`docs/configuration.md` gained `CONTENT_SOURCE` instead of just losing a row.** The flag
+  that replaced the old behaviour is `CONTENT_SOURCE` and was undocumented; deleting the
+  `ENABLE_FAKE_DATA` row alone would have left the documented env surface with no way to get
+  dev content other than the seeder.
+- **`Synthesis` is still a valid `writerType`.** The README used to tell frontends to badge
+  `writerType: "Synthesis"` rows as auto-generated. Nothing emits it from a read path any
+  more, but seeded and mock-pipeline rows still carry it, so the advice survives — the anchor
+  section was rewritten rather than deleted.
 
 ## Phase 3 — content-source adapters (the structural fix)
 
