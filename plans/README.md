@@ -57,6 +57,17 @@ top of `73790b05`.
       exists on all five content tables, seeded rows are stamped `mock`, `--reset` deletes by
       marker, and `insert`/`findAll`/`findOne` round-trip the value. Dev databases seeded before
       it need one `npm run seed:reset` to re-stamp their rows (they backfilled as `live`).
+      _Adapters and `CONTENT_SOURCE` landed 11 November 2026 (`28d1624c`)._ Remaining, in order:
+      **(6.1)** forward `contentSource` through `blogService`/`recipeService`/`writerService` and
+      fix `seedHoroscopes()` stamping placeholder rows `live`; **(6.2)** make a missing marker on a
+      marked table an error instead of a silent `live`; **(6.3)** count "rows this source produced
+      today" so a seeded database does not starve the mock jobs; **(6.4)** move `remainingTokens`
+      into the live adapter; **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
+      mock-row count in the startup log; **(6.6)** put both `0 0 * * *` crons behind
+      `JOBS_TIME_SCALE`; **(6.7)** per-job integration test asserting each row's `contentSource`.
+      **6.7 is last on purpose** — it is the test that proves 6.1–6.3 were done, so it lands after
+      the code it checks, and the entry is ticked only when it passes.
+
 - [ ] **7. Delete the read-time `ENABLE_FAKE_DATA` fallback.** Guards removed from
       `blogController` (5), `recipeController` (3), `horoscopeController` (1); fake generators
       deleted (`generatePlaceholderImage()` stays); compose default dropped → Phase 2.
@@ -102,16 +113,16 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 
 ## Current Plans
 
-| File                             | Status      | Priority | Description                                                                                                   |
-| -------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------- |
-| `testing-suite.md`               | Completed   | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces                        |
-| `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                               |
-| `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                        |
-| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phase 1 done)               |
-| `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phase A done) |
-| `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                       |
-| `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                      |
-| `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code                        |
+| File                             | Status      | Priority | Description                                                                                                        |
+| -------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| `testing-suite.md`               | Completed   | High     | Full testing suite: Vitest (unit/integration) + Playwright (E2E) across all workspaces                             |
+| `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                                    |
+| `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                             |
+| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phase 1 + Phase 3 adapters done) |
+| `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phase A done)      |
+| `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                            |
+| `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                           |
+| `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code                             |
 
 ## Feature Status
 

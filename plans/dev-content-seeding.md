@@ -1,6 +1,6 @@
 # Dev Content: Deterministic Seeder + Content-Source Adapters
 
-> **Status:** In Progress (Phase 1 done) · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
+> **Status:** In Progress (Phases 1 done, Phase 3 adapters shipped) · **Priority:** High · **Related:** `plans/horoscope-cron-wiring.md` · **Order:** commits 5–7 and 9 of the 2026-11-07 session (`plans/README.md`)
 
 ## Problem
 
@@ -144,27 +144,52 @@ SQLite) against free, deterministic content instead of replacing that path at re
 > **Prerequisite:** `plans/dev-content-marking.md` Phase A. Once the _pipeline_ writes mock rows,
 > origin must be a column on the row (`contentSource`), not a `dev-` key prefix — otherwise
 > mock-generated rows are indistinguishable from real ones and `--reset` has nothing to select on.
+> _Satisfied:_ Phase A landed as `8f8c5ecb`.
 
-- [ ] Introduce `server/src/services/contentSources/` with one port per external dependency,
-      exactly at the seams listed in "Where the mock begins": `NewsSource` (`fetchLatest(count)`),
-      `TextGenerator` (`generate(prompt, type)`), `ImageGenerator` (`generate(prompt)`),
-      `TransitSource` (`fetchForDate(date)`)
-- [ ] `live` implementations wrap the existing `newsService.fetchNews()` /
-      `llmService.generateContent()` / `imageService.generateImage()` /
-      `astrologyService.fetchAstrologicalData()` calls unchanged — the ports are a rename of the
-      seam, not a rewrite of the providers
-- [ ] `mock` implementations (`contentSources/mocks/`): seeded PRNG, prompt-hash → canned text,
-      local placeholder images, frozen transit table — zero network, zero keys, zero cost
-- [ ] Select the implementation once at startup from an explicit `CONTENT_SOURCE=live|mock` env
-      var (default `live`; the dev overlay sets `mock`). Jobs take the port as a parameter — no
-      module-level singletons. **This one variable is what `ENABLE_FAKE_DATA` becomes**, at the
-      correct layer: it switches the _writer_ to fake input instead of the _reader_ to fake output
-- [ ] Add a clock/interval scale factor (`JOBS_TIME_SCALE=60`) so a week of schedule runs in
-      minutes; `Math.random()` jitter goes through the injected PRNG
-- [ ] Keep the seeder anyway (it is the "known state" reset), but it reads the same
-      `mockContent.ts` the mock adapters use, so there is exactly one source of fake content
-- [ ] Tests: one integration test per job run against `CONTENT_SOURCE=mock` asserting rows land in
-      SQLite — this is the write path coverage the project currently lacks
+**Shipped in `28d1624c`** (the original checklist below, kept so the diff of this file still
+shows what was promised against what was built):
+
+- [x] `server/src/services/contentSources/` with one port per external dependency —
+      `NewsSource` (`fetchPage`), `TextGenerator` (`generate`), `ImageGenerator`
+      (`generateAndSave`), `TransitSource` (`fetchTransits`), declared in
+      `types/contentPorts.d.ts`. ⚠️ The names differ from this plan's sketch
+      (`fetchLatest(count)` / `generate(prompt, type)` / `generate(prompt)` /
+      `fetchForDate(date)`): the ports mirror the _existing_ service functions one-for-one so
+      the live adapters are pure delegation. `TransitSource` is a fourth port the sketch did
+      not count; without it the horoscope job would still need the network.
+- [x] `live` implementations wrap `fetchNews()` / `generateTextFromString()` /
+      `generateAndSaveImage()` / `fetchAstrologicalData()` unchanged.
+- [x] `mock` implementations (`contentSources/mocks/`) — prompt-hash → canned text, frozen
+      transit table, zero network, zero keys. ⚠️ **Not** "local placeholder images": the mock
+      image returns a filename and writes no bytes, which contradicts this plan's own table
+      in "Where the mock begins". Recorded in `plans/dev-content-marking.md` Phase B rather
+      than silently accepted.
+- [x] Selection happens once, at import, from `CONTENT_SOURCE=live|mock` (default `live`);
+      jobs and services take the port set as a parameter. ⚠️ They also _default_ to the
+      process's set, so "no module-level singletons" is honoured in spirit (one set per
+      process, injected in tests) but not literally: a call that forgets the parameter gets
+      the process set instead of failing. `horoscopeController` is the one caller that relies
+      on that default.
+- [x] `JOBS_TIME_SCALE` compresses the schedule, and `Math.random()` jitter is gone from the
+      job path (`RandomBelow`, injected). ⚠️ Intervals _and_ the quota history windows are
+      divided by it; dividing the timers alone filled a day's quota in one cycle.
+- [x] The seeder stays, reading the same `mockContent.ts` — one source of fake content.
+- [ ] Tests: one integration test per job against `CONTENT_SOURCE=mock` asserting rows land in
+      SQLite. ⚠️ Partially: `jobs/__tests__/mockPipeline.test.ts` runs the real jobs against the
+      mock ports with `better-sqlite3` stubbed (it proves _which services_ were called, not
+      what was written), because the native binding cannot be built in every environment. The
+      row-level assertion — including each row's `contentSource` — is still outstanding.
+
+### Still to do in this phase
+
+- [ ] Mark every row the pipeline writes. Only `newsFetching` forwards its port's
+      `contentSource`; `blogService`, `recipeService` and `writerService` do not, so a mock
+      article currently lands as `live`. See `plans/dev-content-marking.md` Phase B.
+- [ ] Close the remaining two guards listed below (choose-n counting, `remainingTokens`
+      as adapter state). The token-budget guard is **done** — `addNewsToTotal()` now asks
+      `source.remainingCalls()`, so a mock is never short-circuited by the live counter.
+- [ ] Move both `0 0 * * *` crons (featured selection, horoscopes) into the scheduler, so
+      `JOBS_TIME_SCALE` compresses them.
 
 ### Three guards that must land _inside_ the commit that flips dev to `mock`
 
@@ -173,13 +198,16 @@ these makes dev quietly degrade rather than fail, and each is invisible to an in
 that only counts rows **after** a job runs — which is why they are listed as work items and not
 as risks:
 
-- [ ] **Token arithmetic must move into the `live` adapter.** `newsService.fetchNews()` checks
+- [x] **Token arithmetic must move into the `live` adapter.** `newsService.fetchNews()` checks
       `remainingTokens <= 0` **before** any network call (`newsService.ts:37`), and
       `addNewsToTotal()` calls it through the service, not through the port. If the port is
       injected but that check stays where it is, a depleted counter short-circuits **before** the
       mock adapter is ever reached, and `generateScheduledArticles()`'s `try/catch` swallows the
       error — dev produces nothing and logs nothing useful. The counter is a property of the real
       provider, so it belongs to the `live` implementation; the mock must not consult it.
+      _Done in `28d1624c`:_ `addNewsToTotal()` asks `source.remainingCalls()` and the live
+      adapter reads the module counter, so the budget is a property of the source. The counter
+      is still module-level — see the third guard — but a mock is no longer subject to it.
 - [ ] **Choose-n counting must be per source.** `generateScheduledArticles()` and
       `ensureHoroscopesForToday()` both early-return when the table already has "enough" rows. With
       67 seeded articles and 12 seeded horoscopes, a correct mock adapter would still be asked for
@@ -187,10 +215,22 @@ as risks:
       must be "rows this source produced today", not "rows in the table". This also matters in the
       other direction: `horoscopeController` calls the ensure on **read**, so a prod process with
       the mock wired and a short day would serve mock horoscopes.
+      ⚠️ Still open, and it is **entry 6's last behavioural gap**. The measurement has to span
+      tables as well as origins, because the pipeline is a chain: `generateScheduledArticles()`
+      counts _articles_ but reads _news items_, and with `CONTENT_SOURCE=mock` the news it reads
+      is the seeder's canned set (`getAllNewsArticlesAfterDate` does not filter by origin). That
+      happens to be the right outcome — mock news yields mock articles — but by accident. The
+      honest form is: "articles this source produced today", over the article table, and let the
+      news query filter on the same origin.
 - [ ] **`remainingTokens` must become adapter state, not module state.** It is a module-level
       `let` today (`newsService.ts:14`), so it depletes across every test in a file and the order
       of `it()` blocks changes the outcome. Once it is a field on the `live` adapter, each test
       gets a fresh one; until then, any test that exercises the news path is order-dependent.
+      ⚠️ Still open, and `LiveNewsSource.remainingCalls()` documents the module counter as a
+      deliberate choice: it reads the `let` on every call so a snapshot cannot go stale. Both
+      statements are true — reading it late is correct, owning it locally is also correct and
+      additionally makes tests independent. Do it as its own change, because `fetchNews()` itself
+      still decrements the module counter and both halves must move together.
 
 ## Phase 4 — image lifecycle
 

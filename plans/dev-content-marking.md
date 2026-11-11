@@ -184,9 +184,17 @@ once with `npm run seed:reset` (or delete the dev database) and the rows come ba
 
 ### Phase B — stamp from the pipeline (part of entry 6)
 
-**Foundation and wiring landed (uncommitted):** the four ports, `CONTENT_SOURCE`
+**Foundation and wiring landed** in `28d1624c`: the four ports, `CONTENT_SOURCE`
 plumbing and both adapter sets exist, and every job in the pipeline now reaches
 them through a `ports` parameter instead of importing the live services.
+
+What that commit did **not** do — and what the remaining bullets below are — is make the
+marker travel *through* the services to the row. Only the news path stamps today
+(`addNewsToTotal` writes `source.contentSource`); `blogService`, `recipeService` and
+`horoscopeService` build their rows without it, `writerService` returns writers read from
+the database, and `insert()` treats a missing marker as `'live'`. A mock article therefore
+lands as `live` — silently, because that default is the production-correct answer for
+every other caller.
 
 - [x] Port interfaces in `types/contentPorts.d.ts` — `NewsSource`, `TextGenerator`,
       `ImageGenerator`, `TransitSource` and the `ContentPorts` bundle. Each port
@@ -213,6 +221,16 @@ them through a `ports` parameter instead of importing the live services.
       from an FNV-1a hash of the prompt, images return a filename without writing
       bytes, and transits delegate to `buildMockAstrologicalData()`. Determinism
       is the point — a random mock would make every job assertion vacuous.
+      ⚠️ **The image mock contradicts this plan's own table.** `dev-content-seeding.md`
+      says the mock image writes a real local file *through* the real compression path,
+      precisely so the file/DB lifecycle keeps being exercised — and this plan's goal 1
+      ("every row carries its origin") assumes a row whose image is real. The
+      implementation writes no bytes: the filename is a stem that no file backs, so
+      `dev-mock-image-*.webp` 404s on the client. Accepted for now because the mock's job
+      is to exercise the *pipeline*, not the image path, and a placeholder tile behind a
+      mock headline would look like a working site rather than a test one. Revisit in
+      Phase 4 (image ownership), where the missing original is exactly the orphan case
+      `images:gc` must not delete for the wrong reason. Recorded, not silently changed.
       ⚠️ The mock text says it is placeholder text. Content that reads real is
       content someone ships by accident.
 - [x] `services/contentSources/index.ts` picks one set from `CONTENT_SOURCE` and
@@ -249,14 +267,45 @@ them through a `ports` parameter instead of importing the live services.
       ⚠️ `horoscopeController` still calls `ensureHoroscopesForToday()`, which
       uses the default set rather than an explicit port. Correct under
       `CONTENT_SOURCE=mock`, but it is the one call path where the port is
-      implicit rather than passed.
+      implicit rather than passed. Deferred deliberately: the *right* fix is not to
+      thread a port through a controller but to stop generating on the read path at
+      all (a cron does that now that horoscopes are in the scheduler), so it is
+      scheduled with that change rather than patched twice.
       ⚠️ `scheduleFeaturedArticleSelection` still fires on a literal
       `cron.schedule('0 0 * * *')`, which `JOBS_TIME_SCALE` does not compress, so
-      a fast dev run will not show the daily selection firing.
-- [ ] Mock adapters write rows with `contentSource: 'mock'`; live adapters with `'live'`.
+      a fast dev run will not show the daily selection firing. Same for the
+      horoscope cron. Both move to the scheduler registry with a scaled
+      `runOnBoot: 'if-due'` pass — the commit that closes entry 6's "compress every
+      schedule" gap.
+- [x] Mock adapters write rows with `contentSource: 'mock'`; live adapters with `'live'`.
+      Half-true as written: the *adapters* all expose the right marker, but only
+      `newsFetching` forwarded it. Done by passing `ports.text.contentSource` into the row
+      builders in `writeBlogPost` / `generateNewsArticleFromExplanation`, `generateRecipe` and
+      `getRandomWriter` (which re-stamps the writer it reads, because a writer travels *inside*
+      an article/recipe as a nested object and its own marker would otherwise contradict the
+      row's). `seedHoroscopes()` was stamping `mock` only under `--force` and wrote a plain
+      `seed:dev` day as `live` — it now always stamps.
+      ⚠️ **Two writers still take the column default**, by omission rather than by decision, and
+      both are reachable from outside the pipeline: `createArticle` in `adminController.ts`
+      calls `writeBlogPost(writer, newsItem, true)` with no ports, and `seedWriters()` in
+      `scripts/seed/seedBlogContent.ts` builds writer rows by hand instead of through
+      `insertSeedRow()`. The first is *correct* — an admin-authored article is live content by
+      definition — but only until the mock set is selected, at which point it would be stamped
+      `mock` by the default port without anyone choosing that. The second writes a seeded row
+      that is not stamped until 6.2 makes that an error. Neither is fixed here: the first needs
+      a decision about whether an admin action follows `CONTENT_SOURCE` at all; the second is
+      exactly the case 6.2 ("omission is impossible") exists to catch.
+- [ ] **Make omission impossible, not just remembered.** Every bullet above was a
+      "remember to pass the marker" instruction, and remembering is what failed — the row
+      builder had no reason to know it was missing a field, because the column has a default.
+      Left for its own commit (6.2): `resolveContentSource` should refuse a row with no marker
+      on a table that has the column, so a service that forgets one fails its tests instead of
+      writing a fake row that claims to be real. Same argument as `stampAsMock()` in
+      `insertSeedRow()`.
 - [ ] Integration test per job (entry 6's own criterion) additionally asserts the
       `contentSource` of every inserted row, so "the port was injected" is proven by data and
-      not only by a `vi.mock` on `axios`.
+      not only by a `vi.mock` on `axios`. Must land **last** of the pipeline bullets: it is
+      the test that proves the three above are correct.
 
 ### Phase C — fail closed
 
@@ -279,6 +328,11 @@ them through a `ports` parameter instead of importing the live services.
       directly). A production `insert` that throws on `contentSource === 'mock'` closes the
       hole at the single choke point every writer already goes through, which is the same
       argument that put `stampAsMock()` in `insertSeedRow()`.
+      ⚠️ **Sequencing.** Phase B adds the *precondition* for this bullet: `insert()` must
+      require a marker at all before it can refuse a bad one, otherwise "no marker" is still
+      the silent `'live'` it is today and the production check has nothing to look at. Land
+      the "omission is impossible" change first, then this one — they are two edits to the
+      same function and reviewing them apart is what keeps the diff honest.
 
 ### Do not do
 
