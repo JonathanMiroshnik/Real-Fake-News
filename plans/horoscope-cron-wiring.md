@@ -79,8 +79,9 @@ interface ScheduledJob {
 - No new environment variables. `ENABLE_SCHEDULED_JOBS` keeps governing everything.
 - Cost: horoscopes add ~12 LLM calls per day (one per zodiac sign) plus one
   FreeAstroAPI request (no key needed; `astrologyService.ts` has an offline fallback).
-- The dev overlay keeps `ENABLE_SCHEDULED_JOBS=false`, so dev never pays for this — see
-  `plans/dev-content-seeding.md` for how dev gets horoscope rows instead.
+- The dev overlay keeps `ENABLE_SCHEDULED_JOBS=false`, so dev never pays for this. Dev gets
+  horoscope rows from the seeder (`npm run seed:dev`, reading `mockContent.ts`), and from the mock
+  adapters once jobs are enabled with `CONTENT_SOURCE=mock` — see roadmap entries 5 and 6.
 
 ## Testing
 

@@ -4,7 +4,7 @@ import type { Writer } from '../../types/writer.js';
 
 /**
  * Pins the rule that every row the pipeline writes carries the origin of the port
- * that produced it (`plans/dev-content-marking.md` Phase B).
+ * that produced it (roadmap entry 6 of `plans/README.md`).
  *
  * The failure this guards against is silent: a row built without `contentSource`
  * is written with the column default `'live'`, so a mock article lands looking

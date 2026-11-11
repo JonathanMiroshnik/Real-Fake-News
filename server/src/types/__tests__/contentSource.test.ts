@@ -3,7 +3,7 @@ import { LIVE_CONTENT_SOURCE, MOCK_CONTENT_SOURCE, type ContentSource } from '..
 
 /**
  * Pins the wire format of the `contentSource` marker
- * (`plans/dev-content-marking.md` Phase A).
+ * (roadmap entry 6 of `plans/README.md`).
  *
  * The two literal strings are a database contract — they are what the column
  * default and every `WHERE contentSource = ?` query in the seeder and the future

@@ -3,7 +3,7 @@ import { debugLog, debugWarn } from '../../utils/debugLogger.js';
 
 /**
  * Column added by the content-marking migration
- * (`plans/dev-content-marking.md` Phase A).
+ * (roadmap entry 6 of `plans/README.md`).
  *
  * The DEFAULT is a migration artifact, not the mechanism: `insert()` requires
  * every row in a marked table to carry an explicit marker and throws without one
@@ -24,7 +24,7 @@ const CONTENT_SOURCE_COLUMN = "contentSource TEXT NOT NULL DEFAULT 'live'";
  *
  * Exported because `insert()` reads the same list to decide which tables must
  * carry a marker: a table in here is a table where leaving the marker out is an
- * error rather than an implicit 'live' (`plans/dev-content-marking.md` 6.2).
+ * error rather than an implicit 'live' (roadmap entry 6 of `plans/README.md`).
  */
 export const CONTENT_SOURCE_TABLES = [
   'blog_posts',
@@ -289,7 +289,7 @@ export function initializeSchema(): void {
     `);
 
   // Migration: add the contentSource marker to databases created before it
-  // existed (plans/dev-content-marking.md Phase A). Existing rows backfill to
+  // existed (plans/README.md roadmap entry 6 Phase A). Existing rows backfill to
   // 'live' through the column default — which is wrong for anything seeded before
   // this lands, so a dev database that predates it should be rebuilt once with
   // `npm run seed:reset`. Runs after the CREATEs so every target table exists.

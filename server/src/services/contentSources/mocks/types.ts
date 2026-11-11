@@ -3,7 +3,7 @@
  *
  * Deliberately plain data (no DB row types): the same arrays feed the dev seeder
  * today and the mock content-source adapters in Phase 3, so they must not know
- * anything about `sqliteOperations` (`plans/dev-content-seeding.md`).
+ * anything about `sqliteOperations` (roadmap entries 5-6 of `plans/README.md`).
  *
  * Every record carries a stable `key`/`articleId` prefixed with `dev-`, which is
  * what makes seeding idempotent: a second run finds the row already there, and

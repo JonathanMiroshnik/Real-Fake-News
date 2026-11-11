@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 /**
- * Pins 6.5 of `plans/dev-content-marking.md`: production must not hold invented
+ * Pins 6.5 of roadmap entry 6 of `plans/README.md`: production must not hold invented
  * content, and must not start if it already does.
  *
  * Two kinds of check are covered here, and the distinction is the point. The

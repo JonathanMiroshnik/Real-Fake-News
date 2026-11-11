@@ -110,7 +110,7 @@ export async function generateHoroscopesForDate(
  *
  * The `contentSource` each horoscope carries is written, not left to the column
  * default: a mock set stored as `live` would be indistinguishable from a generated
- * one (`plans/dev-content-marking.md`). A row without the field gets the default.
+ * one (roadmap entry 6 of `plans/README.md`). A row without the field gets the default.
  */
 export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> {
   const db = getDatabase();

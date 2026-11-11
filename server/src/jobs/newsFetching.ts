@@ -59,7 +59,7 @@ export async function addNewsToTotal(
  *
  * The stamp matters more here than anywhere else: these rows are real-world news
  * fed to the writer jobs, and without it a mock item is indistinguishable from one
- * fetched from the news API (`plans/dev-content-marking.md`).
+ * fetched from the news API (roadmap entry 6 of `plans/README.md`).
  */
 async function insertArticlesToDatabase(
   articles: NewsItem[],

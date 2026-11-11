@@ -632,7 +632,7 @@ export async function generateNewsArticleFromExplanation(
     headImage: imgName,
     // The text port names the origin of the prose. Without this the row would take
     // the column default ('live') and a mock article would claim to be real
-    // (`plans/dev-content-marking.md` Phase B).
+    // (roadmap entry 6 of `plans/README.md`).
     contentSource: ports.text.contentSource,
   };
 

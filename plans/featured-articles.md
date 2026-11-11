@@ -1,6 +1,6 @@
 # Featured Article: One Owner, Deterministic Hero
 
-> **Status:** Planned · **Priority:** Medium · **Related:** `plans/dev-content-seeding.md` (Phase 1 supplies real rows), `plans/horoscope-cron-wiring.md` (single scheduler) · **Order:** not yet sequenced
+> **Status:** Planned · **Priority:** Medium · **Related:** `plans/horoscope-cron-wiring.md` (single scheduler) · **Order:** roadmap entry 13 (`plans/README.md`)
 
 ## Problem
 
@@ -114,8 +114,9 @@ delete the `featured_blog_posts` path.
   taking an optional timezone offset, so write and read cannot disagree and the flip can be
   moved off UTC midnight later.
 - **Read path**: `getFeaturedArticleForDate` keeps its signature; the controller calls
-  `ensureDailyFeatured` before falling back, and the fake-data branch is removed once
-  `dev-content-seeding.md` Phase 2 retires that flag.
+  `ensureDailyFeatured` before falling back. The fake-data branch the plan originally had to wait
+  on is already gone — the read-time fallback was deleted in roadmap entry 7, so this path has
+  no generated article to fall back to.
 - **Job**: `selectDailyFeaturedArticle()` becomes `ensureDailyFeatured(today)` — idempotent,
   safe to call from the read path, and movable into the single scheduler that
   `horoscope-cron-wiring.md` introduces.
@@ -167,8 +168,9 @@ delete the `featured_blog_posts` path.
 
 ### Phase 4 — retire the generated fallback
 
-- [ ] Remove the `generateFakeFeaturedArticle()` branch from `getFeaturedArticleController`
-      together with `dev-content-seeding.md` Phase 2.
+- [x] Remove the `generateFakeFeaturedArticle()` branch from `getFeaturedArticleController`.
+      Already done: roadmap entry 7 deleted the whole read-time fallback, so the controller has
+      one code path. Phase 0's "an article that does not exist" symptom is fixed for free.
 - [ ] Integration test: `/api/blogs/featured` on an empty database returns
       `{ success: true, article: null }` (or 204), never a generated article.
 

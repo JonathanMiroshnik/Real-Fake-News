@@ -1,6 +1,6 @@
 /**
  * `npm run seed:dev` — writes the mock content described in
- * `plans/dev-content-seeding.md` into the development database.
+ * roadmap entries 5-6 of `plans/README.md` into the development database.
  *
  * Replaces `generateMockData.ts`, which produced different nonsense on every run
  * and could not be repeated or cleaned up. This one is reviewable (the content is

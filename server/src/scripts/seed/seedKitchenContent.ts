@@ -102,7 +102,7 @@ export function seedFoods(context: SeedContext): void {
  *
  * `--force` re-stamps the date as `mock`: replacing a live set with mock text
  * while leaving it marked `live` would be exactly the lie the column exists to
- * prevent (`plans/dev-content-marking.md`).
+ * prevent (roadmap entry 6 of `plans/README.md`).
  *
  * Every row written here is mock content, so every row is stamped `mock` —
  * `--force` decides *whether* to write, never *what the row is*. Stamping only

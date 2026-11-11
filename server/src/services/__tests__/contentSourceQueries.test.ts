@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
 /**
- * Pins 6.3 of `plans/dev-content-marking.md`: a question about one pipeline is
+ * Pins 6.3 of roadmap entry 6 of `plans/README.md`: a question about one pipeline is
  * answered from rows of that pipeline only.
  *
  * Two failure modes are covered, and they are the same mistake seen from two

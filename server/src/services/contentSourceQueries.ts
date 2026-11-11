@@ -18,7 +18,7 @@ export type MarkedArticle = ArticleScheme & { contentSource: ContentSource };
  * Articles published after `startDate` that came from one origin.
  *
  * The count a job needs to ask "has this pipeline already produced its quota?"
- * (`plans/dev-content-seeding.md`, choose-n guard). `getAllPostsAfterDate` stays
+ * (roadmap entry 6 of `plans/README.md`). `getAllPostsAfterDate` stays
  * origin-agnostic because it answers a user-facing question — the blog shows
  * every article — while a quota question is about one producer.
  *
@@ -77,7 +77,7 @@ export interface ContentSourceTally {
  * Counts rows per table for one origin.
  *
  * Answers "is this database tainted?" with a number instead of a guess from the
- * `dev-` key prefix (`plans/dev-content-marking.md` Phase C).
+ * `dev-` key prefix (roadmap entry 6 of `plans/README.md`).
  *
  * @param contentSource origin to count.
  * @returns per-table counts, all from the same origin.

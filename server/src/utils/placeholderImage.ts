@@ -4,7 +4,7 @@
  *
  * This is the *only* placeholder generator left. The read-time fake-data
  * fallback that used to wrap it was deleted with `ENABLE_FAKE_DATA`
- * (`plans/dev-content-seeding.md` Phase 2), so there is no longer a flag to
+ * (roadmap entry 7 of `plans/README.md`), so there is no longer a flag to
  * consult: the function always draws. Nothing here invents content on a
  * request path — both callers write files deliberately, ahead of serving them.
  *

@@ -18,7 +18,7 @@ import type { RandomBelow } from '../utils/random.js';
  * recipe as a nested object, so its marker travels *inside* a row whose own marker
  * says something different: a mock article about a seeded writer would otherwise
  * carry `contentSource: 'live'` in its author field, and a reader looking at the
- * author would be told the wrong thing (`plans/dev-content-marking.md` Phase B).
+ * author would be told the wrong thing (roadmap entry 6 of `plans/README.md`).
  * The caller is the one that knows which pipeline is running, so the caller wins.
  */
 export async function getRandomWriter(

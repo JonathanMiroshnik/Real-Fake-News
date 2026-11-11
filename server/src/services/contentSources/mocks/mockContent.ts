@@ -4,7 +4,7 @@
  * The dev seeder (`scripts/seedDevData.ts`) reads this module today; the mock
  * content-source adapters in Phase 3 read the same arrays, so there is exactly
  * one place where invented content is written down
- * (`plans/dev-content-seeding.md`).
+ * (roadmap entries 5-6 of `plans/README.md`).
  *
  * Why TS and not a committed `database.db` or a JSON dump: a typed array makes a
  * schema change a compile error, and a reviewable diff — see "Alternatives

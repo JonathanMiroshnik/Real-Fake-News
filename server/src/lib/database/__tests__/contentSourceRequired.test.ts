@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 
 /**
- * Pins 6.2 of `plans/dev-content-marking.md`: a row for a table that has the
+ * Pins 6.2 of roadmap entry 6 of `plans/README.md`: a row for a table that has the
  * `contentSource` column must carry a marker, and a missing one is an error
  * rather than the column default.
  *
@@ -112,7 +112,7 @@ describe('insert() requires a content source marker on marked tables', () => {
 });
 
 /**
- * Pins the last bullet of Phase C (`plans/dev-content-marking.md`): production
+ * Pins the last bullet of Phase C (roadmap entry 6 of `plans/README.md`): production
  * refuses a mock row at the one choke point every writer passes through.
  *
  * This is the check that holds for code nobody reviewed. `assertNotProduction()`

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 /**
- * Pins 6.4 of `plans/dev-content-marking.md`: the daily news budget is state of
+ * Pins 6.4 of roadmap entry 6 of `plans/README.md`: the daily news budget is state of
  * the `live` adapter, not module state.
  *
  * The counter used to be a module-level `let` shared by every instance, so

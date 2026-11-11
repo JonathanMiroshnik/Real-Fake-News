@@ -12,7 +12,7 @@ import { buildArticleRow, buildNewsItemRow, buildWriterRow } from '../seedBlogCo
 import { buildRecipeRow } from '../seedKitchenContent.js';
 
 /**
- * Pins the origin stamp on seeded rows (`plans/dev-content-marking.md` Phase A).
+ * Pins the origin stamp on seeded rows (roadmap entry 6 of `plans/README.md`).
  *
  * The stamp is what lets `--reset` delete mock rows without guessing at the `dev-`
  * key prefix, and what lets a later reader ask the database "is this row fake?"

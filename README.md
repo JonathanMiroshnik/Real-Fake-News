@@ -251,10 +251,10 @@ not there is a `404`; a date with no featured article is
 `{ "success": false, "article": null }`. Whatever the response body says is
 what is on disk.
 
-This was not always true. Until Phase 2 of
-[`plans/dev-content-seeding.md`](plans/dev-content-seeding.md) the controllers
-could generate satirical placeholder articles, recipes and horoscopes at read
-time behind an `ENABLE_FAKE_DATA` flag. The flag and the generators are gone:
+This was not always true. Until roadmap entry 7 of the
+[`plans/`](plans/README.md) work the controllers could generate satirical
+placeholder articles, recipes and horoscopes at read time behind an
+`ENABLE_FAKE_DATA` flag. The flag and the generators are gone:
 guarding a fallback means the fallback still exists, and every bug in the guard
 is a production incident. There is now one code path.
 

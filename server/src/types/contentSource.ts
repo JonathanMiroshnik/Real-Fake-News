@@ -1,5 +1,5 @@
 /**
- * Where a persisted row came from (`plans/dev-content-marking.md`).
+ * Where a persisted row came from (roadmap entry 6 of `plans/README.md`).
  *
  * Stored in the `contentSource` column of the content tables, and the only honest
  * answer to "is this row fake?": the `dev-` key prefix is a naming convention the

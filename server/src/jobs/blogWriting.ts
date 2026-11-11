@@ -35,7 +35,7 @@ export async function generateScheduledArticles(
     // Count what *this* pipeline produced, not what is in the table: a seeded
     // database already holds 67 mock articles, so counting all of them would ask
     // a correctly-wired mock job for zero articles forever
-    // (`plans/dev-content-seeding.md`, choose-n guard).
+    // (roadmap entry 6 of `plans/README.md`).
     const producedByThisSource = await getAllPostsAfterDateBySource(
       new Date(Date.now() - writingInterval),
       ports.text.contentSource,

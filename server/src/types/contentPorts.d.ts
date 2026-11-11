@@ -4,7 +4,7 @@
  * Everything else in the pipeline is deterministic (prompt assembly, DB writes,
  * row shaping). These four are the seams where a network call, an API key or a
  * bill sits, so they are the only things that need to be swappable for the jobs
- * to run in a sandbox (`plans/dev-content-marking.md` Phase B).
+ * to run in a sandbox (roadmap entry 6 of `plans/README.md`).
  *
  * A port describes *capability*, not a provider: `NewsSource` says "give me news
  * items", not "call newsdata.io". That is what lets a mock implementation satisfy

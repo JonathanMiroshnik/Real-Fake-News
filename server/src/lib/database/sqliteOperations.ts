@@ -21,7 +21,7 @@ const PRODUCTION_ENV = 'production';
  * Maps DatabaseConfig source (table name) to actual SQLite table name.
  *
  * Exported so seeding helpers can run direct SQL against the same table a config
- * points at, instead of re-deriving the mapping (`plans/dev-content-marking.md`).
+ * points at, instead of re-deriving the mapping (roadmap entry 6 of `plans/README.md`).
  */
 export function getTableName(source: string): string {
   // Map old JSON file paths to table names
@@ -48,7 +48,7 @@ export class MissingContentSourceError extends Error {
     super(
       `Row for '${tableName}' has no contentSource. Rows in this table must be stamped ` +
         `with the origin of the pipeline that wrote them ('live' or 'mock'); there is no ` +
-        `safe default. See plans/dev-content-marking.md.`,
+        `safe default. See plans/README.md roadmap entry 6.`,
     );
     this.name = 'MissingContentSourceError';
   }
@@ -108,7 +108,7 @@ export class MockContentInProductionError extends Error {
     super(
       `Refusing to write a "mock" row into '${tableName}' with NODE_ENV=production. ` +
         'Invented content must never be persisted in production; set CONTENT_SOURCE=live ' +
-        'or run with a non-production NODE_ENV. See plans/dev-content-marking.md.',
+        'or run with a non-production NODE_ENV. See plans/README.md roadmap entry 6.',
     );
     this.name = 'MockContentInProductionError';
   }
@@ -435,7 +435,7 @@ export async function count<P>(dbConfig: DatabaseConfig<P>): Promise<number> {
  *
  * The only honest answer to "how many mock rows are in here?" — the `dev-` key
  * prefix the seeder uses is a convention, `contentSource` is a column
- * (`plans/dev-content-marking.md`).
+ * (roadmap entry 6 of `plans/README.md`).
  *
  * @param dbConfig table to count.
  * @param contentSource 'mock' for seeded/mock-adapter rows, 'live' for pipeline rows.

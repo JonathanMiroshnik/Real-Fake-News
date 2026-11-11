@@ -48,31 +48,52 @@ top of `73790b05`.
       the URI, so every `/api/*` arrives as `GET /api` and 404s. Needed to verify anything else.
 - [x] **5. Add a deterministic dev seeder backed by mock content.** `seedDevData.ts` +
       `contentSources/mocks/mockContent.ts`, `seed:dev`/`seed:reset`, one-shot `seed` service in
-      the dev overlay → `plans/dev-content-seeding.md` Phase 1.
-- [ ] **6. Inject content-source ports so jobs run without API keys.**
-      `NewsSource`/`TextGenerator`/`ImageGenerator`/`TransitSource`, `live` vs `mock` selected by
-      `CONTENT_SOURCE`, `JOBS_TIME_SCALE`, one integration test per job → Phase 3.
-      _Prerequisite:_ ~~`plans/dev-content-marking.md` Phase A (a persisted `contentSource`
-      column)~~ — **done 9 November 2026** (`8f8c5ecb`), so this entry is unblocked: the column
-      exists on all five content tables, seeded rows are stamped `mock`, `--reset` deletes by
-      marker, and `insert`/`findAll`/`findOne` round-trip the value. Dev databases seeded before
-      it need one `npm run seed:reset` to re-stamp their rows (they backfilled as `live`).
-      _Adapters and `CONTENT_SOURCE` landed 11 November 2026 (`28d1624c`)._ Remaining, in order:
-      **(6.1) done** (`b0813000`) — `blogService`/`recipeService` stamp their rows,
-      `getRandomWriter` re-stamps the writer it reads so a nested author cannot contradict its
-      article, and `seedHoroscopes()` stamps `mock` unconditionally instead of only under
-      `--force`; **(6.2) done** — `insert()` throws `MissingContentSourceError` for a row on a
-      marked table with no marker, opting out `foods`/`featured_blog_posts` through the shared
-      `CONTENT_SOURCE_TABLES` list; **(6.3) done** — `getAllPostsAfterDateBySource()` counts what
-      one pipeline produced, `getAllNewsArticlesAfterDate()` takes an origin, and
-      `ensureHoroscopesForToday()` counts its own twelve, so a seeded table no longer answers
-      "quota met" for a pipeline that has produced nothing; **(6.4) done** — the daily token
-      budget is `LiveNewsSource` instance state, and `fetchNews()` no longer meters anything;
-      **(6.5)** `plans/dev-content-marking.md` Phase C boot refusals + the
-      mock-row count in the startup log; **(6.6)** put both `0 0 * * *` crons behind
-      `JOBS_TIME_SCALE`; **(6.7)** per-job integration test asserting each row's `contentSource`.
-      **6.7 is last on purpose** — it is the test that proves 6.1–6.3 were done, so it lands after
-      the code it checks, and the entry is ticked only when it passes.
+      the dev overlay. One source of fake content: the seeder reads the same `mockContent.ts` the
+      adapters do, and `--reset` deletes rows by their `contentSource` marker rather than by
+      guessing at `dev-` prefixes.
+- [x] **6. Inject content-source ports so jobs run without API keys.**
+      `NewsSource`/`TextGenerator`/`ImageGenerator`/`TransitSource` behind ports, `live` vs `mock`
+      selected by `CONTENT_SOURCE`, with `JOBS_TIME_SCALE` compressing the windows the jobs measure
+      their output over. A dev stack with no API keys now writes articles, recipes, horoscopes and
+      news through the same job code production runs — the only difference is which adapter is
+      bound. _Landed 9–11 November 2026_ (`8f8c5ecb`, `28d1624c`, `b0813000`, and the commits
+      behind 6.2–6.5).
+
+      What the entry turned out to involve, kept here because the two plan files that documented
+      it (`dev-content-seeding.md`, `dev-content-marking.md`) are now retired:
+
+      - **The marker column.** `contentSource TEXT NOT NULL DEFAULT 'live'` on the five content
+        tables, indexed so "how many mock rows?" is a real `COUNT(*)`. `foods` and
+        `featured_blog_posts` are deliberately unmarked — a food row is just a name fed into a
+        recipe prompt, and the featured table is dead. Persistence had to be fixed too: `insert`
+        did not write the column originally, so every mock row would have landed as `live`.
+      - **Stamping at the write.** `blogService`/`recipeService` stamp their rows;
+        `getRandomWriter` re-stamps the writer it reads so a nested author cannot contradict its
+        article; `seedHoroscopes()` stamps `mock` unconditionally. `insert()` throws
+        `MissingContentSourceError` for a row on a marked table with no marker — omission is
+        impossible rather than merely discouraged.
+      - **Per-source counting.** The jobs early-return when a table looks full, so with a seeded
+        database a correct mock adapter would have been asked for zero items forever.
+        `contentSourceQueries.ts` now answers "rows *this source* produced today", and
+        `ensureHoroscopesForToday()` counts its own twelve rather than the literal 12.
+      - **The token budget** became `LiveNewsSource` instance state instead of a module-level
+        `let`, so a mock is never short-circuited by the live counter and the news path stopped
+        being order-dependent in tests.
+      - **Failing closed** (`config/contentSourceGuard.ts`, called from `index.ts` before `app.js`
+        is imported, because the app opens the schema at import time): production refuses to boot
+        with `CONTENT_SOURCE=mock`, refuses to boot with mock rows in the database (naming the
+        count and the `DATABASE_PATH`), and `insert()` refuses a mock write in production. `--force`
+        in production needs the explicit phrase `--i-know-this-is-a-demo`. Every environment logs
+        the mock-row count at boot.
+
+      _Open from this entry, deliberately deferred:_ **(6.6)** put both `0 0 * * *` crons behind
+      `JOBS_TIME_SCALE` — now folded into roadmap entry 8, since it is the same scheduler wiring;
+      **(6.7)** the per-job integration test asserting each row's `contentSource` — one of the
+      tests in the "Still to add" step at the end of this file. _Not verified in this sandbox:_
+      the production data check against a real populated database — it runs `COUNT(*)` through
+      `better-sqlite3`, whose native binding cannot be built here. The decision is tested against
+      a stubbed count; confirm once by hand with a seeded DB that
+      `NODE_ENV=production CONTENT_SOURCE=live` exits non-zero and names the count.
 
 - [x] **7. Delete the read-time `ENABLE_FAKE_DATA` fallback.** Guards removed from
       `blogController` (5), `recipeController` (3), `horoscopeController` (1); fake generators
@@ -85,13 +106,21 @@ top of `73790b05`.
       is out of `docker-compose.yml`, both `.env.example` files, `README.md`, `server/README.md`
       and `docs/configuration.md`; the last of those gained the `CONTENT_SOURCE` row that should
       have been there since Phase 3. An empty database is now an empty list / `404`, never
-      random content; `blogController.test.ts` pins both answers. See
-      `plans/dev-content-seeding.md` Phase 2 for the deviations.
+      random content; `blogController.test.ts` pins both answers. The two deviations from the
+      original plan: the whole module went (see above), and the empty-database answer for the
+      by-key routes stayed a `404` rather than being re-decided.
 - [ ] **8. Wire the daily horoscope job into one scheduler.** Job registry + if-due guard, move
       `initializeScheduledJobs()` out of `app.ts` module scope →
-      `plans/horoscope-cron-wiring.md`.
-- [ ] **9. Give image files an owner.** `remove` removes the original + compressed copy,
-      `npm run images:gc` deletes unreferenced files → `plans/dev-content-seeding.md` Phase 4.
+      `plans/horoscope-cron-wiring.md`. **Also folded in here** (was 6.6): both `0 0 * * *` crons —
+      featured selection and horoscopes — must go behind the scheduler so `JOBS_TIME_SCALE`
+      compresses them. Today `featuredArticleSelection.ts` registers its own cron and the horoscope
+      job is registered by nothing, so a compressed dev day still waits until real midnight for the
+      hero and never generates horoscopes at all. This is the same wiring, so it lands with it.
+- [ ] **9. Give image files an owner.** Store `headImage` as a filename (already the case) and have
+      `remove` delete the original + compressed copy, plus `npm run images:gc` to sweep files in
+      `IMAGES_PATH` that no row references. Document the rule in `docs/configuration.md`: images are
+      owned by rows, not by requests — so a request that fails never orphans a file, and a deleted
+      row is the only thing that should delete its image.
 - [ ] **10. Serve the API from the frontend origin (relative `/api` only).** Stop baking
       `VITE_API_BASE_PROD=http://server:5001` into the bundles → `plans/api-origin-and-rest-shape.md`.
 - [ ] **11. Reshape the endpoints that deserve a REST path.** The handful of routes listed in the
@@ -131,23 +160,52 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 | -------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                                    |
 | `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                             |
-| `dev-content-seeding.md`         | In Progress | High     | Deterministic dev seeder, removal of `ENABLE_FAKE_DATA`, content-source adapters (Phases 0–3 done; 6.6 crons and Phase 4 open) |
-| `dev-content-marking.md`         | In Progress | High     | Persist a `contentSource` column so fake rows are provable, and prod refuses to boot with them (Phases A–C done) |
 | `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                            |
 | `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                           |
 | `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code                             |
 
-### Two plans were deleted on 11 November 2026
+### Plans retired once their work landed
 
-`testing-suite.md` (Completed) and `absolute-clock-cron-scheduler-rundown.md` (Planned, never
-started). Neither described outstanding work. The testing plan's lasting content — how to run the
-suites, file conventions, the Vitest/Vite warning — lives in `TESTING.md`, and `features-status.md`
-records the suite as shipped via PR #7. The cron-scheduler rundown described a branch that never
-landed and was superseded by `horoscope-cron-wiring.md`; `features-status.md` now points at the
-branch itself, which is the only remaining record of that design.
+Each was deleted because it described no outstanding work. Where its content still had value, it
+moved rather than vanished:
+
+| Deleted                            | Why                                                                                  | Where it went                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `testing-suite.md`                 | Completed; was a plan to *add* a suite, and the suite exists                          | `TESTING.md`, and PR #7 in `features-status.md`     |
+| `absolute-clock-cron-scheduler-rundown.md` | Described a branch that never landed; superseded by `horoscope-cron-wiring.md` | The branch itself (see `features-status.md`)        |
+| `dev-content-seeding.md`           | Phase 1–3 landed; 6.6 moved to entry 8, Phase 4 became entry 9                    | Entries 5, 6, 8 and 9 above                         |
+| `dev-content-marking.md`           | Phases A–C landed; the one open test is in "Still to add" below                    | Entry 6 above                                       |
+
+Nothing in this directory should outlive its own work. If a plan is finished, delete it and leave a
+line in the roadmap saying what landed — a directory of documents that are all *almost* current is
+worse than a short one, because the stale sentence is the one people read.
 
 ## Feature Status
 
 `features-status.md` is not a plan — it is an inventory of what already shipped on `main`, which
 feature branches were merged (and then deleted), and which branches were abandoned. Update it when a
 feature lands or a branch is retired.
+
+## Still to add — tests, whenever someone has the time
+
+Not a roadmap entry and not a blocker for anything above. 155 tests pass today; these are the gaps
+worth closing first if you find yourself writing tests anyway. Add them opportunistically, next to
+the code they touch, rather than as a project.
+
+1. **Every job gets one row-level test.** Run the job against `CONTENT_SOURCE=mock` and assert that
+   rows actually landed in SQLite, including each row's `contentSource`. Today
+   `jobs/__tests__/mockPipeline.test.ts` proves *which services were called* with `better-sqlite3`
+   stubbed, which is why a mock row could have landed as `live` without a test noticing — the
+   write path itself went wrong once already (see entry 6). This is the one test that proves the
+   adapters work, so it earns its native dependency.
+2. **The production data check, by hand at least once.** `checkContentSourceAtBoot()` decides against
+   a stubbed count; the real `COUNT(*)` path has never run here because the native binding cannot be
+   built in this sandbox. With a seeded DB, `NODE_ENV=production CONTENT_SOURCE=live` must exit
+   non-zero and name the count and `DATABASE_PATH`.
+3. **Anything you had to reason about twice while debugging.** The bug that took an hour to find is
+   usually the one worth a five-line test — not the function you just wrote, which you already know
+   works because you just ran it.
+
+What *not* to do: don't chase coverage percentages, and don't write a test that only restates the
+implementation (`expect(x).toBe(valueThatXIsComputedWith)`). A test earns its place by pinning
+something a future change could plausibly break silently.

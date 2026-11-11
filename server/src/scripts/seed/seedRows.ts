@@ -8,7 +8,7 @@
  *
  * The origin stamp also lives here, for the same reason: every row this module
  * writes is mock content by definition, so no table seeder can forget to mark one
- * (`plans/dev-content-marking.md`).
+ * (roadmap entry 6 of `plans/README.md`).
  */
 import type { DatabaseConfig } from '../../lib/database/databaseConfigurations.js';
 import { getDatabase } from '../../lib/database/database.js';
@@ -65,7 +65,7 @@ export async function insertSeedRow<P>(
  * Keyed on `contentSource` rather than on the `dev-` key prefix: the prefix is a
  * naming convention, the column is the contract. It also collects the rows a
  * mock content source wrote, whose keys nothing can predict in advance
- * (`plans/dev-content-marking.md` Phase A).
+ * (roadmap entry 6 of `plans/README.md`).
  *
  * @param dbConfig table to scrub.
  * @param context the run context (counters).
