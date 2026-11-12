@@ -1,5 +1,8 @@
 **REAL FAKE NEWS**
 
+> **Agents: start at [`AGENTS.md`](AGENTS.md).** It points you at `contracts/` — the human-authored,
+> read-only files that state what this repo is. Read them before you plan or edit anything.
+
 A satirical fake news website where all content is AI-generated — articles, recipes, horoscopes, and images. Built with Express/TypeScript backend, React frontend, and SQLite database.
 
 To install Docker on Linux, I used the following tutorial:

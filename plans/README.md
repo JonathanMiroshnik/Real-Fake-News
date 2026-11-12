@@ -2,6 +2,10 @@
 
 This directory contains planning documents for future features, architectural changes, and improvements to Real Fake News.
 
+> **Read first:** [`../AGENTS.md`](../AGENTS.md) and the human-only contracts in
+> [`../contracts/`](../contracts/) — `design.md`, `architecture.md`, `environment.md`. They state
+> facts a plan may not contradict. Nothing inside `contracts/` is editable by an agent.
+
 ## Purpose
 
 Each markdown file in this directory describes a planned feature or change in detail — including the problem, proposed solution, implementation details, files to modify, DevOps impact, and testing strategy.
