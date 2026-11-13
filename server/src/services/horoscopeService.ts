@@ -6,6 +6,7 @@ import { ZODIAC_SIGNS } from '../types/horoscope.js';
 import { getDatabase } from '../lib/database/database.js';
 import { ports as defaultPorts } from './contentSources/index.js';
 import { LIVE_CONTENT_SOURCE } from '../types/contentSource.js';
+import type { ContentSource } from '../types/contentSource.js';
 import { debugLog } from '../utils/debugLogger.js';
 
 /** Pause between signs, so the live provider is not hammered twelve times at once. */
@@ -202,6 +203,30 @@ export async function getHoroscopeForSign(
 }
 
 /**
+ * Whether `date` already holds a full set of horoscopes from one content source.
+ *
+ * The same question `ensureHoroscopesForToday()` asks before generating, split out
+ * so the scheduler's `if-due` guard and the read path cannot drift apart: a guard
+ * that counted the table instead would call a seeded day complete and the job
+ * would skip a live day forever.
+ *
+ * @param date The day to check (UTC date, as every container runs in UTC).
+ * @param contentSource Rows from any other pipeline do not count.
+ * @returns `true` when every zodiac sign has a row for that day from that source.
+ */
+export async function isHoroscopeDayComplete(
+  date: Date,
+  contentSource: ContentSource,
+): Promise<boolean> {
+  const existingHoroscopes = await getHoroscopesForDate(date);
+  const producedByThisSource = existingHoroscopes.filter(
+    (horoscope) => horoscope.contentSource === contentSource,
+  );
+
+  return producedByThisSource.length === ZODIAC_SIGNS.length;
+}
+
+/**
  * Generates and saves horoscopes for today if they don't exist
  *
  * The check is "has *this* pipeline produced today's twelve?", not "does the
@@ -215,14 +240,11 @@ export async function getHoroscopeForSign(
 export async function ensureHoroscopesForToday(ports?: ContentPorts): Promise<Horoscope[]> {
   const contentSource = (ports ?? defaultPorts).text.contentSource;
   const today = new Date();
-  const existingHoroscopes = await getHoroscopesForDate(today);
-  const producedByThisSource = existingHoroscopes.filter(
-    (horoscope) => horoscope.contentSource === contentSource,
-  );
 
   // If we already have all twelve for today from this pipeline, return them
-  if (producedByThisSource.length === ZODIAC_SIGNS.length) {
-    return producedByThisSource;
+  if (await isHoroscopeDayComplete(today, contentSource)) {
+    const existingHoroscopes = await getHoroscopesForDate(today);
+    return existingHoroscopes.filter((horoscope) => horoscope.contentSource === contentSource);
   }
 
   // Otherwise, generate new ones — replacing this pipeline's rows for the day,

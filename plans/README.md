@@ -116,13 +116,36 @@ top of `73790b05`.
       random content; `blogController.test.ts` pins both answers. The two deviations from the
       original plan: the whole module went (see above), and the empty-database answer for the
       by-key routes stayed a `404` rather than being re-decided.
-- [ ] **8. Wire the daily horoscope job into one scheduler.** Job registry + if-due guard, move
+- [x] **8. Wire the daily horoscope job into one scheduler.** Job registry + if-due guard, move
       `initializeScheduledJobs()` out of `app.ts` module scope →
       `plans/horoscope-cron-wiring.md`. **Also folded in here** (was 6.6): both `0 0 * * *` crons —
       featured selection and horoscopes — must go behind the scheduler so `JOBS_TIME_SCALE`
       compresses them. Today `featuredArticleSelection.ts` registers its own cron and the horoscope
       job is registered by nothing, so a compressed dev day still waits until real midnight for the
       hero and never generates horoscopes at all. This is the same wiring, so it lands with it.
+      _Landed:_ `jobs/scheduler.ts` is now the only place a timer is created. `buildJobRegistry()`
+      lists all five jobs (`news-fetch`, `article-writing`, `recipe-generation`, `featured`,
+      `horoscopes`), each declaring a `schedule` (`cron` or `interval`), a `runOnBoot` policy
+      (`always` / `if-due` / `never`) and — for `if-due` — an `isDue()` guard, so a restart never
+      re-generates twelve horoscopes or a hero that already exist. The two `node-cron` registrations
+      inside the job modules are gone, along with both `schedule*()` exports, which nothing imported.
+      `node-cron` now lives behind `jobs/registryTimers.ts`. The switch
+      has one reader, `isScheduledJobsEnabled()` in `config/env.ts`, and `initializeScheduledJobs()`
+      left `app.ts` module scope — importing `app` for a test no longer starts timers or calls an
+      API. `index.ts` starts the scheduler inside `startServer()` and stops it first in `shutdown()`.
+      _The 6.6 half:_ `0 0 * * *` now goes through `compressedDailyCronExpression()`, which shortens
+      the cron onto the compressed clock (`JOBS_TIME_SCALE=60` → `*/24 * * * *`, one simulated day
+      every 24 wall-clock minutes; scale 1 still means real midnight). Over-firing is harmless
+      because the `if-due` guards and `INSERT OR REPLACE` upserts make a repeat tick a no-op.
+      _Follow-up, 13 November 2026:_ the three jobs that had been `random-interval` — news fetch,
+      article writing, recipe generation — were put on a fixed cron grid as well, and
+      `startRandomInterval()` was deleted from `utils/general.ts`. The reasoning is entry 14.
+      They run 2-hourly, twice daily (`HALF_DAY_MILLISECS` in `blogWriting.ts`, the window the job
+      counts its quota over) and daily, all compressed by `JOBS_TIME_SCALE` like the midnight crons.
+      _Deviation:_ the plan proposed folding the admin `site_config.enableScheduledJobs` toggle into
+      the same reader; that was left alone, so the admin toggle still only takes effect after a
+      restart. It is a behaviour change to an admin surface and deserved its own entry rather than a
+      ride on this one.
 - [ ] **9. Give image files an owner.** Store `headImage` as a filename (already the case) and have
       `remove` delete the original + compressed copy, plus `npm run images:gc` to sweep files in
       `IMAGES_PATH` that no row references. Document the rule in `docs/configuration.md`: images are
@@ -143,7 +166,9 @@ cheap.
 
 ## Not yet ordered — next session
 
-These are agreed but deliberately unsequenced, so they stay out of the 7 November commit order:
+These are agreed but deliberately unsequenced, so they stay out of the 7 November commit order.
+Entry 14 is not "agreed" so much as recorded: it is the idea this session removed, parked with the
+reason it would come back.
 
 - [ ] **13. Give the featured article one owner.** Today it is a random `randomInt` pick by a
       midnight cron into `blog_posts.isFeatured`/`featuredDate`, duplicated by a dead
@@ -152,6 +177,75 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
       articles inside the last hour) unblocks dev review immediately; then one service,
       deterministic selection, lazy derivation on read, and admin pin/unpin →
       `plans/featured-articles.md`.
+- [ ] **14. Jitter the producer schedule — later, and only for a reason.** Recorded here so the
+      idea is not re-invented, not because it is wanted yet. Until 13 November 2026 news
+      fetching, article writing and recipe generation ran on `startRandomInterval()`: a run at a
+      random moment in `[1s, 2×average]` after the previous one finished. That was removed, and
+      the three jobs now run on the fixed cron grid described in entry 8.
+      _Why it went:_ the producer/consumer split (`contracts/architecture.md` §Producer-Consumer)
+      means the jobs fill SQLite and the REST routes read it, so no reader can tell a 2h gap from
+      a 2h17m gap — only the scheduler's own logs could. Against that, the random interval was
+      measurably worse behaved: a 1-second minimum delay fired every job immediately in sequence
+      on every boot, the delay was measured from the end of a run rather than from its start, so
+      the effective cadence drifted with job duration, and "it runs roughly hourly" could not be
+      stated as a cron expression a reader could check.
+      _If it ever earns its way back_, the reason will be a provider constraint, not variety:
+      spreading calls so a shared API quota or a rate limit is not hit on the hour. That points
+      at jitter _inside_ a cron window (fire at a random second within the scheduled minute)
+      rather than a random interval replacing the schedule, so the cadence stays declarative and
+      only the second-of-minute is unknown. Do it per adapter, where the limit actually lives, and
+      only for the adapter that has a limit. `featured` and `horoscopes` should stay exactly on
+      midnight: their output is defined per editorial day, and a jittered day boundary would put
+      the hero before the articles it selects from.
+- [ ] **15. A bootstrap script that creates what should exist and touches nothing else.** Far
+      away — no dependency on entries 9–14, and nothing below is broken without it. The ask:
+      one script that brings a database up to the state the server expects. If a table already
+      exists, leave it alone. If a row that should exist already exists, leave it alone _whatever
+      its data says_ — the script is a floor, not a fixer. It should be safe to run on a
+      populated production database, and safe to run on every boot if wanted.
+
+      **The tables are already this script.** `initializeSchema()` in `lib/database/schema.ts` is
+      idempotent today: every table is `CREATE TABLE IF NOT EXISTS`, and its one non-migration is
+      `ALTER TABLE … ADD COLUMN` for `writerType` / `featuredDate` / `contentSource`, which it
+      swallows when the column is already there. So the half that is missing is **rows**.
+
+      **The rows are missing, but only in specific places.** `seedKitchenContent.ts` already does
+      `INSERT OR IGNORE` for `foods` and for a day's horoscopes. `site_config` has no writer at
+      all: `getAdminConfig` merges `DEFAULT_CONFIG` in memory and only writes a row once someone
+      saves that admin page, so a fresh database has an empty `site_config` table. `writers` has
+      no default set either, and `getRandomWriter()` needs one.
+
+      **The nearest existing thing is the wrong tool.** `scripts/seedDevData.ts`
+      (`npm run seed:dev`) exists to _fill a dev database with mock content_, stamps every row
+      `mock`, and `seed:reset` deletes by that marker. This entry is about rows the server needs
+      in order to function, not content a human wants to look at.
+
+      _Shape, when it is picked up:_ a `requiredRows` list next to `initializeSchema()` — one
+      entry per row, each holding its table, its key, and the values it would have if it were
+      written — applied with `INSERT OR IGNORE` (or `WHERE NOT EXISTS`) inside one transaction.
+      `site_config` rows come from `DEFAULT_CONFIG` by definition, so the admin page stops being
+      the only thing that ever writes them; a default `writers` set is a content decision, not a
+      mechanical one, and needs words someone actually wrote. Report what was created and what was
+      skipped; exit non-zero only on a real error, because "everything already existed" is
+      success.
+
+      _The three rules that make it safe, stated in the code rather than implied:_ never `UPDATE`,
+      never `INSERT OR REPLACE`, never delete. A row whose content has drifted from the default is
+      left drifted — the alternative is a script that overwrites a human's edit every time a
+      container restarts. `--reset` stays in `seedDevData.ts`, which already owns it and already
+      deletes by `contentSource` marker.
+
+      _One non-obvious call:_ rows the script creates for the server itself are
+      `contentSource='live'`, not `'mock'` — they are not demo content. The production boot
+      guard (`config/contentSourceGuard.ts`) refuses to start with mock rows present, so getting
+      this backwards makes production unstartable.
+
+      _Why it is worth having anyway:_ a fresh `DATABASE_PATH` today is a set of correct, empty
+      tables, and three things can then be silently missing — `site_config` values, a writer to
+      attribute articles to, and food names for recipes. Each is only noticed when a job fails or
+      when the admin page shows a value that was never saved. One idempotent floors-list turns
+      "this database is empty in three specific ways" into a single command you can run and
+      verify.
 
 ## Convention
 
@@ -166,7 +260,6 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 | File                             | Status     | Priority | Description                                                                             |
 | -------------------------------- | ---------- | -------- | --------------------------------------------------------------------------------------- |
 | `admin-server-side-auth-gate.md` | Planned    | High     | Prevent admin frontend from being served without valid password                         |
-| `horoscope-cron-wiring.md`       | Planned    | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler  |
 | `featured-articles.md`           | Planned    | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback |
 | `api-origin-and-rest-shape.md`   | Discussion | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                |
 | `features-status.md`             | Reference  | —        | Living inventory of merged vs. abandoned features and where each one lives in the code  |
@@ -182,6 +275,7 @@ moved rather than vanished:
 | `absolute-clock-cron-scheduler-rundown.md` | Described a branch that never landed; superseded by `horoscope-cron-wiring.md` | The branch itself (see `features-status.md`)    |
 | `dev-content-seeding.md`                   | Phase 1–3 landed; 6.6 moved to entry 8, Phase 4 became entry 9                 | Entries 5, 6, 8 and 9 above                     |
 | `dev-content-marking.md`                   | Phases A–C landed; the one open test is in "Still to add" below                | Entry 6 above                                   |
+| `horoscope-cron-wiring.md`                 | Entry 8 landed; the admin-toggle half was left out on purpose                  | Entry 8 above                                   |
 
 Nothing in this directory should outlive its own work. If a plan is finished, delete it and leave a
 line in the roadmap saying what landed — a directory of documents that are all _almost_ current is

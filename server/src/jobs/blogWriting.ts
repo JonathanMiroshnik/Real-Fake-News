@@ -23,6 +23,16 @@ function scaledInterval(intervalMillis: number): number {
   return intervalMillis / JOBS_TIME_SCALE;
 }
 
+/**
+ * The window the job counts its own output over, before compression.
+ *
+ * Half a day, matched to `ARTICLE_WRITING_INTERVAL_HOURS` in `jobs/scheduler.ts`: the
+ * job tops the table up to `MINIMAL_NUM_DAILY_ARTICLES` and the scheduler calls it
+ * twice per simulated day, so the two halves add up to a day's quota without either
+ * one re-counting the other's articles.
+ */
+export const HALF_DAY_MILLISECS = 12 * 60 * 60 * 1000;
+
 // Responsible for the state machine of the blog writers
 export async function generateScheduledArticles(
   writingInterval: number,

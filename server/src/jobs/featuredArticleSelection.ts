@@ -1,4 +1,3 @@
-import cron from 'node-cron';
 import { randomInt } from 'crypto';
 import { getFeaturedArticleForDate } from '../services/blogService.js';
 import { getAllPostsAfterDate } from '../services/blogService.js';
@@ -14,9 +13,11 @@ import { debugLog, debugWarn } from '../utils/debugLogger.js';
  *
  * @param randomBelow Picks the article index; defaults to `crypto.randomInt`.
  */
-export async function selectDailyFeaturedArticle(randomBelow: RandomBelow = randomInt): Promise<void> {
+export async function selectDailyFeaturedArticle(
+  randomBelow: RandomBelow = randomInt,
+): Promise<void> {
   try {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const today = getTodayDateString(); // YYYY-MM-DD format
     debugLog('⭐ [selectDailyFeaturedArticle] Checking for featured article for date:', today);
 
     // Check if featured article already exists for today
@@ -69,17 +70,21 @@ export async function selectDailyFeaturedArticle(randomBelow: RandomBelow = rand
 }
 
 /**
- * Schedules daily featured article selection at midnight
- * This is called by the scheduler initialization
+ * Whether today still needs a featured article.
+ *
+ * The `if-due` guard of the scheduler entry. Selection is idempotent on its own
+ * (it returns early when a hero exists), but asking first keeps a restart from
+ * spending a date-query per boot and keeps the boot log honest about what ran.
+ *
+ * @returns `true` when no article is featured for today's date.
  */
-export function scheduleFeaturedArticleSelection(): void {
-  // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
-    await selectDailyFeaturedArticle();
-  });
+export async function isFeaturedArticleDue(): Promise<boolean> {
+  const today = getTodayDateString();
+  const existingFeatured = await getFeaturedArticleForDate(today);
+  return !existingFeatured;
+}
 
-  debugLog('📅 Scheduled daily featured article selection at midnight');
-
-  // Also run immediately if no featured article exists for today
-  selectDailyFeaturedArticle();
+/** Today as `YYYY-MM-DD`, in the process timezone (UTC in the containers). */
+function getTodayDateString(): string {
+  return new Date().toISOString().split('T')[0];
 }

@@ -1,8 +1,27 @@
-import cron from 'node-cron';
-import { generateHoroscopesForDate, saveHoroscopes } from '../services/horoscopeService.js';
+import {
+  isHoroscopeDayComplete,
+  generateHoroscopesForDate,
+  saveHoroscopes,
+} from '../services/horoscopeService.js';
 import type { ContentPorts } from '../types/contentPorts.js';
 import { ports as defaultPorts } from '../services/contentSources/index.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
+
+/**
+ * Whether today's horoscopes have already been produced by this pipeline.
+ *
+ * This is the `if-due` guard of the scheduler entry: `saveHoroscopes()` upserts by
+ * (date, sign), so running the job on a day that is already complete would spend
+ * twelve LLM calls to overwrite twelve rows with near-identical text — once per
+ * restart.
+ *
+ * @param ports The content source whose rows count as "produced"; defaults to the configured one.
+ * @returns `true` when every zodiac sign already has a row for today from that source.
+ */
+export async function areTodaysHoroscopesDue(ports: ContentPorts = defaultPorts): Promise<boolean> {
+  const isComplete = await isHoroscopeDayComplete(new Date(), ports.text.contentSource);
+  return !isComplete;
+}
 
 /**
  * Generates horoscopes for today
@@ -32,20 +51,4 @@ export async function generateDailyHoroscopes(ports: ContentPorts = defaultPorts
   } catch (error) {
     console.error('❌ Error generating daily horoscopes:', error);
   }
-}
-
-/**
- * Schedules daily horoscope generation at midnight
- * This is called by the scheduler initialization
- */
-export function scheduleHoroscopeGeneration(): void {
-  // Run at midnight every day (00:00)
-  cron.schedule('0 0 * * *', async () => {
-    await generateDailyHoroscopes();
-  });
-
-  debugLog('📅 Scheduled daily horoscope generation at midnight');
-
-  // Also generate horoscopes immediately if they don't exist for today
-  generateDailyHoroscopes();
 }

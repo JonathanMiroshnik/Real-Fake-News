@@ -5,7 +5,6 @@ import helmet from 'helmet';
 
 import apiRoutes from './routes/apiRoutes.js';
 import { getAllowedOrigins } from './config/corsOrigins.js';
-import { initializeScheduledJobs } from './jobs/scheduler.js';
 import { initializeSchema } from './lib/database/schema.js';
 import { getDatabase } from './lib/database/database.js';
 
@@ -22,8 +21,9 @@ app.set('trust proxy', 1);
 initializeSchema();
 getDatabase(); // Establish connection
 
-// Activating the recurring jobs
-initializeScheduledJobs();
+// The background jobs are started by `index.ts`, after this module has been
+// imported and the database is open — never here: anything that imports the app
+// (every API test) used to start real timers as a side effect.
 
 // Middleware pipeline
 app.use(

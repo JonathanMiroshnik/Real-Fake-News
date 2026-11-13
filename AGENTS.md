@@ -59,7 +59,39 @@ If you believe a contract is wrong:
 - `docs/configuration.md` — configuration precedence, which `.env` to edit, and the gotchas.
 - `plans/README.md` — the working roadmap and the current session's agreed commit order.
 
-## 5. If a contract is missing
+## 5. Never delete a human-written `TODO`
+
+`TODO` comments in this repo are written by the owner. They are a backlog, not litter — a "tidied"
+`TODO` is a lost instruction nobody can recover, because the agent that removed it is usually the
+only one who knew why it was there.
+
+- **Leave every `TODO` in place.** Do not delete one, do not shrink one to fit a rewrite of the
+  surrounding code, and do not "fold it into" a roadmap entry and call the comment redundant.
+- **Implemented it?** Add a tick at the very start of the line and leave the original wording
+  untouched:
+
+  ```ts
+  // [x] TODO: choose random assortment of writers?
+  ```
+
+- **Only partly implemented, or implemented differently?** Add the tick if the `TODO`'s ask is
+  satisfied, then put the qualification on the line directly after it:
+
+  ```ts
+  // [x] TODO: this entire for loop looks like a hack
+  // Satisfied by the shared `pickUnusedNews()` helper; the loop itself still exists, now over a
+  // pre-filtered list.
+  ```
+
+  If it was **not** implemented at all, leave the `TODO` exactly as it is — no tick, no note.
+
+- The exception is text an agent wrote itself in an earlier turn. Removing your own comment is
+  fine; removing someone else's is not.
+
+This applies to `TODO` in any file — source, docs, plans — and to `FIXME`/`HACK`/`XXX` by the same
+logic.
+
+## 6. If a contract is missing
 
 The owner may add new contracts (e.g. `contracts/content-pipeline.md`). List the directory before
 assuming the index above is complete:
