@@ -26,23 +26,15 @@ function WriterPage() {
   // Name desanitization using service utility
   const desenitizedKey = desanitizeWriterName(key || '');
 
-  // const currentWriters = useContext(ArticleContext).writers;
   // Find matching writer
   const foundWriter = writers.find((w) => w.name === desenitizedKey);
   if (foundWriter === null || foundWriter === undefined) {
     return <div>WRITER NOT FOUND</div>;
   }
 
-  // const currentArticles = useContext(ArticleContext).articles;
   // Filter writer's articles
   const articlesbyWriter = articles.filter((a) => a.author?.name === desenitizedKey);
   const authorName = desenitizedKey;
-  // const articlesbyWriter: ArticleProps[] = currentArticles.filter((article) => {
-  //       if (article.author === undefined) {
-  //           return false;
-  //       }
-  //       return article.author?.name === desenitizedKey;
-  // });
 
   return (
     <div className="home-container">

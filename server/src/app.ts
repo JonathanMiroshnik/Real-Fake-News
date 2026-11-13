@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-// import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';

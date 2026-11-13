@@ -2,18 +2,8 @@ import 'dotenv/config';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-// import { fileURLToPath } from "url";
-// import { dirname } from "path";
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// import sharp from 'sharp'; // Doesn't work with older types of linux machines, replaced with jimp
 import { Jimp } from 'jimp';
 import { JimpMime } from 'jimp';
-
-// For WEBP support: https://github.com/jhuckaby/webp-wasm
-// import webp from 'wasm-webp';
 
 import { Runware } from '@runware/sdk-js';
 import {

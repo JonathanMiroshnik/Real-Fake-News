@@ -3,15 +3,6 @@ import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
-// import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
-
-// TODO: fix how I import public images like logo into website
-/**  🛠️ Alternative: Importing Images (Recommended for non-public assets)
-If the image is in src/assets/logo.png:
-import logo from '../assets/logo.png';
-<img src={logo} alt="Logo" />
-This has the advantage of being processed by Vite's bundler — it handles caching, hashing, and optimizing for you. */
-
 interface HeaderProps {
   /** Array of category names for navigation */
   sections: string[];

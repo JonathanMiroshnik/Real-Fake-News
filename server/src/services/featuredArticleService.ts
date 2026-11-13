@@ -8,7 +8,6 @@ import { NewsItem } from './newsService.js';
 import type { ContentPorts } from '../types/contentPorts.js';
 import { ports as defaultPorts } from './contentSources/index.js';
 import { getUniqueKey } from '../utils/general.js';
-// import { getNRandom } from "../utils/general.js";
 import { insert } from '../lib/database/sqliteOperations.js';
 import { featuredBlogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { debugLog } from '../utils/debugLogger.js';
@@ -65,25 +64,6 @@ async function createFeaturedArticle(
 
   return newFeaturedArticle;
 }
-
-// // Debate loop
-// export async function runDebate(rounds: number = 2): Promise<string[]> {
-//   const dialog: SystemMessage[] = [];
-
-//   const [writerA, writerB] = getNRandom(writers, 2);
-//   const messagesA = getSystemPrompt(writerA);
-//   const messagesB = getSystemPrompt(writerA);
-
-//   // Rebuttal loop
-//   for (let i = 0; i < rounds; i++) {
-//     const msgResponse = await respondTo(writerA, writerB, messagesA, dialog);
-//     dialog.push(msgResponse);
-//     const msgResponse2 = await respondTo(writerA, writerB, messagesB, dialog);
-//     dialog.push(msgResponse2);
-//   }
-
-//   return [...dialog.map(m=>m.content.toString())];
-// }
 
 /**
  * @param editor The editor of the newspaper,

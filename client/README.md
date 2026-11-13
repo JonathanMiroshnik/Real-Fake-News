@@ -17,12 +17,6 @@ admin.real.sensorcensor.xyz → (shared nginx) → admin:80
 
 See `nginx.conf` for the exact routing rules.
 
-## Changes for VPS Deployment
-
-- **`nginx.conf`**: Removed `location /admin` block — admin now serves on its own subdomain (e.g. `admin.real.sensorcensor.xyz`) via the shared nginx.
-- **`nginx.conf`**: Static file caching regex excludes `/api` paths to prevent API image requests from being treated as static files. Fix: `location ~* ^(?!/api)/.*\.(js|css|png|...)`
-- **`Dockerfile`**: Removed `HEALTHCHECK` — not needed for the VPS deploy flow.
-
 ## Environment Configuration
 
 For information about configuring environment variables (backend connection, debug logging, etc.), see [docs/configuration.md](../docs/configuration.md) in the root directory.

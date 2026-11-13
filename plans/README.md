@@ -30,9 +30,12 @@ for no review benefit. Entry 1 landed as `73790b05`.
       plus its stale `server/dist/` copies (a `prebuild` clean now prevents new ones), the dead
       `seed` npm script (`node data/seed-data.js` — no such file), and the now-dead
       `"allowJs": true` in `server/tsconfig.json` (it only ever existed to pull that one legacy
-      file into the program). _Landed as `73790b05`._ Still to do inside
-      the same commit: `server/src/models/admin.ts` + `mongoose` + `@types/mongoose`, and the
-      commented-out LowDB/DeepSeek blocks in `specialArticleService.ts` and `constants.ts`.
+      file into the program). _Landed as `73790b05`._ The rest of the entry followed in the
+      "delete trash" pass: `server/src/models/admin.ts` (a Mongoose model no code imported) with
+      `mongoose`, `@types/mongoose`, `bcrypt`, `@types/bcrypt` and the never-imported `sharp`, and the
+      fully commented-out `services/specialArticleService.ts`, `controllers/authController.ts`,
+      `routes/auth.ts`, `middleware/auth.ts`, plus the LowDB path block in `config/constants.ts` and
+      the dead prompt copies in `blogService.ts` and `featuredArticleService.ts`.
 - [x] **2. Require `DATABASE_DIR` and `IMAGES_DIR`; no default host directory.** `docker-compose.yml`
       fails on a missing value (`${VAR:?…}`), `scripts/bootstrap.sh` stops before creating
       anything, `.env`/`.env.example`/docs say "required". _Landed with entry 3._
@@ -160,28 +163,28 @@ These are agreed but deliberately unsequenced, so they stay out of the 7 Novembe
 
 ## Current Plans
 
-| File                             | Status      | Priority | Description                                                                                                        |
-| -------------------------------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| `admin-server-side-auth-gate.md` | Planned     | High     | Prevent admin frontend from being served without valid password                                                    |
-| `horoscope-cron-wiring.md`       | Planned     | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler                             |
-| `featured-articles.md`           | Planned     | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback                            |
-| `api-origin-and-rest-shape.md`   | Discussion  | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                                           |
-| `features-status.md`             | Reference   | —        | Living inventory of merged vs. abandoned features and where each one lives in the code                             |
+| File                             | Status     | Priority | Description                                                                             |
+| -------------------------------- | ---------- | -------- | --------------------------------------------------------------------------------------- |
+| `admin-server-side-auth-gate.md` | Planned    | High     | Prevent admin frontend from being served without valid password                         |
+| `horoscope-cron-wiring.md`       | Planned    | High     | Horoscopes are never generated: wire the dead daily job into one declarative scheduler  |
+| `featured-articles.md`           | Planned    | Medium   | One owner for the daily hero: pin/unpin, deterministic selection, no generated fallback |
+| `api-origin-and-rest-shape.md`   | Discussion | Low      | Subdomains, one-origin-per-env, and which endpoints deserve a REST shape                |
+| `features-status.md`             | Reference  | —        | Living inventory of merged vs. abandoned features and where each one lives in the code  |
 
 ### Plans retired once their work landed
 
 Each was deleted because it described no outstanding work. Where its content still had value, it
 moved rather than vanished:
 
-| Deleted                            | Why                                                                                  | Where it went                                       |
-| ---------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
-| `testing-suite.md`                 | Completed; was a plan to *add* a suite, and the suite exists                          | `TESTING.md`, and PR #7 in `features-status.md`     |
-| `absolute-clock-cron-scheduler-rundown.md` | Described a branch that never landed; superseded by `horoscope-cron-wiring.md` | The branch itself (see `features-status.md`)        |
-| `dev-content-seeding.md`           | Phase 1–3 landed; 6.6 moved to entry 8, Phase 4 became entry 9                    | Entries 5, 6, 8 and 9 above                         |
-| `dev-content-marking.md`           | Phases A–C landed; the one open test is in "Still to add" below                    | Entry 6 above                                       |
+| Deleted                                    | Why                                                                            | Where it went                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------- |
+| `testing-suite.md`                         | Completed; was a plan to _add_ a suite, and the suite exists                   | `TESTING.md`, and PR #7 in `features-status.md` |
+| `absolute-clock-cron-scheduler-rundown.md` | Described a branch that never landed; superseded by `horoscope-cron-wiring.md` | The branch itself (see `features-status.md`)    |
+| `dev-content-seeding.md`                   | Phase 1–3 landed; 6.6 moved to entry 8, Phase 4 became entry 9                 | Entries 5, 6, 8 and 9 above                     |
+| `dev-content-marking.md`                   | Phases A–C landed; the one open test is in "Still to add" below                | Entry 6 above                                   |
 
 Nothing in this directory should outlive its own work. If a plan is finished, delete it and leave a
-line in the roadmap saying what landed — a directory of documents that are all *almost* current is
+line in the roadmap saying what landed — a directory of documents that are all _almost_ current is
 worse than a short one, because the stale sentence is the one people read.
 
 ## Feature Status
@@ -198,7 +201,7 @@ the code they touch, rather than as a project.
 
 1. **Every job gets one row-level test.** Run the job against `CONTENT_SOURCE=mock` and assert that
    rows actually landed in SQLite, including each row's `contentSource`. Today
-   `jobs/__tests__/mockPipeline.test.ts` proves *which services were called* with `better-sqlite3`
+   `jobs/__tests__/mockPipeline.test.ts` proves _which services were called_ with `better-sqlite3`
    stubbed, which is why a mock row could have landed as `live` without a test noticing — the
    write path itself went wrong once already (see entry 6). This is the one test that proves the
    adapters work, so it earns its native dependency.
@@ -210,6 +213,6 @@ the code they touch, rather than as a project.
    usually the one worth a five-line test — not the function you just wrote, which you already know
    works because you just ran it.
 
-What *not* to do: don't chase coverage percentages, and don't write a test that only restates the
+What _not_ to do: don't chase coverage percentages, and don't write a test that only restates the
 implementation (`expect(x).toBe(valueThatXIsComputedWith)`). A test earns its place by pinning
 something a future change could plausibly break silently.

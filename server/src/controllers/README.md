@@ -1,1 +1,0 @@
-This folder is for route handlers, code that handles HTTP request/response logic

@@ -64,20 +64,3 @@ export function standardizeDate(
     return date.toISOString();
   }
 }
-
-// // Example usages:
-// async function runExamples() {
-//     console.log(await standardizeDate("2025-05-27 07:17:00", "UTC"));
-//     // "2025-05-27T07:17:00.000Z"
-
-//     console.log(await standardizeDate("2025-05-27 07:17:00", "America/New_York"));
-//     // Converts from ET to UTC
-
-//     console.log(await standardizeDate("2025-05-27 07:17:00", "GMT+5"));
-//     // Converts from GMT+5 to UTC
-
-//     console.log(await standardizeDate("2025-05-27 07:17:00", "Asia/Tokyo", 'timestamp'));
-//     // Returns UTC timestamp
-// }
-
-// runExamples();

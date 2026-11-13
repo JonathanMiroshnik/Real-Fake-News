@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-// The legacy compiled `src/config/constants.js` that used to shadow this module is gone,
-// so the normal `.js` specifier (resolved to `constants.ts` by Vitest/tsx) is safe again.
 import {
   VALID_CATEGORIES,
   MIN_MINUTES_BEFORE_TO_CHECK,

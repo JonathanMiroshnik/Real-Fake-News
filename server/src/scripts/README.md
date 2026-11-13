@@ -45,7 +45,8 @@ Images are real PNGs written through the normal compression path
 - **Reversible** — `--reset` deletes only what the seeder created: rows whose key
   starts with `dev-`, the mock food names, today's horoscope set, and the matching
   image files.
-- **Safe** — refuses to run when `NODE_ENV=production` unless `--force` is passed.
+- **Safe** — refuses to run when `NODE_ENV=production` unless `--force` is passed (which then
+  also needs the explicit phrase `--i-know-this-is-a-demo`).
 - **Writes through `sqliteOperations` / `config/paths.ts`**, i.e. the same code
   path as the jobs, so the database lands wherever the API looks for it.
 
@@ -91,24 +92,26 @@ npm run compress-images
 
 **What it does:**
 
-- Scans media directory for images
+- Scans `IMAGES_PATH` for images
 - Compresses JPEG/PNG images while maintaining quality
 - Creates backup of original files
 - Provides compression statistics
 
 ## Database Schema
 
-The scripts work with the following SQLite tables:
+The scripts work with the following SQLite tables. The schema itself is owned by
+`server/src/lib/database/schema.ts`, which is the authoritative list of columns — the
+summary below only names them.
 
 ### `blog_posts`
 
 - Stores regular blog articles
-- Columns: key, title, content, author, timestamp, category, headImage, shortDescription, originalNewsItem, writerType, isFeatured, featuredDate
+- Columns: key, title, content, author, timestamp, category, headImage, shortDescription, originalNewsItem, writerType, isFeatured, featuredDate, contentSource
 
 ### `news_items`
 
 - Stores news articles from external APIs
-- Columns: article_id, title, description, pubDate, pubDateTZ
+- Columns: article_id, title, description, pubDate, pubDateTZ, contentSource
 
 ### `writers`
 
@@ -118,22 +121,22 @@ The scripts work with the following SQLite tables:
 ### `featured_blog_posts`
 
 - Stores featured articles with multiple authors and sub-articles
-- Columns: key, title, content, author, timestamp, category, headImage, shortDescription, originalNewsItem
+- Unmarked: no `contentSource` column (roadmap entry 6 of `plans/README.md`)
 
 ### `recipes`
 
 - Stores recipe articles
-- Columns: key, title, paragraphs, author, timestamp, category, headImage, images, shortDescription, writerType
+- Columns: key, title, paragraphs, author, timestamp, category, headImage, images, shortDescription, writerType, contentSource
 
 ### `foods`
 
 - Stores food names for recipe generation
-- Columns: name
+- Unmarked: a food row is just a name fed into a recipe prompt
 
 ### `horoscopes`
 
 - Stores daily horoscope data
-- Columns: id, date, zodiacSign, content, astrologicalData, createdAt
+- Columns: id, date, zodiacSign, content, astrologicalData, createdAt, contentSource
 
 ## Running Scripts Locally
 
@@ -166,7 +169,5 @@ file, so a `tsx` script works from any working directory.
 
 - All scripts use TypeScript and run with `tsx`
 - Scripts are modular and can be imported individually
-- Error handling includes try-catch blocks and proper logging
 - Progress indicators show real-time feedback
 - SQLite operations use `better-sqlite3` with prepared statements
-- Mock data generation includes realistic relationships between entities

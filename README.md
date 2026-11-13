@@ -53,18 +53,7 @@ This uses the system's configured name resolution (DNS, `/etc/hosts`, etc.) to l
   enabled: true
 ```
 
-### Key Changes from Previous Version
-
-| Change              | Before                                                                   | After                                                                             |
-| ------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Container names     | `real-fake-news-client`, `real-fake-news-server`, `real-fake-news-admin` | `client`, `server`, `admin`                                                       |
-| Port exposure       | Each service exposed host ports                                          | **No ports exposed** — all communication over `devops_shared` Docker network      |
-| Docker network      | Internal `app-network` (bridge)                                          | External `devops_shared` (shared VPS network)                                     |
-| Health checks       | Present in all Dockerfiles                                               | Removed — shared nginx handles failures gracefully                                |
-| Server debug blocks | Present in Dockerfile                                                    | Removed — production image is leaner                                              |
-| Admin serving       | Proxied through client nginx at `/admin/*`                               | Served on its own subdomain via shared nginx (e.g. `admin.real.sensorcensor.xyz`) |
-
-# Environment Configuration
+## Environment Configuration
 
 Everything about configuration — which file to edit, precedence rules, and how to
 run each app on its own — lives in **[`docs/configuration.md`](docs/configuration.md)**.
@@ -263,11 +252,11 @@ is a production incident. There is now one code path.
 
 ### Where placeholder content comes from instead
 
-| You want                                | Do this                                          |
-| --------------------------------------- | ------------------------------------------------ |
-| A populated dev database                | `npm run seed:dev` (see [Dev Data Seeding](#dev-data-seeding)) |
-| Content with no API keys / no network   | `CONTENT_SOURCE=mock` (defaults to `live`)       |
-| A stand-alone placeholder image file    | `npm run generate-fake-image`                    |
+| You want                              | Do this                                                        |
+| ------------------------------------- | -------------------------------------------------------------- |
+| A populated dev database              | `npm run seed:dev` (see [Dev Data Seeding](#dev-data-seeding)) |
+| Content with no API keys / no network | `CONTENT_SOURCE=mock` (defaults to `live`)                     |
+| A stand-alone placeholder image file  | `npm run generate-fake-image`                                  |
 
 `CONTENT_SOURCE=mock` runs the **real** write path (jobs → services → SQLite)
 with offline, deterministic adapters. Rows it writes are stamped

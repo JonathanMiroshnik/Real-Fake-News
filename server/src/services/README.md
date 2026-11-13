@@ -1,1 +1,0 @@
-This folder is for services, code that connects to libraries, databases, APIs, performing the actual generation, analysis, CRUD operations of in-going/out-going data.

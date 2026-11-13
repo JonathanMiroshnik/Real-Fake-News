@@ -2,8 +2,6 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-// import { fileURLToPath } from "url";
-// import { dirname } from "path";
 import { v4 as uuidv4 } from 'uuid';
 import {
   findAll,
@@ -27,9 +25,6 @@ import { getAllNewsArticlesAfterDate, NewsItem } from '../services/newsService.j
 import { RECENT_NEWS_ARTICLES_TIME_THRESHOLD, DEFAULT_CONFIG } from '../config/constants.js';
 import { generateRecipe, getRandomFoods } from '../services/recipeService.js';
 import { debugLog } from '../utils/debugLogger.js';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
 
 // Simple password validation (in production, use proper authentication)
 function validatePassword(req: Request): boolean {

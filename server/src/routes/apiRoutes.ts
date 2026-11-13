@@ -15,7 +15,6 @@ import blogRoutes from './blogRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import horoscopeRoutes from './horoscopeRoutes.js';
 import recipeRoutes from './recipeRoutes.js';
-// import authRoutes from "./auth.js";
 
 const router = Router();
 
@@ -38,9 +37,6 @@ router.use('/recipes', recipeRoutes);
 // Admin routes (password protected)
 router.use('/admin', adminRoutes);
 
-// TODO: auth test
-// router.use('/auth', authRoutes);
-
 // Health check endpoint
 router.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
@@ -51,7 +47,7 @@ router.get('/health', (req: Request, res: Response) => {
 
 // TODO: 11 Nov 26 - Is there a more streamlined way of getting assets which doesn't pass through node?
 // or at least, that fully exploits how backends should work, so caching on all levels, and here
-// some already made way to send assets - not only images. Feels like there should be some well known middleware of some kind for it. 
+// some already made way to send assets - not only images. Feels like there should be some well known middleware of some kind for it.
 router.get('/images/:filename', (req, res) => {
   const sanitized = path.basename(req.params.filename);
 

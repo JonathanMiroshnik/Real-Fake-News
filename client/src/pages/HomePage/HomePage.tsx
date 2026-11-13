@@ -22,12 +22,6 @@ import { ArticleProps } from '../ArticlePage/ArticlePage';
 const SHOW_HOROSCOPES = import.meta.env.VITE_SHOW_HOROSCOPES === 'true';
 const SHOW_RECIPES = import.meta.env.VITE_SHOW_RECIPES === 'true';
 
-// /**
-//  * Application homepage showing all news categories
-//  * - Displays grid of category-specific article lists
-//  * - Placeholder for featured article (TODO)
-//  * - Responsive layout with main content and sidebar
-//  */
 function HomePage() {
   const articles = useContext(ArticleContext).articles;
   const articlesPerSection: number = useResponsiveArticlesCount();

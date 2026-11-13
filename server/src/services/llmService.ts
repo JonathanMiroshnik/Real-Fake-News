@@ -7,9 +7,6 @@ import { debugLog } from '../utils/debugLogger.js';
 // TODO: add other such service activated flags in the other services!
 const SERVICE_ACTIVATED: boolean = true;
 
-// TODO: unused
-// type LLMProvider = "openai" | "deepseek";
-
 export class LLMService {
   private openai: OpenAI;
 
