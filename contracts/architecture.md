@@ -1,13 +1,11 @@
 # Contract: Architecture
-
+ 
 > Human-authored. Read-only to agents. Facts here override anything an agent infers from the code.
 
-## The three apps are independent
-
-```
-client/   React SPA (public site)      ──HTTP──►  server/  Express + TypeScript  ──►  SQLite
-admin/    React SPA (admin panel)      ──HTTP──►  server/
-```
+## Three independet apps:
+- Client - Main client-facing front-end.
+- Server - Backend of the website.
+- Admin - The admin panel for the website.
 
 Each of `client/`, `admin/` and `server/` must be runnable and deployable **on its own** — copy the
 folder, give it a `.env`, it works. Consequences agents must respect:
@@ -16,6 +14,22 @@ folder, give it a `.env`, it works. Consequences agents must respect:
   deliberately or lives in the server's public API, never in a `common/` folder.
 - The client and admin talk to the API over HTTP only, never through the filesystem.
 - The server never serves the SPAs; nginx does.
+
+## Producer-Consumer model:
+The Server backend produces content(Meaning, adds data, SQL rows and/or assets such as images) by two main actions:
+1. CRON activate some sort of pipeline.
+2. Admin panel triggers something with manually.
+
+The producer pipelines should follow a similar structure until a certain point where their specific differences
+in the mediums of the data created differentiates them enough.
+Producing an article or a horoscope or any other piece of content should follow a pipeline of such a structure:
+Trigger -> Specific media creation class -> Business logic that calls one or various service classes ->
+Data saved in SQL/Assets/Images
+
+Then, on the consumer side, ultimately the client of the frontend will send a REST request to the backend.
+The routes that are avaliable to the client will NOT be able to trigger any of the producer pipelines.
+
+-------------------------------------------------------------------------------------------------------------
 
 ## Data ownership
 
@@ -46,16 +60,6 @@ folder, give it a `.env`, it works. Consequences agents must respect:
   updating `.env.example`, `server/.env.example`, `docs/configuration.md` and `README.md` in the
   same change — a key that exists in code but not in the docs does not exist.
 - `VITE_*` values are baked in at build time; changing one requires a rebuild, not a restart.
-
-## Deployment shape
-
-- Production is Docker Compose on a VPS, behind a shared external nginx network
-  (`devops_shared`, declared `external: true`). The containers expose **no host ports** in
-  production; the dev overlay is what publishes 5173/5174/5001.
-- Container names are `client`, `server`, `admin` — a sibling DevOps repo refers to them by name.
-  Do not rename them.
-- `proxy_pass` uses `$backend_server$request_uri`. Dropping the `$request_uri` (or using a
-  variable-less form) breaks every `/api/*` call. Do not "simplify" it.
 
 ## Quality gates
 

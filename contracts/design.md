@@ -11,17 +11,13 @@ straight-faced product and the absurd content.
 
 ## Non-negotiable rules
 
-1. **No visible "this is a joke" framing inside the article bodies.** Satire is delivered by
-   content, never by a disclaimer plastered over the layout.
-2. **Serious chrome, absurd content.** Typography, spacing and navigation should read as a real
+1. **Serious chrome, absurd content.** Typography, spacing and navigation should read as a real
    publication. Do not make the UI itself wry, meme-y, or deliberately ugly.
-3. **Content is never invented on the read path.** What the API returns is what exists in the
+2. **Content is never invented on the read path.** What the API returns is what exists in the
    database. No template text, no "sample" filler, no read-time fallbacks — see
    `architecture.md`.
-4. **AI-generated images are the default illustration.** No stock-photo service, no external image
+3. **AI-generated images are the default illustration.** No stock-photo service, no external image
    hotlinking.
-5. **Every article carries its content source** (`live` vs `dev`/mock). Dev content must never be
-   mistakable for live content in the UI or in the DB.
 
 ## Pages the public site must have
 
@@ -40,11 +36,8 @@ its own subdomain and must not share routes or bundle code with the client.
 
 - Headlines: plain, declarative, no exclamation marks. The absurdity should be in the claim, not
   in the punctuation.
-- Byline-less. There is no real journalist; do not invent an editorial staff page.
 - No real, living, identifiable private people as subjects of fabricated claims. Public figures in
   implausible, obviously satirical situations only.
-- Anything that reads as a genuine health, financial or safety instruction must be absurd enough to
-  be unmistakable, or it does not ship.
 
 ## Visual system
 

@@ -30,29 +30,3 @@ and the human stays the only author.
    leave the decision to the owner.
 4. **Do not copy a contract into a plan or a code comment and then treat the copy as editable.**
    Point at the contract instead; a copy drifts and the drift is invisible.
-
-## Rules for humans
-
-- Edit one file: `chmod u+w contracts contracts/design.md`, edit, then re-lock with
-  `scripts/lock-contracts.sh` (see below).
-- Keep each contract short and blunt. A contract is a list of facts and non-negotiables, not a
-  narrative. If it grows past ~150 lines, split it.
-- If a contract is wrong, **change the contract** — then the code. Never the reverse.
-
-## Editing a locked contract
-
-```bash
-chmod u+w contracts contracts/design.md     # unlock just what you touch
-$EDITOR contracts/design.md
-scripts/lock-contracts.sh                   # re-lock everything, then verify
-```
-
-`scripts/lock-contracts.sh` unlocks the directory, sets every `*.md` to `0444`, and sets the
-directory itself to `0555` last.
-
-## If your editor refuses to save
-
-Some editors (and `prettier --write`, and `sed -i`) save by writing a temp file and renaming it over
-the original. Your own `0444` file will not stop that — only the `0555` directory does — so if you
-unlocked the directory to get in, re-lock it as soon as you are done. `git status` is the backstop:
-a modified `contracts/*.md` that you did not mean to touch shows up there immediately.
