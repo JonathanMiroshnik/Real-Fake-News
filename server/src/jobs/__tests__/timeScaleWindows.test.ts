@@ -102,7 +102,9 @@ describe('generateScheduledArticles quota', () => {
     const getAllNewsArticlesAfterDate = vi.fn(async () => []);
     vi.doMock('../../services/newsService.js', () => ({ getAllNewsArticlesAfterDate }));
     vi.doMock('../../services/contentSourceQueries.js', () => ({ getAllPostsAfterDateBySource }));
-    vi.doMock('../../services/blogService.js', () => ({ writeBlogPost: vi.fn(async () => undefined) }));
+    vi.doMock('../../services/blogService.js', () => ({
+      writeBlogPost: vi.fn(async () => undefined),
+    }));
 
     const { generateScheduledArticles } = await import('../blogWriting.js');
     await generateScheduledArticles(RECENT_NEWS_WINDOW_MILLIS);
@@ -131,7 +133,9 @@ describe('generateScheduledArticles origin discipline', () => {
         return [];
       },
     }));
-    vi.doMock('../../services/blogService.js', () => ({ writeBlogPost: vi.fn(async () => undefined) }));
+    vi.doMock('../../services/blogService.js', () => ({
+      writeBlogPost: vi.fn(async () => undefined),
+    }));
 
     const { MockNewsSource, MockTextGenerator, MockImageGenerator, MockTransitSource } =
       await import('../../services/contentSources/mocks/mockPorts.js');

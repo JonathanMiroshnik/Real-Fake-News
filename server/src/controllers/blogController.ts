@@ -8,16 +8,17 @@ import {
 import { findOne } from '../lib/database/sqliteOperations.js';
 import { blogDatabaseConfig } from '../lib/database/databaseConfigurations.js';
 import { ArticleScheme } from '../types/article.js';
-import { DAY_MILLISECS, ONE_HOUR_MILLISECS } from '../config/constants.js';
 import { debugLog, debugError } from '../utils/debugLogger.js';
 
-// TODO: some functions need to be combined here
-// Currently set up to pull only the DAILY blog posts, the request does not matter
-export const pullBlogs = async (req: Request, res: Response) => {
+// [x] TODO: some functions need to be combined here
+// Satisfied by taking the window as an argument: `/daily` and `/hourly` are now one handler mounted
+// twice (`pullBlogs(DAY_MILLISECS)` / `pullBlogs(ONE_HOUR_MILLISECS)` in `routes/blogRoutes.ts`).
+// The `by-minute`, `relevant` and `featured` handlers below read different data and stay separate.
+export const pullBlogs = (windowMs: number) => async (req: Request, res: Response) => {
   debugLog('Pulling blogs!');
 
   try {
-    const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - DAY_MILLISECS));
+    const result: BlogResponse = await getAllPostsAfterDate(new Date(Date.now() - windowMs));
 
     res.json(result);
   } catch (error) {
@@ -25,21 +26,6 @@ export const pullBlogs = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Analysis failed' });
   }
 };
-
-export async function pullHourlyBlogs(req: Request, res: Response) {
-  debugLog('Pulling hourly blogs!');
-
-  try {
-    const result: BlogResponse = await getAllPostsAfterDate(
-      new Date(Date.now() - ONE_HOUR_MILLISECS),
-    );
-
-    res.json(result);
-  } catch (error) {
-    debugError('❌ Analysis failed:', error);
-    res.status(500).json({ error: 'Analysis failed' });
-  }
-}
 
 export async function pullBlogsByMinute(req: Request, res: Response) {
   debugLog('📥 Received request to /api/blogs/by-minute');

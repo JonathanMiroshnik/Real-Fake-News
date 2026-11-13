@@ -46,9 +46,8 @@ describe('insert() requires a content source marker on marked tables', () => {
 
   beforeAll(async () => {
     ({ insert, MissingContentSourceError } = await import('../sqliteOperations.js'));
-    ({ blogDatabaseConfig, writerDatabaseConfig, featuredBlogDatabaseConfig } = await import(
-      '../databaseConfigurations.js'
-    ));
+    ({ blogDatabaseConfig, writerDatabaseConfig, featuredBlogDatabaseConfig } =
+      await import('../databaseConfigurations.js'));
   });
 
   const articleRow = { title: 'A headline', content: 'Body text' };

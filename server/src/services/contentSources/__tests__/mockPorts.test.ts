@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { MockImageGenerator, MockNewsSource, MockTextGenerator, MockTransitSource } from '../mocks/mockPorts.js';
+import {
+  MockImageGenerator,
+  MockNewsSource,
+  MockTextGenerator,
+  MockTransitSource,
+} from '../mocks/mockPorts.js';
 
 /**
  * The mock ports are what make a job runnable without an API key, so what matters

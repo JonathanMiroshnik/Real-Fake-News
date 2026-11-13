@@ -260,25 +260,25 @@ instead of silently falling back to the production API — the fallback in
 
 ### server (`server/.env` or root `.env`)
 
-| Key                              | Required | Default                       | Notes                                                 |
-| -------------------------------- | -------- | ----------------------------- | ----------------------------------------------------- |
-| `DEEPSEEK_API_KEY`               | yes      | —                             | article text generation                               |
-| `NEWSDATA_API_KEY`               | yes      | —                             | real news fetching                                    |
-| `RUNWARE_API_KEY`                | yes      | —                             | AI image generation                                   |
-| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback) | admin panel login                                     |
-| `PORT`                           | no       | `5001`                        | internal only                                         |
-| `DATABASE_PATH`                  | yes      | —                             | SQLite file; Docker pins `/data/database.db`          |
-| `DATABASE_DIR`                   | yes      | —                             | host dir mounted at `/data` (compose only)            |
-| `IMAGES_PATH`                    | yes      | —                             | images dir; Docker pins `/images`                     |
-| `IMAGES_DIR`                     | yes      | —                             | host dir mounted at `/images` (compose only)          |
-| `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                                 |
-| `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated                   |
-| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing                    |
+| Key                              | Required | Default                       | Notes                                                  |
+| -------------------------------- | -------- | ----------------------------- | ------------------------------------------------------ |
+| `DEEPSEEK_API_KEY`               | yes      | —                             | article text generation                                |
+| `NEWSDATA_API_KEY`               | yes      | —                             | real news fetching                                     |
+| `RUNWARE_API_KEY`                | yes      | —                             | AI image generation                                    |
+| `ADMIN_PASSWORD`                 | yes      | `changeme123` (code fallback) | admin panel login                                      |
+| `PORT`                           | no       | `5001`                        | internal only                                          |
+| `DATABASE_PATH`                  | yes      | —                             | SQLite file; Docker pins `/data/database.db`           |
+| `DATABASE_DIR`                   | yes      | —                             | host dir mounted at `/data` (compose only)             |
+| `IMAGES_PATH`                    | yes      | —                             | images dir; Docker pins `/images`                      |
+| `IMAGES_DIR`                     | yes      | —                             | host dir mounted at `/images` (compose only)           |
+| `CLIENT_URL`                     | no       | built-in defaults             | CORS + absolute links                                  |
+| `ALLOWED_ORIGINS`                | no       | —                             | extra CORS origins, comma-separated                    |
+| `ENABLE_SCHEDULED_JOBS`          | no       | `false`                       | cron: news fetch + article writing                     |
 | `CONTENT_SOURCE`                 | no       | `live`                        | `live` \| `mock`; `mock` refuses `NODE_ENV=production` |
-| `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                                |
-| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                           |
-| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers                        |
-| `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                           |
+| `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                                 |
+| `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                            |
+| `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers                         |
+| `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                            |
 
 ### client / admin (`.env.development`, root `.env`, or build args)
 

@@ -96,7 +96,6 @@ if (JOBS_TIME_SCALE !== DEFAULT_JOBS_TIME_SCALE) {
   );
 }
 
-
 function buildLivePorts(): ContentPorts {
   return {
     news: new LiveNewsSource(),

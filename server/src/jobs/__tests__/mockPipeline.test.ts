@@ -37,12 +37,8 @@ describe('jobs against the mock content source', () => {
   let imageService: typeof import('../../services/imageService.js');
 
   beforeAll(async () => {
-    const {
-      MockImageGenerator,
-      MockNewsSource,
-      MockTextGenerator,
-      MockTransitSource,
-    } = await import('../../services/contentSources/mocks/mockPorts.js');
+    const { MockImageGenerator, MockNewsSource, MockTextGenerator, MockTransitSource } =
+      await import('../../services/contentSources/mocks/mockPorts.js');
 
     mockPorts = {
       news: new MockNewsSource(),

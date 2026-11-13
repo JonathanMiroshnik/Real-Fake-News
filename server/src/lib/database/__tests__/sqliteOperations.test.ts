@@ -60,7 +60,15 @@ describe('SQLite Operations', () => {
         INSERT INTO blog_posts (key, title, content, author, timestamp, category, writerType)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
-      stmt.run('test-1', 'Test Title', 'Test Content', JSON.stringify({ name: 'Tester' }), new Date().toISOString(), 'Technology', 'AI');
+      stmt.run(
+        'test-1',
+        'Test Title',
+        'Test Content',
+        JSON.stringify({ name: 'Tester' }),
+        new Date().toISOString(),
+        'Technology',
+        'AI',
+      );
 
       const row = db.prepare('SELECT * FROM blog_posts WHERE key = ?').get('test-1') as any;
       expect(row).toBeDefined();
@@ -87,7 +95,13 @@ describe('SQLite Operations', () => {
         INSERT INTO blog_posts (key, title, content, timestamp, category)
         VALUES (?, ?, ?, ?, ?)
       `);
-      insertStmt.run('key-1', 'Original Title', 'Original Content', new Date().toISOString(), 'Politics');
+      insertStmt.run(
+        'key-1',
+        'Original Title',
+        'Original Content',
+        new Date().toISOString(),
+        'Politics',
+      );
 
       const updateStmt = db.prepare(`
         UPDATE blog_posts SET title = ?, content = ? WHERE key = ?
@@ -104,7 +118,13 @@ describe('SQLite Operations', () => {
         INSERT INTO blog_posts (key, title, content, timestamp, category)
         VALUES (?, ?, ?, ?, ?)
       `);
-      insertStmt.run('key-to-delete', 'Delete Me', 'Content', new Date().toISOString(), 'Technology');
+      insertStmt.run(
+        'key-to-delete',
+        'Delete Me',
+        'Content',
+        new Date().toISOString(),
+        'Technology',
+      );
 
       const deleteResult = db.prepare('DELETE FROM blog_posts WHERE key = ?').run('key-to-delete');
       expect(deleteResult.changes).toBe(1);

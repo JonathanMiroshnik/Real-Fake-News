@@ -58,7 +58,9 @@ export function isProductionEnvironment(env: NodeJS.ProcessEnv = process.env): b
 
 /** Renders a tally as `table: n` pairs, omitting tables with no rows. */
 export function describeTally(tally: ContentSourceTally): string {
-  const counted = Object.entries(tally).filter(([key, count]) => key !== 'contentSource' && count > 0);
+  const counted = Object.entries(tally).filter(
+    ([key, count]) => key !== 'contentSource' && count > 0,
+  );
   if (counted.length === 0) {
     return 'none';
   }
@@ -68,9 +70,7 @@ export function describeTally(tally: ContentSourceTally): string {
 
 /** Total rows of one origin across every marked table. */
 export function totalRows(tally: ContentSourceTally): number {
-  return (
-    tally.blogPosts + tally.newsItems + tally.writers + tally.recipes + tally.horoscopes
-  );
+  return tally.blogPosts + tally.newsItems + tally.writers + tally.recipes + tally.horoscopes;
 }
 
 /**
@@ -122,9 +122,7 @@ export async function assertNoMockRowsInProduction(
  * @param databasePath Shown in a data refusal.
  * @returns The mock tally, so the startup log can report it.
  */
-export async function checkContentSourceAtBoot(
-  databasePath: string,
-): Promise<ContentSourceTally> {
+export async function checkContentSourceAtBoot(databasePath: string): Promise<ContentSourceTally> {
   assertContentSourceIsSafe();
   initializeSchema();
 

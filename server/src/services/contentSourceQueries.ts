@@ -10,7 +10,6 @@ import {
 import type { ArticleScheme } from '../types/article.js';
 import type { ContentSource } from '../types/contentSource.js';
 
-
 /** An article that carries the origin of the pipeline that produced it. */
 export type MarkedArticle = ArticleScheme & { contentSource: ContentSource };
 
@@ -82,7 +81,9 @@ export interface ContentSourceTally {
  * @param contentSource origin to count.
  * @returns per-table counts, all from the same origin.
  */
-export async function tallyContentSource(contentSource: ContentSource): Promise<ContentSourceTally> {
+export async function tallyContentSource(
+  contentSource: ContentSource,
+): Promise<ContentSourceTally> {
   const [blogPosts, newsItems, writers, recipes, horoscopes] = await Promise.all([
     countByContentSource(blogDatabaseConfig, contentSource),
     countByContentSource(newsDatabaseConfig, contentSource),

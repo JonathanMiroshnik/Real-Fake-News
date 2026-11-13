@@ -108,9 +108,7 @@ export function assertNotProduction(
   }
 
   if (isProduction) {
-    console.warn(
-      `⚠️  Seeding a production database: --force with ${CONFIRM_FLAG} was passed.`,
-    );
+    console.warn(`⚠️  Seeding a production database: --force with ${CONFIRM_FLAG} was passed.`);
   }
 }
 
