@@ -80,7 +80,6 @@ export async function saveDataURIToPNG(dataURI: string): Promise<string> {
   // Convert to PNG buffer
   const buffer = Buffer.from(matchGroups.data, 'base64');
 
-  // const pngBuffer = await sharp(buffer).png().toBuffer(); // Replaced with JIMP
   const image = await Jimp.read(buffer);
   const pngBuffer = await image.getBuffer(JimpMime.png);
 

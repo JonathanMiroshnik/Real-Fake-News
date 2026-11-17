@@ -36,14 +36,16 @@ export type JobSchedule = CronSchedule;
  * @param expression A five- or six-field cron expression.
  * @param run The job body; errors are its own business (every job logs and
  *   swallows, so one failure cannot stop the schedule).
- * @returns A handle that destroys the cron task.
+ * @returns A handle that stops the cron task.
  */
 export function startCronSchedule(expression: string, run: JobBody): StopSchedule {
   const task = cron.schedule(expression, () => {
     void run();
   });
 
+  // node-cron 3.x exposes `stop()`; `destroy()` only arrived in 4.x, so calling
+  // it here threw "task.destroy is not a function" the moment a job was stopped.
   return () => {
-    void task.destroy();
+    task.stop();
   };
 }

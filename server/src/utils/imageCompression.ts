@@ -5,31 +5,6 @@ import fs from 'fs';
 import { resolveImagesDirectory } from '../config/paths.js';
 import { debugLog } from './debugLogger.js';
 
-// Lazy-load Sharp for WebP support
-let sharp: any = null;
-let sharpLoaded = false;
-
-/**
- * Lazy-loads Sharp if available for WebP support
- * @returns Sharp instance or null if not available
- */
-async function getSharp(): Promise<any> {
-  if (sharpLoaded) {
-    return sharp;
-  }
-
-  sharpLoaded = true;
-  try {
-    const sharpModule = await import('sharp');
-    sharp = sharpModule.default;
-    debugLog('✅ Sharp loaded - WebP compression enabled');
-    return sharp;
-  } catch (error) {
-    debugLog('⚠️ Sharp not available - WebP images will be converted to JPEG:', error);
-    return null;
-  }
-}
-
 /**
  * Gets the images directory path.
  *
@@ -49,13 +24,16 @@ export function getImagesDirectory(): string {
  *
  * Compression settings:
  * - Max width: 1920px (maintains aspect ratio)
- * - Format: WebP (if input is WebP and sharp is available), otherwise JPEG
+ * - Format: JPEG (Jimp). WebP input is decoded, then re-encoded as JPEG — see
+ *   `getCompressedImagePath()`, which names the file after what is written.
  * - Quality: 80 (good balance between size and quality)
  *
  * For images around 200KB, this typically reduces to 50-100KB
  * For larger images (1MB+), this can reduce to 200-400KB
  *
- * Uses Sharp for WebP files (preserves WebP format), Jimp for other formats
+ * Jimp is the only encoder. Sharp was dropped in `bdec878a`: it is a native
+ * module that cannot build in this environment (contracts/environment.md #1),
+ * and `jimp` already covers every format the pipeline produces.
  *
  * @param inputPath - Path to the original image
  * @param outputPath - Path where compressed image should be saved
@@ -75,32 +53,6 @@ export async function compressImageForWeb(inputPath: string, outputPath: string)
     const maxWidth = isSmallImage ? 400 : 1920;
     const quality = isSmallImage ? 75 : 80;
 
-    // Use Sharp for WebP files if available
-    const sharpInstance = await getSharp();
-    if (isWebP && sharpInstance) {
-      const image = sharpInstance(inputPath);
-      const metadata = await image.metadata();
-
-      let pipeline = image;
-
-      // Resize if needed (maintains aspect ratio, doesn't upscale)
-      if (metadata.width && metadata.width > maxWidth) {
-        pipeline = pipeline.resize(maxWidth, null, {
-          withoutEnlargement: true,
-          fit: 'inside',
-        });
-      }
-
-      // Compress as WebP
-      const webpBuffer = await pipeline.webp({ quality }).toBuffer();
-      await fs.promises.writeFile(outputPath, webpBuffer);
-
-      logCompressionResult(inputPath, webpBuffer.length, ' (WebP)');
-      return;
-    }
-
-    // Fallback to Jimp for non-WebP or if Sharp is not available
-    // If WebP but Sharp not available, convert to JPEG
     const image = await Jimp.read(inputPath);
 
     // Resize if needed (maintains aspect ratio, doesn't upscale)
@@ -108,14 +60,14 @@ export async function compressImageForWeb(inputPath: string, outputPath: string)
       image.resize({ w: maxWidth });
     }
 
-    // Get JPEG buffer (fallback format)
-    const jpegBuffer = await image.getBuffer(JimpMime.jpeg);
+    // Get JPEG buffer (the only format this pipeline writes)
+    const jpegBuffer = await image.getBuffer(JimpMime.jpeg, { quality });
 
     // Write to file
     await fs.promises.writeFile(outputPath, jpegBuffer);
 
-    const formatNote = isWebP ? ' (WebP→JPEG, Sharp not available)' : '';
-    logCompressionResult(inputPath, fs.statSync(outputPath).size, formatNote);
+    const formatNote = isWebP ? ' (WebP→JPEG)' : '';
+    logCompressionResult(inputPath, jpegBuffer.length, formatNote);
   } catch (error) {
     console.error(`Error compressing image ${inputPath}:`, error);
     throw error;
@@ -141,22 +93,12 @@ function logCompressionResult(inputPath: string, compressedSize: number, formatN
 }
 
 /**
- * Gets the width of an image without loading the full image
+ * Gets the width of an image, for choosing the compression preset.
  * @param imagePath - Path to the image file
  * @returns Image width in pixels
  */
 async function getImageWidth(imagePath: string): Promise<number> {
   try {
-    // Try Sharp first (faster, doesn't load full image)
-    const sharpInstance = await getSharp();
-    if (sharpInstance) {
-      const metadata = await sharpInstance(imagePath).metadata();
-      if (metadata.width) {
-        return metadata.width;
-      }
-    }
-
-    // Fallback to Jimp
     const image = await Jimp.read(imagePath);
     return image.width;
   } catch {
@@ -166,9 +108,14 @@ async function getImageWidth(imagePath: string): Promise<number> {
 }
 
 /**
- * Gets the compressed image path for a given image filename
+ * Gets the compressed image path for a given image filename.
+ *
+ * Always `.jpg`: the compressor writes JPEG bytes for every input format, so a
+ * WebP source must not produce a `.webp` name — that file would claim an image
+ * type its contents do not match, and browsers would refuse to render it.
+ *
  * @param filename - Original image filename
- * @returns Path to compressed version (preserves WebP extension if input is WebP)
+ * @returns Path to compressed version
  */
 export function getCompressedImagePath(filename: string): string {
   const imagesDir = getImagesDirectory();
@@ -176,12 +123,7 @@ export function getCompressedImagePath(filename: string): string {
   const ext = path.extname(filename).toLowerCase();
   const basename = path.basename(filename, ext);
 
-  // Preserve WebP extension if input is WebP
-  // Note: Actual format depends on Sharp availability at compression time
-  // This function just determines the filename - the compression function handles format
-  const outputExt = ext === '.webp' ? '.webp' : '.jpg';
-
-  return path.join(compressedDir, `${basename}${outputExt}`);
+  return path.join(compressedDir, `${basename}.jpg`);
 }
 
 /**

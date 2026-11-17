@@ -20,7 +20,12 @@ vi.mock('../../config/env.js', () => ({
   isScheduledJobsEnabled: vi.fn(() => true),
 }));
 
-const cronSchedule = vi.fn((_expression: string, _run: () => void) => ({ destroy: vi.fn() }));
+// Mirrors node-cron 3.x's ScheduledTask, which exposes `stop()` and not
+// `destroy()`. The mock previously provided only `destroy`, so it agreed with a
+// bug in `registryTimers.ts` and the suite could not tell that stopping a job
+// threw in production.
+const cronStop = vi.fn();
+const cronSchedule = vi.fn((_expression: string, _run: () => void) => ({ stop: cronStop }));
 vi.mock('node-cron', () => ({ default: { schedule: cronSchedule } }));
 
 const articleSpy = vi.fn(async () => undefined);
@@ -106,6 +111,9 @@ describe('startScheduler', () => {
     expect(cronSchedule).toHaveBeenCalledTimes(2);
     const expressions = cronSchedule.mock.calls.map((call) => call[0]);
     expect(expressions).toEqual(['0 0 * * *', '0 0 * * *']);
+    // The handle must actually halt the task; a stop that throws would otherwise
+    // pass unnoticed because the caller never inspects the result.
+    expect(cronStop).toHaveBeenCalledTimes(2);
   });
 
   it('registers nothing and runs nothing when disabled', async () => {
