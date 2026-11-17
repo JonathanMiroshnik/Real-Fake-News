@@ -95,15 +95,7 @@ export async function compressImageForWeb(inputPath: string, outputPath: string)
       const webpBuffer = await pipeline.webp({ quality }).toBuffer();
       await fs.promises.writeFile(outputPath, webpBuffer);
 
-      const originalSize = fs.statSync(inputPath).size;
-      const compressedSize = webpBuffer.length;
-      const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-
-      debugLog(
-        `Compressed ${path.basename(inputPath)} (WebP): ` +
-          `${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB ` +
-          `(${reduction}% reduction)`,
-      );
+      logCompressionResult(inputPath, webpBuffer.length, ' (WebP)');
       return;
     }
 
@@ -122,21 +114,30 @@ export async function compressImageForWeb(inputPath: string, outputPath: string)
     // Write to file
     await fs.promises.writeFile(outputPath, jpegBuffer);
 
-    // Get file sizes for logging
-    const originalSize = fs.statSync(inputPath).size;
-    const compressedSize = fs.statSync(outputPath).size;
-    const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-
     const formatNote = isWebP ? ' (WebP→JPEG, Sharp not available)' : '';
-    debugLog(
-      `Compressed ${path.basename(inputPath)}${formatNote}: ` +
-        `${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB ` +
-        `(${reduction}% reduction)`,
-    );
+    logCompressionResult(inputPath, fs.statSync(outputPath).size, formatNote);
   } catch (error) {
     console.error(`Error compressing image ${inputPath}:`, error);
     throw error;
   }
+}
+
+/**
+ * Logs the size before and after a compression run.
+ *
+ * @param inputPath - Path to the original image
+ * @param compressedSize - Size of the bytes that were written
+ * @param formatNote - Which encoder produced the output, for the log line
+ */
+function logCompressionResult(inputPath: string, compressedSize: number, formatNote: string): void {
+  const originalSize = fs.statSync(inputPath).size;
+  const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
+  debugLog(
+    `Compressed ${path.basename(inputPath)}${formatNote}: ` +
+      `${(originalSize / 1024).toFixed(1)}KB → ${(compressedSize / 1024).toFixed(1)}KB ` +
+      `(${reduction}% reduction)`,
+  );
 }
 
 /**

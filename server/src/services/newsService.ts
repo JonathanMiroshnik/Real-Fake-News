@@ -67,14 +67,13 @@ export async function getAllNewsArticlesAfterDate(
   const retArticles = candidates.filter((article) => {
     const timestamp = standardizeDate(article.pubDate, article.pubDateTZ);
 
-    try {
-      const articleDate = new Date(timestamp);
-      const startTime = startDate.getTime();
-      return articleDate.getTime() > startTime;
-    } catch {
+    // Dates parse without throwing: an unparseable value is NaN, not an exception
+    const articleTime = new Date(timestamp).getTime();
+    if (Number.isNaN(articleTime)) {
       console.error('Invalid date format:', timestamp);
       return false;
     }
+    return articleTime > startDate.getTime();
   });
 
   return retArticles;

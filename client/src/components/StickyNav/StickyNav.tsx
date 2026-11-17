@@ -81,24 +81,20 @@ function StickyNav({ sections }: StickyNavProps) {
         },
       );
 
-      try {
-        observer.observe(header);
+      observer.observe(header);
 
-        // Force an initial check by manually triggering intersection
-        // IntersectionObserver might not fire immediately
-        const manualCheck = () => {
-          const rect = header.getBoundingClientRect();
-          const visible = rect.bottom > 0 && rect.top < window.innerHeight;
-          setIsHeaderVisible(visible);
-        };
+      // Force an initial check by manually triggering intersection
+      // IntersectionObserver might not fire immediately
+      const manualCheck = () => {
+        const rect = header.getBoundingClientRect();
+        const visible = rect.bottom > 0 && rect.top < window.innerHeight;
+        setIsHeaderVisible(visible);
+      };
 
-        // Check immediately and after a short delay
-        manualCheck();
-        setTimeout(manualCheck, 100);
-        setTimeout(manualCheck, 500);
-      } catch {
-        // Silently handle errors
-      }
+      // Check immediately and after a short delay
+      manualCheck();
+      setTimeout(manualCheck, 100);
+      setTimeout(manualCheck, 500);
     };
 
     setupObserver();

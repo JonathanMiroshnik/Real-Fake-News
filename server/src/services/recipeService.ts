@@ -72,7 +72,6 @@ export async function generateRecipe(
         images.push(imgName);
       }
     }
-
     const newRecipe: RecipeScheme = {
       key: getUniqueKey(),
       title: parsedData.title,

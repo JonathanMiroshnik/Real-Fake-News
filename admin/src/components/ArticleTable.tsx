@@ -10,12 +10,10 @@ interface ArticleTableProps {
 
 function formatDate(timestamp: string | undefined): string {
   if (!timestamp) return 'N/A';
-  try {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  } catch {
-    return timestamp;
-  }
+  // A malformed value yields an Invalid Date rather than throwing
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
 function isFeaturedToday(article: Article): boolean {

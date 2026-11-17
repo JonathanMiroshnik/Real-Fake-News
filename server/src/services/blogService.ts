@@ -39,32 +39,25 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
       return false;
     }
 
-    try {
-      const articleDate = new Date(article.timestamp);
-      const startTime = startDate.getTime();
-      const articleTime = articleDate.getTime();
-      const isAfter = articleTime > startTime;
-
-      if (!isAfter) {
-        debugLog(
-          '⏰ [getAllPostsAfterDate] Article',
-          article.key,
-          'timestamp',
-          article.timestamp,
-          'is before start date',
-        );
-      }
-
-      return isAfter;
-    } catch (e) {
-      console.error(
-        '❌ [getAllPostsAfterDate] Invalid date format:',
-        article.timestamp,
-        'Error:',
-        e,
-      );
+    const articleTime = new Date(article.timestamp).getTime();
+    const isParsed = !Number.isNaN(articleTime);
+    if (!isParsed) {
+      debugWarn('⚠️ Article', article.key, 'has invalid timestamp', article.timestamp);
       return false;
     }
+
+    const isAfter = articleTime > startDate.getTime();
+    if (!isAfter) {
+      debugLog(
+        '⏰ [getAllPostsAfterDate] Article',
+        article.key,
+        'timestamp',
+        article.timestamp,
+        'is before start date',
+      );
+    }
+
+    return isAfter;
   });
 
   debugLog('✅ [getAllPostsAfterDate] Filtered articles count:', retArticles.length);
@@ -86,11 +79,10 @@ export async function getAllPostsAfterDate(startDate: Date): Promise<BlogRespons
  * Sorts articles by timestamp (most recent first)
  */
 function sortArticlesByDate(articles: ArticleScheme[]): ArticleScheme[] {
-  return [...articles].sort((a, b) => {
-    const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-    const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-    return dateB - dateA; // Most recent first
-  });
+  const timestampOf = (article: ArticleScheme): number =>
+    article.timestamp ? new Date(article.timestamp).getTime() : 0;
+
+  return [...articles].sort((a, b) => timestampOf(b) - timestampOf(a)); // Most recent first
 }
 
 /**
@@ -147,11 +139,10 @@ export async function getRelevantArticles(): Promise<BlogResponse> {
 
       if (allResult.articles.length > 0) {
         // Sort by date and return the most recent ones
-        const sortedArticles = sortArticlesByDate(allResult.articles);
-        finalArticles = sortedArticles;
+        finalArticles = sortArticlesByDate(allResult.articles);
         debugLog(
           '📦 [getRelevantArticles] Found',
-          sortedArticles.length,
+          finalArticles.length,
           'total articles, returning most recent',
         );
       }

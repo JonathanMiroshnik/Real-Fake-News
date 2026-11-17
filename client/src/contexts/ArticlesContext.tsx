@@ -55,14 +55,10 @@ function ArticleProvider({ children }: { children: ReactNode }) {
     const timestampStr = sessionStorage.getItem(ARTICLES_CACHE_TIMESTAMP_KEY);
     if (!timestampStr) return true;
 
-    try {
-      const timestamp = parseInt(timestampStr, 10);
-      const now = Date.now();
-      const age = now - timestamp;
-      return age > CACHE_EXPIRATION_MS;
-    } catch {
-      return true;
-    }
+    // A malformed value parses to NaN; that must mean "stale", not "fresh forever"
+    const timestamp = parseInt(timestampStr, 10);
+    const cacheAge = Date.now() - timestamp;
+    return Number.isNaN(cacheAge) || cacheAge > CACHE_EXPIRATION_MS;
   };
 
   // Helper function to fetch articles from server (memoized with useCallback)
