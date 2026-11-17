@@ -17,12 +17,6 @@ import type { Writer } from '../../types/writer.js';
  * handed to the writer, not about storage. The live generators are never reached —
  * a mock port set is injected — which is also why the image port returns a name.
  */
-const noRowsStatement = {
-  get: () => undefined,
-  all: () => [],
-  run: () => ({ changes: 0 }),
-};
-
 /** A `writers` row already in the database, marked `live` by the seeder's default. */
 const STORED_WRITER_ROW = {
   key: 'seed-writer-1',

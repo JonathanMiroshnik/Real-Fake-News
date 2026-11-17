@@ -247,6 +247,36 @@ reason it would come back.
       "this database is empty in three specific ways" into a single command you can run and
       verify.
 
+- [ ] **16. Generated images are requested as WebP and can never be decoded.** Found while fixing
+      the audit items; **not yet fixed**. `generateAndSaveImage()` hardcodes
+      `const format = 'WEBP'` (`services/imageService.ts`), asks the image provider for a WebP data
+      URI, and hands it to `saveDataUriAsWebp()`. That function writes the bytes to disk correctly,
+      then calls `compressImageForWeb()` — which is Jimp. **This Jimp install has no WebP decoder**:
+      `@jimp/js-webp` is not in the dependency tree, and `Jimp.read()` on a real `.webp` buffer
+      rejects with `Mime type image/webp does not support decoding`. The failure is swallowed by a
+      `catch` that logs and returns the original filename, so the symptom is a missing or
+      placeholder image, never an error — the hardest kind to notice.
+
+      _Why it is not a one-line version bump:_ `sharp` was deliberately removed earlier
+      (`faf4b5fd` "replaced sharp with jimp", `bdec878a`), and re-adding it is barred by
+      `contracts/environment.md` §1. Adding the decoder is barred by the same contract §3 — no
+      dependency that fetches at install or build time. Both obvious fixes are ruled out by a
+      contract, so this needs a decision, not a patch.
+
+      _The two live options, for whoever picks it up:_ **(a)** generate `PNG` or `JPG` instead of
+      `WEBP` — `generateImage()` already takes the format, and the `PNG` branch through
+      `saveDataURIToPNG()` already exists as currently-dead code, so this is a real fix with no new
+      dependency, at the cost of larger files on disk; or **(b)** keep WebP and store the bytes
+      uncompressed — write the original and skip `compressImageForWeb()` for `.webp`, which stops
+      the silent failure but leaves the "compressed" copy as a second full-size file. Decide (a) or
+      (b) before touching `format`, because the hardcoded `'WEBP'` and the `if (format === 'WEBP')`
+      branch in `generateAndSaveImage()` only make sense together.
+
+      _Once fixed, add the test that would have caught it:_ a unit test that calls
+      `saveDataUriAsWebp()` with a small real WebP data URI and asserts the compressed sibling file
+      appears — the existing tests stub the image port, so this failure is invisible to them. Same
+      gap as "Still to add" item 3: a bug that took reasoning twice to find.
+
 ## Convention
 
 - Each file is named `kebab-case-description.md`

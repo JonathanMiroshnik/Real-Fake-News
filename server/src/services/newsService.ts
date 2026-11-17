@@ -24,10 +24,10 @@ export type NewsItem = {
  * spendable from anywhere — and left the count wrong as soon as two callers
  * existed. The port is the only caller, so the charge happens there.
  *
- * @param {string} page - The page of the current news to pull from.
+ * @param {string} _page - Unused. Kept so existing callers need no change; see the note below.
  * @returns {string} The next page in the current news page that we could pull from.
  */
-export async function fetchNews(page: string = ''): Promise<[any[], nextPage: string]> {
+export async function fetchNews(_page: string = ''): Promise<[any[], nextPage: string]> {
   try {
     const response = await axios.get(NEWS_API_BASE_URL, {
       params: {
@@ -37,10 +37,9 @@ export async function fetchNews(page: string = ''): Promise<[any[], nextPage: st
         category: 'top', // Optional: top news category
       },
     });
-    if (page !== '') {
-      response.config.params.page = page;
-    }
-
+    // `page` is accepted for signature compatibility but cannot be applied here: by the time
+    // `axios.get` resolves, the request has already been sent, so mutating `response.config`
+    // only rewrites the record of the completed request. Paging is the caller's concern.
     return [[...response.data.results], response.data.nextPage.toString()];
   } catch (error) {
     console.error('Failed to fetch news:', error);
