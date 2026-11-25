@@ -13,6 +13,7 @@
     "test": "cd client && npm test && cd ../server && npm test",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
+    "check:explainers": "node scripts/check-explainers.mjs",
     "lint": "cd client && npm run lint && cd ../server && npm run lint && cd ../admin && npm run lint",
     "build": "cd client && npm run build && cd ../server && npm run build && cd ../admin && npm run build",
     "typecheck": "cd client && npm run typecheck && cd ../server && npm run typecheck",

@@ -14,6 +14,7 @@ _is_, written only by the repo owner. You read it; you never write it. See
 | how the site looks, flows, pages, copy, wording | `contracts/design.md`       |
 | why something is built this way, architecture   | `contracts/architecture.md` |
 | "you can't do that", limits of this environment | `contracts/environment.md`  |
+| an HTML explainer, a diagram, a visual diff     | `docs/explainers.md`        |
 
 **Read the relevant contract before you read any source file, edit anything, or propose a plan.**
 Skipping this step is how an agent produces a beautiful change that violates the one rule the owner
@@ -53,6 +54,8 @@ If you believe a contract is wrong:
 - `.clinerules/` — Cline-specific rules: coding style (`basic_styling.md`) and the
   never-commit-without-instruction rule (`git.md`). These are instructions _to you_; `contracts/`
   is instructions _about the repo_.
+- `docs/explainers.md` — **building HTML explainers.** Graphs are laid out by an engine, never by
+  hand; read this before writing any diagram, and run `npm run check:explainers` after.
 - `README.md` — how to run the stack (`npm run setup`, `docker compose up --build -d`, doctor
   scripts).
 - `TESTING.md` — Vitest / Playwright, and how to run them.

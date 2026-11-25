@@ -51,3 +51,8 @@ coverage/
 playwright-report/
 test-results/
 *.tsbuildinfo
+
+# Generated visual explainers (diff walkthroughs, HTML). Local artifacts, never committed.
+# Root-anchored, so only the generated output under ./explainers/ is ignored — the tooling that
+# builds it (scripts/check-explainers.mjs, tools/diagrams/, docs/explainers.md) stays tracked.
+/explainers/
