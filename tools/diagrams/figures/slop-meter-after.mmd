@@ -1,0 +1,42 @@
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":46,"rankSpacing":52,"padding":8,"wrappingWidth":230},"themeVariables":{"fontFamily":"Iowan Old Style, Palatino, Georgia, serif","fontSize":"13px","lineColor":"#4d5157","edgeLabelBackground":"#f7f4ee","primaryTextColor":"#17181a"}}}%%
+flowchart TB
+  subgraph C["Config"]
+    direction TB
+    ENV["+ DEEPSEEK_MODEL<br/><i>default: deepseek-reasoner</i><br/><i>now the single source</i>"]
+    LLM["llmService<br/><i>model: getWriterModelName()</i><br/><i>no literal left</i>"]
+  end
+  subgraph B["Browser"]
+    direction TB
+    HDR["Header<br/><i>+ mounts the widget</i>"]
+    WID["+ SlopMeter widget<br/><i>role=meter, aria-valuenow</i><br/><i>renders only, holds no state</i>"]
+    HOOK["+ useSlopMeter<br/><i>1. open the stream</i><br/><i>2. THEN fetch</i>"]
+    CSV["+ client slopMeterService<br/><i>fetch + EventSource</i><br/><i>returns null or a closer</i>"]
+  end
+  subgraph S["Server"]
+    direction TB
+    RT["+ /api/slop-meter router<br/>GET / — REST reading<br/>GET /stream — event stream<br/>POST /notify — 404 outside dev"]
+    HUB["+ stream hub<br/><i>25 s heartbeat</i><br/><i>&gt;64 KB for 25 s → drop</i><br/><i>count → debugLog only</i>"]
+    SSVC["slopMeterService<br/><i>MODEL_INTELLIGENCE</i><br/><i>unknown model → 40</i><br/><b>getWriterModelName()</b>"]
+    NOTIF["+ notify source<br/><i>fans a frame to every</i><br/><i>attached response</i><br/><i>no pipeline runs</i>"]
+  end
+  subgraph E["Edge"]
+    direction TB
+    NGX["~ nginx location<br/><i>/api/slop-meter/stream</i><br/><i>buffering off, read 1h</i>"]
+  end
+  HDR -->|renders| WID
+  WID -->|uses| HOOK
+  HOOK -->|calls| CSV
+  CSV -->|GET / reads the number| RT
+  CSV -->|GET /stream subscribes| HUB
+  RT -->|reads| SSVC
+  HUB -.->|event triggers a re-fetch| HOOK
+  NOTIF -->|pushes into| HUB
+  ENV -->|feeds| LLM
+  SSVC -.-> LLM
+  NGX -.->|fronts the stream| HUB
+  classDef plain fill:#fffefb,stroke:#4d5157,stroke-width:1.6px,color:#17181a
+  classDef added fill:#e2f1e5,stroke:#1d6b3a,stroke-width:1.8px,color:#14431f
+  classDef note fill:#fbf0d8,stroke:#8a5a12,stroke-width:1.5px,color:#5c3c00
+  class HDR,SSVC,LLM plain
+  class WID,HOOK,CSV,RT,HUB,ENV added
+  class NOTIF,NGX note

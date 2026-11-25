@@ -1,0 +1,26 @@
+%%{init: {"theme":"base","flowchart":{"curve":"linear","nodeSpacing":46,"rankSpacing":52,"padding":8,"wrappingWidth":190},"themeVariables":{"fontFamily":"Iowan Old Style, Palatino, Georgia, serif","fontSize":"13px","lineColor":"#4d5157","edgeLabelBackground":"#f7f4ee","primaryTextColor":"#17181a"}}}%%
+flowchart TB
+  subgraph R["THE READ PATH — what the browser asks for"]
+    direction TB
+    H["Header<br/><i>nav links only — no meter</i>"]
+    ROUTE["GET /api/slop-meter<br/><i>routes/slopMeterRoutes.ts</i>"]
+    CTRL["slopMeterController<br/><i>getSlopMeter — try/catch, { success }</i>"]
+    SVC["slopMeterService<br/><i>MODEL_INTELLIGENCE table — copy 2 of 2</i><br/>returns { model, intelligence }"]
+    H -->|fetches once on mount| ROUTE
+    ROUTE -->|route forwards| CTRL
+    CTRL -->|delegates| SVC
+  end
+  subgraph W["THE WRITE PATH — not connected to the read path"]
+    direction TB
+    LLM["llmService<br/><b>model: 'deepseek-reasoner'</b><br/><i>a typed literal — copy 1 of 2</i><br/>calls the LLM; never asks what it is"]
+    NOTE["The meter shows what the table says, not what the writer actually calls &mdash; nothing compares the two strings.<br/><br/>Both say 'deepseek-reasoner' today by coincidence of editing, not by design."]
+  end
+  H ~~~ W
+  classDef plain fill:#fffefb,stroke:#4d5157,stroke-width:1.6px,color:#17181a
+  classDef bad fill:#fffefb,stroke:#8a1c12,stroke-width:1.8px,color:#a52020
+  classDef note fill:#fdf4f2,stroke:#8a1c12,stroke-width:1.2px,color:#4d5157
+  class H,ROUTE,CTRL,SVC plain
+  class LLM bad
+  class NOTE note
+  style R fill:transparent,stroke:#e4ded3,stroke-width:1.5px
+  style W fill:#fdf4f2,stroke:#8a1c12,stroke-width:1.5px,stroke-dasharray:6 4
