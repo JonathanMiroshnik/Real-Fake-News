@@ -51,6 +51,7 @@ services:
       ADMIN_PASSWORD: '${ADMIN_PASSWORD:?ADMIN_PASSWORD missing - cp .env.example .env}'
       # Behaviour toggles
       RUNWARE_IMAGE_MODEL: ${RUNWARE_IMAGE_MODEL:-runware:z-image@turbo}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-reasoner}
       ENABLE_SCHEDULED_JOBS: ${ENABLE_SCHEDULED_JOBS:-true}
       DEBUG_LOGS: ${DEBUG_LOGS:-false}
     volumes:

@@ -277,6 +277,7 @@ instead of silently falling back to the production API — the fallback in
 | `CONTENT_SOURCE`                 | no       | `live`                        | `live` \| `mock`; `mock` refuses `NODE_ENV=production` |
 | `DEBUG_LOGS`                     | no       | `false`                       | verbose server logging                                 |
 | `RUNWARE_IMAGE_MODEL`            | no       | `runware:z-image@turbo`       | image model                                            |
+| `DEEPSEEK_MODEL`                 | no       | `deepseek-reasoner`           | article text model; shown by the Slop meter            |
 | `JWT_SECRET`, `GOOGLE_CLIENT_ID` | no       | —                             | reserved, only read by helpers                         |
 | `FAKE_IMAGE_*`                   | no       | see example                   | placeholder image generator                            |
 
@@ -297,7 +298,37 @@ instead of silently falling back to the production API — the fallback in
 | `VITE_PORT`                         | `5174` (admin)                     | Vite dev server port                   |
 | `VITE_LOCAL_DEV_MODE`               | —                                  | **deprecated** alias of the flag above |
 
-## 6. Keeping the three apps independent
+## 6. The Slop meter's event stream
+
+`useSlopMeter` subscribes to `GET /api/slop-meter/stream`
+(`text/event-stream`). The stream carries **no payload**: an
+`event: reading-changed` frame only means "re-fetch `GET /api/slop-meter`", so
+REST stays the source of truth and the widget keeps working if the stream fails
+to open at all.
+
+- **Watch it work.** In development, `POST /api/slop-meter/notify` broadcasts a
+  change to every attached client and answers
+  `202 {"success":true,"notifiedCount":N}`. The route returns **404 outside
+  `NODE_ENV=development`**, so it cannot become an unauthenticated broadcast
+  endpoint.
+- **Client count.** Streams outlive requests, so a figure that only climbs means
+  clients are leaking. That figure is **only** a log line:
+  `Slop meter stream: client attached, N client(s) attached` (and `client
+detached` / `stream closed`), printed on every attach and detach and visible
+  with `DEBUG_LOGS=true` (`docker compose logs -f server`). It is deliberately
+  exposed by no route: `GET /api/health` is public and unauthenticated, so a
+  connected-client count there would hand anyone a rough estimate of the
+  audience. `/api/health` returns `status` and `timestamp` only.
+- **nginx.** `client/nginx.conf` proxies this one path with `proxy_buffering off`
+  and a raised `proxy_read_timeout`; a buffered stream delivers nothing until it
+  ends, which for a stream is never. **The shared nginx in `devops-nginx` fronts
+  the client container and buffers too** — it needs the same treatment for
+  `/api/slop-meter/stream`, or events will arrive in bursts or not at all.
+- **Heartbeat.** The server writes `: keep-alive` every 25 s. That is sized
+  against nginx's 60 s idle timeout, not against latency: the reading changes
+  when the server restarts, so a faster tick would only burn requests.
+
+## 7. Keeping the three apps independent
 
 The layout follows four rules:
 
@@ -358,7 +389,7 @@ point the SPA at an absolute API URL unless you bring your own nginx.
 | admin → article links | `VITE_CLIENT_URL_DEV` / `VITE_CLIENT_URL_PROD`                | root `.env`, then rebuild                            |
 | API → data            | `DATABASE_DIR` + `IMAGES_DIR` (mounted at `/data`, `/images`) | root `.env` + volumes                                |
 
-## 7. Gotchas
+## 8. Gotchas
 
 - **`devops_shared` must exist for production** (`docker compose up`); `npm run setup`
   creates it. `external: true` is the _only_ reason Compose will not create it for

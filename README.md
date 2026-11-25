@@ -67,7 +67,9 @@ Short version:
 | Run the client / admin SPAs on your machine | nothing — `client/.env.development` and `admin/.env.development` are committed |
 
 Required keys: `DEEPSEEK_API_KEY`, `NEWSDATA_API_KEY`, `RUNWARE_API_KEY` and
-`ADMIN_PASSWORD`.
+`ADMIN_PASSWORD`. Optional model choices: `DEEPSEEK_MODEL` (article text, default
+`deepseek-reasoner` — also what the site header's "Slop meter" displays) and
+`RUNWARE_IMAGE_MODEL` (images).
 
 # Running the Application
 

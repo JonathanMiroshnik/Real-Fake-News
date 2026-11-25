@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router';
 import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
+import SlopMeter from '../SlopMeter/SlopMeter';
 
 interface HeaderProps {
   /** Array of category names for navigation */
@@ -19,6 +20,10 @@ function Header({ sections }: HeaderProps) {
 
   return (
     <header className="w-full mb-8 border-b border-[#cc0000]">
+      {/* Indicator only — read-only, so it sits over the masthead instead of in the nav flow */}
+      <div className="flex justify-end">
+        <SlopMeter />
+      </div>
       {/* <GoogleOAuthProvider clientId="512847879646-rc53sf1m84t99athm9fi99rd32ig7ue9.apps.googleusercontent.com">
         <GoogleLogin
           onSuccess={handleLoginSuccess}

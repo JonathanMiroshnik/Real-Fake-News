@@ -12,6 +12,7 @@ import {
 // import llmRoutes from './llmRoutes.js';
 import triviaRoutes from '../lib/TriviaGameBackend/routes/triviaRoutes.js';
 import blogRoutes from './blogRoutes.js';
+import slopMeterRoutes from './slopMeterRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import horoscopeRoutes from './horoscopeRoutes.js';
 import recipeRoutes from './recipeRoutes.js';
@@ -34,10 +35,14 @@ router.use('/horoscopes', horoscopeRoutes);
 // Recipe routes
 router.use('/recipes', recipeRoutes);
 
+// Read-only writer-pipeline status for the client's "Slop meter" (header widget)
+router.use('/slop-meter', slopMeterRoutes);
+
 // Admin routes (password protected)
 router.use('/admin', adminRoutes);
 
 // Health check endpoint
+// Deliberately carries nothing but liveness: it is unauthenticated and public
 router.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',

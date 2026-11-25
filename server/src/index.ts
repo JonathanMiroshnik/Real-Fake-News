@@ -4,6 +4,7 @@ import './config/env.js';
 import { checkContentSourceAtBoot, logMockRowCount } from './config/contentSourceGuard.js';
 import { resolveDatabaseFile } from './config/paths.js';
 import { closeDatabase } from './lib/database/database.js';
+import { closeSlopMeterStream } from './services/slopMeterStreamService.js';
 import { startScheduler, type SchedulerHandle } from './jobs/scheduler.js';
 
 // Configuration constants
@@ -45,6 +46,9 @@ const startServer = async () => {
       // First: nothing may start another job while the database is closing.
       stopScheduler();
       stopScheduler = () => undefined;
+      // Second: event streams never end on their own, and `server.close()` waits
+      // for every connection to finish — without this, shutdown hangs forever.
+      closeSlopMeterStream();
       server.close(async () => {
         closeDatabase(); // Close SQLite database connection
         console.log('💥 Process terminated');

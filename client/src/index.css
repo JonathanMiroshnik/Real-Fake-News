@@ -52,6 +52,14 @@
   --border-big-separator-color: black;
   --global-background-color: white;
 
+  /* Slop meter (header status bar). Tone values are restated per theme below:
+     a single set cannot pass WCAG AA against both white and black. */
+  --slop-meter-low-color: #c62828;
+  --slop-meter-medium-color: #b26a00;
+  --slop-meter-high-color: #2e7d32;
+  --slop-meter-track-background-color: #f0f0f0;
+  --slop-meter-track-border-color: gray;
+
   /* TODO: figure out how to do mobile cutoff global, see: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/ */
   /* --mobile-size-cutoff: 600px; */
 }
@@ -106,6 +114,12 @@
   --border-separator-color: gray;
   --border-big-separator-color: white;
   --global-background-color: black;
+
+  /* Brighter tones: the light-mode greens/dark reds fail AA on black. */
+  --slop-meter-low-color: #ff6b6b;
+  --slop-meter-medium-color: #ffc933;
+  --slop-meter-high-color: #4ade80;
+  --slop-meter-track-background-color: #262626;
 }
 
 .dark-theme a:hover {
@@ -149,6 +163,11 @@
     --border-separator-color: gray;
     --border-big-separator-color: white;
     --global-background-color: black;
+
+    --slop-meter-low-color: #ff6b6b;
+    --slop-meter-medium-color: #ffc933;
+    --slop-meter-high-color: #4ade80;
+    --slop-meter-track-background-color: #262626;
   }
 
   :root:not(.light-theme):not(.dark-theme) a:hover {

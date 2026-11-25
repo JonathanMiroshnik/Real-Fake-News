@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { OpenAI } from 'openai';
 
 import { GenerateContentRequest, GenerateContentResponse } from '../types/llm.js';
+import { getWriterModelName } from './slopMeterService.js';
 import { debugLog } from '../utils/debugLogger.js';
 
 // TODO: add other such service activated flags in the other services!
@@ -30,10 +31,14 @@ export class LLMService {
     }
 
     try {
-      // TODO: fix model and make it in .env as a dictionary?
+      // [x] TODO: fix model and make it in .env as a dictionary?
+      // Satisfied for the model name by `DEEPSEEK_MODEL` via `getWriterModelName()`; it is a
+      // single key, not yet a dictionary of per-service models.
+      // Model name comes from DEEPSEEK_MODEL (default in slopMeterService), so the
+      // client's Slop meter reports the model the server actually calls.
       const completion = await this.openai.chat.completions.create({
         messages: [{ role: 'system', content: options.prompt }],
-        model: 'deepseek-reasoner',
+        model: getWriterModelName(),
         response_format: {
           type: options.type,
         },
