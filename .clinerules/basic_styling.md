@@ -73,7 +73,35 @@ if (isEligibleToDrive) {
 
 - **Be specific:** Throw/catch specific error types, not generic ones.
 - **Don't ignore errors:** Never leave empty catch blocks.
-- **Validate early:** Check function arguments and object states immediately.
+- **Validate early:** Check function arguments and object states immediately at the point they are produced or received, not repeatedly at every point they are consumed.
+
+#### **Parse, don't validate — at the boundary, once**
+
+Every value that crosses a process boundary — an HTTP response, a request body, `process.env`, a JSON
+file, an `localStorage` read — is untyped and untrusted, because this repo has no shared types across
+`client/`, `admin/` and `server/` (`contracts/architecture.md`). Those boundaries are the only places
+a runtime check belongs.
+
+- **One decode per boundary.** Convert the untrusted value into a typed value in a single function
+  whose return type makes invalid states unrepresentable (`Reading | null`, never
+  `Reading & { mayBeBroken: true }`). Downstream code then receives a value it can trust; a downstream
+  function re-checking its own `string` argument is covering for a missing upstream parse, not
+  defending anything.
+- **`unknown` going in, a real type coming out.** Never annotate the parameter of a decoder with the
+  interface you hope to receive — `function parseX(body: X)` asserts the very thing you were asked to
+  prove. Take `unknown` and narrow it. One `as` inside the decoder, next to the checks that back it,
+  is the correct seam; an `as` at the call site is a lie.
+- **Validate vs. sanitise are different answers, and each is fine — pick one deliberately.** Reject when
+  the value has no truthful interpretation (`NaN` in a percentage is not 0%, it is _no reading_).
+  Clamp/coerce when it does (`250` is 100% with a bug behind it). Do not do both in two places and let
+  them disagree.
+- **Do not re-validate across the boundary.** The server clamps on the way out and the client parses on
+  the way in; that is not duplication, it is two apps each guarding their own edge. Copying a decoder
+  across the boundary, or hoisting it into a `common/` folder, is the thing `architecture.md:13`
+  forbids.
+- **Parse, don't "validate then hope".** A boolean predicate (`isX`) that returns `true` and leaves the
+  caller holding the untrusted value still lets every consumer re-decide what "valid" meant. Return the
+  value, or return `null`; don't hand back a verdict.
 
 ### **7. COMMENTS & DOCS**
 
@@ -116,6 +144,8 @@ For every piece of code you write:
 - [ ] Function has 3 or fewer arguments
 - [ ] Function does ONE thing only
 - [ ] Inputs are validated at start
+- [ ] Untrusted input (HTTP, `process.env`, JSON) is parsed **once**, at the boundary, into a type that cannot be invalid
+- [ ] No function re-checks a value the compiler already guarantees
 - [ ] Meaningful names for functions/variables
 - [ ] No deep nesting (max 2-3 levels)
 - [ ] Magic numbers replaced with constants
