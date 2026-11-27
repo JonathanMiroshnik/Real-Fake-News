@@ -15,6 +15,27 @@ import { debugLog, debugWarn } from '../../utils/debugLogger.js';
 const CONTENT_SOURCE_COLUMN = "contentSource TEXT NOT NULL DEFAULT 'live'";
 
 /**
+ * Default for the content tables' `createdAt` column.
+ *
+ * `CURRENT_TIMESTAMP` is **not** usable: SQLite writes `"2026-11-17 13:20:49"`
+ * (UTC, space separator, no zone), and `new Date()` reads that shape as *local*
+ * time — four hours off in a UTC-4 container, which is enough to move a row
+ * across an hour boundary. The generation-status route compares these values
+ * against `Date.now()`, so the column has to be unambiguous.
+ *
+ * `strftime` with `%Y-%m-%dT%H:%M:%fZ` produces ISO 8601 UTC. `CURRENT_TIMESTAMP`
+ * could have been wrapped in `replace(..., ' ', 'T')` with seconds precision, but
+ * rows written in the same second would then tie; milliseconds keep the ordering
+ * strict. Times are UTC on both sides of the comparison, so the compressed job
+ * clock (`JOBS_TIME_SCALE`) needs no special handling.
+ *
+ * Existing databases keep their old default — SQLite cannot alter one in place —
+ * and their old rows keep the old shape, which is why the reads normalise the
+ * value instead of trusting it.
+ */
+const ISO_8601_UTC_NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`;
+
+/**
  * Tables that carry the `contentSource` marker.
  *
  * `foods` is absent on purpose: a food row is only a name fed into a recipe
@@ -81,7 +102,7 @@ export function initializeSchema(): void {
             shortDescription TEXT,
             originalNewsItem TEXT,
             writerType TEXT DEFAULT 'AI',
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            createdAt TEXT DEFAULT ${ISO_8601_UTC_NOW},
             ${CONTENT_SOURCE_COLUMN}
         )
     `);
@@ -160,7 +181,7 @@ export function initializeSchema(): void {
             description TEXT,
             pubDate TEXT NOT NULL,
             pubDateTZ TEXT,
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            createdAt TEXT DEFAULT ${ISO_8601_UTC_NOW},
             ${CONTENT_SOURCE_COLUMN}
         )
     `);
@@ -193,7 +214,7 @@ export function initializeSchema(): void {
             headImage TEXT,
             shortDescription TEXT,
             originalNewsItem TEXT,
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            createdAt TEXT DEFAULT ${ISO_8601_UTC_NOW}
         )
     `);
 
@@ -244,7 +265,7 @@ export function initializeSchema(): void {
             images TEXT,
             shortDescription TEXT,
             writerType TEXT DEFAULT 'AI',
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            createdAt TEXT DEFAULT ${ISO_8601_UTC_NOW},
             ${CONTENT_SOURCE_COLUMN}
         )
     `);
@@ -264,7 +285,7 @@ export function initializeSchema(): void {
             zodiacSign TEXT NOT NULL,
             content TEXT NOT NULL,
             astrologicalData TEXT NOT NULL,
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            createdAt TEXT DEFAULT ${ISO_8601_UTC_NOW},
             ${CONTENT_SOURCE_COLUMN},
             UNIQUE(date, zodiacSign)
         )
@@ -276,6 +297,18 @@ export function initializeSchema(): void {
         ON horoscopes(date)
     `);
 
+  // Generation status Table
+  // One row per fact about the producers, so a reader can ask "has anything been
+  // written lately?" without scanning three content tables. Written by `insert()`
+  // on every committed content row (`markGeneration` in `sqliteOperations.ts`) —
+  // this table records what happened, it never decides it.
+  db.exec(`
+        CREATE TABLE IF NOT EXISTS generation_status (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    `);
+
   // Site Configuration Table
   // Stores key-value pairs for site-wide configuration settings
   // Managed through the admin panel's Configuration page
@@ -284,7 +317,7 @@ export function initializeSchema(): void {
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL,
             description TEXT,
-            updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+            updatedAt TEXT DEFAULT ${ISO_8601_UTC_NOW}
         )
     `);
 
@@ -305,6 +338,21 @@ export function initializeSchema(): void {
         ON ${tableName}(contentSource)
     `);
   }
+
+  // Migration note: the content tables' `createdAt` default is
+  // `ISO_8601_UTC_NOW` (see the constant). Databases created before that change
+  // still have `DEFAULT CURRENT_TIMESTAMP`, and SQLite cannot alter a column
+  // default in place. Nothing needs to: every insert path supplies `createdAt`
+  // itself, and the generation-status read normalises the legacy
+  // `"YYYY-MM-DD HH:MM:SS"` shape instead of trusting it.
+  //
+  // A default is fixed when the table is created, so the only way to adopt the
+  // new one is to lose the file: delete `DATABASE_PATH` and restart, and the next
+  // `CREATE TABLE` writes it. `npm run seed:reset` does NOT do this — it removes
+  // seeded rows and nothing else. To check which default a database actually has,
+  // read it rather than assuming:
+  //   SELECT p.dflt_value FROM sqlite_master m JOIN pragma_table_info(m.name) p
+  //   WHERE m.type = 'table' AND p.name = 'createdAt';
 
   debugLog('SQLite schema initialized successfully');
 }
