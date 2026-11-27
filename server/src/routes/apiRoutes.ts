@@ -16,6 +16,8 @@ import slopMeterRoutes from './slopMeterRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import horoscopeRoutes from './horoscopeRoutes.js';
 import recipeRoutes from './recipeRoutes.js';
+import presenceRoutes from './presenceRoutes.js';
+import generationRoutes from './generationRoutes.js';
 
 const router = Router();
 
@@ -37,6 +39,12 @@ router.use('/recipes', recipeRoutes);
 
 // Read-only writer-pipeline status for the client's "Slop meter" (header widget)
 router.use('/slop-meter', slopMeterRoutes);
+
+// Live presence for the header indicator (who is connected right now)
+router.use('/presence', presenceRoutes);
+
+// Read-only generation status (is a producer working on the next edition?)
+router.use('/generation', generationRoutes);
 
 // Admin routes (password protected)
 router.use('/admin', adminRoutes);
