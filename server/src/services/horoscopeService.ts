@@ -4,6 +4,7 @@ import type { ContentPorts } from '../types/contentPorts.js';
 import type { Horoscope, ZodiacSign } from '../types/horoscope.js';
 import { ZODIAC_SIGNS } from '../types/horoscope.js';
 import { getDatabase } from '../lib/database/database.js';
+import { markGeneration } from '../lib/database/sqliteOperations.js';
 import { ports as defaultPorts } from './contentSources/index.js';
 import { LIVE_CONTENT_SOURCE } from '../types/contentSource.js';
 import type { ContentSource } from '../types/contentSource.js';
@@ -112,6 +113,9 @@ export async function generateHoroscopesForDate(
  * The `contentSource` each horoscope carries is written, not left to the column
  * default: a mock set stored as `live` would be indistinguishable from a generated
  * one (roadmap entry 6 of `plans/README.md`). A row without the field gets the default.
+ *
+ * This writes through raw SQL instead of `insert()`, so it records the generation
+ * marker itself — the rest of the content tables get theirs inside `insert()`.
  */
 export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> {
   const db = getDatabase();
@@ -123,14 +127,16 @@ export async function saveHoroscopes(horoscopes: Horoscope[]): Promise<boolean> 
     `);
 
     for (const horoscope of horoscopes) {
+      const writtenAt = horoscope.createdAt || new Date().toISOString();
       stmt.run(
         horoscope.date,
         horoscope.zodiacSign,
         horoscope.content,
         JSON.stringify(horoscope.astrologicalData),
-        horoscope.createdAt || new Date().toISOString(),
+        writtenAt,
         horoscope.contentSource ?? LIVE_CONTENT_SOURCE,
       );
+      markGeneration('horoscopes', writtenAt);
     }
 
     return true;

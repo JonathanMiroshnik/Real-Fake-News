@@ -164,6 +164,40 @@ result of every later step; 5–7 give dev a real write path and only then retir
 crutch; 8–9 finish the job layer; 10–12 touch the fewest files last, so a late change of mind is
 cheap.
 
+### Landed outside the ordered list — 17 November 2026
+
+- [x] **Header presence indicator.** A dot in the header that says whether anyone is reading and
+      whether a new edition is being written, driven by two new read-only server routes.
+      _Why not numbered:_ it is not a step towards anything above and blocks nothing; it was asked
+      for on its own and landed on its own branch (`feature/presence-indicator`).
+
+      - **`POST /api/presence/heartbeat`** — bodies carry a `visitorId` (a UUID minted once per
+        browser and kept in `localStorage`, so two tabs are one reader) and the `path` being read.
+        `services/presenceService.ts` holds them in an in-memory `Map`, pruned on every write, and
+        answers `{ count, ttlMilliseconds, heartbeatIntervalMilliseconds }`. In-memory is the whole
+        design: a restart forgets everyone, which is correct for a count that means "right now",
+        and it keeps the heartbeat off the database.
+      - **`GET /api/generation/status`** — `services/generationStatusService.ts` reads one row
+        from `generation_status` (`lastGenerationAt`) and reports whether that is recent enough
+        that a producer is plausibly still working. The row is written on the write side, by
+        `markGeneration()` inside `insert()` for `blog_posts` / `recipes` and by `saveHoroscopes()`
+        for horoscopes, so the answer is a recorded fact rather than a `MAX(createdAt)` scan of
+        three tables. Covers all three generated content types, because an edition is all of them.
+      - **The freshness rule is "gap shorter than the article cadence"**, read from
+        `ARTICLE_WRITING_CADENCE_MILLISECS` in `config/constants.ts` — the same constant
+        `jobs/scheduler.ts` derives its cron from. Shared on purpose: if the cadence moves, "in
+        progress" moves with it, and the two cannot drift apart.
+      - **Client:** `usePresenceIndicator` polls both routes while the tab is visible (and stops
+        when it is not, so a hidden tab TTL-expires instead of counting as a reader), beats again
+        on every route change. Three states only — green with the count, yellow with "Next edition
+        in progress…", and grey "Status unavailable". A failed request is never rendered as green:
+        the indicator must not claim a reader count or a generation run it could not verify.
+      - **`createdAt`/`updatedAt` now default to ISO-8601 UTC with milliseconds**
+        (`strftime('%Y-%m-%dT%H:%M:%fZ','now')`) instead of `CURRENT_TIMESTAMP`, whose zone-less
+        string `new Date()` reads as local time — a four-hour lie in a UTC-4 container. Existing
+        databases keep their old rows; the freshness service reads the legacy format as UTC.
+        `schema.ts` carries a comment on the migration that is not written.
+
 ## Not yet ordered — next session
 
 These are agreed but deliberately unsequenced, so they stay out of the 7 November commit order.

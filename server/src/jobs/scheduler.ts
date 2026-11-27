@@ -11,7 +11,7 @@
  * horoscope job was registered by nothing at all.
  */
 import { isScheduledJobsEnabled } from '../config/env.js';
-import { DAY_MILLISECS } from '../config/constants.js';
+import { DAY_MILLISECS, ARTICLE_WRITING_CADENCE_MILLISECS } from '../config/constants.js';
 import { JOBS_TIME_SCALE } from '../services/contentSources/index.js';
 import { debugLog, debugWarn } from '../utils/debugLogger.js';
 import { generateScheduledArticles, HALF_DAY_MILLISECS } from './blogWriting.js';
@@ -52,12 +52,18 @@ export type SchedulerHandle = StopSchedule;
 
 /** How often each job runs, before `JOBS_TIME_SCALE` compresses it. */
 const NEWS_FETCH_INTERVAL_HOURS = 2;
+/** The article-writing cadence, defined next to the freshness rule that shares it. */
+const ONE_HOUR_MILLISECS = 60 * 60 * 1000;
 /**
  * Twice a day, not three times: the window this job measures its quota over comes
  * from `blogWriting.ts` (`HALF_DAY_MILLISECS`, itself scaled), so a run more often
  * than the window would only count the same articles again.
+ *
+ * The value lives in `config/constants.ts` because the generation-status route
+ * ("is anything being generated right now?") has to compare a content gap against
+ * the same cadence; two copies would drift.
  */
-const ARTICLE_WRITING_INTERVAL_HOURS = 12;
+const ARTICLE_WRITING_INTERVAL_HOURS = ARTICLE_WRITING_CADENCE_MILLISECS / ONE_HOUR_MILLISECS;
 const NEWS_ARTICLES_TO_ADD = 10;
 
 /** Midnight, every day — the two jobs that operate on one editorial day. */

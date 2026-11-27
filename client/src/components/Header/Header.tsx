@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { DarkModeContext } from '../../contexts/DarkModeContext';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import SlopMeter from '../SlopMeter/SlopMeter';
+import PresenceIndicator from '../PresenceIndicator/PresenceIndicator';
 
 interface HeaderProps {
   /** Array of category names for navigation */
@@ -31,7 +32,15 @@ function Header({ sections }: HeaderProps) {
         />
       </GoogleOAuthProvider> */}
       <div className="flex flex-col items-center w-full">
-        <div className="flex justify-center w-full mb-4">
+        <div className="flex items-center justify-center w-full mb-4 relative">
+          {/*
+            Pinned to the logo's row, top-left, so the count sits level with the
+            logo instead of under it. Absolute so it does not shift the centred
+            logo off the page's centre line.
+          */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 max-[600px]:static max-[600px]:translate-y-0 max-[600px]:mb-2">
+            <PresenceIndicator />
+          </div>
           <h1
             className="m-4 font-serif text-[80px] cursor-pointer 
                           will-change-[filter] transition-[filter] 
