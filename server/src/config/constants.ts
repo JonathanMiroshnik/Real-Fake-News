@@ -16,6 +16,19 @@ const NEWS_API_NUM_OF_ARTICLES_PER_TOKEN = 10;
 // "Recent News" is any article between now and this much time ago:
 const RECENT_NEWS_ARTICLES_TIME_THRESHOLD: number = ONE_HOUR_MILLISECS * 24;
 
+// How often the article-writing job runs (see `ARTICLE_WRITING_INTERVAL_HOURS` in
+// `jobs/scheduler.ts`, which imports this): twice a day, because the quota window it
+// measures itself against is half a day long.
+const ARTICLE_WRITING_INTERVAL_HOURS = 12;
+const ARTICLE_WRITING_CADENCE_MILLISECS = ARTICLE_WRITING_INTERVAL_HOURS * ONE_HOUR_MILLISECS;
+
+// Live presence (header indicator). Code constants, not environment variables:
+// they are UI cadence, not deployment configuration, and `contracts/architecture.md`
+// reserves env vars for values an operator tunes (see `docs/configuration.md`).
+const PRESENCE_HEARTBEAT_INTERVAL_MILLISECS = 15_000;
+/** Three missed beats; below that a single dropped request would flicker the count. */
+const PRESENCE_TTL_MILLISECS = 45_000;
+
 // Article fetching fallback constants (in minutes)
 const MIN_MINUTES_BEFORE_TO_CHECK = 24 * 60; // One day
 const MAX_MINUTES_BEFORE_TO_CHECK = 24 * 60 * 4; // 4 days
@@ -90,6 +103,9 @@ export {
   MILLISECS_IN_SEC,
   DAY_MILLISECS,
   ONE_HOUR_MILLISECS,
+  ARTICLE_WRITING_CADENCE_MILLISECS,
+  PRESENCE_HEARTBEAT_INTERVAL_MILLISECS,
+  PRESENCE_TTL_MILLISECS,
   TEN_MINUTES_MILLISECONDS,
   NEWS_API_BASE_URL,
   NEWS_API_DAILY_TOKENS,
