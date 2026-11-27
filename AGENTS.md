@@ -51,9 +51,9 @@ If you believe a contract is wrong:
 
 ## 4. Everything else in this repo that you should know
 
-- `.clinerules/` — Cline-specific rules: coding style (`basic_styling.md`) and the
-  never-commit-without-instruction rule (`git.md`). These are instructions _to you_; `contracts/`
-  is instructions _about the repo_.
+- `.clinerules/` — Cline-specific rules: coding style (`basic_styling.md`), the
+  never-commit-without-instruction rule (`git.md`), and answer length (`conciseness.md`). These are
+  instructions _to you_; `contracts/` is instructions _about the repo_.
 - `docs/explainers.md` — **building HTML explainers.** Graphs are laid out by an engine, never by
   hand; read this before writing any diagram, and run `npm run check:explainers` after.
 - `README.md` — how to run the stack (`npm run setup`, `docker compose up --build -d`, doctor
