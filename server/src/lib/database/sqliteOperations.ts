@@ -156,6 +156,44 @@ export function deleteMarkedRows(
 }
 
 /**
+ * Tables whose writes mean "a producer committed something new".
+ *
+ * `news_items` and `writers` are deliberately absent: they are inputs and
+ * fixtures, not the content a reader is waiting for. `featured_blog_posts` is
+ * dead (`plans/featured-articles.md`).
+ */
+const GENERATION_SOURCE_TABLES = ['blog_posts', 'recipes', 'horoscopes'] as const;
+
+/** The `generation_status` row the status route reads. */
+const LAST_GENERATION_KEY = 'lastGenerationAt';
+
+/**
+ * Records that a content row was just committed.
+ *
+ * Called after a successful insert, inside `insert()` itself, so no producer can
+ * forget it and no fourth table has to be added to a query somewhere else. The
+ * timestamp is the one the write already used, not a fresh `Date.now()`: the row
+ * and the marker then agree to the millisecond, which is what makes
+ * `lastGenerationAt` comparable with `createdAt` of the same write.
+ *
+ * A failure here is logged, not thrown: the content row is already written, and
+ * losing a status marker must not turn a successful insert into an error.
+ */
+export function markGeneration(tableName: string, writtenAt: string): void {
+  const isGenerationTable = (GENERATION_SOURCE_TABLES as readonly string[]).includes(tableName);
+  if (!isGenerationTable) return;
+
+  try {
+    const db = getDatabase();
+    db.prepare(
+      `INSERT OR REPLACE INTO generation_status (key, value) VALUES (?, ?)`,
+    ).run(LAST_GENERATION_KEY, writtenAt);
+  } catch (error) {
+    console.error('Could not record generation status:', error);
+  }
+}
+
+/**
  * Serializes an object to JSON string, handling undefined/null
  */
 function serializeJson(value: any): string | null {
@@ -241,6 +279,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         article.featuredDate || null,
         contentSourceFor(tableName, article),
       );
+      markGeneration(tableName, timestamp);
     } else if (tableName === 'news_items') {
       const newsItem = row as any;
       const stmt = db.prepare(`
@@ -317,6 +356,7 @@ export async function insert<P>(dbConfig: DatabaseConfig<P>, row: P): Promise<bo
         writerType,
         contentSourceFor(tableName, recipe),
       );
+      markGeneration(tableName, timestamp);
     } else {
       throw new Error(`Unknown table: ${tableName}`);
     }
