@@ -152,6 +152,18 @@
   @apply text-black;
 }
 
+/* Presence indicator light. Same values on both themes: the dot sits on a halo
+   rather than on body text, and these tones clear WCAG AA (4.4:1 or better)
+   against both white and black, so the theme does not need to swap them. */
+:root {
+  --presence-fresh-color: #158a3f;
+  --presence-fresh-halo: rgba(21, 138, 63, 0.22);
+  --presence-generating-color: #a16a00;
+  --presence-generating-halo: rgba(161, 106, 0, 0.25);
+  --presence-unknown-color: #6b7280;
+  --presence-unknown-halo: rgba(107, 114, 128, 0.22);
+}
+
 /* Fallback for when no theme class is applied (initial load) */
 @media (prefers-color-scheme: dark) {
   :root:not(.light-theme):not(.dark-theme) {

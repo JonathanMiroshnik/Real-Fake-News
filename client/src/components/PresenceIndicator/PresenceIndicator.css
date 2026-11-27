@@ -1,0 +1,136 @@
+/*
+ * Presence indicator.
+ *
+ * Colours come from the theme layer (`--presence-*-color`, declared in
+ * `src/index.css`), never from hex values here — `contracts/design.md` requires
+ * components to read the tokens. The same token names flip with the theme class, so
+ * the light stays legible against both backgrounds.
+ */
+
+.presence-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--description-color);
+  white-space: nowrap;
+}
+
+.presence-indicator__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.presence-indicator__count {
+  color: var(--title-color);
+  font-weight: 600;
+}
+
+.presence-indicator__state {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.75rem;
+  color: var(--description-color);
+}
+
+/* The dot: 0.625rem across, with a soft halo drawn by `box-shadow`. */
+.presence-dot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background-color: var(--presence-unknown-color);
+  box-shadow: 0 0 0 0.25rem var(--presence-unknown-halo);
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.presence-dot--fresh {
+  background-color: var(--presence-fresh-color);
+  box-shadow: 0 0 0 0.25rem var(--presence-fresh-halo);
+}
+
+.presence-dot--generating {
+  background-color: var(--presence-generating-color);
+  box-shadow: 0 0 0 0.25rem var(--presence-generating-halo);
+  animation: presence-pulse 1.6s ease-in-out infinite;
+}
+
+.presence-dot--unknown {
+  background-color: var(--presence-unknown-color);
+  box-shadow: 0 0 0 0.25rem var(--presence-unknown-halo);
+}
+
+@keyframes presence-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0.25rem var(--presence-generating-halo);
+  }
+  50% {
+    box-shadow: 0 0 0 0.4rem var(--presence-generating-halo);
+  }
+}
+
+/*
+ * "…" after "Next edition in progress": three dots that fade in in turn.
+ *
+ * Built from pseudo-elements on one span rather than three spans, so the markup
+ * stays a single text node for a screen reader (which reads "Next edition in
+ * progress" — the dots carry no information). `ch` width reserves the space so the
+ * line does not reflow when the animation restarts.
+ */
+.presence-dots::after {
+  content: '';
+  display: inline-block;
+  width: 3ch;
+  text-align: left;
+  animation: presence-dots 1.4s steps(1, end) infinite;
+}
+
+@keyframes presence-dots {
+  0% {
+    content: '.';
+  }
+  25% {
+    content: '..';
+  }
+  50% {
+    content: '...';
+  }
+  75%,
+  100% {
+    content: '';
+  }
+}
+
+/* A reader who asked for less motion gets a steady light and no cycles. */
+@media (prefers-reduced-motion: reduce) {
+  .presence-dot--generating,
+  .presence-dots::after {
+    animation: none;
+  }
+
+  .presence-dot--generating {
+    box-shadow: 0 0 0 0.3rem var(--presence-generating-halo);
+  }
+
+  .presence-dots::after {
+    content: '...';
+  }
+}
+
+/* Narrow screens: the dot alone, with the sentence moved into the title attribute. */
+@media (max-width: 600px) {
+  .presence-indicator {
+    padding: 0 0.5rem;
+  }
+
+  .presence-indicator--compact .presence-indicator__text {
+    display: none;
+  }
+}
