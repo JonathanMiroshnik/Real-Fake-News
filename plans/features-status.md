@@ -109,7 +109,17 @@ by area, with one representative commit as evidence.
 | Article fetching moved from the frontend to the backend                     | `7e88d873`                                     |
 | Database directory relocated outside `server/src` + gitignored              | `8264a6f9`, `e18be4ae`                         |
 
-### 2.5 DevOps, infrastructure & tooling
+### 2.5 Reader-facing signals (2026-11-17, `feature/presence-indicator`)
+
+| Feature                                                                                                                                                                    | Where it lives                                                                                         | Evidence                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| Header presence dot: green with the live connected-reader count, yellow "Next edition in progress…" while content is being written, grey "Status unavailable" on any failure | `client/src/components/PresenceIndicator/`, `client/src/hooks/usePresenceIndicator.ts`                 | `feature/presence-indicator`  |
+| Heartbeat presence registry — in-memory, per visitor, TTL-expired on write, no database involvement                                                                         | `server/src/services/presenceService.ts`, `controllers/presenceController.ts`, `/api/presence/*`        | `feature/presence-indicator`  |
+| Generation-status read: `lastGenerationAt` row in `generation_status`, written by `markGeneration()` on every committed article/recipe/horoscope, "generating" iff that gap is shorter than the article cadence | `server/src/services/generationStatusService.ts`, `lib/database/sqliteOperations.ts`, `/api/generation/status` | `feature/presence-indicator`  |
+| One shared cadence constant, so the article cron and the "in progress" window cannot drift                                                                                 | `ARTICLE_WRITING_CADENCE_MILLISECS` in `server/src/config/constants.ts`, read by `jobs/scheduler.ts`    | `feature/presence-indicator`  |
+| Timestamp defaults switched to ISO-8601 UTC-with-milliseconds (`strftime('%Y-%m-%dT%H:%M:%fZ','now')`); legacy `CURRENT_TIMESTAMP` rows are read as UTC by the freshness read | `server/src/lib/database/schema.ts`                                                                     | `feature/presence-indicator`  |
+
+### 2.6 DevOps, infrastructure & tooling
 
 | Feature                                                                                       | Evidence                           |
 | --------------------------------------------------------------------------------------------- | ---------------------------------- |
