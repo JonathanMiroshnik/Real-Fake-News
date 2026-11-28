@@ -21,10 +21,6 @@ function Header({ sections }: HeaderProps) {
 
   return (
     <header className="w-full mb-8 border-b border-[#cc0000]">
-      {/* Indicator only — read-only, so it sits over the masthead instead of in the nav flow */}
-      <div className="flex justify-end">
-        <SlopMeter />
-      </div>
       {/* <GoogleOAuthProvider clientId="512847879646-rc53sf1m84t99athm9fi99rd32ig7ue9.apps.googleusercontent.com">
         <GoogleLogin
           onSuccess={handleLoginSuccess}
@@ -32,14 +28,30 @@ function Header({ sections }: HeaderProps) {
         />
       </GoogleOAuthProvider> */}
       <div className="flex flex-col items-center w-full">
-        <div className="flex items-center justify-center w-full mb-4 relative">
+        {/*
+          Masthead row: logo centred, both read-only status widgets pinned to the
+          same row so they read as one status band rather than stacked bars.
+          Absolute so neither one shifts the logo off the page's centre line.
+        */}
+        <div className="flex items-center justify-center w-full mb-4 relative max-[720px]:flex-col max-[720px]:gap-2">
           {/*
             Pinned to the logo's row, top-left, so the count sits level with the
-            logo instead of under it. Absolute so it does not shift the centred
-            logo off the page's centre line.
+            logo instead of under it.
           */}
           <div className="absolute left-4 top-1/2 -translate-y-1/2 max-[600px]:static max-[600px]:translate-y-0 max-[600px]:mb-2">
             <PresenceIndicator />
+          </div>
+          {/*
+            Mirrored to the top-right of the same row: the presence light already
+            owns the left, and the two are the only status readouts in the header,
+            so they belong at the same height rather than in separate bands.
+
+            Below 720px the row turns into a column (see the wrapper below), which
+            is what puts this back in the flow. Left as an absolute box it had no
+            row left to sit in and landed on top of the logo.
+          */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 max-[720px]:static max-[720px]:translate-y-0">
+            <SlopMeter />
           </div>
           <h1
             className="m-4 font-serif text-[80px] cursor-pointer 
